@@ -29,4 +29,18 @@ ALTER TABLE plani.ttipo_obligacion_columna
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
     
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT fk__treporte__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
+    REFERENCES plani.ttipo_planilla(id_tipo_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.treporte_columna
+  ADD CONSTRAINT fk__treporte_columna__id_reporte FOREIGN KEY (id_reporte)
+    REFERENCES plani.treporte(id_reporte)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
 /***********************************F-DEP-JRR-PLANI-0-16/01/2014****************************************/
