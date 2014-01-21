@@ -34,6 +34,10 @@ class MODTipoPlanilla extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_proceso_macro','varchar');
+		$this->captura('funcion_validacion_nuevo_empleado','varchar');
+		$this->captura('permitir_mismo_empleado','varchar');
+		$this->captura('periodicidad','varchar');
+		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -56,6 +60,10 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
+		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
+		$this->setParametro('permitir_mismo_empleado','permitir_mismo_empleado','varchar');
+		$this->setParametro('periodicidad','periodicidad','varchar');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -79,7 +87,9 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
-
+		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
+		$this->setParametro('permitir_mismo_empleado','permitir_mismo_empleado','varchar');
+		$this->setParametro('periodicidad','periodicidad','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

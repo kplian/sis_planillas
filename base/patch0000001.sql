@@ -42,7 +42,7 @@ CREATE TABLE plani.ttipo_columna (
 WITHOUT OIDS;
 
 ALTER TABLE plani.ttipo_columna
-  ADD CONSTRAINT chk__ttipo_columna__compromete CHECK (compromete = 'si' or compromete = 'no');
+  ADD CONSTRAINT chk__ttipo_columna__compromete CHECK (compromete = 'si_pago' or compromete = 'si_devengado' or compromete = 'si' or compromete = 'no');
 
 ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT chk__ttipo_columna__tipo_dato CHECK (tipo_dato = 'basica' or
@@ -67,7 +67,7 @@ WITHOUT OIDS;
 ALTER TABLE plani.ttipo_obligacion
   ADD CONSTRAINT chk__ttipo_obligacion__tipo_obligacion CHECK (tipo_obligacion = 'pago_empleados' or
 tipo_obligacion = 'pago_afp' or
-tipo_obligacion = 'pago_comun');
+tipo_obligacion = 'pago_comun' or tipo_obligacion = 'una_obligacion_x_empleado');
 
 
 ALTER TABLE plani.ttipo_obligacion
@@ -160,5 +160,63 @@ ALTER TABLE plani.treporte
   
 ALTER TABLE plani.treporte
   ADD COLUMN ancho_utilizado INTEGER DEFAULT 0 NOT NULL;
+  
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN funcion_validacion_nuevo_empleado VARCHAR(200) NOT NULL;
+  
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN permitir_mismo_empleado VARCHAR(2) NOT NULL;
+  
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN periodicidad VARCHAR(8) NOT NULL;
+  
+CREATE TABLE plani.tafp (
+  id_afp SERIAL, 
+  nombre VARCHAR(300) NOT NULL, 
+  codigo VARCHAR NOT NULL, 
+  CONSTRAINT tafp_pkey PRIMARY KEY(id_afp)
+) INHERITS (pxp.tbase) WITHOUT OIDS;
+
+CREATE TABLE plani.tantiguedad (
+  id_antiguedad SERIAL, 
+  valor_min INTEGER NOT NULL, 
+  valor_max INTEGER NOT NULL, 
+  porcentaje NUMERIC NOT NULL, 
+  CONSTRAINT tantiguedad_pkey PRIMARY KEY(id_antiguedad)
+) INHERITS (pxp.tbase) WITHOUT OIDS;
+
+CREATE TABLE plani.tfuncionario_afp (
+  id_funcionario_afp SERIAL, 
+  id_funcionario INTEGER NOT NULL, 
+  id_afp INTEGER NOT NULL, 
+  nro_afp VARCHAR(100), 
+  tipo_jubilado VARCHAR NOT NULL, 
+  fecha_ini DATE NOT NULL,
+  fecha_fin DATE, 
+  CONSTRAINT tfuncionario_afp_pkey PRIMARY KEY(id_funcionario_afp)
+)INHERITS (pxp.tbase) WITHOUT OIDS;
+
+
+
+
+CREATE TABLE plani.tdescuento_bono (
+  id_descuento_bono SERIAL, 
+  id_tipo_columna INTEGER NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  id_moneda INTEGER NOT NULL, 
+  monto_total NUMERIC, 
+  num_cuotas INTEGER, 
+  valor_por_cuota NUMERIC, 
+  fecha_ini DATE, 
+  fecha_fin DATE, 
+  CONSTRAINT tdescuento_bono_pkey PRIMARY KEY(id_descuento_bono)
+)INHERITS (pxp.tbase) WITHOUT OIDS;
+
+ALTER TABLE plani.ttipo_columna
+  ADD COLUMN finiquito VARCHAR(25) NOT NULL;
+  
+
+ALTER TABLE plani.ttipo_columna
+  ADD CONSTRAINT chk__ttipo_columna__finiquito CHECK (((finiquito)::text = 'ejecutar'::text) OR ((finiquito)::text = 'restar_ejecutado'::text));
 
 /***********************************F-SCP-JRR-PLANI-0-16/01/2014****************************************/

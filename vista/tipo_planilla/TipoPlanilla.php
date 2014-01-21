@@ -145,6 +145,21 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
+		{
+			config:{
+				name: 'funcion_validacion_nuevo_empleado',
+				fieldLabel: 'Funcion valid. nuevo empleado',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 200,
+				maxLength:200
+			},
+				type:'TextField',
+				filters:{pfiltro:'tippla.funcion_validacion_nuevo_empleado',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		
 		{
 			config:{
@@ -163,6 +178,52 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				filters:{	
 	       		         type: 'list',
 	       				 options: ['parametrizacion','ultimo_activo_periodo'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		
+		{
+			config:{
+				name: 'periodicidad',
+				fieldLabel: 'Periodicidad.',
+				allowBlank:false,
+				emptyText:'Periodicidad...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['mensual','anual']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['mensual','anual'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},	
+		
+		{
+			config:{
+				name: 'permitir_mismo_empleado',
+				fieldLabel: 'Repetir empleado por periodo',
+				allowBlank:false,
+				emptyText:'Permitir repetir...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -271,6 +332,9 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'funcion_validacion_nuevo_empleado', type: 'string'},
+		{name:'permitir_mismo_empleado', type: 'string'},
+		{name:'periodicidad', type: 'string'}
 		
 	],
 	sortInfo:{

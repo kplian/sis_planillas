@@ -113,7 +113,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'compromete',
-				fieldLabel: 'Compromete',
+				fieldLabel: 'Presupuesto',
 				allowBlank:false,
 				emptyText:'Compromete...',
 	       		typeAhead: true,
@@ -121,12 +121,35 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['si','no']
+				store:['si','si_devengado','si_pago','no']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['si','no'],	
+	       				 options: ['si','si_devengado','si_pago','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		
+		{
+			config:{
+				name: 'finiquito',
+				fieldLabel: 'En finiquito',
+				allowBlank:false,
+				emptyText:'Finiquito...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['ejecutar','restar_ejecutado']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['ejecutar','restar_ejecutado'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -295,6 +318,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo_descuento_bono', type: 'string'},
 		{name:'tipo_dato', type: 'string'},
 		{name:'codigo', type: 'string'},
+		{name:'finiquito', type: 'string'},
 		{name:'decimales_redondeo', type: 'numeric'},
 		{name:'nombre', type: 'string'},
 		{name:'estado_reg', type: 'string'},

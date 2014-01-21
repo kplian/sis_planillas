@@ -18,6 +18,14 @@ class ACTTipoColumna extends ACTbase{
 			$this->objParam->addFiltro("tipcol.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
 		}
 		
+		if ($this->objParam->getParametro('tipo_descuento_bono') == 'si') {
+			$this->objParam->addFiltro("tipcol.tipo_descuento_bono is not null and tipo_descuento_bono != ''''");
+		}
+		
+		if ($this->objParam->getParametro('presupuesto_pago') == 'si') {
+			$this->objParam->addFiltro("(tipcol.compromete=''si'' or tipcol.compromete=''si_pago'')");
+		}
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODTipoColumna','listarTipoColumna');

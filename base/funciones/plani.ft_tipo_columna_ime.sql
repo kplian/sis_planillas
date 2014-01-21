@@ -62,7 +62,8 @@ BEGIN
 			id_usuario_reg,
 			fecha_reg,
 			fecha_mod,
-			id_usuario_mod
+			id_usuario_mod,
+			finiquito
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.compromete,
@@ -78,7 +79,8 @@ BEGIN
 			p_id_usuario,
 			now(),
 			null,
-			null
+			null,
+			v_parametros.finiquito
 							
 			)RETURNING id_tipo_columna into v_id_tipo_columna;
 			
@@ -113,7 +115,8 @@ BEGIN
 			descripcion = v_parametros.descripcion,
 			formula = v_parametros.formula,
 			fecha_mod = now(),
-			id_usuario_mod = p_id_usuario
+			id_usuario_mod = p_id_usuario,
+			finiquito = v_parametros.finiquito
 			where id_tipo_columna=v_parametros.id_tipo_columna;
                
 			--Definicion de la respuesta
