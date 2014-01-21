@@ -16,7 +16,7 @@ class MODFuncionarioAfp extends MODbase{
 	function listarFuncionarioAfp(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_funcionario_afp_sel';
-		$this->transaccion='PLA_AFP_SEL';
+		$this->transaccion='PLA_FUNAFP_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
 		//Definicion de la lista del resultado del query
@@ -47,7 +47,7 @@ class MODFuncionarioAfp extends MODbase{
 	function insertarFuncionarioAfp(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='plani.ft_funcionario_afp_ime';
-		$this->transaccion='PLA_AFP_INS';
+		$this->transaccion='PLA_FUNAFP_INS';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
@@ -70,7 +70,7 @@ class MODFuncionarioAfp extends MODbase{
 	function modificarFuncionarioAfp(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='plani.ft_funcionario_afp_ime';
-		$this->transaccion='PLA_AFP_MOD';
+		$this->transaccion='PLA_FUNAFP_MOD';
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion

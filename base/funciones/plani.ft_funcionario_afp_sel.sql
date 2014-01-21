@@ -30,13 +30,13 @@ BEGIN
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_AFP_SEL'
+ 	#TRANSACCION:  'PLA_FUNAFP_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:		admin	
  	#FECHA:		20-01-2014 16:05:08
 	***********************************/
 
-	if(p_transaccion='PLA_AFP_SEL')then
+	if(p_transaccion='PLA_FUNAFP_SEL')then
      				
     	begin
     		--Sentencia de la consulta
@@ -72,13 +72,13 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_AFP_CONT'
+ 	#TRANSACCION:  'PLA_FUNAFP_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		admin	
  	#FECHA:		20-01-2014 16:05:08
 	***********************************/
 
-	elsif(p_transaccion='PLA_AFP_CONT')then
+	elsif(p_transaccion='PLA_FUNAFP_CONT')then
 
 		begin
 			--Sentencia de la consulta de conteo de registros

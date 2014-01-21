@@ -34,13 +34,13 @@ BEGIN
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_AFP_INS'
+ 	#TRANSACCION:  'PLA_FUNAFP_INS'
  	#DESCRIPCION:	Insercion de registros
  	#AUTOR:		admin	
  	#FECHA:		20-01-2014 16:05:08
 	***********************************/
 
-	if(p_transaccion='PLA_AFP_INS')then
+	if(p_transaccion='PLA_FUNAFP_INS')then
 					
         begin
         	select max(fecha_ini) into v_max_fecha_ini
@@ -90,13 +90,13 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_AFP_MOD'
+ 	#TRANSACCION:  'PLA_FUNAFP_MOD'
  	#DESCRIPCION:	Modificacion de registros
  	#AUTOR:		admin	
  	#FECHA:		20-01-2014 16:05:08
 	***********************************/
 
-	elsif(p_transaccion='PLA_AFP_MOD')then
+	elsif(p_transaccion='PLA_FUNAFP_MOD')then
 
 		begin
 			--Sentencia de la modificacion
@@ -120,13 +120,13 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_AFP_ELI'
+ 	#TRANSACCION:  'PLA_FUNAFP_ELI'
  	#DESCRIPCION:	Eliminacion de registros
  	#AUTOR:		admin	
  	#FECHA:		20-01-2014 16:05:08
 	***********************************/
 
-	elsif(p_transaccion='PLA_AFP_ELI')then
+	elsif(p_transaccion='PLA_FUNAFP_ELI')then
 
 		begin
 			--Sentencia de la eliminacion
