@@ -71,6 +71,105 @@ ALTER TABLE plani.tdescuento_bono
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
     
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_periodo FOREIGN KEY (id_periodo)
+    REFERENCES param.tperiodo(id_periodo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_gestion FOREIGN KEY (id_gestion)
+    REFERENCES param.tgestion(id_gestion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_uo FOREIGN KEY (id_uo)
+    REFERENCES orga.tuo(id_uo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
+    REFERENCES plani.ttipo_planilla(id_tipo_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_proceso_macro FOREIGN KEY (id_proceso_macro)
+    REFERENCES wf.tproceso_macro(id_proceso_macro)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_proceso_wf FOREIGN KEY (id_proceso_wf)
+    REFERENCES wf.tproceso_wf(id_proceso_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_estado_wf FOREIGN KEY (id_estado_wf)
+    REFERENCES wf.testado_wf(id_estado_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk__tplanilla__id_depto FOREIGN KEY (id_depto)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tfuncionario_planilla  
+	ADD CONSTRAINT fk__tfuncionario_planilla__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tfuncionario_planilla  
+	ADD CONSTRAINT fk__tfuncionario_planilla__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES plani.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tfuncionario_planilla  
+	ADD CONSTRAINT fk__tfuncionario_planilla__id_lugar FOREIGN KEY (id_lugar)
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tfuncionario_planilla  
+	ADD CONSTRAINT fk__tfuncionario_planilla__id_uo_funcionario FOREIGN KEY (id_uo_funcionario)
+    REFERENCES orga.tuo_funcionario(id_uo_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.thoras_trabajadas
+	ADD CONSTRAINT fk__thoras_trabajadas__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
+    REFERENCES plani.tfuncionario_planilla (id_funcionario_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.thoras_trabajadas
+	ADD CONSTRAINT fk__thoras_trabajadas__id_uo_funcionario FOREIGN KEY (id_uo_funcionario)
+    REFERENCES orga.tuo_funcionario(id_uo_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
 
 
 /***********************************F-DEP-JRR-PLANI-0-16/01/2014****************************************/

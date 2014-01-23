@@ -103,7 +103,7 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 					fields: ['id_proceso_macro', 'nombre', 'codigo'],
 					// turn on remote sorting
 					remoteSort: true,
-					baseParams: {par_filtro: 'promac.nombre#promac.codigo',codigo_subsistema:'ADQ'}
+					baseParams: {par_filtro: 'promac.nombre#promac.codigo',codigo_subsistema:'PLANI'}
 				}),
 				valueField: 'id_proceso_macro',
 				displayField: 'nombre',

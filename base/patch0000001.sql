@@ -70,13 +70,9 @@ tipo_obligacion = 'pago_afp' or
 tipo_obligacion = 'pago_comun' or tipo_obligacion = 'una_obligacion_x_empleado');
 
 
-ALTER TABLE plani.ttipo_obligacion
-  ADD CONSTRAINT chk__ttipo_obligacion__tipo_obligacion CHECK ((((tipo_obligacion)::text = 'pago_empleados'::text) OR ((tipo_obligacion)::text = 'pago_afp'::text)) OR ((tipo_obligacion)::text = 'pago_comun'::text));
-
-
 CREATE TABLE plani.ttipo_obligacion_columna (
   id_tipo_obligacion_columna SERIAL NOT NULL, 
-  id_tipo_obligacion INTEGER NOT NULL
+  id_tipo_obligacion INTEGER NOT NULL,
   codigo_columna VARCHAR(30) NOT NULL, 
   pago VARCHAR(2) NOT NULL, 
   presupuesto VARCHAR(2) NOT NULL, 
@@ -140,7 +136,7 @@ CREATE TABLE plani.treporte_columna (
   codigo_columna VARCHAR(30) NOT NULL, 
   sumar_total VARCHAR(2) NOT NULL, 
   ancho_columna INTEGER NOT NULL, 
-  orden INTEGER NOT NULL
+  orden INTEGER NOT NULL,
   PRIMARY KEY(id_reporte_columna)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -218,5 +214,55 @@ ALTER TABLE plani.ttipo_columna
 
 ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT chk__ttipo_columna__finiquito CHECK (((finiquito)::text = 'ejecutar'::text) OR ((finiquito)::text = 'restar_ejecutado'::text));
+  
+CREATE TABLE plani.tplanilla (
+  id_planilla SERIAL NOT NULL, 
+  id_gestion INTEGER NOT NULL,
+  id_depto INTEGER NOT NULL,
+  id_periodo INTEGER,
+  nro_planilla VARCHAR(100) NOT NULL,
+  id_uo INTEGER,
+  id_tipo_planilla INTEGER NOT NULL,
+  observaciones TEXT,
+  id_proceso_macro INTEGER NOT NULL,
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  estado VARCHAR(50) NOT NULL, 
+  PRIMARY KEY(id_planilla)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.tfuncionario_planilla (
+  id_funcionario_planilla SERIAL NOT NULL, 
+  id_funcionario INTEGER NOT NULL,
+  id_planilla INTEGER NOT NULL,
+  id_uo_funcionario INTEGER NOT NULL,
+  id_lugar INTEGER NOT NULL,
+  forzar_cheque VARCHAR(2) NOT NULL,
+  finiquito VARCHAR(2) NOT NULL, 
+  PRIMARY KEY(id_funcionario_planilla)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.thoras_trabajadas (
+  id_horas_trabajadas SERIAL NOT NULL, 
+  id_uo_funcionario INTEGER NOT NULL,
+  id_funcionario_planilla INTEGER NOT NULL,
+  horas_normales NUMERIC(10,2) DEFAULT 0 NOT NULL, 
+  horas_extras NUMERIC(10,2) DEFAULT 0 NOT NULL, 
+  horas_nocturnas NUMERIC(10,2) DEFAULT 0 NOT NULL, 
+  horas_disponibilidad NUMERIC(10,2) DEFAULT 0 NOT NULL, 
+  tipo_contrato VARCHAR(10) NOT NULL, 
+  PRIMARY KEY(id_horas_trabajadas)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD CONSTRAINT chk__tfuncionario_planilla__finiquito 
+  CHECK (finiquito = 'si' or finiquito = 'no');
+  
+ALTER TABLE plani.tfuncionario_planilla
+  ADD CONSTRAINT chk__tfuncionario_planilla__forzar_cheque 
+  CHECK (forzar_cheque = 'si' or forzar_cheque = 'no');
 
 /***********************************F-SCP-JRR-PLANI-0-16/01/2014****************************************/
