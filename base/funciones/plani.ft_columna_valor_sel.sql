@@ -1,13 +1,13 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_tipo_planilla_sel"(	
+CREATE OR REPLACE FUNCTION "plani"."ft_columna_valor_sel"(	
 				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
 RETURNS character varying AS
 $BODY$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
- FUNCION: 		plani.ft_tipo_planilla_sel
- DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'plani.ttipo_planilla'
+ FUNCION: 		plani.ft_columna_valor_sel
+ DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'plani.tcolumna_valor'
  AUTOR: 		 (admin)
- FECHA:	        17-01-2014 15:36:53
+ FECHA:	        27-01-2014 04:53:54
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
@@ -26,42 +26,43 @@ DECLARE
 			    
 BEGIN
 
-	v_nombre_funcion = 'plani.ft_tipo_planilla_sel';
+	v_nombre_funcion = 'plani.ft_columna_valor_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_TIPPLA_SEL'
+ 	#TRANSACCION:  'PLA_COLVAL_SEL'
  	#DESCRIPCION:	Consulta de datos
  	#AUTOR:		admin	
- 	#FECHA:		17-01-2014 15:36:53
+ 	#FECHA:		27-01-2014 04:53:54
 	***********************************/
 
-	if(p_transaccion='PLA_TIPPLA_SEL')then
+	if(p_transaccion='PLA_COLVAL_SEL')then
      				
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						tippla.id_tipo_planilla,
-						tippla.id_proceso_macro,
-						tippla.tipo_presu_cc,
-						tippla.funcion_obtener_empleados,
-						tippla.estado_reg,
-						tippla.nombre,
-						tippla.codigo,
-						tippla.fecha_reg,
-						tippla.id_usuario_reg,
-						tippla.id_usuario_mod,
-						tippla.fecha_mod,
+						colval.id_columna_valor,
+						colval.id_tipo_columna,
+						colval.id_funcionario_planilla,
+						colval.codigo_columna,
+						colval.estado_reg,
+						colval.valor,
+						colval.valor_generado,
+						colval.formula,
+						colval.fecha_reg,
+						colval.id_usuario_reg,
+						colval.fecha_mod,
+						colval.id_usuario_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-						pm.nombre,
-						tippla.funcion_validacion_nuevo_empleado,
-						tippla.calculo_horas,
-						tippla.periodicidad
-						from plani.ttipo_planilla tippla
-						inner join segu.tusuario usu1 on usu1.id_usuario = tippla.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = tippla.id_usuario_mod
-						inner join wf.tproceso_macro  pm on pm.id_proceso_macro = tippla.id_proceso_macro
+						tipcol.nombre,
+						pla.estado
+						from plani.tcolumna_valor colval
+						inner join segu.tusuario usu1 on usu1.id_usuario = colval.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = colval.id_usuario_mod
+						inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna = colval.id_tipo_columna
+						inner join plani.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
+						inner join plani.tplanilla pla on pla.id_planilla = funpla.id_planilla
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -74,21 +75,23 @@ BEGIN
 		end;
 
 	/*********************************    
- 	#TRANSACCION:  'PLA_TIPPLA_CONT'
+ 	#TRANSACCION:  'PLA_COLVAL_CONT'
  	#DESCRIPCION:	Conteo de registros
  	#AUTOR:		admin	
- 	#FECHA:		17-01-2014 15:36:53
+ 	#FECHA:		27-01-2014 04:53:54
 	***********************************/
 
-	elsif(p_transaccion='PLA_TIPPLA_CONT')then
+	elsif(p_transaccion='PLA_COLVAL_CONT')then
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_tipo_planilla)
-					    from plani.ttipo_planilla tippla
-					    inner join segu.tusuario usu1 on usu1.id_usuario = tippla.id_usuario_reg
-						left join segu.tusuario usu2 on usu2.id_usuario = tippla.id_usuario_mod
-						inner join wf.tproceso_macro  pm on pm.id_proceso_macro = tippla.id_proceso_macro
+			v_consulta:='select count(id_columna_valor)
+					    from plani.tcolumna_valor colval
+					    inner join segu.tusuario usu1 on usu1.id_usuario = colval.id_usuario_reg
+						left join segu.tusuario usu2 on usu2.id_usuario = colval.id_usuario_mod
+						inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna = colval.id_tipo_columna
+						inner join plani.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
+						inner join plani.tplanilla pla on pla.id_planilla = funpla.id_planilla
 					    where ';
 			
 			--Definicion de la respuesta		    
@@ -117,4 +120,4 @@ END;
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE
 COST 100;
-ALTER FUNCTION "plani"."ft_tipo_planilla_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
+ALTER FUNCTION "plani"."ft_columna_valor_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

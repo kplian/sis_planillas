@@ -35,7 +35,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_proceso_macro','varchar');
 		$this->captura('funcion_validacion_nuevo_empleado','varchar');
-		$this->captura('permitir_mismo_empleado','varchar');
+		$this->captura('calculo_horas','varchar');
 		$this->captura('periodicidad','varchar');
 		
 		
@@ -61,7 +61,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
-		$this->setParametro('permitir_mismo_empleado','permitir_mismo_empleado','varchar');
+		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
 		
 
@@ -88,7 +88,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
-		$this->setParametro('permitir_mismo_empleado','permitir_mismo_empleado','varchar');
+		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();

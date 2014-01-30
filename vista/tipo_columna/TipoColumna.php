@@ -334,7 +334,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		
 	],
 	sortInfo:{
-		field: 'id_tipo_columna',
+		field: 'orden',
 		direction: 'ASC'
 	},
 	bdel:true,

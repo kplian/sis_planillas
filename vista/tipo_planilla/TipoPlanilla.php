@@ -209,10 +209,10 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		
 		{
 			config:{
-				name: 'permitir_mismo_empleado',
-				fieldLabel: 'Repetir empleado por periodo',
+				name: 'calculo_horas',
+				fieldLabel: 'Existe Calculo de Horas?',
 				allowBlank:false,
-				emptyText:'Permitir repetir...',
+				emptyText:'Calculo horas...',
 	       		typeAhead: true,
 	       		triggerAction: 'all',
 	       		lazyRender:true,
@@ -333,7 +333,7 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'funcion_validacion_nuevo_empleado', type: 'string'},
-		{name:'permitir_mismo_empleado', type: 'string'},
+		{name:'calculo_horas', type: 'string'},
 		{name:'periodicidad', type: 'string'}
 		
 	],

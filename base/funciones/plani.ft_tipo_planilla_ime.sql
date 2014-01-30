@@ -56,7 +56,7 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
 			funcion_validacion_nuevo_empleado,
-			permitir_mismo_empleado,
+			calculo_horas,
 			periodicidad
           	) values(
 			v_parametros.id_proceso_macro,
@@ -70,7 +70,7 @@ BEGIN
 			null,
 			null,
 			v_parametros.funcion_validacion_nuevo_empleado,
-			v_parametros.permitir_mismo_empleado,
+			v_parametros.calculo_horas,
 			v_parametros.periodicidad
 							
 			)RETURNING id_tipo_planilla into v_id_tipo_planilla;
@@ -103,7 +103,7 @@ BEGIN
 			codigo = v_parametros.codigo,
 			id_usuario_mod = p_id_usuario,
 			funcion_validacion_nuevo_empleado = v_parametros.funcion_validacion_nuevo_empleado,
-			permitir_mismo_empleado = v_parametros.permitir_mismo_empleado,
+			calculo_horas = v_parametros.calculo_horas,
 			periodicidad = v_parametros.periodicidad,
 			fecha_mod = now()
 			where id_tipo_planilla=v_parametros.id_tipo_planilla;

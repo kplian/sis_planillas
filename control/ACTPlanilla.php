@@ -39,6 +39,12 @@ class ACTPlanilla extends ACTbase{
 		$this->res=$this->objFunc->eliminarPlanilla($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+	
+	function ejecutarProcesoPlanilla(){
+		$this->objFunc=$this->create('MODPlanilla');
+		$this->res=$this->objFunc->ejecutarProcesoPlanilla($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
 			
 }
 

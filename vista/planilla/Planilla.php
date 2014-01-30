@@ -18,7 +18,128 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.Planilla.superclass.constructor.call(this,config);
 		this.init();
 		this.iniciarEventos();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		this.load({params:{start:0, limit:this.tam_pag}});
+			
+		this.addButton('btnHoras',
+            {
+                iconCls: 'bclock',
+                disabled: false,
+                tooltip: 'Gestion de Horas Trabajadas',
+                xtype: 'splitbutton',
+                menu: [{
+                    text: 'Generar Horas',
+                    id: 'btnHorasGenerar-' + this.idContenedor,
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'horasGenerar' },
+                    tooltip: 'Generar Horas Trabajadas',
+                    scope: this
+                }, {
+                    text: 'Detalle Horas',
+                    id: 'btnHorasDetalle-' + this.idContenedor,
+                    handler: this.onButtonHorasDetalle,
+                    tooltip: 'Detalle Horas Trabajadas',
+                    scope: this
+                }, {
+                    text: 'Validar Horas',
+                    id: 'btnHorasValidar-' + this.idContenedor,
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'horasValidar' },
+                    tooltip: 'Detalle Horas Trabajadas',
+                    scope: this
+                }]
+            }
+        );
+        
+        this.addButton('btnColumnas',
+            {
+                iconCls: 'bcalculator',
+                disabled: false,
+                tooltip: 'Gestion de Columnas',
+                xtype: 'splitbutton',
+                menu: [{
+                    text: 'Calcular Columnas',
+                    id: 'btnColumnasCalcular-' + this.idContenedor,
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'columnasCalcular' },
+                    tooltip: 'Calcular Columnas',
+                    scope: this
+                }, {
+                    text: 'Detalle Columnas',
+                    id: 'btnColumnasDetalle-' + this.idContenedor,
+                    handler: this.onButtonColumnasDetalle,
+                    tooltip: 'Detalle de Columnas por Empleado',
+                    scope: this
+                }, {
+                    text: 'Subir Columnas desde CSV',
+                    id: 'btnColumnasCsv-' + this.idContenedor,
+                    handler: this.onButtonColumnasCsv,
+                    tooltip: 'Subir Columnas desde archivo Csv',
+                    scope: this
+                }, {
+                    text: 'Validar Columnas',
+                    id: 'btnColumnasValidar-' + this.idContenedor,
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'columnasValidar' },
+                    tooltip: 'Validar Calculo de Columnas',
+                    scope: this
+                }]
+            }
+        );
+        
+        this.addButton('btnPresupuestos',
+            {
+                iconCls: 'bstats',
+                disabled: false,
+                tooltip: 'Gestion de Presupuestos',
+                xtype: 'splitbutton',
+                menu: [{
+                    text: 'Generar Presupuestos',
+                    id: 'btnPresupuestos-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosGenerar,
+                    tooltip: 'Generar Porcentajes Presupuestarios por Empleado',
+                    scope: this
+                }, {
+                    text: 'Consolidar Presupuestos',
+                    id: 'btnPresupuestosConsolidar-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosConsolidar,
+                    tooltip: 'Consolidar Presupuestos',
+                    scope: this
+                }, {
+                    text: 'Presupuestos Consolidados',
+                    id: 'btnPresupuestosConsolidado-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosConsolidado,
+                    tooltip: 'Presupuestos Consolidados por Columnas',
+                    scope: this
+                }, {
+                    text: 'Generar Comprobante Presupuestario',
+                    id: 'btnPresupuestosComprobante-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosComprobante,
+                    tooltip: 'Generar Comprobante Presupuestario',
+                    scope: this
+                }]
+            }
+        );
+        this.addButton('btnObligaciones',
+            {
+                iconCls: 'bmoney',
+                disabled: false,
+                tooltip: 'Gestión de Obligaciones',
+                xtype: 'splitbutton',
+                menu: [{
+                    text: 'Generar Obligaciones',
+                    id: 'btnObligacionesGenerar-' + this.idContenedor,
+                    handler: this.onButtonObligacionesGenerar,
+                    tooltip: 'Generar Obligaciones',
+                    scope: this
+                }, {
+                    text: 'Detalle de Obligaciones',
+                    id: 'btnObligacionesDetalle-' + this.idContenedor,
+                    handler: this.onButtonObligacionesDetalle,
+                    tooltip: 'Detalle de Obligaciones',
+                    scope: this
+                }]
+            }
+        );
 	},
 			
 	Atributos:[
@@ -43,7 +164,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
 	   				width:250,
    			        gwidth:180,
-	   				baseParams:{estado:'activo',codigo_subsistema:'PLANI'},//parametros adicionales que se le pasan al store
+	   				baseParams:{estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
 	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
    			},
    			//type:'TrigguerCombo',
@@ -303,6 +424,9 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'gestion', type: 'numeric'},
 		{name:'periodo', type: 'numeric'},
 		{name:'codigo_planilla', type: 'string'},
+		{name:'calculo_horas', type: 'string'},
+		{name:'plani_tiene_presupuestos', type: 'string'},
+		{name:'plani_tiene_costos', type: 'string'},
 		{name:'desc_uo', type: 'string'},
 		{name:'id_uo', type: 'numeric'},
 		{name:'id_tipo_planilla', type: 'numeric'},
@@ -353,6 +477,44 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	Phx.vista.Planilla.superclass.onButtonEdit.call(this);
     	
     },
+    onButtonAjax : function (params){
+    	var rec = this.sm.getSelected();		
+		Ext.Ajax.request({
+				url:'../../sis_planillas/control/Planilla/ejecutarProcesoPlanilla',
+				success:this.successDel,
+				failure:this.conexionFailure,
+				params:{'id_planilla':rec.data.id_planilla, 'accion':params.argument.accion},
+				timeout:this.timeout,
+				scope:this
+			})
+    	    	
+    },
+    onButtonHorasDetalle : function() {
+    	var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/horas_trabajadas/HorasTrabajadas.php',
+                    'Horas Trabajadas por Empleado',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'HorasTrabajadas');
+    },
+    onButtonColumnasDetalle : function() {
+    	var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/funcionario_planilla/FuncionarioPlanillaColumna.php',
+                    'Detalle de Columnas por Empleado',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'FuncionarioPlanillaColumna');
+    },
     onButtonNew : function () {
     	this.mostrarComponente(this.Cmp.id_depto);
     	this.mostrarComponente(this.Cmp.id_tipo_planilla);
@@ -361,7 +523,67 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.mostrarComponente(this.Cmp.id_gestion);
     	Phx.vista.Planilla.superclass.onButtonNew.call(this);
     	
-    }
+    },
+    preparaMenu:function()
+    {	var rec = this.sm.getSelected();
+        this.desactivarMenu();
+        
+        
+        //MANEJO DEL BOTON DE GESTION DE HORAS      
+        if (rec.data.calculo_horas == 'si') {
+        	this.getBoton('btnHoras').enable(); 
+        	if (rec.data.estado == 'registro_funcionarios' ) {        		
+        		this.getBoton('btnHoras').menu.items.items[0].enable();
+        		this.getBoton('btnHoras').menu.items.items[1].disable();
+        		this.getBoton('btnHoras').menu.items.items[2].disable();        		     		
+        	} else if (rec.data.estado == 'registro_horas') {
+        		this.getBoton('btnHoras').menu.items.items[0].disable();
+        		this.getBoton('btnHoras').menu.items.items[1].enable();
+        		this.getBoton('btnHoras').menu.items.items[2].enable();  
+        	} else {
+        		this.getBoton('btnHoras').menu.items.items[0].disable();
+        		this.getBoton('btnHoras').menu.items.items[1].enable();
+        		this.getBoton('btnHoras').menu.items.items[2].disable();
+        	}
+        }
+        
+        //MANEJO DEL BOTON DE GESTION DE COLUMNAS
+        if (rec.data.estado != 'registro_horas' && rec.data.estado != 'registro_funcionarios') {
+        	this.getBoton('btnColumnas').enable();
+        } 
+        if (rec.data.estado == 'calculo_columnas' ) { 
+        	this.getBoton('btnColumnas').menu.items.items[0].enable();
+        	this.getBoton('btnColumnas').menu.items.items[1].enable();
+        	this.getBoton('btnColumnas').menu.items.items[2].enable();
+        	this.getBoton('btnColumnas').menu.items.items[3].enable();
+        } else {
+        	this.getBoton('btnColumnas').menu.items.items[1].enable();
+        	this.getBoton('btnColumnas').menu.items.items[0].disable();
+        	this.getBoton('btnColumnas').menu.items.items[2].disable();
+        	this.getBoton('btnColumnas').menu.items.items[3].disable();
+        }
+        Phx.vista.Planilla.superclass.preparaMenu.call(this);
+    },
+    liberaMenu:function()
+    {	
+        this.desactivarMenu(); 
+        Phx.vista.Planilla.superclass.liberaMenu.call(this);
+    },
+    desactivarMenu:function() {
+    	
+    	this.getBoton('del').disable();    	
+    	this.getBoton('btnHoras').disable();     	
+        this.getBoton('btnColumnas').disable();        
+        this.getBoton('btnPresupuestos').disable(); 
+        this.getBoton('btnObligaciones').disable(); 
+        
+    },
+    south:{
+		  url:'../../../sis_planillas/vista/funcionario_planilla/FuncionarioPlanilla.php',
+		  title:'Funcionarios', 
+		  height:'50%',
+		  cls:'FuncionarioPlanilla'
+	}
    }
 )
 </script>

@@ -43,7 +43,10 @@ class MODPlanilla extends MODbase{
 		$this->captura('codigo_planilla','varchar');
 		$this->captura('desc_uo','varchar');
 		$this->captura('id_depto','int4');
-		$this->captura('nombre_depto','varchar');			
+		$this->captura('nombre_depto','varchar');
+		$this->captura('calculo_horas','varchar');
+		$this->captura('plani_tiene_presupuestos','varchar');
+		$this->captura('plani_tiene_costos','varchar');			
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -112,6 +115,33 @@ class MODPlanilla extends MODbase{
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='plani.ft_planilla_ime';
 		$this->transaccion='PLA_PLANI_ELI';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function ejecutarProcesoPlanilla(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_ime';
+		if ($this->arreglo['accion'] == 'horasGenerar'){
+			$this->transaccion='PLA_PLANIGENHOR_MOD';
+		} else if ($this->arreglo['accion'] == 'horasValidar') {
+			$this->transaccion='PLA_PLANIVALHOR_MOD';
+		} else if ($this->arreglo['accion'] == 'columnasCalcular') {
+			$this->transaccion='PLA_PLANICALCOL_MOD';
+		} else if ($this->arreglo['accion'] == 'columnasValidar') {
+			$this->transaccion='PLA_PLANIVALCOL_MOD';
+		}
+		
+		
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion

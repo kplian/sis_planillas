@@ -33,7 +33,7 @@ CREATE TABLE plani.ttipo_columna (
   tipo_dato VARCHAR(30) NOT NULL, 
   descripcion TEXT NOT NULL, 
   formula VARCHAR(255), 
-  compromete VARCHAR(2) NOT NULL, 
+  compromete VARCHAR(15) NOT NULL, 
   tipo_descuento_bono VARCHAR(30), 
   decimales_redondeo INTEGER NOT NULL, 
   orden INTEGER NOT NULL,
@@ -161,7 +161,7 @@ ALTER TABLE plani.ttipo_planilla
   ADD COLUMN funcion_validacion_nuevo_empleado VARCHAR(200) NOT NULL;
   
 ALTER TABLE plani.ttipo_planilla
-  ADD COLUMN permitir_mismo_empleado VARCHAR(2) NOT NULL;
+  ADD COLUMN calculo_horas VARCHAR(2) NOT NULL;
   
 ALTER TABLE plani.ttipo_planilla
   ADD COLUMN periodicidad VARCHAR(8) NOT NULL;
@@ -253,6 +253,10 @@ CREATE TABLE plani.thoras_trabajadas (
   horas_nocturnas NUMERIC(10,2) DEFAULT 0 NOT NULL, 
   horas_disponibilidad NUMERIC(10,2) DEFAULT 0 NOT NULL, 
   tipo_contrato VARCHAR(10) NOT NULL, 
+  sueldo NUMERIC(18,2) NOT NULL, 
+  fecha_ini DATE NOT NULL, 
+  fecha_fin DATE NOT NULL, 
+  porcentaje_sueldo NUMERIC(18,2),
   PRIMARY KEY(id_horas_trabajadas)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -264,5 +268,23 @@ ALTER TABLE plani.tfuncionario_planilla
 ALTER TABLE plani.tfuncionario_planilla
   ADD CONSTRAINT chk__tfuncionario_planilla__forzar_cheque 
   CHECK (forzar_cheque = 'si' or forzar_cheque = 'no');
+  
+CREATE TABLE plani.tcolumna_valor (
+  id_columna_valor SERIAL NOT NULL,
+  id_tipo_columna INTEGER NOT NULL,
+  id_funcionario_planilla INTEGER NOT NULL, 
+  codigo_columna VARCHAR(30) NOT NULL, 
+  formula VARCHAR(255), 
+  valor NUMERIC(18,2) NOT NULL, 
+  valor_generado NUMERIC(18,2) NOT NULL,  
+  PRIMARY KEY(id_columna_valor)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+ALTER TABLE plani.thoras_trabajadas
+  ADD COLUMN zona_franca VARCHAR(2);
+  
+ALTER TABLE plani.thoras_trabajadas
+  ADD COLUMN frontera VARCHAR(2);
 
 /***********************************F-SCP-JRR-PLANI-0-16/01/2014****************************************/

@@ -204,13 +204,62 @@ select pxp.f_insert_tprocedimiento_gui ('SEG_PERSONMIN_SEL', 'FUNPLAN.4', 'no');
 
 /* Data for the 'plani.ttipo_planilla' table  (Records 1 - 2) */
 
-INSERT INTO plani.ttipo_planilla ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_planilla", "codigo", "nombre", "id_proceso_macro", "funcion_obtener_empleados", "tipo_presu_cc", "funcion_validacion_nuevo_empleado", "permitir_mismo_empleado", "periodicidad")
-VALUES (1, NULL, E'2014-01-22 20:40:51.747', NULL, E'activo', 1, E'PLASUE', E'Planilla de Sueldos', 5, E'xxx', E'parametrizacion', E'xxx', E'no', E'mensual');
+INSERT INTO plani.ttipo_planilla ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_planilla", "codigo", "nombre", "id_proceso_macro", "funcion_obtener_empleados", "tipo_presu_cc", "funcion_validacion_nuevo_empleado", "periodicidad", "calculo_horas")
+VALUES (1, NULL, E'2014-01-22 20:40:51.747', NULL, E'activo', 1, E'PLASUE', E'Planilla de Sueldos', 5, E'plani.f_plasue_insert_empleados', E'parametrizacion', E'plani.f_plasue_valid_empleado', E'mensual', E'si');
 
-INSERT INTO plani.ttipo_planilla ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_planilla", "codigo", "nombre", "id_proceso_macro", "funcion_obtener_empleados", "tipo_presu_cc", "funcion_validacion_nuevo_empleado", "permitir_mismo_empleado", "periodicidad")
-VALUES (1, NULL, E'2014-01-22 21:21:04.374', NULL, E'activo', 2, E'PLAGUI', E'Planilla de Aguinaldos', 5, E'xxxx', E'ultimo_activo_periodo', E'xxx', E'no', E'anual');
+INSERT INTO plani.ttipo_planilla ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_planilla", "codigo", "nombre", "id_proceso_macro", "funcion_obtener_empleados", "tipo_presu_cc", "funcion_validacion_nuevo_empleado", "periodicidad", "calculo_horas")
+VALUES (1, NULL, E'2014-01-22 21:21:04.374', NULL, E'activo', 2, E'PLAGUI', E'Planilla de Aguinaldos', 5, E'xxxx', E'ultimo_activo_periodo', E'xxx', E'anual', E'no');
 
 INSERT INTO param.tdocumento ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_documento", "id_subsistema", "codigo", "descripcion", "periodo_gestion", "tipo", "tipo_numeracion", "formato")
 VALUES (1, NULL, E'2014-01-23 00:32:26', E'2014-01-23 00:32:26', E'activo', 10, 13, E'PLASUE', E'Planilla de Sueldos', E'periodo', NULL, E'depto', NULL);
+
+select pxp.f_insert_tgui ('Registro de Planillas', 'Registro de Planillas', 'REGPLAN', 'si', 1, 'sis_planillas/vista/planilla/Planilla.php', 2, '', 'Planilla', 'PLANI');
+select pxp.f_insert_testructura_gui ('REGPLAN', 'PLANI');
+
+/* Data for the 'orga.ttipo_contrato' table  (Records 1 - 2) */
+
+INSERT INTO orga.ttipo_contrato ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_contrato", "codigo", "nombre")
+VALUES (1, NULL, E'2014-01-23 13:17:13.799', NULL, E'activo', 1, E'PLA', E'Planta');
+
+INSERT INTO orga.ttipo_contrato ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_contrato", "codigo", "nombre")
+VALUES (1, NULL, E'2014-01-23 13:17:20.394', NULL, E'activo', 2, E'EVE', E'Eventual');
+
+INSERT INTO param.tdepto ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_subsistema", "codigo", "nombre", "nombre_corto")
+VALUES (1, NULL, E'2014-01-23 00:00:00', E'2014-01-23 13:35:24.774', E'activo', 4, E'RRHH01', E'Departamento Recursos Humanos Cochabamba', E'Depto RRHH Cbba');
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'plani_tiene_presupuestos', E'si', NULL);
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'plani_tiene_costos', E'si', NULL);
+
+INSERT INTO plani.tparametro_valor ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "codigo", "nombre", "fecha_ini", "fecha_fin", "valor")
+VALUES (1, NULL, E'2014-01-25 23:32:48.771', NULL, E'activo', E'HORLAB', E'Horas Laborales Mensuales', E'2013-12-01', NULL, '240');
+
+INSERT INTO plani.tparametro_valor ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "codigo", "nombre", "fecha_ini", "fecha_fin", "valor")
+VALUES (1, NULL, E'2014-01-25 23:32:48.771', NULL, E'activo', E'SALMIN', E'Salario Minimo Nacional', E'2013-12-01', NULL, '1200');
+
+/* Data for the 'plani.tantiguedad' table  (Records 1 - 7) */
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:41:37.681', NULL, E'activo', 2, 4, 5);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:41:50.306', NULL, E'activo', 5, 7, 11);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:42:04.620', NULL, E'activo', 8, 10, 18);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:42:22.560', NULL, E'activo', 11, 14, 26);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:42:36.705', NULL, E'activo', 15, 19, 34);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:42:55.651', NULL, E'activo', 20, 24, 42);
+
+INSERT INTO plani.tantiguedad ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "valor_min", "valor_max", "porcentaje")
+VALUES (1, NULL, E'2014-01-28 14:43:12.233', NULL, E'activo', 25, 100, 50);
 
 /***********************************F-DAT-JRR-PLANI-0-16/01/2014****************************************/

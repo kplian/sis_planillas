@@ -170,6 +170,19 @@ ALTER TABLE plani.thoras_trabajadas
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
     
+ALTER TABLE plani.tcolumna_valor
+  ADD CONSTRAINT fk_tcolumna_valor__id_tipo_columna FOREIGN KEY (id_tipo_columna)
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
 
+ALTER TABLE plani.tcolumna_valor
+  ADD CONSTRAINT fk_tcolumna_valor__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
+    REFERENCES plani.tfuncionario_planilla(id_funcionario_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
 
 /***********************************F-DEP-JRR-PLANI-0-16/01/2014****************************************/
