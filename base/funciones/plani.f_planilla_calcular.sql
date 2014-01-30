@@ -30,22 +30,12 @@ BEGIN
                             	on tc.id_tipo_columna = cv.id_tipo_columna
                             where cv.id_funcionario_planilla = v_funcionarios.id_funcionario_planilla
                             order by tc.orden asc)loop
-    		if (v_columnas.tipo_dato = 'basica') THEN
-    			
-            	if (v_columnas.tipo_descuento_bono is not null and v_columnas.tipo_descuento_bono != '') then
-                	if (v_columnas.valor_generado = v_columnas.valor) then
-                    	v_valor_generado = plani.f_calcular_descuento_bono(v_funcionarios.id_funcionario, 
-                        					v_planilla.fecha_ini, v_planilla.fecha_fin, v_columnas.id_tipo_columna);
-                    	v_valor = v_valor_generado;
-                    else
-                    	v_valor_generado = v_columnas.valor_generado;
-                        v_valor = v_columnas.valor;
-                    end if;
-                else
+    		if (v_columnas.tipo_dato = 'basica') THEN		
+            	
                 	v_valor_generado = plani.f_calcular_basica(v_funcionarios.id_funcionario_planilla, 
                         					v_planilla.fecha_ini, v_planilla.fecha_fin, v_columnas.id_tipo_columna,v_columnas.codigo_columna);
                     v_valor = v_valor_generado;
-                end if;
+                
             elsif (v_columnas.tipo_dato = 'formula') then
                	if (v_columnas.valor_generado = v_columnas.valor) then
                 
@@ -58,8 +48,19 @@ BEGIN
                     v_valor = v_columnas.valor;
                 end if;
             ELSE	
-            	v_valor_generado = v_columnas.valor_generado;
-                v_valor = v_columnas.valor;
+            	if (v_columnas.tipo_descuento_bono is not null and v_columnas.tipo_descuento_bono != '') then
+                	if (v_columnas.valor_generado = v_columnas.valor) then
+                    	v_valor_generado = plani.f_calcular_descuento_bono(v_funcionarios.id_funcionario, 
+                        					v_planilla.fecha_ini, v_planilla.fecha_fin, v_columnas.id_tipo_columna,v_columnas.tipo_descuento_bono);
+                    	v_valor = v_valor_generado;
+                    else
+                    	v_valor_generado = v_columnas.valor_generado;
+                        v_valor = v_columnas.valor;
+                    end if;
+                else
+                    v_valor_generado = v_columnas.valor_generado;
+                    v_valor = v_columnas.valor;
+                end if;
             end if;
             
         	update plani.tcolumna_valor set 
