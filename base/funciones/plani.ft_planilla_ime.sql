@@ -43,6 +43,7 @@ DECLARE
     v_registros				record;
     v_planilla				record;
     v_empleados				record;
+    v_columnas				record;
     v_horas_trabajadas		record;
     v_cantidad_horas_mes	integer;
     v_suma_horas			integer;
@@ -398,6 +399,22 @@ BEGIN
 		begin
         	
             v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));
+            
+            for v_empleados in (select * 
+            					from plani.tfuncionario_planilla 
+                                where id_planilla = v_parametros.id_planilla) loop
+            	for v_columnas in (	select db.id_descuento_bono
+                					from plani.tcolumna_valor cv
+                                    inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
+                                    inner join plani.tdescuento_bono db on tc.id_tipo_columna = db.id_tipo_columna and
+                                    								db.id_funcionario = v_empleados.id_funcionario and db.estado_reg = 'activo'
+                                    where cv.id_funcionario_planilla = v_empleados.id_funcionario_planilla and
+                                    	tc.tipo_descuento_bono = 'cantidad_cuotas') loop
+                	update plani.tdescuento_bono
+                    	set monto_total = monto_total - valor_por_cuota
+                    where id_descuento_bono = v_columnas.id_descuento_bono;
+                end loop;
+            end loop;
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 

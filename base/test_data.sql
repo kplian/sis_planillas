@@ -61,7 +61,7 @@ VALUES (1, NULL, E'2014-01-23 13:28:09.957', NULL, E'activo', 1, 4, 1, 2, E'1', 
 INSERT INTO orga.tcargo ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_cargo", "id_uo", "id_tipo_contrato", "id_escala_salarial", "codigo", "nombre", "fecha_ini", "fecha_fin", "id_lugar", "id_temporal_cargo", "id_oficina")
 VALUES (1, NULL, E'2014-01-23 13:28:09.957', NULL, E'activo', 2, 4, 1, 1, E'2', E'cargo de prueba2', E'2013-01-23', NULL, 3, 1, 1);
 
-/* Data for the 'plani.ttipo_columna' table  (Records 1 - 3) */
+/* Data for the 'plani.ttipo_columna' table  (Records 1 - 41) */
 
 INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
 VALUES (1, NULL, E'2014-01-27 14:08:40.643', NULL, E'activo', 4, 1, E'HORNORM', E'Horas Normales', E'basica', E'Horas Normales del Empleado', E'', E'no', E'', 0, 1, E'ejecutar');
@@ -171,6 +171,20 @@ VALUES (1, 1, E'2014-01-30 00:03:00', E'2014-01-30 00:09:00', E'activo', 39, 1, 
 INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
 VALUES (1, NULL, E'2014-01-30 10:14:07.279', NULL, E'activo', 40, 1, E'FAC_ZONAFRAN', E'Factor Zona Franca', E'basica', E'Factor que se calcula a partir del tiempo y sueldo que trabajo el empleado en zona franca', E'', E'no', E'', 2, 33, E'ejecutar');
 
+INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
+VALUES (1, 1, E'2014-01-30 13:19:41.879', E'2014-01-30 13:20:20.207', E'activo', 41, 1, E'RETJUD', E'Retencion Judicial', E'variable', E'Retención Judicial', E'', E'no', E'monto_fijo_indefinido', 2, 44, E'ejecutar');
+
+INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
+VALUES (1, NULL, E'2014-01-30 13:27:32.627', NULL, E'activo', 42, 1, E'MUL_ATRA', E'Multas y Atrasos', E'variable', E'Multas y Atrasos', E'', E'no', E'', 2, 45, E'ejecutar');
+
+INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
+VALUES (1, NULL, E'2014-01-30 13:32:57.302', NULL, E'activo', 45, 1, E'LIQPAG', E'Liquido Pagable', E'formula', E'Liquido Pagable', E'{COTIZABLE}-{TOT_DESC}', E'no', E'', 2, 48, E'ejecutar');
+
+INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
+VALUES (1, NULL, E'2014-01-30 13:30:30.866', NULL, E'activo', 43, 1, E'OTRO_DESC', E'Otros Descuentos', E'formula', E'Otros Descuentos', E'{RETJUD}+{MUL_ATRA}', E'no', E'', 2, 46, E'ejecutar');
+
+INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
+VALUES (1, 1, E'2014-01-30 13:31:54.152', E'2014-01-30 13:33:51.031', E'activo', 44, 1, E'TOT_DESC', E'Total Descuentos', E'formula', E'Total Descuentos', E'{OTRO_DESC}+{IMPURET}+{AFP_LAB}', E'no', E'', 2, 47, E'ejecutar');
 
 INSERT INTO orga.tuo_funcionario ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_uo_funcionario", "id_uo", "id_funcionario", "fecha_asignacion", "fecha_finalizacion","tipo","id_cargo")
 VALUES (1, 8, E'2012-11-10 00:00:00', E'2013-02-04 16:59:47', E'activo', 229, 4, 12, E'2009-01-20', E'2013-12-24', E'oficial',1);
@@ -185,3 +199,8 @@ VALUES (1, NULL, E'2014-01-30 12:20:14', E'2014-01-30 12:20:14', E'activo', 2, 3
 
 INSERT INTO param.ttipo_cambio ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_cambio", "id_moneda", "fecha", "oficial", "compra", "venta", "observaciones")
 VALUES (1, NULL, E'2014-01-30 12:19:54', E'2014-01-30 12:19:54', E'activo', 1, 3, E'2013-12-31', '1.001', '1.001', '1.001', NULL);
+
+/* Data for the 'plani.tdescuento_bono' table  (Records 1 - 1) */
+
+INSERT INTO plani.tdescuento_bono ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_descuento_bono", "id_tipo_columna", "id_funcionario", "id_moneda", "monto_total", "num_cuotas", "valor_por_cuota", "fecha_ini", "fecha_fin")
+VALUES (1, NULL, E'2014-01-30 13:21:58.379', NULL, E'activo', 1, 41, 12, 1, NULL, NULL, 1236.55, NULL, NULL);
