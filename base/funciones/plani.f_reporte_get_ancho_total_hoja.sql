@@ -17,9 +17,9 @@ BEGIN
 	elsif (p_hoja = 'carta_vertical') then
 		return 186;
 	elsif (p_hoja = 'oficio_vertical') then
-		return 300;
+		return 186;
   	else
-  		return 186;
+  		return 300;
   	end if;  	
   
 EXCEPTION
