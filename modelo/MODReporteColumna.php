@@ -33,6 +33,8 @@ class MODReporteColumna extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('titulo_reporte_superior','varchar');
+		$this->captura('titulo_reporte_inferior','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -55,6 +57,8 @@ class MODReporteColumna extends MODbase{
 		$this->setParametro('orden','orden','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
+		$this->setParametro('titulo_reporte_superior','titulo_reporte_superior','varchar');
+		$this->setParametro('titulo_reporte_inferior','titulo_reporte_inferior','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -78,6 +82,8 @@ class MODReporteColumna extends MODbase{
 		$this->setParametro('orden','orden','int4');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
+		$this->setParametro('titulo_reporte_superior','titulo_reporte_superior','varchar');
+		$this->setParametro('titulo_reporte_inferior','titulo_reporte_inferior','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
