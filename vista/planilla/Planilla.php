@@ -96,20 +96,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 menu: [{
                     text: 'Generar Presupuestos',
                     id: 'btnPresupuestos-' + this.idContenedor,
-                    handler: this.onButtonPresupuestosGenerar,
-                    tooltip: 'Generar Porcentajes Presupuestarios por Empleado',
-                    scope: this
-                }, {
-                    text: 'Consolidar Presupuestos',
-                    id: 'btnPresupuestosConsolidar-' + this.idContenedor,
-                    handler: this.onButtonPresupuestosConsolidar,
-                    tooltip: 'Consolidar Presupuestos',
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'presupuestosGenerar' },
+                    tooltip: 'Generar Porcentajes Presupuestarios por Empleado y Consolidados <br>	(Estos porcentajes pueden ser revisados desde la pantalla de Gestionar Horas Trabajadas->Detalle Horas <br> o desde el detalle de funcionarios)',
                     scope: this
                 }, {
                     text: 'Presupuestos Consolidados',
                     id: 'btnPresupuestosConsolidado-' + this.idContenedor,
                     handler: this.onButtonPresupuestosConsolidado,
                     tooltip: 'Presupuestos Consolidados por Columnas',
+                    scope: this
+                },
+                {
+                    text: 'Validar Presupuestos',
+                    id: 'btnPresupuestosValidar-' + this.idContenedor,
+                    handler: this.onButtonAjax,
+                    argument: { accion: 'presupuestosValidar' },
                     scope: this
                 }, {
                     text: 'Generar Comprobante Presupuestario',
@@ -545,6 +547,16 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	Phx.vista.Planilla.superclass.onButtonNew.call(this);
     	
     },
+    onButtonColumnasCsv : function() {                   
+        var rec=this.sm.getSelected();
+        Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/ColumnaCsv.php',
+        'Subir valores para columna',
+        {
+            modal:true,
+            width:450,
+            height:200
+        },rec.data,this.idContenedor,'ColumnaCsv')
+    },
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
         this.desactivarMenu();
@@ -587,9 +599,38 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('btnColumnas').menu.items.items[1].enable();
         	this.getBoton('btnColumnas').menu.items.items[0].disable();
         	this.getBoton('btnColumnas').menu.items.items[2].disable();
-        	this.getBoton('btnColumnas').menu.items.items[3].disable();
-        	
+        	this.getBoton('btnColumnas').menu.items.items[3].disable();        	
         }
+        //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
+        if (rec.data.plani_tiene_presupuestos == 'si' ) {
+        	this.getBoton('btnPresupuestos').enable(); 
+        	if (rec.data.estado == 'calculo_validado' ) {        		
+        		this.getBoton('btnPresupuestos').menu.items.items[0].enable();
+        		this.getBoton('btnPresupuestos').menu.items.items[1].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[2].disable(); 
+        		this.getBoton('btnPresupuestos').menu.items.items[3].disable(); 
+        		      		     		
+        	} else if (rec.data.estado == 'presupuestos') {
+        		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
+        		this.getBoton('btnPresupuestos').menu.items.items[2].enable();
+        		this.getBoton('btnPresupuestos').menu.items.items[3].disable();
+        		 
+        	} else if (rec.data.estado == 'obligaciones_validado') {
+        		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
+        		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[3].enable();
+        		 
+        	} else {
+        		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
+        		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
+        		this.getBoton('btnPresupuestos').menu.items.items[3].disable();
+        		
+        	}
+        }
+        
         Phx.vista.Planilla.superclass.preparaMenu.call(this);
     },
     liberaMenu:function()
