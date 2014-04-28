@@ -55,7 +55,22 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},			
+		},
+		{
+			config:{
+				name: 'control_reporte',
+				fieldLabel: 'Control',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:200
+			},
+				type:'TextField',
+				filters:{pfiltro:'repo.control_reporte',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},				
 		{
 			config:{
 				name: 'hoja_posicion',
@@ -350,6 +365,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'mostrar_codigo_empleado', type: 'string'},
 		{name:'mostrar_doc_id', type: 'string'},
 		{name:'mostrar_codigo_cargo', type: 'string'},
+		{name:'control_reporte', type: 'string'},
 		{name:'agrupar_por', type: 'string'},
 		{name:'ordenar_por', type: 'string'},
 		{name:'estado_reg', type: 'string'},
@@ -373,7 +389,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	loadValoresIniciales:function()
     {
     	this.Cmp.id_tipo_planilla.setValue(this.maestro.id_tipo_planilla);       
-        Phx.vista.TipoObligacion.superclass.loadValoresIniciales.call(this);        
+        Phx.vista.Reporte.superclass.loadValoresIniciales.call(this);        
     },
     south:{
 		  url:'../../../sis_planillas/vista/reporte_columna/ReporteColumna.php',

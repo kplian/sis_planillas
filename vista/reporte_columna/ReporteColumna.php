@@ -126,6 +126,37 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		},
 		{
 			config:{
+				name: 'titulo_reporte_superior',
+				fieldLabel: 'Titulo Superior',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:30
+			},
+				type:'TextField',
+				filters:{pfiltro:'repcol.titulo_reporte_superior',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		
+		{
+			config:{
+				name: 'titulo_reporte_inferior',
+				fieldLabel: 'Titulo Inferior',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:30
+			},
+				type:'TextField',
+				filters:{pfiltro:'repcol.titulo_reporte_inferior',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
 				name: 'orden',
 				fieldLabel: 'Orden',
 				allowBlank: false,
@@ -237,6 +268,8 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'titulo_reporte_superior', type: 'string'},
+		{name:'titulo_reporte_inferior', type: 'string'},
 		
 	],
 	sortInfo:{

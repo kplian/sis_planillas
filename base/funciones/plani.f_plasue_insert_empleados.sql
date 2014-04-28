@@ -24,7 +24,7 @@ BEGIN
     where p.id_planilla = p_id_planilla;
     
     if (v_planilla.id_uo is not null) then
-    	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_gerencia(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
+    	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
     end if;
     
     

@@ -131,7 +131,7 @@ ordenar_por = 'codigo_cargo' or
 ordenar_por = 'codigo_empleado');
 
 CREATE TABLE plani.treporte_columna (
-  id_reporte_columna INTEGER NOT NULL, 
+  id_reporte_columna SERIAL NOT NULL, 
   id_reporte INTEGER NOT NULL, 
   codigo_columna VARCHAR(30) NOT NULL, 
   sumar_total VARCHAR(2) NOT NULL, 
@@ -288,3 +288,16 @@ ALTER TABLE plani.thoras_trabajadas
   ADD COLUMN frontera VARCHAR(2);
 
 /***********************************F-SCP-JRR-PLANI-0-16/01/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-10/02/2014****************************************/
+
+ALTER TABLE plani.treporte
+  ADD COLUMN control_reporte VARCHAR(200);
+  
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN titulo_reporte_superior VARCHAR(30);
+  
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN titulo_reporte_inferior VARCHAR(30);
+  
+/***********************************F-SCP-JRR-PLANI-0-10/02/2014****************************************/

@@ -14,6 +14,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
+		this.initButtons=[this.cmbReporte];
     	//llama al constructor de la clase padre
 		Phx.vista.Planilla.superclass.constructor.call(this,config);
 		this.init();
@@ -171,7 +172,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
    			type:'ComboRec',
    			id_grupo:0,
    			filters:{pfiltro:'depto.nombre',type:'string'},
-   		    grid:false,
+   		    grid:true,
    			form:true
        	},
 		{
@@ -300,7 +301,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
    				gwidth:200,
    				emptyText:'Dejar blanco para toda la empresa...',
    				anchor: '80%',
-   				baseParams: {presupuesta: 'si'},
+   				baseParams: {planilla: 'si'},
    				allowBlank:true,
    			     renderer:function (value, p, record){return String.format('{0}', record.data['desc_uo']);}
        	     },
@@ -467,6 +468,26 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.id_periodo.reset();
 			this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
 		},this);
+		
+		this.cmbReporte.on('select', function (c,r,i) {
+			var rec=this.sm.getSelected();
+			var url_reporte = '../../sis_planillas/control/';
+			if (r.data.control_reporte == '' || r.data.control_reporte == undefined) {
+				url_reporte = url_reporte + 'Reporte/reportePlanilla'
+			} else {
+				url_reporte = url_reporte + r.data.control_reporte;
+			}
+		    Ext.Ajax.request({
+		        url:url_reporte,
+		        params:{'id_proceso_wf':rec.data.id_proceso_wf, 'id_reporte' : r.data.id_reporte},
+		        success: this.successExport,
+		        failure: this.conexionFailure,
+		        timeout:this.timeout,
+		        scope:this
+		    }); 
+		    this.cmbReporte.reset();
+			
+		}, this);
 	},
 	onButtonEdit : function () {
 		this.ocultarComponente(this.Cmp.id_depto);
@@ -527,6 +548,11 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
         this.desactivarMenu();
+        if (rec.data.estado == 'registro_horas' || rec.data.estado == 'registro_funcionarios'  || rec.data.estado == 'borrador' ) {
+        	this.cmbReporte.disable();
+        } else {
+        	this.cmbReporte.enable();
+        }
         
         
         //MANEJO DEL BOTON DE GESTION DE HORAS      
@@ -556,17 +582,20 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('btnColumnas').menu.items.items[1].enable();
         	this.getBoton('btnColumnas').menu.items.items[2].enable();
         	this.getBoton('btnColumnas').menu.items.items[3].enable();
+        	
         } else {
         	this.getBoton('btnColumnas').menu.items.items[1].enable();
         	this.getBoton('btnColumnas').menu.items.items[0].disable();
         	this.getBoton('btnColumnas').menu.items.items[2].disable();
         	this.getBoton('btnColumnas').menu.items.items[3].disable();
+        	
         }
         Phx.vista.Planilla.superclass.preparaMenu.call(this);
     },
     liberaMenu:function()
     {	
-        this.desactivarMenu(); 
+        this.desactivarMenu();
+        this.cmbReporte.disable();
         Phx.vista.Planilla.superclass.liberaMenu.call(this);
     },
     desactivarMenu:function() {
@@ -583,7 +612,45 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		  title:'Funcionarios', 
 		  height:'50%',
 		  cls:'FuncionarioPlanilla'
-	}
+	},
+    cmbReporte:new Ext.form.ComboBox({
+				fieldLabel: '',
+				allowBlank: true,
+				emptyText:'Reporte...',
+				store:new Ext.data.JsonStore(
+				{
+					url: '../../sis_planillas/control/Reporte/listarReporte',
+					id: 'id_reporte',
+					root: 'datos',
+					sortInfo:{
+						field: 'titulo_reporte',
+						direction: 'DESC'
+					},
+					totalProperty: 'total',
+					fields: ['id_reporte','titulo_reporte', 'control_reporte'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams:{par_filtro:'titulo_reporte'}
+				}),
+				valueField: 'id_reporte',
+				triggerAction: 'all',
+				displayField: 'titulo_reporte',
+			    hiddenName: 'id_reporte',
+    			mode:'remote',
+				pageSize:50,
+				queryDelay:500,
+				listWidth:'280',
+				width:100
+	}),
+	EnableSelect : function (n, extra) {
+		var selected = this.sm.getSelected().data;
+		this.cmbReporte.reset();
+   		this.cmbReporte.store.setBaseParam('id_tipo_planilla', selected.id_tipo_planilla);
+   		this.cmbReporte.modificado = true;	
+   		Phx.vista.Planilla.superclass.EnableSelect.call(this,n,extra);  
+   		
+   }
+	
    }
 )
 </script>

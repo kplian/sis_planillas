@@ -1,6 +1,5 @@
 CREATE OR REPLACE FUNCTION plani.f_reporte_get_ancho_total_hoja (
   p_hoja varchar
- 
 )
 RETURNS integer AS
 $body$
@@ -14,13 +13,13 @@ BEGIN
 	v_nombre_funcion = 'plani.f_reporte_get_ancho_total_hoja';
 	
 	if (p_hoja = 'carta_horizontal') then
-		return 200;
+		return 249;
 	elsif (p_hoja = 'carta_vertical') then
-		return 100;
+		return 186;
 	elsif (p_hoja = 'oficio_vertical') then
-		return 90;
+		return 186;
   	else
-  		return 180;
+  		return 300;
   	end if;  	
   
 EXCEPTION

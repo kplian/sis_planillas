@@ -53,7 +53,10 @@ BEGIN
 						repcol.id_usuario_mod,
 						repcol.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						repcol.titulo_reporte_superior,
+						repcol.titulo_reporte_inferior
+							
 						from plani.treporte_columna repcol
 						inner join segu.tusuario usu1 on usu1.id_usuario = repcol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repcol.id_usuario_mod

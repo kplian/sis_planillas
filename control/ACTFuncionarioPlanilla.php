@@ -13,6 +13,9 @@ class ACTFuncionarioPlanilla extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_funcionario_planilla');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		if ($this->objParam->getParametro('id_planilla') != '') {
+			$this->objParam->addFiltro("funplan.id_planilla = ". $this->objParam->getParametro('id_planilla'));
+		}
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODFuncionarioPlanilla','listarFuncionarioPlanilla');

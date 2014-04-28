@@ -148,7 +148,7 @@ INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg"
 VALUES (1, 1, E'2014-01-29 23:24:11.132', E'2014-01-29 23:26:35.978', E'activo', 31, 1, E'IMPOFAC', E'13% del Importe en Facturas', E'variable', E'13% del importe en facturas presentadas por el empleado', E'', E'no', E'', 2, 35, E'ejecutar');
 
 INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
-VALUES (1, 1, E'2014-01-29 23:43:00', E'2014-01-29 23:43:00', E'activo', 32, 1, E'SALDOPERIDEP', E'Saldo del Periodo a favor del Dependiente', E'formula', E'Saldo del Periodo a favor del Dependiente', E'CASE WHEN ({IMPDET}-{IMPOFAC}>0) THEN 0 ELSE {IMPOFAC}-{IMPDET} END', E'no', E'', 2, 36, E'ejecutar');
+VALUES (1, 1, E'2014-01-29 23:43:00', E'2014-01-29 23:43:00', E'activo', 32, 1, E'SALDOPERIDEP', E'Saldo del Periodo a favor del Dependiente', E'formula', E'Saldo del Periodo a favor del Dependiente', E'CASE WHEN ({IMPDET}-{IMPOFAC}>=0) THEN 0 ELSE {IMPOFAC}-{IMPDET} END', E'no', E'', 2, 36, E'ejecutar');
 
 INSERT INTO plani.ttipo_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_tipo_columna", "id_tipo_planilla", "codigo", "nombre", "tipo_dato", "descripcion", "formula", "compromete", "tipo_descuento_bono", "decimales_redondeo", "orden", "finiquito")
 VALUES (1, 1, E'2014-01-29 23:47:00', E'2014-01-29 23:43:00', E'activo', 33, 1, E'SALDOPERIFIS', E'Saldo a Favor del Fisco del Periodo', E'formula', E'Saldo a Favor del Fisco del Periodo', E'CASE WHEN ({IMPOFAC}-{IMPDET}>0) THEN 0 ELSE {IMPDET}-{IMPOFAC} END', E'no', E'', 2, 37, E'ejecutar');
@@ -204,3 +204,42 @@ VALUES (1, NULL, E'2014-01-30 12:19:54', E'2014-01-30 12:19:54', E'activo', 1, 3
 
 INSERT INTO plani.tdescuento_bono ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_descuento_bono", "id_tipo_columna", "id_funcionario", "id_moneda", "monto_total", "num_cuotas", "valor_por_cuota", "fecha_ini", "fecha_fin")
 VALUES (1, NULL, E'2014-01-30 13:21:58.379', NULL, E'activo', 1, 41, 12, 1, NULL, NULL, 1236.55, NULL, NULL);
+
+/* Data for the 'plani.treporte' table  (Records 1 - 1) */
+
+INSERT INTO plani.treporte ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte", "id_tipo_planilla", "hoja_posicion", "titulo_reporte", "agrupar_por", "numerar", "mostrar_nombre", "mostrar_codigo_empleado", "mostrar_doc_id", "mostrar_codigo_cargo", "ordenar_por", "ancho_total", "ancho_utilizado", "control_reporte")
+VALUES (1, 1, E'2014-02-10 08:36:59.134', E'2014-02-13 17:12:02.680', E'activo', 2, 1, E'oficio_horizontal', E'Planilla de Sueldos', E'gerencia', E'no', E'si', E'no', E'si', E'si', E'nombre', 300, 225, E'');
+
+
+/* Data for the 'plani.treporte_columna' table  (Records 1 - 10) */
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, 1, E'2014-02-10 14:35:18.440', E'2014-02-11 14:08:37.605', E'activo', 1, 2, E'HORNORM', E'si', 15, 1, E'Normales', E'Horas');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 15:04:44.396', NULL, E'activo', 4, 2, E'BONANT', E'si', 20, 3, E'Antiguedad', E'Bono');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, 1, E'2014-02-11 15:04:24.712', E'2014-02-11 18:44:59.981', E'activo', 3, 2, E'SUELDOBA', E'si', 20, 2, E'Básico', E'Haber');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:46:56.411', NULL, E'activo', 5, 2, E'BONFRONTERA', E'si', 20, 4, E'Frontera', E'Bono');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:48:06.965', NULL, E'activo', 6, 2, E'COTIZABLE', E'si', 20, 5, E'Ingresos', E'Total');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:52:24.702', NULL, E'activo', 7, 2, E'IMPURET', E'si', 20, 6, E' ', E'RC-IVA');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:53:20.229', NULL, E'activo', 8, 2, E'AFP_LAB', E'si', 20, 7, E' ', E'AFP');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:54:03.981', NULL, E'activo', 9, 2, E'OTRO_DESC', E'si', 20, 8, E'Descuentos', E'Otros');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-11 18:54:33.170', NULL, E'activo', 10, 2, E'TOT_DESC', E'si', 20, 9, E'Descuentos', E'Total');
+
+INSERT INTO plani.treporte_columna ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_reporte_columna", "id_reporte", "codigo_columna", "sumar_total", "ancho_columna", "orden", "titulo_reporte_inferior", "titulo_reporte_superior")
+VALUES (1, NULL, E'2014-02-13 17:12:28.642', NULL, E'activo', 12, 2, E'LIQPAG', E'si', 20, 10, E'Pagable', E'Liquido');
+

@@ -40,6 +40,7 @@ class MODReporte extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('control_reporte','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -69,6 +70,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_utilizado','ancho_utilizado','int4');
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
+		$this->setParametro('control_reporte','control_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -99,6 +101,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_utilizado','ancho_utilizado','int4');
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
+		$this->setParametro('control_reporte','control_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -121,6 +124,74 @@ class MODReporte extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarReporteMaestro(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPOMAES_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+				
+		//Datos del tipo de reporte
+		$this->captura('numerar','varchar');
+		$this->captura('hoja_posicion','varchar');
+		$this->captura('mostrar_nombre','varchar');
+		$this->captura('mostrar_codigo_empleado','varchar');
+		$this->captura('mostrar_doc_id','varchar');
+		$this->captura('mostrar_codigo_cargo','varchar');
+		$this->captura('agrupar_por','varchar');
+		$this->captura('ordenar_por','varchar');
+		$this->captura('titulo_reporte','varchar');
+		
+		//Datos de la planilla
+		$this->captura('nro_planilla','varchar');
+		$this->captura('periodo','integer');
+		$this->captura('gestion','integer');
+		$this->captura('uo','varchar');
+		$this->captura('depto','varchar');
+		$this->captura('cantidad_columnas','integer');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	function listarReporteDetalle(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPODET_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('nombre_empleado','text');
+		$this->captura('codigo_empleado','varchar');
+		$this->captura('codigo_cargo','varchar');
+		$this->captura('doc_id','varchar');
+		//$this->captura('id_presupuesto','integer');
+		$this->captura('id_gerencia','integer');
+		$this->captura('gerencia','varchar');
+				
+		//Datos del tipo_reporte_columna
+		$this->captura('sumar_total','varchar');
+		$this->captura('ancho_columna','integer');
+		$this->captura('titulo_reporte_superior','varchar');	
+		$this->captura('titulo_reporte_inferior','varchar');		
+		
+		//Datos de la columna
+		$this->captura('codigo_columna','varchar');	
+		$this->captura('valor_columna','numeric');			
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
