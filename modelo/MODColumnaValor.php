@@ -91,6 +91,26 @@ class MODColumnaValor extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	
+	function modificarColumnaCsv(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_columna_valor_ime';
+		$this->transaccion='PLA_COLVALCSV_MOD';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+		$this->setParametro('id_tipo_columna','id_tipo_columna','int4');
+		$this->setParametro('ci','ci','varchar');
+		$this->setParametro('valor','valor','numeric');		
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 	function eliminarColumnaValor(){
 		//Definicion de variables para ejecucion del procedimiento

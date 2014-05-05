@@ -18,6 +18,10 @@ class ACTTipoColumna extends ACTbase{
 			$this->objParam->addFiltro("tipcol.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
 		}
 		
+		if ($this->objParam->getParametro('tipo_dato') != '') {
+			$this->objParam->addFiltro("tipcol.tipo_dato = ''". $this->objParam->getParametro('tipo_dato') . "''");
+		}
+		
 		if ($this->objParam->getParametro('tipo_descuento_bono') == 'si') {
 			$this->objParam->addFiltro("tipcol.tipo_descuento_bono is not null and tipo_descuento_bono != ''''");
 		}
@@ -46,6 +50,8 @@ class ACTTipoColumna extends ACTbase{
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+	
+	
 						
 	function eliminarTipoColumna(){
 			$this->objFunc=$this->create('MODTipoColumna');	

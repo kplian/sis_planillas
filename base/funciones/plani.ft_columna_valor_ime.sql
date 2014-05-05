@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_columna_valor_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_columna_valor_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_columna_valor_ime
@@ -28,6 +31,7 @@ DECLARE
 	v_mensaje_error         text;
 	v_id_columna_valor	integer;
 	v_estado_planilla		varchar;
+    v_id_funcionario_planilla	integer;
 			    
 BEGIN
 
@@ -121,6 +125,52 @@ BEGIN
             return v_resp;
             
 		end;
+        
+    /*********************************    
+ 	#TRANSACCION:  'PLA_COLVALCSV_MOD'
+ 	#DESCRIPCION:	Modificacion columna valor csv
+ 	#AUTOR:		admin	
+ 	#FECHA:		27-01-2014 04:53:54
+	***********************************/
+
+	elsif(p_transaccion='PLA_COLVALCSV_MOD')then
+
+		begin
+			select pla.estado
+			into v_estado_planilla
+			from plani.tfuncionario_planilla funplan
+			inner join plani.tplanilla  pla on pla.id_planilla = funplan.id_planilla
+			where  funplan.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
+			
+			if (v_estado_planilla != 'calculo_columnas')then
+				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado "calculo_columnas"';
+			end if;
+            
+             /*obtener id_empleado_planilla*/
+            select fp.id_funcionario_planilla
+            into v_id_funcionario_planilla
+            from orga.vfuncionario f
+            inner join plani.tfuncionario_planilla fp
+            on fp.id_funcionario = f.id_funcionario and fp.id_planilla =  v_parametros.id_planilla
+            where f.ci = v_parametros.ci;
+            
+            if (v_id_funcionario_planilla is null) then
+            	raise exception 'No se encontro un empleado con documento nro: %, en la planilla', v_parametros.ci;
+            end if;
+			
+			--Sentencia de la modificacion
+			update plani.tcolumna_valor set
+			valor = v_parametros.valor
+			where id_tipo_columna=v_parametros.id_tipo_columna and id_funcionario_planilla = v_id_funcionario_planilla;
+               
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Columna Valor modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_columna_valor',v_parametros.id_columna_valor::varchar);
+               
+            --Devuelve la respuesta
+            return v_resp;
+            
+		end;
 
 	/*********************************    
  	#TRANSACCION:  'PLA_COLVAL_ELI'
@@ -161,7 +211,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_columna_valor_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

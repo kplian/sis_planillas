@@ -172,12 +172,12 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['parametrizacion','ultimo_activo_periodo']
+				store:['parametrizacion','ultimo_activo_periodo','ultimo_activo_aguinaldo']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['parametrizacion','ultimo_activo_periodo'],	
+	       				 options: ['parametrizacion','ultimo_activo_periodo','ultimo_activo_aguinaldo'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,

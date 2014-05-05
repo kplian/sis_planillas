@@ -285,6 +285,115 @@ select pxp.f_insert_tprocedimiento_gui ('SEG_PERSONMIN_SEL', 'FUNPLAN.4', 'no');
 
 /***********************************F-DEP-JRR-PLANI-0-16/01/2014****************************************/
 
+/***********************************I-DEP-JRR-PLANI-0-23/02/2014****************************************/
+
+
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk__tprorrateo__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
+    REFERENCES plani.tfuncionario_planilla(id_funcionario_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk__tprorrateo__id_horas_trabajadas FOREIGN KEY (id_horas_trabajadas)
+    REFERENCES plani.thoras_trabajadas(id_horas_trabajadas)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk__tprorrateo__id_presupuesto FOREIGN KEY (id_presupuesto)
+    REFERENCES pre.tpresupuesto(id_presupuesto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk__tprorrateo__id_cc FOREIGN KEY (id_cc)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tprorrateo_columna
+  ADD CONSTRAINT fk__tprorrateo_columna__id_prorrateo FOREIGN KEY (id_prorrateo)
+    REFERENCES plani.tprorrateo(id_prorrateo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE plani.tprorrateo_columna
+  ADD CONSTRAINT fk__tprorrateo_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna)
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tconsolidado
+  ADD CONSTRAINT fk__tconsolidado__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES plani.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE plani.tconsolidado
+  ADD CONSTRAINT fk__tconsolidado__id_presupuesto FOREIGN KEY (id_presupuesto)
+    REFERENCES pre.tpresupuesto(id_presupuesto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tconsolidado
+  ADD CONSTRAINT fk__tconsolidado__id_cc FOREIGN KEY (id_cc)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk__tconsolidado_columna__id_consolidado FOREIGN KEY (id_consolidado)
+    REFERENCES plani.tconsolidado(id_consolidado)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk__tconsolidado_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna)
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk__tconsolidado_columna__id_partida FOREIGN KEY (id_partida)
+    REFERENCES pre.tpartida(id_partida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk__tconsolidado_columna__id_cuenta FOREIGN KEY (id_cuenta)
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk__tconsolidado_columna__id_auxiliar FOREIGN KEY (id_auxiliar)
+    REFERENCES conta.tauxiliar(id_auxiliar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+    
+/***********************************F-DEP-JRR-PLANI-0-23/02/2014****************************************/
+
 
 
 /***********************************I-DEP-JRR-PLANI-0-24/04/2014****************************************/
@@ -402,5 +511,3 @@ select pxp.f_insert_tprocedimiento_gui ('SEG_PERSONMIN_SEL', 'REGPLAN.3.1.2', 'n
 select pxp.f_insert_tprocedimiento_gui ('SEG_UPFOTOPER_MOD', 'REGPLAN.3.1.2.1', 'no');
 
 /***********************************F-DEP-JRR-PLANI-0-24/04/2014****************************************/
-
-

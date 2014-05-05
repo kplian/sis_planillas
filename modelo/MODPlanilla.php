@@ -139,6 +139,10 @@ class MODPlanilla extends MODbase{
 			$this->transaccion='PLA_PLANICALCOL_MOD';
 		} else if ($this->arreglo['accion'] == 'columnasValidar') {
 			$this->transaccion='PLA_PLANIVALCOL_MOD';
+		} else if ($this->arreglo['accion'] == 'presupuestosGenerar') {
+			$this->transaccion='PLA_PLANIGENPRE_MOD';
+		} else if ($this->arreglo['accion'] == 'presupuestosValidar') {
+			$this->transaccion='PLA_PLANIVALPRE_MOD';
 		}
 		
 		

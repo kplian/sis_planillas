@@ -301,3 +301,54 @@ ALTER TABLE plani.treporte_columna
   ADD COLUMN titulo_reporte_inferior VARCHAR(30);
   
 /***********************************F-SCP-JRR-PLANI-0-10/02/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-23/02/2014****************************************/
+
+CREATE TABLE plani.tprorrateo (
+  id_prorrateo SERIAL NOT NULL, 
+  id_funcionario_planilla INTEGER, 
+  id_horas_trabajadas INTEGER, 
+  id_presupuesto INTEGER, 
+  id_cc INTEGER, 
+  tipo_prorrateo VARCHAR(15) NOT NULL, 
+  porcentaje NUMERIC(5,2) NOT NULL, 
+  PRIMARY KEY(id_prorrateo)
+) INHERITS (pxp.tbase) 
+WITHOUT OIDS;
+
+CREATE TABLE plani.tprorrateo_columna (
+  id_prorrateo_columna SERIAL NOT NULL,
+  id_prorrateo INTEGER NOT NULL,
+  id_tipo_columna INTEGER NOT NULL,  
+  codigo_columna VARCHAR(30) NOT NULL, 
+  porcentaje NUMERIC(5,2) NOT NULL, 
+  PRIMARY KEY(id_prorrateo_columna)
+) INHERITS (pxp.tbase) 
+WITHOUT OIDS;
+
+CREATE TABLE plani.tconsolidado (
+  id_consolidado SERIAL NOT NULL,
+  id_planilla INTEGER NOT NULL,
+  id_presupuesto INTEGER,
+  id_cc INTEGER,
+  tipo_consolidado VARCHAR(15) NOT NULL,
+  PRIMARY KEY(id_consolidado)
+) INHERITS (pxp.tbase) 
+WITHOUT OIDS;
+
+CREATE TABLE plani.tconsolidado_columna (
+  id_consolidado_columna SERIAL NOT NULL,
+  id_consolidado INTEGER NOT NULL,
+  id_tipo_columna INTEGER NOT NULL,  
+  codigo_columna VARCHAR(30) NOT NULL,
+  valor NUMERIC(18,2) NOT NULL, 
+  valor_ejecutado NUMERIC(18,2) DEFAULT 0,
+  id_partida INTEGER,
+  id_cuenta INTEGER,
+  id_auxiliar INTEGER,
+  tipo_contrato VARCHAR(20) NOT NULL,
+  PRIMARY KEY(id_consolidado_columna)
+) INHERITS (pxp.tbase) 
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-23/02/2014****************************************/

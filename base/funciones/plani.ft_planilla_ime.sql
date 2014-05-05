@@ -424,6 +424,53 @@ BEGIN
             return v_resp;
 
 		end;
+        
+    /*********************************    
+ 	#TRANSACCION:  'PLA_PLANIVALPRE_MOD'
+ 	#DESCRIPCION:	Validación de presupuestos de la planilla
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_PLANIVALPRE_MOD')then
+
+		begin
+        	
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));           
+            
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+    
+    /*********************************    
+ 	#TRANSACCION:  'PLA_PLANIGENPRE_MOD'
+ 	#DESCRIPCION:	Generacion de presupuestos de la planilla
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_PLANIGENPRE_MOD')then
+
+		begin
+        	v_resp = (select plani.f_prorratear_pres_cos_empleados(v_parametros.id_planilla, 'presupuestos', p_id_usuario));
+            
+            v_resp = (select plani.f_consolidar_pres_cos(v_parametros.id_planilla, 'presupuestos',p_id_usuario)); 
+        	
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));           
+            
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
          
 	else
      
