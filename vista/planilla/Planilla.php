@@ -479,6 +479,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			} else {
 				url_reporte = url_reporte + r.data.control_reporte;
 			}
+			Phx.CP.loadingShow();
 		    Ext.Ajax.request({
 		        url:url_reporte,
 		        params:{'id_proceso_wf':rec.data.id_proceso_wf, 'id_reporte' : r.data.id_reporte},

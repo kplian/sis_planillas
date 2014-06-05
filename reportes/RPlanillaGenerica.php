@@ -167,6 +167,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				$this->numeracion++;
 				$empleados_gerencia++;
 				$array_show = $this->iniciarArrayShow($value);
+				$id_funcionario = $value['id_funcionario'];
 			//si no es un nuevo funcionario hacer push al arreglo con el dato recibido
 			} 
 			array_push($array_show, $value['valor_columna']);
