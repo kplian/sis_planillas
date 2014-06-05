@@ -501,7 +501,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	
     },
     onButtonAjax : function (params){
-    	var rec = this.sm.getSelected();		
+    	var rec = this.sm.getSelected();	
+    	Phx.CP.loadingShow();	
 		Ext.Ajax.request({
 				url:'../../sis_planillas/control/Planilla/ejecutarProcesoPlanilla',
 				success:this.successDel,

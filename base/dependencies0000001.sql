@@ -2358,3 +2358,20 @@ select pxp.f_insert_tprocedimiento_gui ('SEG_PERSONMIN_SEL', 'REGPLAN.3.1.2', 'n
 select pxp.f_insert_tprocedimiento_gui ('SEG_UPFOTOPER_MOD', 'REGPLAN.3.1.2.1', 'no');
 
 /***********************************F-DEP-JRR-PLANI-0-24/04/2014****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-05/06/2014****************************************/
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD CONSTRAINT uk_tfuncionario_planilla__id_funcionario__id_planilla 
+    UNIQUE (id_planilla, id_funcionario);    
+    
+CREATE INDEX tcolumna_valor_idx1 ON plani.tcolumna_valor
+  USING btree (id_funcionario_planilla);  
+  
+CREATE INDEX tcolumna_valor_idx2 ON plani.tcolumna_valor
+  USING btree (id_tipo_columna);  
+  
+CREATE INDEX ttipo_columna_idx1 ON plani.ttipo_columna
+  USING btree (orden);
+
+/***********************************F-DEP-JRR-PLANI-0-05/06/2014****************************************/
