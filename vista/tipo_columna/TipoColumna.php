@@ -360,6 +360,10 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.formula.allowBlank = true;
 		}
 	},
+	onSubmit : function(o) {
+		this.Cmp.formula.setValue(encodeURIComponent(this.Cmp.formula.getValue()));
+		Phx.vista.TipoColumna.superclass.onSubmit.call(this,o);
+	},
 	onButtonNew:function(){
 		//llamamos primero a la funcion new de la clase padre por que reseta el valor los componentes
 		this.mostrarComponente(this.Cmp.codigo);

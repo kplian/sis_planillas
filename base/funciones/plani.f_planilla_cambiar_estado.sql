@@ -1,6 +1,8 @@
 CREATE OR REPLACE FUNCTION plani.f_planilla_cambiar_estado (
   p_id_planilla integer,
   p_id_usuario integer,
+  p_id_usuario_ai integer,
+  p_nombre_usuario_ai varchar,
   p_tipo_estado varchar
 )
 RETURNS varchar AS
@@ -45,6 +47,8 @@ BEGIN
                                                    v_planilla.id_estado_wf, 
                                                    v_planilla.id_proceso_wf,
                                                    p_id_usuario,
+                                                   p_id_usuario_ai,
+                                                   p_nombre_usuario_ai,
                                                    v_planilla.id_depto);
                      
       --actualiza la planilla

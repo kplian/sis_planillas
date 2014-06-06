@@ -149,6 +149,8 @@ BEGIN
               
         FROM wf.f_inicia_tramite(
              p_id_usuario, 
+             v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai,
              v_parametros.id_gestion, 
              v_codigo_tipo_proceso, 
              NULL,
@@ -281,7 +283,8 @@ BEGIN
         	
         	v_resp = (select plani.f_plasue_generar_horas(v_parametros.id_planilla,p_id_usuario));
             
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai, 'siguiente'));
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
@@ -348,7 +351,8 @@ BEGIN
         		
         	end loop;
             
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai, 'siguiente'));
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
@@ -398,7 +402,8 @@ BEGIN
 
 		begin
         	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai, 'siguiente'));
             
             for v_empleados in (select * 
             					from plani.tfuncionario_planilla 
@@ -436,7 +441,8 @@ BEGIN
 
 		begin
         	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));           
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai, 'siguiente'));           
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
