@@ -138,9 +138,8 @@ class RPlanillaGenerica extends  ReportePDF {
 			$sum_total[$i]=0;
 		}
 		$columnas = 0;
-		$tamano = sizeof($this->datos_detalle);
-		for ($i=0; $i<$tamano;$i++) {
-			$value = $this->datos_detalle[$i];
+		
+		foreach ($this->datos_detalle as $value) {		
 			if ($id_funcionario != $value['id_funcionario']) {
 				$this->SetFont('','',5);
 				$this->MultiRow($array_show);
