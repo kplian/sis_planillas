@@ -138,7 +138,7 @@ class RPlanillaGenerica extends  ReportePDF {
 			$sum_total[$i]=0;
 		}
 		$columnas = 0;
-		$tamano = int(sizeof($this->datos_detalle));
+		$tamano = sizeof($this->datos_detalle);
 		for ($i=0; $i<$tamano;$i++) {
 			$value = $this->datos_detalle[$i];
 			if ($id_funcionario != $value['id_funcionario']) {
