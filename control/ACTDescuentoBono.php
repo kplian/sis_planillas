@@ -13,6 +13,11 @@ class ACTDescuentoBono extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_descuento_bono');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('id_funcionario') != '') {
+			$this->objParam->addFiltro("desbon.id_funcionario = ". $this->objParam->getParametro('id_funcionario'));
+		}
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODDescuentoBono','listarDescuentoBono');
