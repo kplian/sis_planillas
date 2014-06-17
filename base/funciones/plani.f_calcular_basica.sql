@@ -94,7 +94,7 @@ BEGIN
 			        from plani.tfuncionario_afp fa
 			        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
 			        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
-			        (fa.fecha_fin is null and fa.fecha_fin > p_fecha_ini))) then
+			        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
 			v_resultado = 0;       
 		else
 			v_resultado = 1;
@@ -112,7 +112,7 @@ BEGIN
 			        from plani.tfuncionario_afp fa
 			        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
 			        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
-			        (fa.fecha_fin is null and fa.fecha_fin > p_fecha_ini))) then
+			        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
 			v_resultado = 0;       
 		else
 			v_resultado = 1;

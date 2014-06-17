@@ -136,15 +136,7 @@ BEGIN
 	elsif(p_transaccion='PLA_COLVALCSV_MOD')then
 
 		begin
-			select pla.estado
-			into v_estado_planilla
-			from plani.tfuncionario_planilla funplan
-			inner join plani.tplanilla  pla on pla.id_planilla = funplan.id_planilla
-			where  funplan.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
 			
-			if (v_estado_planilla != 'calculo_columnas')then
-				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado "calculo_columnas"';
-			end if;
             
              /*obtener id_empleado_planilla*/
             select fp.id_funcionario_planilla
@@ -157,6 +149,16 @@ BEGIN
             if (v_id_funcionario_planilla is null) then
             	raise exception 'No se encontro un empleado con documento nro: %, en la planilla', v_parametros.ci;
             end if;
+            
+            select pla.estado
+			into v_estado_planilla
+			from plani.tfuncionario_planilla funplan
+			inner join plani.tplanilla  pla on pla.id_planilla = funplan.id_planilla
+			where  funplan.id_funcionario_planilla = v_id_funcionario_planilla;
+			
+			if (v_estado_planilla != 'calculo_columnas')then
+				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado "calculo_columnas"';
+			end if;
 			
 			--Sentencia de la modificacion
 			update plani.tcolumna_valor set
@@ -165,7 +167,8 @@ BEGIN
                
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Columna Valor modificado(a)'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_columna_valor',v_parametros.id_columna_valor::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'id_tipo_columna',v_parametros.id_tipo_columna::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario_planilla',v_id_funcionario_planilla::varchar);
                
             --Devuelve la respuesta
             return v_resp;

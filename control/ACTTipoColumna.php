@@ -19,7 +19,13 @@ class ACTTipoColumna extends ACTbase{
 		}
 		
 		if ($this->objParam->getParametro('tipo_dato') != '') {
-			$this->objParam->addFiltro("tipcol.tipo_dato = ''". $this->objParam->getParametro('tipo_dato') . "''");
+			if ($this->objParam->getParametro('tipo_dato') == 'variable' && $this->objParam->getParametro('columnas') != '') {
+				$this->objParam->addFiltro("(tipcol.tipo_dato = ''". $this->objParam->getParametro('tipo_dato') . "'') or 
+				tipcol.codigo in (" . $this->objParam->getParametro('columnas') . ")");
+			} else {
+				$this->objParam->addFiltro("tipcol.tipo_dato = ''". $this->objParam->getParametro('tipo_dato') . "''");
+			}
+			
 		}
 		
 		if ($this->objParam->getParametro('tipo_descuento_bono') == 'si') {

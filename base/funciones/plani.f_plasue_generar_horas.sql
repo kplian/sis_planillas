@@ -47,12 +47,15 @@ BEGIN
             end)::date as fecha_fin_mes,
             es.haber_basico,
             tc.codigo,
-            fun.desc_funcionario1 as nombre_funcionario
+            fun.desc_funcionario1 as nombre_funcionario,
+            ofi.zona_franca,
+            ofi.frontera
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
             inner join orga.tescala_salarial es on car.id_escala_salarial = es.id_escala_salarial
             inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+            left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
             where uofun.fecha_asignacion <= v_planilla.fecha_fin and 
                 (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= v_planilla.fecha_ini ) 
                 AND uofun.estado_reg = 'activo' and uofun.tipo = 'oficial' and 
@@ -75,7 +78,9 @@ BEGIN
               tipo_contrato,
               sueldo,
               fecha_ini,
-              fecha_fin
+              fecha_fin,
+              zona_franca,
+              frontera
             ) 
             VALUES (
               p_id_usuario,
@@ -85,7 +90,9 @@ BEGIN
               v_asignacion.codigo,
               v_asignacion.haber_basico,
               v_asignacion.fecha_ini_mes,
-              v_asignacion.fecha_fin_mes
+              v_asignacion.fecha_fin_mes,
+              v_asignacion.zona_franca,
+              v_asignacion.frontera
             );
             v_ultimo_id_uo_funcionario = v_asignacion.id_uo_funcionario;
         

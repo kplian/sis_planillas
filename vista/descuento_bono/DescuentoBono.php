@@ -287,7 +287,13 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 		var rec=this.sm.getSelected();
     	this.Cmp.id_tipo_columna.fireEvent('select',this.Cmp.id_tipo_columna,rec);
     	Phx.vista.DescuentoBono.superclass.onButtonEdit.call(this);
-    	
+    	this.mostrarComponente(this.Cmp.fecha_fin);
+    	this.Cmp.fecha_fin.allowBlank = true;    	
+    	this.ocultarComponente(this.Cmp.fecha_ini);
+    	this.ocultarComponente(this.Cmp.monto_total);
+    	this.Cmp.monto_total.allowBlank = true;  
+    	this.ocultarComponente(this.Cmp.valor_por_cuota);
+    	this.ocultarComponente(this.Cmp.id_tipo_columna);
     },
     onButtonNew : function () {
     	//this.mostrarComponente(this.Cmp.fecha_ini); 
@@ -302,13 +308,12 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
     iniciarEventos : function () {
 		this.Cmp.id_tipo_columna.on('select',function (c, r, i) {
 				
-			if (r.data.tipo_descuento_bono == 'monto_fijo_indefinido') {
-				
-				this.ocultarComponente(this.Cmp.fecha_ini);
+			if (r.data.tipo_descuento_bono == 'monto_fijo_indefinido') {				
+				this.mostrarComponente(this.Cmp.fecha_ini);
 				this.ocultarComponente(this.Cmp.fecha_fin);
 				this.ocultarComponente(this.Cmp.monto_total);
 				this.Cmp.monto_total.allowBlank = true;
-				this.Cmp.fecha_ini.allowBlank = true;
+				this.Cmp.fecha_ini.allowBlank = false;
 				this.Cmp.fecha_fin.allowBlank = true;
 				this.Cmp.fecha_ini.reset();
 				this.Cmp.fecha_fin.reset();
@@ -316,11 +321,11 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 				
 				
 			} else if(r.data.tipo_descuento_bono == 'cantidad_cuotas') {
-				this.ocultarComponente(this.Cmp.fecha_ini);
+				this.mostrarComponente(this.Cmp.fecha_ini);
 				this.ocultarComponente(this.Cmp.fecha_fin);
 				this.mostrarComponente(this.Cmp.monto_total);
 				this.Cmp.monto_total.allowBlank = false;
-				this.Cmp.fecha_ini.allowBlank = true;
+				this.Cmp.fecha_ini.allowBlank = false;
 				this.Cmp.fecha_fin.allowBlank = true;
 				this.Cmp.fecha_ini.reset();
 				this.Cmp.fecha_fin.reset();
