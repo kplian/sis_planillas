@@ -123,7 +123,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->SetMargins(5, 36, 5);
 	}
 	function generarReporte() {
-		$this->etFontSubsetting(false);
+		$this->setFontSubsetting(false);
 		$this->AddPage();
 		
 		//iniciacion de datos 
