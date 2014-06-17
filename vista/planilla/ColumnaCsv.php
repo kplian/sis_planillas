@@ -66,7 +66,7 @@ Phx.vista.ColumnaCsv=Ext.extend(Phx.frmInterfaz,{
 					fields: ['id_tipo_columna', 'nombre', 'codigo', 'tipo_descuento_bono'],
 					// turn on remote sorting
 					remoteSort: true,
-					baseParams: {par_filtro: 'tipcol.nombre#tipcol.codigo',tipo_dato : 'variable',columnas:"'SALDOPERIANTDEP'"}
+					baseParams: {par_filtro: 'tipcol.nombre#tipcol.codigo',tipo_dato : 'variable',columnas:"''SALDOPERIANTDEP''"}
 				}),
 				valueField: 'id_tipo_columna',
 				displayField: 'nombre',
