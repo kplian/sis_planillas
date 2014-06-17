@@ -142,13 +142,13 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		foreach ($this->datos_detalle as $value) {		
 			if ($id_funcionario != $value['id_funcionario']) {
-				$this->SetFont('','',5);
+				$this->SetFont('','',6);
 				$this->MultiRow($array_show);
 				$columnas = 0;
 				//Si cambia la gerencia
 				if ($this->gerencia != $value['gerencia']) {
 					//generar subtotales
-					$this->SetFont('','B',6);
+					$this->SetFont('','B',7);
 	 				$this->Cell($this->ancho_sin_totales,3,'TOTAL GERENCIA ' . $this->gerencia . ' : ','RBT',0,'R');
 					for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 						if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
