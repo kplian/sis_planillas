@@ -351,4 +351,13 @@ CREATE TABLE plani.tconsolidado_columna (
 ) INHERITS (pxp.tbase) 
 WITHOUT OIDS;
 
-/***********************************F-SCP-JRR-PLANI-0-23/02/2014****************************************/
+/***********************************I-SCP-JRR-PLANI-0-17/06/2014****************************************/
+
+
+ALTER TABLE plani.tcolumna_valor
+  ALTER COLUMN valor TYPE NUMERIC(18,10);
+  
+ALTER TABLE plani.tcolumna_valor
+  ALTER COLUMN valor_generado TYPE NUMERIC(18,10);
+
+/***********************************F-SCP-JRR-PLANI-0-17/06/2014****************************************/

@@ -32,13 +32,19 @@ BEGIN
                             order by fp.id_funcionario,tc.orden asc
     						) loop    	
         	
-    		if (v_funcionarios.tipo_dato = 'basica') THEN		
-            	
-                	v_valor_generado = plani.f_calcular_basica(v_funcionarios.id_funcionario_planilla, 
+    		if (v_funcionarios.tipo_dato = 'basica') THEN
+            	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
+                
+                    v_valor_generado = plani.f_calcular_basica(v_funcionarios.id_funcionario_planilla, 
                         					v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,v_funcionarios.codigo_columna);
                                         
                     v_valor = v_valor_generado;
-                
+                    
+                ELSE
+                	
+                	v_valor_generado = v_funcionarios.valor_generado;
+                    v_valor = v_funcionarios.valor;
+                end if;
             elsif (v_funcionarios.tipo_dato = 'formula') then
                	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
                 
@@ -46,7 +52,7 @@ BEGIN
                                                 v_funcionarios.formula, v_planilla.fecha_ini);
                     v_valor = v_valor_generado;
                     
-                ELSE
+                ELSE                	
                 	v_valor_generado = v_funcionarios.valor_generado;
                     v_valor = v_funcionarios.valor;
                 end if;

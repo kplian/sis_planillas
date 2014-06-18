@@ -10,6 +10,7 @@ DECLARE
   v_horas_contrato	integer;
   v_horas_total		integer;
   v_ultimo_id_uo_funcionario	integer;
+  v_ultimo_id_mayor_uno		integer;
   v_resp		            varchar;
   v_nombre_funcion        	text;
   v_mensaje_error         	text;
@@ -19,12 +20,14 @@ BEGIN
 	v_nombre_funcion = 'plani.f_plasue_generar_horas';
 	
 	select id_tipo_planilla, per.id_periodo, fecha_ini, fecha_fin, id_uo, p.id_usuario_reg, 
-    		(per.fecha_fin - per.fecha_ini) + 1 as dias_mes
+    		((per.fecha_fin - per.fecha_ini) + 1) * 8 as horas_mes
     into v_planilla 
     from plani.tplanilla p
     inner join param.tperiodo per
     	on p.id_periodo = per.id_periodo
     where p.id_planilla = p_id_planilla;
+    
+    
     
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
     
@@ -32,6 +35,7 @@ BEGIN
     					from plani.tfuncionario_planilla 
                         where id_planilla = p_id_planilla) loop
     	v_horas_total = 0;
+        v_ultimo_id_mayor_uno = NULL;
         for v_asignacion in (    	
             select
             uofun.id_uo_funcionario,
@@ -63,10 +67,14 @@ BEGIN
             order by fecha_asignacion asc) LOOP
         	
             v_horas_contrato = ((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)*8) + (1*8);
-            if (EXTRACT(DAY FROM v_asignacion.fecha_fin_mes) = 31 ) then
-                v_horas_contrato = v_horas_contrato - (1*8);
-            end if;
+            
             v_horas_total = v_horas_total + v_horas_contrato;
+            
+            if (v_horas_total > v_planilla.horas_mes) then
+        		raise exception 'La cantidad de dias trabajados para el empleado % , 
+                        es superior a la cantidad de dias en el periodo. 
+                        Por favor revise la informacion de los contratos', p_nombre_empleado;
+        	end if;
             
            INSERT INTO 
               plani.thoras_trabajadas
@@ -95,10 +103,14 @@ BEGIN
               v_asignacion.frontera
             );
             v_ultimo_id_uo_funcionario = v_asignacion.id_uo_funcionario;
+            
+            if (v_horas_contrato > 8) then
+                v_ultimo_id_mayor_uno = v_ultimo_id_uo_funcionario;
+            end if;
         
         END LOOP;
         --si es el mes de febrero
-        if(v_horas_total = v_planilla.dias_mes and v_horas_total < v_cantidad_horas_mes)THEN
+        if(v_horas_total = v_planilla.horas_mes and v_horas_total < v_cantidad_horas_mes)THEN
         	       
             update plani.thoras_trabajadas
             set horas_normales = v_cantidad_horas_mes
@@ -106,6 +118,16 @@ BEGIN
                 id_funcionario_planilla = v_empleados.id_funcionario_planilla;
             
         end if; 
+        
+        --si es mes de 31 dias
+        if(v_horas_total >= v_cantidad_horas_mes and v_planilla.horas_mes = 248 and v_ultimo_id_mayor_uno is not null)THEN
+                            
+            update plani.thoras_trabajadas
+            set horas_normales = horas_normales - 8            
+            where id_uo_funcionario = v_ultimo_id_mayor_uno and 
+            	id_funcionario_planilla = v_empleados.id_funcionario_planilla;
+            
+        end if;
     end loop; 
     return 'exito';
 
