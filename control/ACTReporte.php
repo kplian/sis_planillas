@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
+require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
 
 class ACTReporte extends ACTbase{    
 			
@@ -42,6 +43,7 @@ class ACTReporte extends ACTbase{
 	}
 	
 	function reportePlanilla()	{
+		
 		if ($this->objParam->getParametro('id_proceso_wf') != '') {
 			$this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
 		}
@@ -58,7 +60,7 @@ class ACTReporte extends ACTbase{
 		$titulo = $this->res->datos[0]['titulo_reporte'];
 		//Genera el nombre del archivo (aleatorio + titulo)
 		$nombreArchivo=uniqid(md5(session_id()).$titulo);
-		$nombreArchivo.='.pdf';
+		
 		
 		//obtener tamaño y orientacion
 		if ($this->res->datos[0]['hoja_posicion'] == 'carta_vertical') {
@@ -76,18 +78,37 @@ class ACTReporte extends ACTbase{
 		}
 		
 		$this->objParam->addParametro('orientacion',$orientacion);
-		$this->objParam->addParametro('tamano',$tamano);
-		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		$this->objParam->addParametro('tamano',$tamano);		
 		$this->objParam->addParametro('titulo_archivo',$titulo);
-
-		//Instancia la clase de pdf
-		$this->objReporteFormato=new RPlanillaGenerica($this->objParam);
 		
-		$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
-		//$this->objReporteFormato->renderDatos($this->res2->datos);
-		$this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
-		$this->objReporteFormato->generarReporte();
-		$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+		
+		if ($this->objParam->getParametro('tipo_reporte') == 'pdf') {
+			$nombreArchivo.='.pdf';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			//Instancia la clase de pdf
+			$this->objReporteFormato=new RPlanillaGenerica($this->objParam);
+			$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+			//$this->objReporteFormato->renderDatos($this->res2->datos);
+			$this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
+			$this->objReporteFormato->generarReporte();
+			$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+		} else {
+			
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			$this->objParam->addParametro('config',$this->res->datos[0]);
+			$this->objParam->addParametro('datos',$this->res2->datos);
+			
+			//Instancia la clase de excel
+			$this->objReporteFormato=new RPlanillaGenericaXls($this->objParam);
+			$this->objReporteFormato->imprimeDatos();
+			$this->objReporteFormato->generarReporte();			
+		}
+		
+
+		
+		
+		
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
 										'Se generó con éxito el reporte: '.$nombreArchivo,'control');

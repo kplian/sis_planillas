@@ -14,7 +14,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
 		this.maestro=config.maestro;
-		this.initButtons=[this.cmbReporte];
+		this.initButtons=[this.cmbReporte,this.cmbTipoReporte];
     	//llama al constructor de la clase padre
 		Phx.vista.Planilla.superclass.constructor.call(this,config);
 		this.init();
@@ -482,7 +482,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			Phx.CP.loadingShow();
 		    Ext.Ajax.request({
 		        url:url_reporte,
-		        params:{'id_proceso_wf':rec.data.id_proceso_wf, 'id_reporte' : r.data.id_reporte},
+		        params:{'id_proceso_wf':rec.data.id_proceso_wf, 'id_reporte' : r.data.id_reporte,
+		        		'tipo_reporte':this.cmbTipoReporte.getValue()},
 		        success: this.successExport,
 		        failure: this.conexionFailure,
 		        timeout:this.timeout,
@@ -684,6 +685,18 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				queryDelay:500,
 				listWidth:'280',
 				width:100
+	}),
+	cmbTipoReporte :new Ext.form.ComboBox({
+				fieldLabel: '',
+				allowBlank:false,
+				emptyText:'Tipo Rep...',
+	       		typeAhead: false,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				width: 80,
+				store:['pdf','excel'],
+				value:'pdf'
 	}),
 	EnableSelect : function (n, extra) {
 		var selected = this.sm.getSelected().data;
