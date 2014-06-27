@@ -105,7 +105,7 @@ class RPlanillaGenericaXls
 			$columnas++;			
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'Emp.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,2,'Emp.');
 			$columnas++;			
 		}
 		if ($config['mostrar_doc_id'] == 'si') {			
@@ -117,7 +117,7 @@ class RPlanillaGenericaXls
 		
 		
 		foreach($datos as $value) {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,$value['titulo_reporte_inferior']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,2,$value['titulo_reporte_inferior']);
 			$columnas++;
 			if ($columnas - $columnas_basicas == $config['cantidad_columnas']) {
 				break;
