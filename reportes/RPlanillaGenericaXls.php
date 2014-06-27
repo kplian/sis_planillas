@@ -143,23 +143,29 @@ class RPlanillaGenericaXls
 	}
 
 	function imprimeDatosBasicos($config,$detalle, $fila) {
-		$columnas = 0;		
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$fila,$detalle['gerencia']);	
+		$columnas = 1;
+			
 		if ($config['numerar'] == 'si') {
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$fila);
+			$columnas++;
 		}
 		if ($config['mostrar_nombre'] == 'si') {
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['nombre_empleado']);
+			$columnas++;
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['codigo_empleado']);
+			$columnas++;
 		}
 		if ($config['mostrar_doc_id'] == 'si') {
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['doc_id']);
+			$columnas++;
 		}
 		if ($config['mostrar_codigo_cargo'] == 'si') {
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['codigo_cargo']);
-		}
-		return $res_array;
+			$columnas++;
+		}		
 	}
 	
 	function generarReporte(){
