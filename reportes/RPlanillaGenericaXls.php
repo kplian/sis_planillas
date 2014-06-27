@@ -62,7 +62,7 @@ class RPlanillaGenericaXls
 		$columnas++;
 		if ($config['numerar'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(8);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'TIPO');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'No');
 			$columnas++;
 		}
 		if ($config['mostrar_nombre'] == 'si'){
@@ -131,8 +131,9 @@ class RPlanillaGenericaXls
 		foreach($datos as $value) {			
 			if ($id_funcionario != $value['id_funcionario']) {				
 				$fila++;
-				$columnas = $columnas_basicas + 1;
+				$columnas = $columnas_basicas;
 				$this->imprimeDatosBasicos($config,$value,$fila);
+				$id_funcionario = $value['id_funcionario'];
 				
 			}
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$value['valor_columna']);
