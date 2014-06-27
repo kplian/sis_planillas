@@ -123,8 +123,43 @@ class RPlanillaGenericaXls
 				break;
 			}
 		}
-		
 		//*************************************Fin Cabecera*****************************************
+		$id_funcionario = -1;
+		$fila = 2;
+		
+		/////////////////////***********************************Detalle***********************************************
+		foreach($datos as $value) {			
+			if ($id_funcionario != $value['id_funcionario']) {				
+				$fila++;
+				$columnas = $columnas_basicas + 1;
+				$this->imprimeDatosBasicos($config,$value,$fila);
+				
+			}
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$value['valor_columna']);
+			$columnas++;
+		}
+		//************************************************Fin Detalle***********************************************
+		
+	}
+
+	function imprimeDatosBasicos($config,$detalle, $fila) {
+		$columnas = 0;		
+		if ($config['numerar'] == 'si') {
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$fila);
+		}
+		if ($config['mostrar_nombre'] == 'si') {
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['nombre_empleado']);
+		}
+		if ($config['mostrar_codigo_empleado'] == 'si') {
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['codigo_empleado']);
+		}
+		if ($config['mostrar_doc_id'] == 'si') {
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['doc_id']);
+		}
+		if ($config['mostrar_codigo_cargo'] == 'si') {
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,$detalle['codigo_cargo']);
+		}
+		return $res_array;
 	}
 	
 	function generarReporte(){
