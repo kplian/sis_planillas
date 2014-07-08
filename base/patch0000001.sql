@@ -362,3 +362,9 @@ ALTER TABLE plani.tcolumna_valor
   ALTER COLUMN valor_generado TYPE NUMERIC(18,10);
 
 /***********************************F-SCP-JRR-PLANI-0-17/06/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-08/07/2014****************************************/
+ALTER TABLE plani.ttipo_columna
+  ALTER COLUMN formula TYPE VARCHAR(500);
+  
+/***********************************F-SCP-JRR-PLANI-0-08/07/2014****************************************/

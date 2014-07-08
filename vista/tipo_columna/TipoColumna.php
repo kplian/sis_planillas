@@ -102,7 +102,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 150,
-				maxLength:255
+				maxLength:500
 			},
 				type:'TextArea',
 				filters:{pfiltro:'tipcol.formula',type:'string'},
