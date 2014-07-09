@@ -32,6 +32,7 @@ class MODTipoObligacionColumna extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('es_ultimo','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -53,6 +54,7 @@ class MODTipoObligacionColumna extends MODbase{
 		$this->setParametro('pago','pago','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
+		$this->setParametro('es_ultimo','es_ultimo','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -75,6 +77,7 @@ class MODTipoObligacionColumna extends MODbase{
 		$this->setParametro('pago','pago','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
+		$this->setParametro('es_ultimo','es_ultimo','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

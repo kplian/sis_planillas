@@ -129,6 +129,30 @@ Phx.vista.TipoObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
+		},
+		
+		{
+			config:{
+				name: 'es_ultimo',
+				fieldLabel: 'Pagar Presupuesto por Resta',
+				allowBlank:false,
+				emptyText:'Por resta...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no'],
+				qtip:'Paga el presupuesto de esta columna por resta entre las columnas presupuestarias y de pago'
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		},			
 		{
 			config:{
@@ -219,6 +243,7 @@ Phx.vista.TipoObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_tipo_obligacion', type: 'numeric'},
 		{name:'presupuesto', type: 'string'},
 		{name:'pago', type: 'string'},
+		{name:'es_ultimo', type: 'string'},
 		{name:'estado_reg', type: 'string'},
 		{name:'codigo_columna', type: 'string'},
 		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},

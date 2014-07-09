@@ -373,4 +373,7 @@ ALTER TABLE plani.ttipo_columna
 ALTER TABLE plani.ttipo_obligacion
   ADD COLUMN es_pagable VARCHAR(2) DEFAULT 'si' NOT NULL;
   
+ALTER TABLE plani.ttipo_obligacion_columna
+  ADD COLUMN es_ultimo VARCHAR(2) DEFAULT 'no' NOT NULL;
+  
 /***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/

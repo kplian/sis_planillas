@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_tipo_obligacion_columna_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.ft_tipo_obligacion_columna_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_tipo_obligacion_columna_sel
@@ -52,7 +56,8 @@ BEGIN
 						obcol.id_usuario_mod,
 						obcol.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+                        obol.es_ultimo	
 						from plani.ttipo_obligacion_columna obcol
 						inner join segu.tusuario usu1 on usu1.id_usuario = obcol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = obcol.id_usuario_mod
@@ -107,7 +112,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_tipo_obligacion_columna_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
