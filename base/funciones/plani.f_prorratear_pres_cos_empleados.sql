@@ -188,21 +188,21 @@ BEGIN
     end if;
     --llenar tprorrateo_columna de acuerdo al prorrateo
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
-    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje, cv.id_tipo_columna,cv.codigo_columna
+    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
         				from plani.tprorrateo pro
                         inner join plani.thoras_trabajadas ht on pro.id_horas_trabajadas = ht.id_horas_trabajadas
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla 
                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
                         inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and 
-                        								(tc.compromete = ''si'' or tc.compromete = ''si_devengado'')
+                        								(tc.compromete = ''si'' or tc.compromete = ''si_contable'')
                         where fp.id_planilla = ' || p_id_planilla;
     elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_periodo') then
-    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje, cv.id_tipo_columna,cv.codigo_columna
+    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
         				from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla 
                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = pro.id_funcionario_planilla
                         inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and 
-                        								(tc.compromete = ''si'' or tc.compromete = ''si_devengado'')
+                        								(tc.compromete = ''si'' or tc.compromete = ''si_contable'')
                         where fp.id_planilla = ' || p_id_planilla;
     
     end if;
@@ -217,7 +217,8 @@ BEGIN
           id_prorrateo,
           id_tipo_columna,
           codigo_columna,
-          porcentaje
+          porcentaje,
+          compromete
         ) 
         VALUES (
           p_id_usuario,
@@ -226,7 +227,8 @@ BEGIN
           v_registros.id_prorrateo,
           v_registros.id_tipo_columna,
           v_registros.codigo_columna,
-          v_registros.porcentaje
+          v_registros.porcentaje,
+          v_registros.compromete
         );
     end loop;
     

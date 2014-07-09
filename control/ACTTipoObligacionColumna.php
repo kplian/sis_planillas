@@ -18,6 +18,10 @@ class ACTTipoObligacionColumna extends ACTbase{
 			$this->objParam->addFiltro("obcol.id_tipo_columna = ". $this->objParam->getParametro('id_tipo_columna'));
 		}
 		
+		if ($this->objParam->getParametro('id_tipo_obligacion') != '') {
+			$this->objParam->addFiltro("obcol.id_tipo_obligacion = ". $this->objParam->getParametro('id_tipo_obligacion'));
+		}
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODTipoObligacionColumna','listarTipoObligacionColumna');

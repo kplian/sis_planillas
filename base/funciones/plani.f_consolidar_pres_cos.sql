@@ -21,6 +21,7 @@ DECLARE
   v_columnas				record;
   v_id_consolidado_columna	integer;
   v_valor_acumulado			numeric;
+  v_valor_ejecutado			numeric;
 BEGIN
 	v_nombre_funcion = 'plani.f_consolidar_pres_cos';
 	SELECT p.*,tp.tipo_presu_cc,tp.calculo_horas,id_gestion
@@ -28,7 +29,7 @@ BEGIN
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
     where p.id_planilla = p_id_planilla;
-    
+    /*Verificar si se hara la consolidacion por presupuesto o por centro de costo*/
     if (p_tipo_generacion = 'presupuestos') then
         v_campo = 'pro.id_presupuesto';
     else
@@ -44,7 +45,7 @@ BEGIN
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
     elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_periodo' or v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then
-    	v_consulta = 'select ' || v_campo || ' 
+    	v_consulta = 'select ' || v_campo || ' as id_campo 
     					from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
                         where id_planilla = ' || p_id_planilla || '
@@ -83,7 +84,7 @@ BEGIN
           p_tipo_generacion
         )RETURNING id_consolidado into v_id_consolidado;
         
-        v_consulta = 'select ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor
+        v_consulta = 'select ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor,procol.compromete
     					from plani.tprorrateo pro ';
     	if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
         	v_consulta = v_consulta || 'inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
@@ -101,6 +102,13 @@ BEGIN
                         group by ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna';
         
         for v_columnas in execute (v_consulta) loop
+        	if (p_tipo_generacion = 'costos' or 
+            	(p_tipo_generacion = 'presupuestos' and v_columnas.compromete = 'si_contabilidad')) then
+            	v_valor_ejecutado = 0;
+            else
+            	v_valor_ejecutado = v_columnas.valor;
+            end if;
+        	
         	INSERT INTO 
               plani.tconsolidado_columna
             (
@@ -111,7 +119,8 @@ BEGIN
               id_tipo_columna,
               codigo_columna,
               valor,
-              tipo_contrato
+              tipo_contrato,
+              valor_ejecutado
             ) 
             VALUES (
               p_id_usuario,
@@ -121,7 +130,8 @@ BEGIN
               v_columnas.id_tipo_columna,
               v_columnas.codigo_columna,
               v_columnas.valor,
-              v_columnas.tipo_contrato
+              v_columnas.tipo_contrato,
+              v_valor_ejecutado
             )RETURNING id_consolidado_columna into v_id_consolidado_columna;
             --calcular el ejecutado de las planillas que tienen la misma columna y q esten en estado finalizado
             if (v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then

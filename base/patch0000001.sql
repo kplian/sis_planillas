@@ -374,6 +374,15 @@ ALTER TABLE plani.ttipo_obligacion
   ADD COLUMN es_pagable VARCHAR(2) DEFAULT 'si' NOT NULL;
   
 ALTER TABLE plani.ttipo_obligacion_columna
-  ADD COLUMN es_ultimo VARCHAR(2) DEFAULT 'no' NOT NULL;
+  ADD COLUMN es_ultimo VARCHAR(2) DEFAULT 'no' NOT NULL;  
+
+ALTER TABLE plani.tprorrateo_columna
+  ADD COLUMN compromete VARCHAR(2) DEFAULT 'si' NOT NULL;
+
+ALTER TABLE plani.ttipo_columna
+  DROP CONSTRAINT chk__ttipo_columna__compromete RESTRICT;
+
+ALTER TABLE plani.ttipo_columna
+  ADD CONSTRAINT chk__ttipo_columna__compromete CHECK (((((compromete)::text = 'si_pago'::text) OR ((compromete)::text = 'si_contable'::text)) OR ((compromete)::text = 'si'::text)) OR ((compromete)::text = 'no'::text));
   
 /***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/
