@@ -33,6 +33,7 @@ class MODTipoObligacion extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('es_pagable','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -55,7 +56,7 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
-
+		$this->setParametro('es_pagable','es_pagable','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -78,6 +79,7 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('estado_reg','estado_reg','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
+		$this->setParametro('es_pagable','es_pagable','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

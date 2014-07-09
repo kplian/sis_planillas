@@ -273,7 +273,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		
 	],
 	sortInfo:{
-		field: 'id_reporte_columna',
+		field: 'orden',
 		direction: 'ASC'
 	},
 	bdel:true,

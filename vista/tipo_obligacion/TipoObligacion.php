@@ -106,7 +106,8 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['si','no']
+				store:['si','no'],
+				qtip:'Si se generará una obligación separada por lugar'
 			},
 				type:'ComboBox',
 				filters:{	
@@ -116,7 +117,32 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},				
+		},
+		
+		{
+			config:{
+				name: 'es_pagable',
+				fieldLabel: 'Es Pagable',
+				allowBlank:false,
+				emptyText:'pagable...',
+	       		typeAhead: false,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				qtipo:'Si la obligación se debe pagar a un proveedor o es un movimiento interno entre cuentas de la empresa',
+				store:['si','no'],
+				
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},						
 		
 		{
 			config:{
@@ -207,6 +233,7 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_tipo_obligacion', type: 'numeric'},
 		{name:'tipo_obligacion', type: 'string'},
 		{name:'dividir_por_lugar', type: 'string'},
+		{name:'es_pagable', type: 'string'},
 		{name:'id_tipo_planilla', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
 		{name:'codigo', type: 'string'},

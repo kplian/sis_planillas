@@ -121,12 +121,13 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['si','si_devengado','si_pago','no']
+				qtip:'si_pago permite mostrar la columna en el pago de obligaciones pero no ejecutará la columna',
+				store:['si','si_pago','no']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['si','si_devengado','si_pago','no'],	
+	       				 options: ['si','si_pago','no'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,

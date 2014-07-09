@@ -368,3 +368,9 @@ ALTER TABLE plani.ttipo_columna
   ALTER COLUMN formula TYPE VARCHAR(500);
   
 /***********************************F-SCP-JRR-PLANI-0-08/07/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-09/07/2014****************************************/
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN es_pagable VARCHAR(2) DEFAULT 'si' NOT NULL;
+  
+/***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/

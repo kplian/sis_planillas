@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_tipo_obligacion_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_tipo_obligacion_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_tipo_obligacion_ime
@@ -54,7 +57,8 @@ BEGIN
 			id_usuario_reg,
 			fecha_reg,
 			id_usuario_mod,
-			fecha_mod
+			fecha_mod,
+            es_pagable
           	) values(
 			v_parametros.tipo_obligacion,
 			v_parametros.dividir_por_lugar,
@@ -65,7 +69,8 @@ BEGIN
 			p_id_usuario,
 			now(),
 			null,
-			null
+			null,
+            v_parametros.es_pagable
 							
 			)RETURNING id_tipo_obligacion into v_id_tipo_obligacion;
 			
@@ -96,7 +101,8 @@ BEGIN
 			codigo = v_parametros.codigo,
 			nombre = v_parametros.nombre,
 			id_usuario_mod = p_id_usuario,
-			fecha_mod = now()
+			fecha_mod = now(),
+            es_pagable = v_parametros.es_pagable
 			where id_tipo_obligacion=v_parametros.id_tipo_obligacion;
                
 			--Definicion de la respuesta
@@ -147,7 +153,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_tipo_obligacion_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
