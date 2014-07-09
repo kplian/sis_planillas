@@ -84,7 +84,7 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['pago_empleados','pago_afp','pago_comun']
+				store:['pago_empleados','pago_afp','pago_comun','una_obligacion_x_empleado']
 			},
 				type:'ComboBox',
 				filters:{	

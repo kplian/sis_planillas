@@ -467,7 +467,8 @@ BEGIN
             
             v_resp = (select plani.f_consolidar_pres_cos(v_parametros.id_planilla, 'presupuestos',p_id_usuario)); 
         	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario, 'siguiente'));           
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai,'siguiente'));           
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
