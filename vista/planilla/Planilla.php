@@ -573,7 +573,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     {	var rec = this.sm.getSelected();
         this.desactivarMenu();
         if (rec.data.estado == 'registro_horas' || rec.data.estado == 'registro_funcionarios'  || rec.data.estado == 'borrador' ) {
-        	this.cmbReporte.disable();
+        	this.cmbReporte.disable();        	
         } else {
         	this.cmbReporte.enable();
         }
@@ -642,22 +642,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         
         this.getBoton('btnObligaciones').enable(); 
         if (rec.data.estado == 'presupuestos_validado' ) {        		
-    		this.getBoton('btnPresupuestos').menu.items.items[0].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[3].disable();      		 
+    		this.getBoton('btnObligaciones').menu.items.items[0].enable();
+    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
+    		this.getBoton('btnObligaciones').menu.items.items[2].disable();
+    		this.getBoton('btnObligaciones').menu.items.items[3].disable();      		 
     		      		     		
     	} else if (rec.data.estado == 'obligaciones') {
-    		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[3].enable();  		
+    		this.getBoton('btnObligaciones').menu.items.items[0].disable();
+    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
+    		this.getBoton('btnObligaciones').menu.items.items[2].enable();
+    		this.getBoton('btnObligaciones').menu.items.items[3].enable();  		
     		 
     	} else {
-    		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[3].disable(); 
+    		this.getBoton('btnObligaciones').menu.items.items[0].disable();
+    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
+    		this.getBoton('btnObligaciones').menu.items.items[2].disable();
+    		this.getBoton('btnObligaciones').menu.items.items[3].disable(); 
     	}
     	        
         Phx.vista.Planilla.superclass.preparaMenu.call(this);

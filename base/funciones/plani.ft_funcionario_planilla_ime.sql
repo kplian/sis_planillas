@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_funcionario_planilla_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_funcionario_planilla_ime
@@ -68,7 +71,9 @@ BEGIN
 			id_usuario_reg,
 			fecha_reg,
 			id_usuario_mod,
-			fecha_mod
+			fecha_mod,
+            id_afp,
+            id_cuenta_bancaria
           	) values(
 			v_parametros.finiquito,
 			v_parametros.forzar_cheque,
@@ -80,7 +85,9 @@ BEGIN
 			p_id_usuario,
 			now(),
 			null,
-			null
+			null,
+            v_func_planilla.o_id_afp,
+            v_func_planilla.o_id_cuenta_bancaria
 							
 			)RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
 			
@@ -185,7 +192,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_funcionario_planilla_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

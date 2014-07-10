@@ -2378,8 +2378,8 @@ CREATE INDEX ttipo_columna_idx1 ON plani.ttipo_columna
 
 /***********************************I-DEP-JRR-PLANI-0-10/07/2014****************************************/
 ALTER TABLE plani.tfuncionario_planilla
-  ADD CONSTRAINT fk__tfuncionario_planilla__id_afp FOREIGN KEY (id_afp)
-    REFERENCES plani.tafp(id_afp)
+  ADD CONSTRAINT fk__tfuncionario_planilla__id_afp FOREIGN KEY (id_funcionario_afp)
+    REFERENCES plani.tfuncionario_afp(id_funcionario_afp)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
