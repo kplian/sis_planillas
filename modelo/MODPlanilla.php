@@ -143,6 +143,12 @@ class MODPlanilla extends MODbase{
 			$this->transaccion='PLA_PLANIGENPRE_MOD';
 		} else if ($this->arreglo['accion'] == 'presupuestosValidar') {
 			$this->transaccion='PLA_PLANIVALPRE_MOD';
+		} else if ($this->arreglo['accion'] == 'obligacionesGenerar') {
+			$this->transaccion='PLA_PLANIGENOBLI_MOD';
+		} else if ($this->arreglo['accion'] == 'obligacionesValidar') {
+			$this->transaccion='PLA_PLANIVALOBLI_MOD';
+		} else if ($this->arreglo['accion'] == 'obligacionesEnviar') {
+			$this->transaccion='PLA_PLANIENVOBLI_MOD';
 		}
 		
 		
