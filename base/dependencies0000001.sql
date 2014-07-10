@@ -2375,3 +2375,20 @@ CREATE INDEX ttipo_columna_idx1 ON plani.ttipo_columna
   USING btree (orden);
 
 /***********************************F-DEP-JRR-PLANI-0-05/06/2014****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-10/07/2014****************************************/
+ALTER TABLE plani.tfuncionario_planilla
+  ADD CONSTRAINT fk__tfuncionario_planilla__id_afp FOREIGN KEY (id_afp)
+    REFERENCES plani.tafp(id_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD CONSTRAINT fk_tfuncionario_planilla__id_cuenta_bancaria FOREIGN KEY (id_cuenta_bancaria)
+    REFERENCES orga.tfuncionario_cuenta_bancaria(id_funcionario_cuenta_bancaria)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+/***********************************F-DEP-JRR-PLANI-0-10/07/2014****************************************/

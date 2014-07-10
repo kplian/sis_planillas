@@ -384,5 +384,11 @@ ALTER TABLE plani.ttipo_columna
 
 ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT chk__ttipo_columna__compromete CHECK (((((compromete)::text = 'si_pago'::text) OR ((compromete)::text = 'si_contable'::text)) OR ((compromete)::text = 'si'::text)) OR ((compromete)::text = 'no'::text));
-  
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD COLUMN id_afp INTEGER;
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD COLUMN id_cuenta_bancaria INTEGER;
+    
 /***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/
