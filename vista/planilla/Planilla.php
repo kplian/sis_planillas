@@ -653,7 +653,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     		this.getBoton('btnPresupuestos').menu.items.items[2].enable();
     		this.getBoton('btnPresupuestos').menu.items.items[3].enable();  		
     		 
-    	else {
+    	} else {
     		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
     		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
     		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
