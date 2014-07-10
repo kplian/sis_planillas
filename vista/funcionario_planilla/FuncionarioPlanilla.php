@@ -106,9 +106,6 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				form:true
 		},
 		
-		
-		
-		
 		{
 			config:{
 				name: 'estado_reg',
@@ -124,6 +121,68 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
+		
+		{
+			config:{
+				name: 'lugar',
+				fieldLabel: 'Lugar',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'lug.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'afp',
+				fieldLabel: 'Afp',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'afp.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'nro_afp',
+				fieldLabel: 'No AFP',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'fafp.nro_afp',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'banco',
+				fieldLabel: 'Banco',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'ins.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'nro_cuenta',
+				fieldLabel: 'No Cuenta',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'fcb.nro_cuenta',type:'string'},				
+				grid:true,
+				form:false
+		},
+				
+		
 		{
 			config:{
 				name: 'usr_reg',
@@ -209,6 +268,12 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		
+		{name:'lugar', type: 'string'},
+		{name:'afp', type: 'string'},
+		{name:'nro_afp', type: 'string'},
+		{name:'banco', type: 'string'},
+		{name:'nro_cuenta', type: 'string'}		
 		
 	],
 	sortInfo:{
