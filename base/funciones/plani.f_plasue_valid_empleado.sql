@@ -2,7 +2,9 @@ CREATE OR REPLACE FUNCTION plani.f_plasue_valid_empleado (
   p_id_funcionario integer,
   p_id_planilla integer,
   out o_id_uo_funcionario integer,
-  out o_id_lugar integer
+  out o_id_lugar integer,
+  out o_id_afp integer,
+  out o_id_cuenta_bancaria integer
 )
 RETURNS record AS
 $body$
@@ -51,10 +53,13 @@ BEGIN
                           p.id_periodo = ' || v_planilla.id_periodo || ')
           order by uofun.fecha_asignacion desc
           limit 1')loop
-    		raise exception 'llega';
+    		
           	v_existe = 'si';
             o_id_lugar = v_registros.id_lugar;
             o_id_uo_funcionario = v_registros.id_uo_funcionario;
+            o_id_afp = plani.f_get_afp(p_id_funcionario, v_planilla.fecha_fin);
+            o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_fin);
+            
   			  	
     end loop;
     if (v_existe = 'no') then
