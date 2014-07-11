@@ -2396,6 +2396,8 @@ ALTER TABLE plani.tfuncionario_planilla
 /***********************************I-DEP-JRR-PLANI-0-11/07/2014****************************************/
 
 
+
+
 ALTER TABLE plani.tobligacion 
   ADD CONSTRAINT fk_tobligacion__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion) 
     REFERENCES plani.ttipo_obligacion(id_tipo_obligacion)
@@ -2420,7 +2422,7 @@ ALTER TABLE plani.tobligacion
     
 ALTER TABLE plani.tobligacion 
   ADD CONSTRAINT fk_tobligacion__id_auxiliar FOREIGN KEY (id_auxiliar) 
-    REFERENCES plani.tobligacion(id_auxiliar)
+    REFERENCES conta.tauxiliar(id_auxiliar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
