@@ -59,11 +59,23 @@ BEGIN
 						funplan.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,	
-						funcio.desc_funcionario1::varchar
+						funcio.desc_funcionario1::varchar,
+                        lug.nombre,
+                        afp.nombre,
+                        fafp.nro_afp,
+                        ins.nombre,
+                        fcb.nro_cuenta,
+                        funcio.ci
 						from plani.tfuncionario_planilla funplan
 						inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
+                        inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
+                        left join orga.tfuncionario_cuenta_bancaria fcb on 
+                        	fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
+                        left join param.tinstitucion ins on ins.id_institucion = fcb.id_institucion                         
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -91,6 +103,12 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
+                        inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
+                        left join orga.tfuncionario_cuenta_bancaria fcb on 
+                        	fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
+                        left join param.tinstitucion ins on ins.id_institucion = fcb.id_institucion                         
 					    where ';
 			
 			--Definicion de la respuesta		    

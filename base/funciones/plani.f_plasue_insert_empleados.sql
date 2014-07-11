@@ -12,6 +12,8 @@ DECLARE
   v_nombre_funcion      text;
   v_mensaje_error       text;
   v_filtro_uo			varchar;
+  v_id_afp				integer;
+  v_id_cuenta_bancaria	integer;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plasue_insert_empleados';
@@ -49,15 +51,19 @@ BEGIN
                           p.id_tipo_planilla = ' || v_planilla.id_tipo_planilla || ' and
                           p.id_periodo = ' || v_planilla.id_periodo || ')
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
-    	
+    	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_fin);
+        v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
+            
     	INSERT INTO plani.tfuncionario_planilla (
         	id_usuario_reg,					estado_reg,					id_funcionario,
             id_planilla,					id_uo_funcionario,			id_lugar,
-            forzar_cheque,					finiquito)
+            forzar_cheque,					finiquito,					id_afp,
+            id_cuenta_bancaria)
         VALUES (
         	v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
             p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
-            'no',							'no')
+            'no',							'no',						v_id_afp,
+            v_id_cuenta_bancaria)
         RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
             
         for v_columnas in (	select * 

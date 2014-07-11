@@ -478,6 +478,32 @@ BEGIN
             return v_resp;
 
 		end;
+    
+    /*********************************    
+ 	#TRANSACCION:  'PLA_PLANIGENOBLI_MOD'
+ 	#DESCRIPCION:	Generacion de obligaciones de la planilla
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_PLANIGENOBLI_MOD')then
+
+		begin
+        	raise exception 'llega generar obligaciones';
+        	
+            --v_resp = (select plani.f_consolidar_pres_cos(v_parametros.id_planilla, 'presupuestos',p_id_usuario)); 
+        	
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             v_parametros._nombre_usuario_ai,'siguiente'));           
+            
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Obligaciones generadas para la planilla'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
          
 	else
      

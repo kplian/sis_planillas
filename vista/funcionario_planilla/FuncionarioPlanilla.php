@@ -41,6 +41,17 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
+			config:{
+				name: 'ci',
+				fieldLabel: 'CI',				
+				gwidth: 100
+			},
+				type:'TextField',
+				filters:{pfiltro:'funcio.ci',type:'string'},				
+				grid:true,
+				form:false
+		},
+		{
    			config:{
        		    name:'id_funcionario',
    				origen:'FUNCIONARIO',
@@ -106,21 +117,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				form:true
 		},
 		
-		{
-			config:{
-				name: 'estado_reg',
-				fieldLabel: 'Estado Reg.',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:10
-			},
-				type:'TextField',
-				filters:{pfiltro:'funplan.estado_reg',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false
-		},
+		
 		
 		{
 			config:{
@@ -182,7 +179,21 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		},
 				
-		
+		{
+			config:{
+				name: 'estado_reg',
+				fieldLabel: 'Estado Reg.',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:10
+			},
+				type:'TextField',
+				filters:{pfiltro:'funplan.estado_reg',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false
+		},
 		{
 			config:{
 				name: 'usr_reg',
@@ -273,11 +284,12 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'afp', type: 'string'},
 		{name:'nro_afp', type: 'string'},
 		{name:'banco', type: 'string'},
-		{name:'nro_cuenta', type: 'string'}		
+		{name:'nro_cuenta', type: 'string'}	,	
+		{name:'ci', type: 'string'}	,
 		
 	],
 	sortInfo:{
-		field: 'id_funcionario_planilla',
+		field: 'desc_funcionario2',
 		direction: 'ASC'
 	},
 	bdel:true,
