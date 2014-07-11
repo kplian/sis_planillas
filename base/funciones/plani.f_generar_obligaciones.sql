@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
+CREATE OR REPLACE FUNCTION orga.f_generar_obligaciones (
   p_id_planilla integer,
   p_id_usuario integer
 )
@@ -65,18 +65,42 @@ BEGIN
         --llamada a funcion que llena la tabla temporal con detalle de obligaciones de la obligacion
         v_respuesta = plani.f_inserta_detalle_obligaciones(v_nombre_tabla,v_registros.id_tipo_obligacion,p_id_planilla);
     	
-        
+        --///////////////////////////////////PAGO EMPLEADOS//////////////////////////////////////////
         if (v_registros.tipo_obligacion = 'pago_empleados') then
+            
             /*Se registra una obligacion por banco que se tenga*/
             for v_obligaciones in execute('
-        		select id_institucion, nombre_banco, sum(valor)' || v_anadir_lugar || '
+        		select id_institucion, nombre_banco, sum(valor) as valor' || v_anadir_lugar || '
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 and id_institucion is not null and nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' 
                 group by id_institucion, nombre_banco' || v_anadir_lugar) loop
                 
                 --inserta la obligacion
-                --insert into plani.tobligacion() values();
+                INSERT INTO 
+                    plani.tobligacion
+                  (
+                    id_usuario_reg,
+                    fecha_reg,                                       
+                    id_tipo_obligacion,
+                    id_planilla,                    
+                    tipo_pago,
+                    acreedor,
+                    descripcion,
+                    monto_obligacion
+                  ) 
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    v_registros.id_tipo_obligacion,
+                    p_id_planilla,
+                    'transferencia_empleados',
+                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
+                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
+                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_obligaciones.valor
+                  ) returning id_obligacion into v_id_obligacion;
                 
                 if (v_registros.dividir_por_lugar = 'si') then
                 	v_where_lugar = ' and id_lugar = '|| v_obligaciones.id_lugar;
@@ -85,61 +109,170 @@ BEGIN
                 end if;
                 --inserta el detalle de obligaciones
                 for v_detalles in execute('
-                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor),tipo_contrato
+                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor) as valor,tipo_contrato
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || ' and 
                     	id_institucion = '|| v_obligaciones.id_institucion || ' and
                         nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' ' || v_where_lugar || '
                     group by id_presupuesto , id_cc, id_tipo_columna, codigo_columna,tipo_contrato' )loop
-                	--insert into plani.tobligacion_columna() values();
+                	INSERT INTO 
+                        plani.tobligacion_columna
+                      (
+                        id_usuario_reg,
+                        fecha_reg,
+                        id_obligacion,
+                        id_presupuesto,
+                        id_cc,
+                        id_tipo_columna,
+                        codigo_columna,
+                        tipo_contrato,
+                        monto_detalle_obligacion
+                      ) 
+                      VALUES (
+                        p_id_usuario,
+                        now(),
+                        v_id_obligacion,
+                        v_detalles.id_presupuesto,
+                        v_detalles.id_cc,
+                        v_detalles.id_tipo_columna,
+                        v_detalles.codigo_columna,
+                        v_detalles.tipo_contrato,
+                        v_detalles.valor
+                      );
                 end loop;
                 
                 --inserta detalle de transferencias
                 for v_detalles in execute('
-                	select id_funcionario , nro_cuenta, sum(valor)
+                	select id_funcionario , nro_cuenta, sum(valor) as valor
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || ' and 
                     	id_institucion = '|| v_obligaciones.id_institucion || ' and
                         nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' ' || v_where_lugar || '
                     group by id_funcionario , nro_cuenta' )loop
-                	--insert into plani.detalle_transferencia() values();
+                	INSERT INTO 
+                      plani.tdetalle_transferencia
+                    (
+                      id_usuario_reg,                      
+                      fecha_reg,
+                      id_obligacion,
+                      id_institucion,
+                      nro_cuenta,
+                      id_funcionario,
+                      monto_transferencia
+                    ) 
+                    VALUES (
+                      p_id_usuario,
+                      now(),                      
+                      v_id_obligacion,
+                      v_obligaciones.id_institucion,
+                      v_detalles.nro_cuenta,
+                      v_detalles.id_funcionario,
+                      v_detalles.valor
+                    );
                 end loop;
             	
         	end loop;
             
             /*Se registra una obligacion por empleado que no tenga cuenta bancaria*/
             for v_obligaciones in execute('
-        		select id_funcionario,nombre_funcionario, sum(valor)
+        		select id_funcionario,nombre_funcionario, sum(valor) as valor
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 and (id_institucion is null or nro_cuenta is not null or trim(both '' '' from nro_cuenta) != '''') 
                 group by id_funcionario, nombre_funcionario') loop
                 
                 --inserta la obligacion
-                --insert into plani.tobligacion() values();
+                INSERT INTO 
+                    plani.tobligacion
+                  (
+                    id_usuario_reg,
+                    fecha_reg,                                       
+                    id_tipo_obligacion,
+                    id_planilla,                    
+                    tipo_pago,
+                    acreedor,
+                    descripcion,
+                    monto_obligacion
+                  ) 
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    v_registros.id_tipo_obligacion,
+                    p_id_planilla,
+                    'cheque',
+                    v_obligaciones.nombre_funcionario,
+                    v_obligaciones.nombre_funcionario || ' cheque de pago a empleado que no tiene cuenta bancaria',
+                    v_obligaciones.valor
+                  ) returning id_obligacion into v_id_obligacion;
                 
                 --inserta el detalle de obligaciones
                 for v_detalles in execute('
-                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor),tipo_contrato
+                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor) as valor,tipo_contrato
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || ' and 
                     	id_funcionario = '|| v_obligaciones.id_funcionario || '
                     group by id_presupuesto , id_cc, id_tipo_columna, codigo_columna,tipo_contrato' )loop
-                	--insert into plani.tobligacion_columna() values();
+                	INSERT INTO 
+                        plani.tobligacion_columna
+                      (
+                        id_usuario_reg,
+                        fecha_reg,
+                        id_obligacion,
+                        id_presupuesto,
+                        id_cc,
+                        id_tipo_columna,
+                        codigo_columna,
+                        tipo_contrato,
+                        monto_detalle_obligacion
+                      ) 
+                      VALUES (
+                        p_id_usuario,
+                        now(),
+                        v_id_obligacion,
+                        v_detalles.id_presupuesto,
+                        v_detalles.id_cc,
+                        v_detalles.id_tipo_columna,
+                        v_detalles.codigo_columna,
+                        v_detalles.tipo_contrato,
+                        v_detalles.valor
+                      );
                 end loop;
             	
         	end loop;
-        
+        --///////////////////////////////////AFP//////////////////////////////////////////
         elsif (v_registros.tipo_obligacion = 'pago_afp') then
     		/*Se registra una obligacion por afp que se tenga*/
             for v_obligaciones in execute('
-        		select id_afp, nombre_afp, sum(valor)' || v_anadir_lugar || '
+        		select id_afp, nombre_afp, sum(valor) as valor' || v_anadir_lugar || '
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 group by id_afp, nombre_afp' || v_anadir_lugar) loop
-                
+                                
                 --inserta la obligacion
-                --insert into plani.tobligacion() values();
+                INSERT INTO 
+                    plani.tobligacion
+                  (
+                    id_usuario_reg,
+                    fecha_reg,                                       
+                    id_tipo_obligacion,
+                    id_planilla,                    
+                    tipo_pago,
+                    acreedor,
+                    descripcion,
+                    monto_obligacion
+                  ) 
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    v_registros.id_tipo_obligacion,
+                    p_id_planilla,
+                    'cheque',
+                    v_registros.nombre_afp || ' ' ||
+                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_registros.nombre_afp || ' ' ||
+                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_obligaciones.valor
+                  ) returning id_obligacion into v_id_obligacion;
                 
                 if (v_registros.dividir_por_lugar = 'si') then
                 	v_where_lugar = ' and id_lugar = '|| v_obligaciones.id_lugar;
@@ -148,25 +281,69 @@ BEGIN
                 end if;
                 --inserta el detalle de obligaciones
                 for v_detalles in execute('
-                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor),tipo_contrato
+                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor) as valor,tipo_contrato
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || ' and 
                     	id_afp = '|| v_obligaciones.id_afp  || v_where_lugar || '
                     group by id_presupuesto , id_cc, id_tipo_columna, codigo_columna,tipo_contrato' )loop
-                	--insert into plani.tobligacion_columna() values();
+                	INSERT INTO 
+                        plani.tobligacion_columna
+                      (
+                        id_usuario_reg,
+                        fecha_reg,
+                        id_obligacion,
+                        id_presupuesto,
+                        id_cc,
+                        id_tipo_columna,
+                        codigo_columna,
+                        tipo_contrato,
+                        monto_detalle_obligacion
+                      ) 
+                      VALUES (
+                        p_id_usuario,
+                        now(),
+                        v_id_obligacion,
+                        v_detalles.id_presupuesto,
+                        v_detalles.id_cc,
+                        v_detalles.id_tipo_columna,
+                        v_detalles.codigo_columna,
+                        v_detalles.tipo_contrato,
+                        v_detalles.valor
+                      );
                 end loop;            	
         	end loop;     
-            
+        --///////////////////////////////////PAGO COMUN//////////////////////////////////////////    
         elsif (v_registros.tipo_obligacion = 'pago_comun') then
         	
         	for v_obligaciones in execute('
-        		select id_tipo_obligacion,sum(valor)' || v_anadir_lugar || '
+        		select id_tipo_obligacion,sum(valor) as valor' || v_anadir_lugar || '
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 group by id_tipo_obligacion' || v_anadir_lugar) loop
                 
                 --inserta la obligacion
-                --insert into plani.tobligacion() values();
+                INSERT INTO 
+                    plani.tobligacion
+                  (
+                    id_usuario_reg,
+                    fecha_reg,                                       
+                    id_tipo_obligacion,
+                    id_planilla,                    
+                    tipo_pago,
+                    acreedor,
+                    descripcion,
+                    monto_obligacion
+                  ) 
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    v_registros.id_tipo_obligacion,
+                    p_id_planilla,
+                    'cheque',
+                    v_registros.nombre,
+                    v_registros.nombre,
+                    v_obligaciones.valor
+                  ) returning id_obligacion into v_id_obligacion;
                 
                 if (v_registros.dividir_por_lugar = 'si') then
                 	v_where_lugar = ' and id_lugar = '|| v_obligaciones.id_lugar;
@@ -175,33 +352,100 @@ BEGIN
                 end if;
                 --inserta el detalle de obligaciones
                 for v_detalles in execute('
-                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor),tipo_contrato
+                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor) as valor,tipo_contrato
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion ||  v_where_lugar || '
                     group by id_presupuesto , id_cc, id_tipo_columna, codigo_columna,tipo_contrato' )loop
-                	--insert into plani.tobligacion_columna() values();
+                	INSERT INTO 
+                        plani.tobligacion_columna
+                      (
+                        id_usuario_reg,
+                        fecha_reg,
+                        id_obligacion,
+                        id_presupuesto,
+                        id_cc,
+                        id_tipo_columna,
+                        codigo_columna,
+                        tipo_contrato,
+                        monto_detalle_obligacion
+                      ) 
+                      VALUES (
+                        p_id_usuario,
+                        now(),
+                        v_id_obligacion,
+                        v_detalles.id_presupuesto,
+                        v_detalles.id_cc,
+                        v_detalles.id_tipo_columna,
+                        v_detalles.codigo_columna,
+                        v_detalles.tipo_contrato,
+                        v_detalles.valor
+                      );
                 end loop;            	
         	end loop;
         
         elsif (v_registros.tipo_obligacion = 'una_obligacion_x_empleado') then
         	/*Se registra una obligacion por empleado*/
             for v_obligaciones in execute('
-        		select id_funcionario,nombre_funcionario, sum(valor)
+        		select id_funcionario,nombre_funcionario, sum(valor) as valor
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 group by id_funcionario, nombre_funcionario') loop
                 
-                --inserta la obligacion
-                --insert into plani.tobligacion() values();
+                 --inserta la obligacion
+                INSERT INTO 
+                    plani.tobligacion
+                  (
+                    id_usuario_reg,
+                    fecha_reg,                                       
+                    id_tipo_obligacion,
+                    id_planilla,                    
+                    tipo_pago,
+                    acreedor,
+                    descripcion,
+                    monto_obligacion
+                  ) 
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    v_registros.id_tipo_obligacion,
+                    p_id_planilla,
+                    'cheque',
+                    v_obligaciones.nombre_funcionario,
+                    v_registros.nombre || ' ' || v_obligaciones.nombre_funcionario,
+                    v_obligaciones.valor
+                  ) returning id_obligacion into v_id_obligacion;
                 
                 --inserta el detalle de obligaciones
                 for v_detalles in execute('
-                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor),tipo_contrato
+                	select id_presupuesto , id_cc, id_tipo_columna, codigo_columna, sum(valor) as valor,tipo_contrato
                     from ' || v_nombre_tabla || '            		 
                 	where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || ' and 
                     	id_funcionario = '|| v_obligaciones.id_funcionario || '
                     group by id_presupuesto , id_cc, id_tipo_columna, codigo_columna,tipo_contrato' )loop
-                	--insert into plani.tobligacion_columna() values();
+                	INSERT INTO 
+                        plani.tobligacion_columna
+                      (
+                        id_usuario_reg,
+                        fecha_reg,
+                        id_obligacion,
+                        id_presupuesto,
+                        id_cc,
+                        id_tipo_columna,
+                        codigo_columna,
+                        tipo_contrato,
+                        monto_detalle_obligacion
+                      ) 
+                      VALUES (
+                        p_id_usuario,
+                        now(),
+                        v_id_obligacion,
+                        v_detalles.id_presupuesto,
+                        v_detalles.id_cc,
+                        v_detalles.id_tipo_columna,
+                        v_detalles.codigo_columna,
+                        v_detalles.tipo_contrato,
+                        v_detalles.valor
+                      );
                 end loop;
             	
         	end loop;
