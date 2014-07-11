@@ -2392,3 +2392,93 @@ ALTER TABLE plani.tfuncionario_planilla
     NOT DEFERRABLE;
     
 /***********************************F-DEP-JRR-PLANI-0-10/07/2014****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-11/07/2014****************************************/
+
+
+ALTER TABLE plani.tobligacion 
+  ADD CONSTRAINT fk_tobligacion__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion) 
+    REFERENCES plani.ttipo_obligacion(id_tipo_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tobligacion 
+  ADD CONSTRAINT fk_tobligacion__id_planilla FOREIGN KEY (id_planilla) 
+    REFERENCES plani.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tobligacion 
+  ADD CONSTRAINT fk_tobligacion__id_cuenta FOREIGN KEY (id_cuenta) 
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tobligacion 
+  ADD CONSTRAINT fk_tobligacion__id_auxiliar FOREIGN KEY (id_auxiliar) 
+    REFERENCES plani.tobligacion(id_auxiliar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+
+ALTER TABLE plani.tobligacion_columna 
+  ADD CONSTRAINT fk_tobligacion_columna__id_obligacion FOREIGN KEY (id_obligacion) 
+    REFERENCES plani.tobligacion (id_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tobligacion_columna 
+  ADD CONSTRAINT fk_tobligacion_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna) 
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tobligacion_columna 
+  ADD CONSTRAINT fk_tobligacion_columna__id_cc FOREIGN KEY (id_cc) 
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tobligacion_columna 
+  ADD CONSTRAINT fk_tobligacion_columna__id_presupuesto FOREIGN KEY (id_presupuesto) 
+    REFERENCES pre.tpresupuesto(id_presupuesto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+
+
+
+ALTER TABLE plani.tdetalle_transferencia 
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_obligacion FOREIGN KEY (id_obligacion) 
+    REFERENCES plani.tobligacion (id_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tdetalle_transferencia 
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_institucion FOREIGN KEY (id_institucion) 
+    REFERENCES param.tinstitucion(id_institucion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tdetalle_transferencia 
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_funcionario FOREIGN KEY (id_funcionario) 
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+/***********************************F-DEP-JRR-PLANI-0-11/07/2014****************************************/

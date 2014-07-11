@@ -392,3 +392,44 @@ ALTER TABLE plani.tfuncionario_planilla
   ADD COLUMN id_cuenta_bancaria INTEGER;
     
 /***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-11/07/2014****************************************/
+CREATE TABLE plani.tobligacion (
+  id_obligacion SERIAL NOT NULL, 
+  id_tipo_obligacion INTEGER NOT NULL,
+  id_planilla INTEGER NOT NULL, 
+  id_cuenta INTEGER, 
+  id_auxiliar INTEGER, 
+  tipo_pago VARCHAR(50) NOT NULL, 
+  acreedor VARCHAR(255) NOT NULL, 
+  descripcion varchar(500), 
+  monto_obligacion NUMERIC (18,2) NOT NULL,   
+  PRIMARY KEY(id_obligacion) 
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.tobligacion_columna (
+  id_obligacion_columna SERIAL NOT NULL, 
+  id_obligacion INTEGER NOT NULL,
+  id_presupuesto INTEGER, 
+  id_cc INTEGER, 
+  id_tipo_columna INTEGER, 
+  codigo_columna VARCHAR(50) NOT NULL, 
+  tipo_contrato VARCHAR(5) NOT NULL, 
+  monto_detalle_obligacion NUMERIC (18,2) NOT NULL,
+  PRIMARY KEY (id_obligacion_columna) 
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.tdetalle_transferencia (
+  id_detalle_transferencia SERIAL NOT NULL, 
+  id_obligacion INTEGER NOT NULL,
+  id_institucion INTEGER NOT NULL, 
+  nro_cuenta VARCHAR(50) NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  monto_transferencia NUMERIC(18,2) NOT NULL,   
+  PRIMARY KEY (id_detalle_transferencia) 
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-11/07/2014****************************************/
