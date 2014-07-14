@@ -38,7 +38,7 @@ class MODObligacionColumna extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('nombre','varchar');		
-		$this->captura('codigo_cc','varchar');
+		$this->captura('codigo_cc','text');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
