@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_horas_trabajadas_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_horas_trabajadas_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_horas_trabajadas_ime
@@ -99,13 +102,13 @@ BEGIN
 	elsif(p_transaccion='PLA_HORTRA_MOD')then
 
 		begin
-			select pla.*,pe.fecha_ini, pe.fecha_fin
+			select pla.*
         	into v_planilla
         	from plani.tplanilla pla
-        	inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
-        	where id_planilla = v_parametros.id_planilla;
+        	inner join plani.tfuncionario_planilla fp on fp.id_planilla = pla.id_planilla 
+        	where fp.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
         	
-        	if (v_planilla.estado_wf != 'registro_horas')then
+        	if (v_planilla.estado != 'registro_horas')then
         		raise exception 'La planilla debe estar en estado registro_horas para poder modificar las horas trabajadas';
         	end if;
         	
@@ -173,7 +176,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_horas_trabajadas_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

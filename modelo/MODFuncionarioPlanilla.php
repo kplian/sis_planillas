@@ -34,7 +34,7 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		$this->captura('desc_funcionario1','varchar');
+		$this->captura('desc_funcionario1','text');
 		$this->captura('lugar','varchar');
 		$this->captura('afp','varchar');
 		$this->captura('nro_afp','varchar');

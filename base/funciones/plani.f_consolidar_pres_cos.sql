@@ -99,7 +99,7 @@ BEGIN
                         inner join plani.tprorrateo_columna procol on procol.id_prorrateo = pro.id_prorrateo
                         											and procol.id_tipo_columna = cv.id_tipo_columna
                         where cv.valor > 0 and id_planilla = ' || p_id_planilla || ' and ' || v_campo || ' = ' || v_registros.id_campo || '
-                        group by ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna';
+                        group by ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna,procol.compromete';
         
         for v_columnas in execute (v_consulta) loop
         	if (p_tipo_generacion = 'costos' or 
