@@ -59,7 +59,7 @@ BEGIN
 						funplan.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,	
-						funcio.desc_funcionario1::varchar,
+						funcio.desc_funcionario1,
                         lug.nombre,
                         afp.nombre,
                         fafp.nro_afp,

@@ -550,6 +550,20 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     this.idContenedor,
                     'FuncionarioPlanillaColumna');
     },
+    
+    onButtonPresupuestosConsolidado : function () {
+    		var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/consolidado/Consolidado.php',
+                    'Consolidado Presupuestario',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'Consolidado');
+    },
     onButtonNew : function () {
     	this.mostrarComponente(this.Cmp.id_depto);
     	this.mostrarComponente(this.Cmp.id_tipo_planilla);
