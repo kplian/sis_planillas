@@ -36,6 +36,10 @@ class MODDetalleTransferencia extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		
+		$this->captura('ci','varchar');
+		$this->captura('desc_funcionario1','text');
+		$this->captura('nombre','varchar');//banco
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

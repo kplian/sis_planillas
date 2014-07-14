@@ -17,7 +17,16 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Obligacion.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}})
+		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
+		this.addButton('btnDetalle',
+            {
+                text: 'Detalle de Transferencias',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.onBtnDetalle,
+                tooltip: 'Detalle de transferencias en transferencias a empleados'
+            }
+        );
 	},
 			
 	Atributos:[
@@ -275,7 +284,38 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		  title:'Detalle de Ejecución por Obligación', 
 		  height:'50%',
 		  cls:'ObligacionColumna'
-	}
+	},
+	
+	onBtnDetalle: function(){
+			var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/detalle_transferencia/DetalleTransferencia.php',
+                    'Detalle de Transferencias',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'DetalleTransferencia');
+	},
+	preparaMenu:function()
+    {	
+    	var rec = {maestro: this.sm.getSelected().data};
+    	
+    	if (rec.tipo_pago == 'transferencia_empleados') {
+    		this.getBoton('btnDetalle').enable();
+    	} else {
+    		this.getBoton('btnDetalle').disable();
+    	}     
+             
+        Phx.vista.Obligacion.superclass.preparaMenu.call(this);
+    },
+    liberaMenu:function()
+    {	
+        this.getBoton('btnDetalle').disable();                
+        Phx.vista.Obligacion.superclass.liberaMenu.call(this);
+    },
 	}
 )
 </script>

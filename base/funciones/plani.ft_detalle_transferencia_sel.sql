@@ -55,8 +55,15 @@ BEGIN
 						detran.id_usuario_mod,
 						detran.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						fun.ci,
+						fun.desc_funcionario1,
+						ins.nombre	
 						from plani.tdetalle_transferencia detran
+						inner join orga.vfuncionario fun
+							on fun.id_funcionario = detran.id_funcionario
+						inner join param.tinstitucion ins
+							on ins.id_institucion = detran.id_institucion
 						inner join segu.tusuario usu1 on usu1.id_usuario = detran.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = detran.id_usuario_mod
 				        where  ';
@@ -83,6 +90,10 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_detalle_transferencia)
 					    from plani.tdetalle_transferencia detran
+					    inner join orga.vfuncionario fun
+							on fun.id_funcionario = detran.id_funcionario
+						inner join param.tinstitucion ins
+							on ins.id_institucion = detran.id_institucion
 					    inner join segu.tusuario usu1 on usu1.id_usuario = detran.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = detran.id_usuario_mod
 					    where ';

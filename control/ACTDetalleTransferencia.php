@@ -13,6 +13,11 @@ class ACTDetalleTransferencia extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_detalle_transferencia');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('id_obligacion') != '') {
+			$this->objParam->addFiltro("detran.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
+		}
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODDetalleTransferencia','listarDetalleTransferencia');

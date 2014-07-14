@@ -17,7 +17,7 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.DetalleTransferencia.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		this.load({params:{start:0, limit:this.tam_pag, id_obligacion:this.maestro.id_obligacion}})
 	},
 			
 	Atributos:[
@@ -32,163 +32,80 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
-			config: {
-				name: 'id_funcionario',
-				fieldLabel: 'id_funcionario',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_funcionario',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_obligacion'
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
+			type:'Field',
+			form:true 
+		},	
 		{
-			config: {
-				name: 'id_institucion',
-				fieldLabel: 'id_institucion',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_institucion',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			config:{
+				name: 'ci',
+				fieldLabel: 'CI',				
+				gwidth: 100
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
+				type:'TextField',
+				filters:{pfiltro:'fun.ci',type:'string'},				
+				grid:true,
+				form:false
 		},
+		
 		{
-			config: {
-				name: 'id_obligacion',
-				fieldLabel: 'id_obligacion',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_obligacion',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			config:{
+				name: 'desc_funcionario1',
+				fieldLabel: 'Funcionario',				
+				gwidth: 250
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
+				type:'TextField',
+				filters:{pfiltro:'fun.desc_funcionario1',type:'string'},				
+				grid:true,
+				form:false
 		},
+		
+		
+		
+		{
+			config:{
+				name: 'nombre',
+				fieldLabel: 'Banco',				
+				gwidth: 150
+			},
+				type:'TextField',
+				filters:{pfiltro:'ins.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		
+			
 		{
 			config:{
 				name: 'nro_cuenta',
-				fieldLabel: 'nro_cuenta',
+				fieldLabel: 'No cuenta',
 				allowBlank: false,
 				anchor: '80%',
-				gwidth: 100,
+				gwidth: 180,
 				maxLength:50
 			},
 				type:'TextField',
 				filters:{pfiltro:'detran.nro_cuenta',type:'string'},
 				id_grupo:1,
-				grid:true,
+				egrid:true,
 				form:true
 		},
 		{
 			config:{
 				name: 'monto_transferencia',
-				fieldLabel: 'monto_transferencia',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
+				fieldLabel: 'Monto Transferencia',				
+				gwidth: 150
 			},
 				type:'NumberField',
-				filters:{pfiltro:'detran.monto_transferencia',type:'numeric'},
-				id_grupo:1,
+				filters:{pfiltro:'detran.monto_transferencia',type:'numeric'},				
 				grid:true,
-				form:true
+				form:false
 		},
 		{
 			config:{
@@ -310,6 +227,9 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_institucion', type: 'numeric'},
 		{name:'id_obligacion', type: 'numeric'},
 		{name:'nro_cuenta', type: 'string'},
+		{name:'ci', type: 'string'},
+		{name:'desc_funcionario1', type: 'string'},
+		{name:'nombre', type: 'string'},
 		{name:'monto_transferencia', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
 		{name:'id_usuario_ai', type: 'numeric'},
