@@ -76,9 +76,9 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		
 		{
 			config:{
-				name: 'pagable',
+				name: 'es_pagable',
 				fieldLabel: 'Es pagable',				
-				gwidth: 130
+				gwidth: 80
 			},
 				type:'TextField',
 				filters:{pfiltro:'tipobli.es_pagable',type:'string'},				
@@ -96,7 +96,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	       		triggerAction: 'all',
 	       		lazyRender:true,
 	       		mode: 'local',
-				gwidth: 130,
+				gwidth: 85,
 				store:['cheque','transferencia','transferencia_empleados']
 			},
 				type:'ComboBox',
@@ -113,7 +113,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'monto_obligacion',
 				fieldLabel: 'Monto',				
-				gwidth: 130
+				gwidth: 100
 			},
 				type:'NumberField',
 				filters:{pfiltro:'obli.monto_obligacion',type:'numeric'},				
