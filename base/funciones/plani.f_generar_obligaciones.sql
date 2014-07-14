@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION orga.f_generar_obligaciones (
+CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
   p_id_planilla integer,
   p_id_usuario integer
 )
@@ -19,17 +19,18 @@ DECLARE
     v_respuesta			  varchar;
     v_obligaciones		  record;
     v_detalles			  record;
-    v_id_obligacion		  integer;	  	
+    v_id_obligacion		  integer;
+    v_lugar				  varchar;	  	
 BEGIN
 	v_nombre_funcion = 'plani.f_generar_obligaciones';
     --obtener datos de planilla
     select * into v_planilla
     from plani.tplanilla
     where id_planilla = p_id_planilla;
-    v_nombre_tabla = 'plani.tmp_plani_obli_' || p_id_planilla;
+    v_nombre_tabla = 'tmp_plani_obli_' || p_id_planilla;
     
     --Crear tabla temporal con detalle de obligaciones
-    v_sql_tabla = 'CREATE TABLE ' || v_nombre_tabla || '
+    v_sql_tabla = 'CREATE TEMPORARY TABLE ' || v_nombre_tabla || '
     		(	id_tipo_obligacion INTEGER, 
             	id_funcionario INTEGER, 
                 nombre_funcionario TEXT, 
@@ -50,7 +51,7 @@ BEGIN
                 nombre_banco VARCHAR(100), 
                 id_institucion INTEGER, 
                 nro_cuenta VARCHAR
-  			)';    
+  			) ON COMMIT DROP';     
     
     EXECUTE(v_sql_tabla);
     --se recorren todos los tipos de obligacion
@@ -74,8 +75,13 @@ BEGIN
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
                 and id_institucion is not null and nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' 
-                group by id_institucion, nombre_banco' || v_anadir_lugar) loop
-                
+                group by id_institucion, nombre_banco' || v_anadir_lugar || '
+                having sum(valor) > 0') loop
+                if (v_registros.dividir_por_lugar= 'si') then
+                	v_lugar = v_obligaciones.nombre_lugar;
+                else
+                	v_lugar = '';
+                end if;
                 --inserta la obligacion
                 INSERT INTO 
                     plani.tobligacion
@@ -96,9 +102,9 @@ BEGIN
                     p_id_planilla,
                     'transferencia_empleados',
                     v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
-                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_lugar,
                     v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
-                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_lugar,
                     v_obligaciones.valor
                   ) returning id_obligacion into v_id_obligacion;
                 
@@ -178,8 +184,9 @@ BEGIN
         		select id_funcionario,nombre_funcionario, sum(valor) as valor
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
-                and (id_institucion is null or nro_cuenta is not null or trim(both '' '' from nro_cuenta) != '''') 
-                group by id_funcionario, nombre_funcionario') loop
+                and (id_institucion is null or nro_cuenta is null or trim(both '' '' from nro_cuenta) = '''') 
+                group by id_funcionario, nombre_funcionario
+                having sum(valor) > 0') loop
                 
                 --inserta la obligacion
                 INSERT INTO 
@@ -246,7 +253,14 @@ BEGIN
         		select id_afp, nombre_afp, sum(valor) as valor' || v_anadir_lugar || '
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
-                group by id_afp, nombre_afp' || v_anadir_lugar) loop
+                group by id_afp, nombre_afp' || v_anadir_lugar || '
+                having sum(valor) > 0') loop
+                
+                if (v_registros.dividir_por_lugar= 'si') then
+                	v_lugar = v_obligaciones.nombre_lugar;
+                else
+                	v_lugar = '';
+                end if;
                                 
                 --inserta la obligacion
                 INSERT INTO 
@@ -267,10 +281,10 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'cheque',
-                    v_registros.nombre_afp || ' ' ||
-                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
-                    v_registros.nombre_afp || ' ' ||
-                    (case when v_registros.dividir_por_lugar= 'si' then v_obligaciones.nombre_lugar else '' end),
+                    v_obligaciones.nombre_afp || ' ' ||
+                    v_lugar,
+                    v_obligaciones.nombre_afp || ' ' ||
+                    v_lugar,
                     v_obligaciones.valor
                   ) returning id_obligacion into v_id_obligacion;
                 
@@ -319,7 +333,14 @@ BEGIN
         		select id_tipo_obligacion,sum(valor) as valor' || v_anadir_lugar || '
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
-                group by id_tipo_obligacion' || v_anadir_lugar) loop
+                group by id_tipo_obligacion' || v_anadir_lugar || '
+                having sum(valor) > 0') loop
+				
+                if (v_registros.dividir_por_lugar= 'si') then
+                	v_lugar = v_obligaciones.nombre_lugar;
+                else
+                	v_lugar = '';
+                end if;
                 
                 --inserta la obligacion
                 INSERT INTO 
@@ -340,8 +361,8 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'cheque',
-                    v_registros.nombre,
-                    v_registros.nombre,
+                    v_registros.nombre || ' ' || v_lugar,
+                    v_registros.nombre || ' ' || v_lugar,
                     v_obligaciones.valor
                   ) returning id_obligacion into v_id_obligacion;
                 
@@ -389,7 +410,8 @@ BEGIN
         		select id_funcionario,nombre_funcionario, sum(valor) as valor
                 from ' || v_nombre_tabla || '            		 
                 where id_tipo_obligacion = ' || v_registros.id_tipo_obligacion || '
-                group by id_funcionario, nombre_funcionario') loop
+                group by id_funcionario, nombre_funcionario 
+                having sum(valor) > 0') loop
                 
                  --inserta la obligacion
                 INSERT INTO 
