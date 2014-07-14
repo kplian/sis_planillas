@@ -59,8 +59,15 @@ BEGIN
 						concol.id_usuario_mod,
 						concol.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						tipcol.nombre,
+						par.codigo,
+						par.nombre_partida	
 						from plani.tconsolidado_columna concol
+						inner join plani.ttipo_columna tipcol
+							on tipcol.id_tipo_columna = concol.id_tipo_columna
+						left join pre.tpartida par
+							on par.id_partida = concol.id_partida
 						inner join segu.tusuario usu1 on usu1.id_usuario = concol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = concol.id_usuario_mod
 				        where  ';
@@ -87,6 +94,10 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_consolidado_columna)
 					    from plani.tconsolidado_columna concol
+					    inner join plani.ttipo_columna tipcol
+							on tipcol.id_tipo_columna = concol.id_tipo_columna
+						left join pre.tpartida par
+							on par.id_partida = concol.id_partida
 					    inner join segu.tusuario usu1 on usu1.id_usuario = concol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = concol.id_usuario_mod
 					    where ';

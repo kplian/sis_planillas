@@ -13,11 +13,11 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.ConsolidadoColumna=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		this.maestro=config.maestro;
+		//this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.ConsolidadoColumna.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		//this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
 	Atributos:[
@@ -32,279 +32,96 @@ Phx.vista.ConsolidadoColumna=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
-			config: {
-				name: 'id_auxiliar',
-				fieldLabel: 'id_auxiliar',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_auxiliar',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config: {
-				name: 'id_consolidado',
-				fieldLabel: 'id_consolidado',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_consolidado',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config: {
-				name: 'id_cuenta',
-				fieldLabel: 'id_cuenta',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_cuenta',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config: {
-				name: 'id_partida',
-				fieldLabel: 'id_partida',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_partida',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config: {
-				name: 'id_tipo_columna',
-				fieldLabel: 'id_tipo_columna',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_tipo_columna',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
+			//configuracion del componente
 			config:{
-				name: 'valor',
-				fieldLabel: 'valor',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_consolidado'
 			},
-				type:'NumberField',
-				filters:{pfiltro:'concol.valor',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+			type:'Field',
+			form:true 
+		},					
+		
 		{
 			config:{
 				name: 'codigo_columna',
-				fieldLabel: 'codigo_columna',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:30
+				fieldLabel: 'Cod. Columna',				
+				gwidth: 110
 			},
 				type:'TextField',
-				filters:{pfiltro:'concol.codigo_columna',type:'string'},
-				id_grupo:1,
+				filters:{pfiltro:'concol.codigo_columna',type:'string'},				
 				grid:true,
-				form:true
+				form:false
 		},
+		{
+			config:{
+				name: 'nombre',
+				fieldLabel: 'Nombre Columna',				
+				gwidth: 180
+			},
+				type:'TextField',
+				filters:{pfiltro:'tipcol.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		{
+			config:{
+				name: 'codigo',
+				fieldLabel: 'Cod. Partida',				
+				gwidth: 110
+			},
+				type:'TextField',
+				filters:{pfiltro:'par.codigo',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'nombre_partida',
+				fieldLabel: 'Nombre Partida',				
+				gwidth: 180
+			},
+				type:'TextField',
+				filters:{pfiltro:'par.nombre_partida',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
 		{
 			config:{
 				name: 'tipo_contrato',
-				fieldLabel: 'tipo_contrato',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:20
+				fieldLabel: 'Tipo de Contrato',				
+				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'concol.tipo_contrato',type:'string'},
-				id_grupo:1,
+				filters:{pfiltro:'concol.tipo_contrato',type:'string'},				
 				grid:true,
-				form:true
+				form:false
 		},
+		
+		{
+			config:{
+				name: 'valor',
+				fieldLabel: 'Valor',				
+				gwidth: 135
+			},
+				type:'NumberField',
+				filters:{pfiltro:'concol.valor',type:'numeric'},				
+				grid:true,
+				form:false
+		},
+		
 		{
 			config:{
 				name: 'valor_ejecutado',
-				fieldLabel: 'valor_ejecutado',
-				allowBlank: true,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
+				fieldLabel: 'Valor Ejecutado',				
+				gwidth: 135
 			},
 				type:'NumberField',
-				filters:{pfiltro:'concol.valor_ejecutado',type:'numeric'},
-				id_grupo:1,
+				filters:{pfiltro:'concol.valor_ejecutado',type:'numeric'},				
 				grid:true,
-				form:true
+				form:false
 		},
 		{
 			config:{
@@ -428,7 +245,10 @@ Phx.vista.ConsolidadoColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_partida', type: 'numeric'},
 		{name:'id_tipo_columna', type: 'numeric'},
 		{name:'valor', type: 'numeric'},
-		{name:'codigo_columna', type: 'string'},
+		{name:'codigo_columna', type: 'string'},		
+		{name:'codigo', type: 'string'},
+		{name:'nombre', type: 'string'},
+		{name:'nombre_partida', type: 'string'},		
 		{name:'tipo_contrato', type: 'string'},
 		{name:'valor_ejecutado', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
@@ -446,8 +266,14 @@ Phx.vista.ConsolidadoColumna=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_consolidado_columna',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true
+	bdel:false,
+	bsave:false,
+	bedit:false,
+	bnew:false,
+	onReloadPage:function(m){       
+		this.maestro=m;
+		this.load({params:{start:0, limit:this.tam_pag,id_consolidado:this.maestro.id_consolidado}});
+	},
 	}
 )
 </script>

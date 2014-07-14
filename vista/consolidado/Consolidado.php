@@ -61,7 +61,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Total Presupuestario',				
 				gwidth: 150				
 			},
-				type:'TextField',							
+				type:'NumberField',							
 				grid:true,
 				form:false
 		},
@@ -71,7 +71,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 				fieldLabel: 'Total',				
 				gwidth: 150				
 			},
-				type:'TextField',							
+				type:'NumberField',							
 				grid:true,
 				form:false
 		},
@@ -215,8 +215,16 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_consolidado',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true
+	bdel:false,
+	bsave:false,
+	bnew:false,
+	bedit:false,
+	south:{
+		  url:'../../../sis_planillas/vista/consolidado_columna/ConsolidadoColumna.php',
+		  title:'Consolidado por Columna', 
+		  height:'50%',
+		  cls:'ConsolidadoColumna'
+	}
 	}
 )
 </script>
