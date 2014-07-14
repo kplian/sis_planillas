@@ -301,7 +301,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	},
 	preparaMenu:function()
     {	
-    	var rec = {maestro: this.sm.getSelected().data};
+    	var rec = this.sm.getSelected().data;
     	
     	if (rec.tipo_pago == 'transferencia_empleados') {
     		this.getBoton('btnDetalle').enable();
