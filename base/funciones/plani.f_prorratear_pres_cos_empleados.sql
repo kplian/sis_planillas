@@ -25,7 +25,7 @@ BEGIN
     
     --llenar tprorrateo con datos de la parametrizazion
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
-    	for v_registros in (select ht.id_horas_trabajadas, fun.desc_funcionario1,ht.porcentaje_sueldo	
+    	for v_registros in (select fp.id_funcionario_planilla,ht.id_horas_trabajadas, fun.desc_funcionario1,ht.porcentaje_sueldo	
         							from plani.thoras_trabajadas ht 
         							inner join plani.tfuncionario_planilla fp on 
                                     	fp.id_funcionario_planilla = ht.id_funcionario_planilla
@@ -85,7 +85,7 @@ BEGIN
                   p_id_usuario,
                   now(),
                   'activo',
-                  NULL,
+                  v_registros.id_funcionario_planilla,
                   v_registros.id_horas_trabajadas,
                   case when p_tipo_generacion = 'presupuestos' then 
                   	v_id_presupuesto

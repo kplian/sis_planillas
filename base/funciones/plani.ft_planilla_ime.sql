@@ -249,6 +249,30 @@ BEGIN
                                 where id_planilla = v_parametros.id_planilla) loop
             	v_resp = plani.f_eliminar_funcionario_planilla(v_registros.id_funcionario_planilla);
             end loop;
+            
+            --eliminacion de obligacion_columna
+            delete from plani.tobligacion_columna using plani.tobligacion
+            where plani.tobligacion_columna.id_obligacion = plani.tobligacion.id_obligacion and 
+            plani.tobligacion.id_planilla = v_parametros.id_planilla;
+            
+            --eliminacion de detalle_transferencia
+            delete from plani.tdetalle_transferencia using plani.tobligacion
+            where plani.tdetalle_transferencia.id_obligacion = plani.tobligacion.id_obligacion and 
+            plani.tobligacion.id_planilla = v_parametros.id_planilla;
+            
+            --eliminacion de consolidacion_columna
+            delete from plani.tconsolidado_columna using plani.tconsolidado
+            where plani.tconsolidado_columna.id_consolidado = plani.tconsolidado.id_consolidado and 
+            plani.tconsolidado.id_planilla = v_parametros.id_planilla;
+            
+            --eliminacion de las consolidaciones
+            delete from plani.tconsolidado
+            where id_planilla = v_parametros.id_planilla;
+            
+            --eliminacion de las obligaciones
+            delete from plani.tobligacion
+            where id_planilla = v_parametros.id_planilla;
+              
 			--Sentencia de la eliminacion
 			delete from plani.tplanilla
             where id_planilla=v_parametros.id_planilla;
@@ -493,8 +517,8 @@ BEGIN
         	
             v_resp = (select plani.f_generar_obligaciones(v_parametros.id_planilla, p_id_usuario)); 
         	
-            --v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             --v_parametros._nombre_usuario_ai,'siguiente'));           
+            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+            v_parametros._nombre_usuario_ai,'siguiente'));           
             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Obligaciones generadas para la planilla'); 

@@ -307,7 +307,8 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 	bedit:false,
 	bsave:true,
 	preparaMenu : function () {
-		if (this.maestro.estado_wf == 'registro_horas') {
+		
+		if (this.maestro.estado == 'registro_horas') {
 			this.getBoton('save').enable();  
 		} else {
 			this.getBoton('save').disable();  

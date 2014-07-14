@@ -11,26 +11,23 @@ DECLARE
   v_mensaje_error       text;
 BEGIN
 	v_nombre_funcion = 'plani.f_eliminar_funcionario_planilla';
-  for v_registros in (	select id_horas_trabajadas 
-  						from plani.thoras_trabajadas 
-                        where id_funcionario_planilla = p_id_funcionario_planilla) loop
-  		--eliminar prorrateo
-        /*for v_registros_2 in ( select id_prorrateo
-        						from plani.t) loop
-        
-        end loop;*/
-        
-  	
-  end loop;
+  
+  --eliminar prorrateo asociado al funcionario
+  delete from plani.tprorrateo_columna using plani.tprorrateo
+  where plani.tprorrateo_columna.id_prorrateo = plani.tprorrateo.id_prorrateo and 
+  plani.tprorrateo.id_funcionario_planilla = p_id_funcionario_planilla;
+  
+  delete from plani.tprorrateo
+  where id_funcionario_planilla = p_id_funcionario_planilla;
+  
   delete from plani.thoras_trabajadas
   where id_funcionario_planilla = p_id_funcionario_planilla;
   
   delete from plani.tcolumna_valor
   where id_funcionario_planilla = p_id_funcionario_planilla;
-  --eliminar prorrateo asociado al funcionario
-  delete from plani.thoras_trabajadas
-  where id_funcionario_planilla = p_id_funcionario_planilla;
   
+  
+    
   delete from plani.tfuncionario_planilla
   where id_funcionario_planilla = p_id_funcionario_planilla;
   return 'exito';
