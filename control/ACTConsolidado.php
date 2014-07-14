@@ -13,6 +13,11 @@ class ACTConsolidado extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_consolidado');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('id_planilla') != '') {
+			$this->objParam->addFiltro("conpre.id_planilla = ". $this->objParam->getParametro('id_planilla'));
+		}
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODConsolidado','listarConsolidado');

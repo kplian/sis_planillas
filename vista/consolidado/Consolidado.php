@@ -17,7 +17,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Consolidado.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		this.load({params:{start:0, limit:this.tam_pag,id_planilla:this.maestro.id_planilla}})
 	},
 			
 	Atributos:[
