@@ -58,8 +58,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'suma_ejecutado',
-				fieldLabel: 'Total Presupuestario',	
-				format:'0,000.00',			
+				fieldLabel: 'Total Presupuestario',				
 				gwidth: 150				
 			},
 				type:'NumberField',							
@@ -69,8 +68,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 		{
 			config:{
 				name: 'suma',
-				fieldLabel: 'Total',
-				format:'0,000.00',					
+				fieldLabel: 'Total',				
 				gwidth: 150				
 			},
 				type:'NumberField',							

@@ -564,6 +564,21 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     this.idContenedor,
                     'Consolidado');
     },
+    
+    onButtonObligacionesDetalle : function () {
+    		var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
+                    'Obligaciones',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'Obligacion');
+    },
+    
     onButtonNew : function () {
     	this.mostrarComponente(this.Cmp.id_depto);
     	this.mostrarComponente(this.Cmp.id_tipo_planilla);
