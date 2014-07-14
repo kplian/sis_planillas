@@ -76,30 +76,7 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		{
-			config:{
-				name: 'codigo',
-				fieldLabel: 'Cod. Partida',				
-				gwidth: 110
-			},
-				type:'TextField',
-				filters:{pfiltro:'par.codigo',type:'string'},				
-				grid:true,
-				form:false
-		},
-		
-		{
-			config:{
-				name: 'nombre_partida',
-				fieldLabel: 'Nombre Partida',				
-				gwidth: 180
-			},
-				type:'TextField',
-				filters:{pfiltro:'par.nombre_partida',type:'string'},				
-				grid:true,
-				form:false
-		},
-		
+				
 		{
 			config:{
 				name: 'tipo_contrato',
@@ -246,9 +223,7 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_presupuesto', type: 'numeric'},
 		{name:'id_tipo_columna', type: 'numeric'},
 		{name:'codigo_columna', type: 'string'},
-		{name:'nombre', type: 'string'},
-		{name:'codigo', type: 'string'},
-		{name:'nombre_partida', type: 'string'},
+		{name:'nombre', type: 'string'},		
 		{name:'codigo_cc', type: 'string'},
 		{name:'estado_reg', type: 'string'},
 		{name:'monto_detalle_obligacion', type: 'numeric'},
