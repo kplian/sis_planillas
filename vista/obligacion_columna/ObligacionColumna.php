@@ -13,11 +13,11 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		this.maestro=config.maestro;
+		//this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.ObligacionColumna.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag}})
+		//this.load({params:{start:0, limit:this.tam_pag}})
 	},
 			
 	Atributos:[
@@ -32,192 +32,98 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 			form:true 
 		},
 		{
-			config: {
-				name: 'id_cc',
-				fieldLabel: 'id_cc',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_cc',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'id_obligacion'
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
+			type:'Field',
+			form:true 
 		},
+		
 		{
-			config: {
-				name: 'id_obligacion',
-				fieldLabel: 'id_obligacion',
-				allowBlank: false,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_obligacion',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
+			config:{
+				name: 'codigo_cc',
+				fieldLabel: 'Apropiación',				
+				gwidth: 350				
 			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
+				type:'TextField',
+				filters:{pfiltro:'cc.codigo_cc',type:'string'},				
+				grid:true,
+				form:false
 		},
-		{
-			config: {
-				name: 'id_presupuesto',
-				fieldLabel: 'id_presupuesto',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_presupuesto',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
-		{
-			config: {
-				name: 'id_tipo_columna',
-				fieldLabel: 'id_tipo_columna',
-				allowBlank: true,
-				emptyText: 'Elija una opción...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_/control/Clase/Metodo',
-					id: 'id_',
-					root: 'datos',
-					sortInfo: {
-						field: 'nombre',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_', 'nombre', 'codigo'],
-					remoteSort: true,
-					baseParams: {par_filtro: 'movtip.nombre#movtip.codigo'}
-				}),
-				valueField: 'id_',
-				displayField: 'nombre',
-				gdisplayField: 'desc_',
-				hiddenName: 'id_tipo_columna',
-				forceSelection: true,
-				typeAhead: false,
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 15,
-				queryDelay: 1000,
-				anchor: '100%',
-				gwidth: 150,
-				minChars: 2,
-				renderer : function(value, p, record) {
-					return String.format('{0}', record.data['desc_']);
-				}
-			},
-			type: 'ComboBox',
-			id_grupo: 0,
-			filters: {pfiltro: 'movtip.nombre',type: 'string'},
-			grid: true,
-			form: true
-		},
+		
 		{
 			config:{
 				name: 'codigo_columna',
-				fieldLabel: 'codigo_columna',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:50
+				fieldLabel: 'Cod. Columna',				
+				gwidth: 110
 			},
 				type:'TextField',
-				filters:{pfiltro:'oblicol.codigo_columna',type:'string'},
-				id_grupo:1,
+				filters:{pfiltro:'oblicol.codigo_columna',type:'string'},				
 				grid:true,
-				form:true
+				form:false
 		},
+		{
+			config:{
+				name: 'nombre',
+				fieldLabel: 'Nombre Columna',				
+				gwidth: 180
+			},
+				type:'TextField',
+				filters:{pfiltro:'tipcol.nombre',type:'string'},				
+				grid:true,
+				form:false
+		},
+		{
+			config:{
+				name: 'codigo',
+				fieldLabel: 'Cod. Partida',				
+				gwidth: 110
+			},
+				type:'TextField',
+				filters:{pfiltro:'par.codigo',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'nombre_partida',
+				fieldLabel: 'Nombre Partida',				
+				gwidth: 180
+			},
+				type:'TextField',
+				filters:{pfiltro:'par.nombre_partida',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'tipo_contrato',
+				fieldLabel: 'Tipo de Contrato',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'oblicol.tipo_contrato',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'monto_detalle_obligacion',
+				fieldLabel: 'Monto',				
+				gwidth: 100
+			},
+				type:'NumberField',
+				filters:{pfiltro:'oblicol.monto_detalle_obligacion',type:'numeric'},
+				grid:true,
+				form:false
+		},
+				
 		{
 			config:{
 				name: 'estado_reg',
@@ -233,36 +139,7 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		{
-			config:{
-				name: 'monto_detalle_obligacion',
-				fieldLabel: 'monto_detalle_obligacion',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179650
-			},
-				type:'NumberField',
-				filters:{pfiltro:'oblicol.monto_detalle_obligacion',type:'numeric'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
-		{
-			config:{
-				name: 'tipo_contrato',
-				fieldLabel: 'tipo_contrato',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:5
-			},
-				type:'TextField',
-				filters:{pfiltro:'oblicol.tipo_contrato',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},
+		
 		{
 			config:{
 				name: 'usr_reg',
@@ -369,6 +246,10 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_presupuesto', type: 'numeric'},
 		{name:'id_tipo_columna', type: 'numeric'},
 		{name:'codigo_columna', type: 'string'},
+		{name:'nombre', type: 'string'},
+		{name:'codigo', type: 'string'},
+		{name:'nombre_partida', type: 'string'},
+		{name:'codigo_cc', type: 'string'},
 		{name:'estado_reg', type: 'string'},
 		{name:'monto_detalle_obligacion', type: 'numeric'},
 		{name:'tipo_contrato', type: 'string'},
@@ -386,8 +267,14 @@ Phx.vista.ObligacionColumna=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_obligacion_columna',
 		direction: 'ASC'
 	},
-	bdel:true,
-	bsave:true
+	bdel:false,
+	bsave:false,
+	bnew:false,
+	bedit:false,
+	onReloadPage:function(m){       
+		this.maestro=m;
+		this.load({params:{start:0, limit:this.tam_pag,id_obligacion:this.maestro.id_obligacion}});
+	}
 	}
 )
 </script>

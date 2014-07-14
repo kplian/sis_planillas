@@ -269,7 +269,13 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	bdel:false,
 	bsave:true,
 	bedit:true,
-	bnew:false
+	bnew:false,
+	south:{
+		  url:'../../../sis_planillas/vista/obligacion_columna/ObligacionColumna.php',
+		  title:'Detalle de Ejecución por Obligación', 
+		  height:'50%',
+		  cls:'ObligacionColumna'
+	}
 	}
 )
 </script>

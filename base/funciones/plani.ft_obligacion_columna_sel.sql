@@ -57,8 +57,19 @@ BEGIN
 						oblicol.id_usuario_mod,
 						oblicol.fecha_mod,
 						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod	
+						usu2.cuenta as usr_mod,
+						tipcol.nombre,
+						par.codigo,
+						par.nombre_partida,
+						cc.codigo_cc	
 						from plani.tobligacion_columna oblicol
+						inner join plani.ttipo_columna tipcol
+							on tipco.id_tipo_columna = oblico.id_tipo_columna
+						inner join param.vcentro_costo cc
+							on cc.id_centro_costo = oblicol.id_presupuesto
+							on tipco.id_tipo_columna = oblico.id_tipo_columna
+						left join pre.tpartida par 
+							on par.id_partida = oblicol.id_partida
 						inner join segu.tusuario usu1 on usu1.id_usuario = oblicol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = oblicol.id_usuario_mod
 				        where  ';
@@ -85,6 +96,13 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_obligacion_columna)
 					    from plani.tobligacion_columna oblicol
+					    inner join plani.ttipo_columna tipcol
+							on tipco.id_tipo_columna = oblico.id_tipo_columna
+						inner join param.vcentro_costo cc
+							on cc.id_centro_costo = oblicol.id_presupuesto
+							on tipco.id_tipo_columna = oblico.id_tipo_columna
+						left join pre.tpartida par 
+							on par.id_partida = oblicol.id_partida
 					    inner join segu.tusuario usu1 on usu1.id_usuario = oblicol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = oblicol.id_usuario_mod
 					    where ';

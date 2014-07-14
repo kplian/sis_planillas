@@ -37,6 +37,10 @@ class MODObligacionColumna extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('nombre','varchar');
+		$this->captura('codigo','varchar');
+		$this->captura('nombre_partida','varchar');
+		$this->captura('codigo_cc','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
