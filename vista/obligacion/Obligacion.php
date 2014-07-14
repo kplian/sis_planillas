@@ -55,7 +55,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'obli.acreedor',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:true,
+				egrid:true
 		},
 		
 		{
@@ -71,7 +72,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'obli.descripcion',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:true,
+				egrid:true
 		},
 		
 		{
@@ -106,7 +108,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	       		 	},
 				id_grupo:1,
 				grid:true,
-				form:true
+				form:true,
+				egrid:true
 		},	
 		
 		{

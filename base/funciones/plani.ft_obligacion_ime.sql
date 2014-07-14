@@ -27,6 +27,7 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_obligacion	integer;
+	v_obligacion			record;
 			    
 BEGIN
 
@@ -100,6 +101,20 @@ BEGIN
 	elsif(p_transaccion='PLA_OBLI_MOD')then
 
 		begin
+			select *
+			into v_obligacion
+			from plani.tobligacion
+			where id_obligacion = v_parametros.id_obligacion;
+			
+			if (v_obligacion.tipo_pago = 'transferencia_empleados' and v_parametros.tipo_pago != 'transferencia_empleados') then
+				raise exception 'No es posible cambiar el tipo de pago para esta obligacion';
+			end if;
+			
+			if (v_obligacion.tipo_pago != 'transferencia_empleados' and v_parametros.tipo_pago = 'transferencia_empleados') then
+				raise exception 'No es posible asignar el tipo de pago transferencia_empleados a esta obligacion';
+			end if;  
+			
+			
 			--Sentencia de la modificacion
 			update plani.tobligacion set			
 			acreedor = v_parametros.acreedor,
