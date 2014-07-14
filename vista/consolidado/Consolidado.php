@@ -47,7 +47,7 @@ Phx.vista.Consolidado=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'codigo_cc',
 				fieldLabel: 'Apropiación',				
-				gwidth: 250				
+				gwidth: 350				
 			},
 				type:'TextField',
 				filters:{pfiltro:'cc.codigo_cc',type:'string'},				

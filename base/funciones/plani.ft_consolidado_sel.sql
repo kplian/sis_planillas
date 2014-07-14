@@ -102,33 +102,17 @@ BEGIN
 
 		begin
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select count(id_consolidado)
+			v_consulta:='select count(*)
 					    from plani.tconsolidado conpre
                         inner join param.vcentro_costo cc 
-                        	on cc.id_centro_costo = conpre.id_presupuesto
-                        inner join plani.tconsolidado_columna concol
-                        	on concol.id_consolidado = conpre.id_consolidado
+                        	on cc.id_centro_costo = conpre.id_presupuesto                        
 					    inner join segu.tusuario usu1 on usu1.id_usuario = conpre.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = conpre.id_usuario_mod
 					    where ';
 			
 			--Definicion de la respuesta		    
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta = v_consulta || ' group by conpre.id_consolidado,
-						conpre.id_cc,
-						conpre.id_planilla,
-						conpre.id_presupuesto,
-						conpre.estado_reg,
-						conpre.tipo_consolidado,
-						conpre.id_usuario_reg,
-						conpre.fecha_reg,
-						conpre.usuario_ai,
-						conpre.id_usuario_ai,
-						conpre.id_usuario_mod,
-						conpre.fecha_mod,
-						usu1.cuenta,
-						usu2.cuenta,
-                        cc.codigo_cc ';
+			
 			--Devuelve la respuesta
 			return v_consulta;
 
