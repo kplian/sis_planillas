@@ -93,6 +93,7 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 				type:'TextField',
 				filters:{pfiltro:'detran.nro_cuenta',type:'string'},
 				id_grupo:1,
+				grid:true,
 				egrid:true,
 				form:true
 		},
