@@ -1,6 +1,5 @@
 CREATE OR REPLACE FUNCTION plani.f_reporte_calcular_ancho_utilizado (
   p_id_reporte integer
- 
 )
 RETURNS varchar AS
 $body$
@@ -22,10 +21,10 @@ BEGIN
 		v_ancho_utilizado = v_ancho_utilizado +10;
 	end if;
 	if (v_reg.mostrar_codigo_empleado = 'si') then
-		v_ancho_utilizado = v_ancho_utilizado + 10;
+		v_ancho_utilizado = v_ancho_utilizado + 15;
 	end if;
 	if (v_reg.mostrar_doc_id = 'si') then
-		v_ancho_utilizado = v_ancho_utilizado + 10;
+		v_ancho_utilizado = v_ancho_utilizado + 15;
 	end if;
 	if (v_reg.mostrar_codigo_cargo = 'si') then
 		v_ancho_utilizado = v_ancho_utilizado + 10;

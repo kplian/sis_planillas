@@ -100,14 +100,14 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->cantidad_columnas_estaticas++;
 		}
 		if ($this->datos_titulo['mostrar_codigo_empleado'] == 'si') {
-			array_push($this->tablewidths, 10); 
+			array_push($this->tablewidths, 15); 
 			array_push($this->tablealigns, 'L');
 			array_push($this->tablenumbers, 0);
 			$this->ancho_sin_totales += 10;
 			$this->cantidad_columnas_estaticas++;
 		}
 		if ($this->datos_titulo['mostrar_doc_id'] == 'si') {
-			array_push($this->tablewidths, 10); 
+			array_push($this->tablewidths, 15); 
 			array_push($this->tablealigns, 'L');
 			array_push($this->tablenumbers, 0);
 			$this->ancho_sin_totales += 10;

@@ -180,7 +180,7 @@ BEGIN
     		--Sentencia de la consulta
 			v_consulta:='select
                             fun.id_funcionario,
-                            fun.desc_funcionario2,
+                            substring(fun.desc_funcionario2 from 1 for 38),
                             fun.codigo,
                             car.codigo,
                             fun.ci,
