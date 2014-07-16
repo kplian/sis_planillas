@@ -103,14 +103,14 @@ class RPlanillaGenerica extends  ReportePDF {
 			array_push($this->tablewidths, 15); 
 			array_push($this->tablealigns, 'L');
 			array_push($this->tablenumbers, 0);
-			$this->ancho_sin_totales += 10;
+			$this->ancho_sin_totales += 15;
 			$this->cantidad_columnas_estaticas++;
 		}
 		if ($this->datos_titulo['mostrar_doc_id'] == 'si') {
 			array_push($this->tablewidths, 15); 
 			array_push($this->tablealigns, 'L');
 			array_push($this->tablenumbers, 0);
-			$this->ancho_sin_totales += 10;
+			$this->ancho_sin_totales += 15;
 			$this->cantidad_columnas_estaticas++;
 		}
 		if ($this->datos_titulo['mostrar_codigo_cargo'] == 'si') {
@@ -143,7 +143,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		foreach ($this->datos_detalle as $value) {		
 			if ($id_funcionario != $value['id_funcionario']) {
 				$this->SetFont('','',6);
-				$this->MultiRow($array_show);
+				$this->UniRow($array_show);
 				$columnas = 0;
 				//Si cambia la gerencia
 				if ($this->gerencia != $value['gerencia']) {
@@ -181,7 +181,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		$this->SetFont('','',5);
 		//Añade al ultimo empleado de la lista
-		$this->MultiRow($array_show);
+		$this->UniRow($array_show);
 		//Si cambia la gerencia
 		
 		//Añade el ultimo subtotal de la gerencia
