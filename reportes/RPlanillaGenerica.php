@@ -30,11 +30,11 @@ class RPlanillaGenerica extends  ReportePDF {
 		if ($this->datos_titulo['mostrar_nombre'] == 'si')
 			$this->Cell(52,3.5,'Nombre Completo','LTR',0,'C');
 		if ($this->datos_titulo['mostrar_codigo_empleado'] == 'si')
-			$this->Cell(10,3.5,'Cod.','LTR',0,'C');
+			$this->Cell(15,3.5,'Cod.','LTR',0,'C');
 		if ($this->datos_titulo['mostrar_doc_id'] == 'si')
 			$this->Cell(15,3.5,'CI','LTR',0,'C');
 		if ($this->datos_titulo['mostrar_codigo_cargo'] == 'si')
-			$this->Cell(15,3.5,'Item','LTR',0,'C');
+			$this->Cell(10,3.5,'Item','LTR',0,'C');
 		$columnas = 0;
 		
 		foreach($this->datos_detalle as $value) {
@@ -54,13 +54,13 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->Cell(52,3.5,'','LBR',0,'C');			
 		}
 		if ($this->datos_titulo['mostrar_codigo_empleado'] == 'si') {
-			$this->Cell(10,3.5,'Emp.','LBR',0,'C');			
+			$this->Cell(15,3.5,'Emp.','LBR',0,'C');			
 		}
 		if ($this->datos_titulo['mostrar_doc_id'] == 'si') {
 			$this->Cell(15,3.5,'','LBR',0,'C');			
 		}
 		if ($this->datos_titulo['mostrar_codigo_cargo'] == 'si') {
-			$this->Cell(15,3.5,'','LBR',0,'C');
+			$this->Cell(10,3.5,'','LBR',0,'C');
 		}
 		$columnas = 0;
 		
