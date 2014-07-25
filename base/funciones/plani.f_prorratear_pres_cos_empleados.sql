@@ -41,14 +41,14 @@ BEGIN
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo';
             --hacer el join con cargo_presupeusto o cargo_centro_costo segun corresponda
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo ';
+            	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo''  ';
             else
-            	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo ';
+            	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' ';
             end if;
             
             --obtener los presupeustos por contrato
             v_consulta = v_consulta || ' where 	cp.id_gestion = p.id_gestion and p.id_gestion = cp.id_gestion and 
-                                  ht.id_horas_trabajadas = ' || v_registros.id_horas_trabajadas||  ' and cp.fecha_ini<= per.fecha_ini
+                                  ht.id_horas_trabajadas = ' || v_registros.id_horas_trabajadas||  ' and cp.fecha_ini<= ht.fecha_ini
                           group by cp.fecha_ini
                           order by cp.fecha_ini desc
                           limit 1 offset 0'; 
@@ -129,7 +129,7 @@ BEGIN
             
             --obtener los presupeustos por contrato
             v_consulta = v_consulta || ' where 	cp.id_gestion = p.id_gestion and p.id_gestion = cp.id_gestion and 
-                                  fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla||  ' and cp.fecha_ini<= per.fecha_ini
+                                  fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla||  ' and cp.fecha_ini<= uofun.fecha_ini
                           group by cp.fecha_ini
                           order by cp.fecha_ini desc
                           limit 1 offset 0'; 

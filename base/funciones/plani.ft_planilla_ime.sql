@@ -50,6 +50,7 @@ DECLARE
     v_suma_sueldo			numeric;
     v_suma_porcentaje		numeric;
     v_id_horas_trabajadas	integer;
+    v_porcentaje_sueldo		numeric;
 			    
 BEGIN
 
@@ -341,7 +342,7 @@ BEGIN
             	 				inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
         						where id_planilla = v_planilla.id_planilla)loop
         						
-        		select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * horas_normales),2)
+        		select sum(horas_normales)::integer, round(sum((sueldo / v_cantidad_horas_mes) * horas_normales),2)
         		into v_suma_horas, v_suma_sueldo
         		from plani.thoras_trabajadas
         		where id_funcionario_planilla = v_empleados.id_funcionario_planilla;
@@ -358,7 +359,7 @@ BEGIN
         		
         		
     			update plani.thoras_trabajadas set
-    				porcentaje_sueldo = (round((sueldo / v_cantidad_horas_mes * horas_normales),2) / v_suma_sueldo) * 100
+    				porcentaje_sueldo = (round(((sueldo / v_cantidad_horas_mes) * horas_normales),2) / v_suma_sueldo) * 100
     			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
     			
     			select sum(porcentaje_sueldo),max(id_horas_trabajadas)
@@ -370,8 +371,7 @@ BEGIN
     				update plani.thoras_trabajadas set
     					porcentaje_sueldo = porcentaje_sueldo + (100 - v_suma_porcentaje)
     				where id_horas_trabajadas = v_id_horas_trabajadas; 
-    			end if;
-        		
+    			end if;       		
         		
         	end loop;
             
