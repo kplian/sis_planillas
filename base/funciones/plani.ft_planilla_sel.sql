@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_planilla_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_planilla_sel
@@ -41,10 +45,14 @@ BEGIN
      				
     	begin
     		IF p_administrador !=1 THEN
-    			v_filtro = ' plani.id_depto IN (' || coalesce (param.f_get_lista_deptos_x_usuario(p_id_usuario, PLANI),'-1')|| ') and ';
+    			v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '') 
+                									then  '-1'
+                                                    else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
+                                                    end) || ') and ';
     		else
     			v_filtro = '';
     		END IF;
+            
     		--Sentencia de la consulta
 			v_consulta:='select
 						plani.id_planilla,
@@ -106,7 +114,10 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			
 			IF p_administrador !=1 THEN
-    			v_filtro = ' plani.id_depto IN (' || coalesce (param.f_get_lista_deptos_x_usuario(p_id_usuario, PLANI),'-1')|| ') and ';
+    			v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '') 
+                									then  '-1'
+                                                    else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
+                                                    end) || ') and ';
     		else
     			v_filtro = '';
     		END IF;
@@ -145,7 +156,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_planilla_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

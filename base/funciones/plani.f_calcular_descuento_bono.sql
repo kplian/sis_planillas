@@ -3,7 +3,11 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_descuento_bono (
   p_fecha_ini date,
   p_fecha_fin date,
   p_id_tipo_columna integer,
-  p_tipo_descuento_bono varchar
+  p_tipo_descuento_bono varchar,
+  p_formula text,
+  p_id_funcionario_planilla integer,
+  p_codigo_columna varchar,
+  p_tipo_dato varchar
 )
 RETURNS numeric AS
 $body$
@@ -42,8 +46,19 @@ BEGIN
         from plani.tdescuento_bono db
         where db.id_funcionario = p_id_funcionario and db.estado_reg = 'activo' and
         db.id_tipo_columna = p_id_tipo_columna and db.fecha_ini <= p_fecha_ini and 
+        db.fecha_fin is not null and 
         db.fecha_fin > p_fecha_ini;
     end if;
+    
+    if (p_tipo_dato = 'basica') then
+    	v_resultado = plani.f_calcular_basica(p_id_funcionario_planilla, 
+                        					p_fecha_ini, p_fecha_fin, p_id_tipo_columna,p_codigo_columna);
+                                        
+    elsif (p_tipo_dato = 'formula') then
+    	v_resultado = plani.f_calcular_formula(p_id_funcionario_planilla, 
+                                                p_formula, p_fecha_ini);
+    end if;
+    
         
   	return coalesce (v_resultado, 0.00);
 EXCEPTION

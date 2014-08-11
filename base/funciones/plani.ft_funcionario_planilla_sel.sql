@@ -70,8 +70,8 @@ BEGIN
 						inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
-                        inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
-                        inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        left join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        left join plani.tafp afp on afp.id_afp = fafp.id_afp
                         inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
                         left join orga.tfuncionario_cuenta_bancaria fcb on 
                         	fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
@@ -103,8 +103,8 @@ BEGIN
 					    inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
-                        inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
-                        inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        left join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        left join plani.tafp afp on afp.id_afp = fafp.id_afp
                         inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
                         left join orga.tfuncionario_cuenta_bancaria fcb on 
                         	fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria

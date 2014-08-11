@@ -627,7 +627,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         }
         
         //MANEJO DEL BOTON DE GESTION DE COLUMNAS
-        if (rec.data.estado != 'registro_horas' && rec.data.estado != 'registro_funcionarios') {
+        if ((	rec.data.estado != 'registro_horas' && rec.data.estado != 'registro_funcionarios') ||
+        		(rec.data.estado == 'registro_funcionarios' && rec.data.calculo_horas != 'si') ) {
         	this.getBoton('btnColumnas').enable();
         } 
         if (rec.data.estado == 'calculo_columnas' ) { 

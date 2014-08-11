@@ -32,7 +32,19 @@ BEGIN
                             order by fp.id_funcionario,tc.orden asc
     						) loop    	
         	
-    		if (v_funcionarios.tipo_dato = 'basica') THEN
+    		if (v_funcionarios.tipo_descuento_bono is not null and v_funcionarios.tipo_descuento_bono != '') THEN
+                if (v_funcionarios.valor_generado = v_funcionarios.valor) then
+                    v_valor_generado = plani.f_calcular_descuento_bono(v_funcionarios.id_funcionario, 
+                                        v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,
+                                        v_funcionarios.tipo_descuento_bono,v_funcionarios.formula,
+                                        v_funcionarios.id_funcionario_planilla,v_funcionarios.codigo_columna,
+                                        v_funcionarios.tipo_dato);
+                    v_valor = v_valor_generado;
+                else
+                    v_valor_generado = v_funcionarios.valor_generado;
+                    v_valor = v_funcionarios.valor;
+                end if;
+    		elsif (v_funcionarios.tipo_dato = 'basica') THEN
             	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
                 
                     v_valor_generado = plani.f_calcular_basica(v_funcionarios.id_funcionario_planilla, 
@@ -57,19 +69,10 @@ BEGIN
                     v_valor = v_funcionarios.valor;
                 end if;
             ELSE	
-            	if (v_funcionarios.tipo_descuento_bono is not null and v_funcionarios.tipo_descuento_bono != '') then
-                	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
-                    	v_valor_generado = plani.f_calcular_descuento_bono(v_funcionarios.id_funcionario, 
-                        					v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,v_funcionarios.tipo_descuento_bono);
-                    	v_valor = v_valor_generado;
-                    else
-                    	v_valor_generado = v_funcionarios.valor_generado;
-                        v_valor = v_funcionarios.valor;
-                    end if;
-                else
-                    v_valor_generado = v_funcionarios.valor_generado;
-                    v_valor = v_funcionarios.valor;
-                end if;
+            	
+                v_valor_generado = v_funcionarios.valor_generado;
+                v_valor = v_funcionarios.valor;
+                
             end if;
             
         	update plani.tcolumna_valor set 

@@ -31,6 +31,7 @@ DECLARE
     v_id_funcionario		integer;
     v_planilla				record;
     v_id_periodo_anterior	integer;
+    v_fecha_fin				date;
     	
 BEGIN
 	v_nombre_funcion = 'plani.f_calcular_basica';
@@ -127,8 +128,11 @@ BEGIN
         
         v_resultado = v_resultado/100;
     --Factor actualizacion UFV  
-    ELSIF (p_codigo = 'FAC_ACT') THEN 	
-        v_resultado = param.f_get_factor_actualizacion_ufv((p_fecha_ini- interval '1 day')::date, p_fecha_fin);
+    ELSIF (p_codigo = 'FAC_ACT') THEN 
+    	v_fecha_ini:=(select pxp.f_ultimo_dia_habil_mes((p_fecha_ini- interval '1 day')::date));
+    	v_fecha_fin:=(select pxp.f_ultimo_dia_habil_mes(p_fecha_fin));	
+        
+        v_resultado = param.f_get_factor_actualizacion_ufv(v_fecha_ini, v_fecha_fin);
     --Saldo del periodo anterior del dependiente
     ELSIF (p_codigo = 'SALDOPERIANTDEP') THEN 	
         
