@@ -17,7 +17,8 @@ Phx.vista.FuncionarioPlanillaColumna = {
 	
 	constructor: function(config) {	    
         Phx.vista.FuncionarioPlanillaColumna.superclass.constructor.call(this,config);
-        this.load({params:{start:0, limit:this.tam_pag,id_planilla :this.maestro.id_planilla}});
+        this.store.baseParams.id_planilla = this.maestro.id_planilla;
+        this.load({params:{start:0, limit:this.tam_pag}});
         
   },
   bnew:false,

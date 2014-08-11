@@ -50,7 +50,6 @@ DECLARE
     v_suma_sueldo			numeric;
     v_suma_porcentaje		numeric;
     v_id_horas_trabajadas	integer;
-    v_porcentaje_sueldo		numeric;
 			    
 BEGIN
 
@@ -342,7 +341,7 @@ BEGIN
             	 				inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
         						where id_planilla = v_planilla.id_planilla)loop
         						
-        		select sum(horas_normales)::integer, round(sum((sueldo / v_cantidad_horas_mes) * horas_normales),2)
+        		select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * horas_normales),2)
         		into v_suma_horas, v_suma_sueldo
         		from plani.thoras_trabajadas
         		where id_funcionario_planilla = v_empleados.id_funcionario_planilla;
@@ -359,7 +358,7 @@ BEGIN
         		
         		
     			update plani.thoras_trabajadas set
-    				porcentaje_sueldo = (round(((sueldo / v_cantidad_horas_mes) * horas_normales),2) / v_suma_sueldo) * 100
+    				porcentaje_sueldo = (round((sueldo / v_cantidad_horas_mes * horas_normales),2) / v_suma_sueldo) * 100
     			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
     			
     			select sum(porcentaje_sueldo),max(id_horas_trabajadas)
@@ -371,7 +370,8 @@ BEGIN
     				update plani.thoras_trabajadas set
     					porcentaje_sueldo = porcentaje_sueldo + (100 - v_suma_porcentaje)
     				where id_horas_trabajadas = v_id_horas_trabajadas; 
-    			end if;       		
+    			end if;
+        		
         		
         	end loop;
             
@@ -396,17 +396,23 @@ BEGIN
 	elsif(p_transaccion='PLA_PLANICALCOL_MOD')then
 
 		begin
-        	select *
+        	select p.*,tp.calculo_horas
         	into v_planilla
-        	from plani.tplanilla
+        	from plani.tplanilla p
+            inner join plani.ttipo_planilla tp
+            	on tp.id_tipo_planilla = p.id_tipo_planilla
         	where id_planilla = v_parametros.id_planilla;
         	
-        	if (v_planilla.estado != 'calculo_columnas') then
+        	if (v_planilla.estado != 'calculo_columnas' and (v_planilla.estado != 'registro_funcionarios' or v_planilla.calculo_horas = 'si')) then
         		raise exception 'La planilla debe estar en estado calculo_columnas para realizar el cálculo';
         	end if;
         	
         	v_resp = (select plani.f_planilla_calcular(v_parametros.id_planilla,p_id_usuario));
             
+            if (v_planilla.estado = 'registro_funcionarios') then
+            	v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
+             		v_parametros._nombre_usuario_ai, 'siguiente'));
+            end if;
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Columnas calculadas para la planilla'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
