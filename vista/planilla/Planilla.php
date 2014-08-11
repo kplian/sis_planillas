@@ -631,12 +631,16 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         		(rec.data.estado == 'registro_funcionarios' && rec.data.calculo_horas != 'si') ) {
         	this.getBoton('btnColumnas').enable();
         } 
-        if (rec.data.estado == 'calculo_columnas' ) { 
+        
+        if (rec.data.estado == 'calculo_columnas') { 
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
         	this.getBoton('btnColumnas').menu.items.items[1].enable();
         	this.getBoton('btnColumnas').menu.items.items[2].enable();
         	this.getBoton('btnColumnas').menu.items.items[3].enable();
         	
+        } else if (rec.data.estado == 'registro_funcionarios' && rec.data.calculo_horas != 'si') {
+        	this.getBoton('btnColumnas').menu.items.items[0].enable();
+        	this.getBoton('btnColumnas').menu.items.items[1].enable();        	
         } else {
         	this.getBoton('btnColumnas').menu.items.items[1].enable();
         	this.getBoton('btnColumnas').menu.items.items[0].disable();
