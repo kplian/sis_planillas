@@ -15,6 +15,9 @@ class ACTReporte extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_reporte');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+			$this->objParam->addFiltro("repo.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+		}	
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODReporte','listarReporte');
