@@ -93,7 +93,7 @@ BEGIN
 			
 			for v_columnas in (	select * 
         					from plani.ttipo_columna 
-                            where id_tipo_planilla = v_tipo_planilla.id_tipo_planilla) loop
+                            where id_tipo_planilla = v_tipo_planilla.id_tipo_planilla and estado_reg = 'activo'  order by orden) loop
 		        	INSERT INTO 
 		                plani.tcolumna_valor
 		              (

@@ -296,7 +296,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 	onReloadPage:function(m){       
 		this.maestro=m;
-		this.load({params:{start:0, limit:this.tam_pag,id_planilla:this.maestro.id_planilla}});
+		this.store.baseParams.id_planilla = this.maestro.id_planilla;
+		this.load({params:{start:0, limit:this.tam_pag}});
 
 
 	},
