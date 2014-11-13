@@ -45,14 +45,14 @@ class ACTReporte extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 	
-	function reportePlanilla()	{
+	function reportePlanilla($id_reporte,$tipo_reporte)	{
 		
 		if ($this->objParam->getParametro('id_proceso_wf') != '') {
 			$this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
 		}
-		if ($this->objParam->getParametro('id_reporte') != '') {
-			$this->objParam->addFiltro("repo.id_reporte = ". $this->objParam->getParametro('id_reporte'));
-		}
+		
+		$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
 		$this->objFunc=$this->create('MODReporte');	
 		
 		$this->res=$this->objFunc->listarReporteMaestro($this->objParam);
@@ -85,7 +85,7 @@ class ACTReporte extends ACTbase{
 		$this->objParam->addParametro('titulo_archivo',$titulo);
 		
 		
-		if ($this->objParam->getParametro('tipo_reporte') == 'pdf') {
+		if ($tipo_reporte == 'pdf') {
 			$nombreArchivo.='.pdf';
 			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 			//Instancia la clase de pdf

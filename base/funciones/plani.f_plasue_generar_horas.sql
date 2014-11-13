@@ -53,7 +53,8 @@ BEGIN
             tc.codigo,
             fun.desc_funcionario1 as nombre_funcionario,
             ofi.zona_franca,
-            ofi.frontera
+            ofi.frontera,
+            es.id_escala_salarial
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -96,7 +97,7 @@ BEGIN
               v_empleados.id_funcionario_planilla,
               v_horas_contrato,
               v_asignacion.codigo,
-              v_asignacion.haber_basico,
+              orga.f_get_haber_basico_a_fecha(v_asignacion.id_escala_salarial,v_planilla.fecha_ini),
               v_asignacion.fecha_ini_mes,
               v_asignacion.fecha_fin_mes,
               v_asignacion.zona_franca,

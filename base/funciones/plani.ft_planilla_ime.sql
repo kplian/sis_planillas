@@ -50,6 +50,23 @@ DECLARE
     v_suma_sueldo			numeric;
     v_suma_porcentaje		numeric;
     v_id_horas_trabajadas	integer;
+    v_id_tipo_estado		integer;
+    v_pedir_obs				varchar;
+    v_codigo_estado_siguiente varchar;
+    v_id_depto				integer;
+    v_obs					text;
+    v_acceso_directo  	varchar;
+    v_clase   			varchar;
+    v_parametros_ad   	varchar;
+    v_tipo_noti  		varchar;
+    v_titulo   			varchar;
+    v_id_estado_actual	integer;
+    v_registros_proc	record;
+    v_codigo_tipo_pro	varchar;
+    v_id_estado_wf_ant	integer;
+    v_id_funcionario	integer;
+    v_id_usuario_reg	integer;
+    
 			    
 BEGIN
 
@@ -285,271 +302,270 @@ BEGIN
             return v_resp;
 
 		end;
-	
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANIGENHOR_MOD'
- 	#DESCRIPCION:	Generación de Horas Trabajadas para la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
+    
+    /*********************************    
+ 	#TRANSACCION:  'PLA_ANTEPLA_IME'
+ 	#DESCRIPCION:	Transaccion utilizada  pasar a  estados anterior en la planilla
+                    segun la operacion definida
+ 	#AUTOR:		JRR	
+ 	#FECHA:		17-10-2014 12:12:51
 	***********************************/
 
-	elsif(p_transaccion='PLA_PLANIGENHOR_MOD')then
-
-		begin
-        	select *
-        	into v_planilla
-        	from plani.tplanilla
-        	where id_planilla = v_parametros.id_planilla;
-        	
-        	if (v_planilla.estado != 'registro_funcionarios') then
-        		raise exception 'La planilla debe estar en estado registro_funcionarios para la generacion de horas';
-        	end if;
-        	
-        	v_resp = (select plani.f_plasue_generar_horas(v_parametros.id_planilla,p_id_usuario));
-            
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             v_parametros._nombre_usuario_ai, 'siguiente'));
-            
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-		
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANIVALHOR_MOD'
- 	#DESCRIPCION:	Validación de Horas Trabajadas para la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
-
-	elsif(p_transaccion='PLA_PLANIVALHOR_MOD')then
-
-		begin
-        	select pla.*,pe.fecha_ini, pe.fecha_fin
-        	into v_planilla
-        	from plani.tplanilla pla
-        	inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
-        	where id_planilla = v_parametros.id_planilla;
-        	
-        	v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
-        	
-        	for v_empleados in (select funpla.*,fun.desc_funcionario1 as nombre from plani.tfuncionario_planilla funpla
-            	 				inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
-        						where id_planilla = v_planilla.id_planilla)loop
-        						
-        		select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * horas_normales),2)
-        		into v_suma_horas, v_suma_sueldo
-        		from plani.thoras_trabajadas
-        		where id_funcionario_planilla = v_empleados.id_funcionario_planilla;
-        		
-        		if (v_suma_horas > v_cantidad_horas_mes)then
-        			raise exception 'La cantidad de horas trabajadas para el empleado : % , superan las : % horas',
-        							v_empleados.nombre,v_cantidad_horas_mes;
-        		end if;
-        		
-        		if (v_suma_horas < 0 )then
-        			raise exception 'La cantidad de horas trabajadas para el empleado : % , es 0 o menor a 0',
-        							v_empleados.nombre;
-        		end if;
-        		
-        		
-    			update plani.thoras_trabajadas set
-    				porcentaje_sueldo = (round((sueldo / v_cantidad_horas_mes * horas_normales),2) / v_suma_sueldo) * 100
-    			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
-    			
-    			select sum(porcentaje_sueldo),max(id_horas_trabajadas)
-    			into v_suma_porcentaje,v_id_horas_trabajadas
-                from plani.thoras_trabajadas
-    			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
-    			
-    			if (v_suma_porcentaje != 100 ) then
-    				update plani.thoras_trabajadas set
-    					porcentaje_sueldo = porcentaje_sueldo + (100 - v_suma_porcentaje)
-    				where id_horas_trabajadas = v_id_horas_trabajadas; 
-    			end if;
-        		
-        		
-        	end loop;
-            
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             v_parametros._nombre_usuario_ai, 'siguiente'));
-            
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANICALCOL_MOD'
- 	#DESCRIPCION:	Calcular Columnas para la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
-
-	elsif(p_transaccion='PLA_PLANICALCOL_MOD')then
-
-		begin
-        	select p.*,tp.calculo_horas
-        	into v_planilla
-        	from plani.tplanilla p
-            inner join plani.ttipo_planilla tp
-            	on tp.id_tipo_planilla = p.id_tipo_planilla
-        	where id_planilla = v_parametros.id_planilla;
-        	
-        	if (v_planilla.estado != 'calculo_columnas' and (v_planilla.estado != 'registro_funcionarios' or v_planilla.calculo_horas = 'si')) then
-        		raise exception 'La planilla debe estar en estado calculo_columnas para realizar el cálculo';
-        	end if;
-        	
-        	v_resp = (select plani.f_planilla_calcular(v_parametros.id_planilla,p_id_usuario));
-            
-            if (v_planilla.estado = 'registro_funcionarios') then
-            	v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             		v_parametros._nombre_usuario_ai, 'siguiente'));
-            end if;
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Columnas calculadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANIVALCOL_MOD'
- 	#DESCRIPCION:	Validación del calculo de columnas
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
-
-	elsif(p_transaccion='PLA_PLANIVALCOL_MOD')then
-
-		begin
-        	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             v_parametros._nombre_usuario_ai, 'siguiente'));
-            
-            for v_empleados in (select * 
-            					from plani.tfuncionario_planilla 
-                                where id_planilla = v_parametros.id_planilla) loop
-            	for v_columnas in (	select db.id_descuento_bono
-                					from plani.tcolumna_valor cv
-                                    inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
-                                    inner join plani.tdescuento_bono db on tc.id_tipo_columna = db.id_tipo_columna and
-                                    								db.id_funcionario = v_empleados.id_funcionario and db.estado_reg = 'activo'
-                                    where cv.id_funcionario_planilla = v_empleados.id_funcionario_planilla and
-                                    	tc.tipo_descuento_bono = 'cantidad_cuotas') loop
-                	update plani.tdescuento_bono
-                    	set monto_total = monto_total - valor_por_cuota
-                    where id_descuento_bono = v_columnas.id_descuento_bono;
-                end loop;
-            end loop;
-            
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
+	elseif(p_transaccion='PLA_ANTEPLA_IME')then   
+        begin
         
-    /*********************************    
- 	#TRANSACCION:  'PLA_PLANIVALPRE_MOD'
- 	#DESCRIPCION:	Validación de presupuestos de la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
-
-	elsif(p_transaccion='PLA_PLANIVALPRE_MOD')then
-
-		begin
-        	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             v_parametros._nombre_usuario_ai, 'siguiente'));           
+        --------------------------------------------------
+        --Retrocede al estado inmediatamente anterior
+        -------------------------------------------------
+       --recuperaq estado anterior segun Log del WF
+          SELECT  
+         
+             ps_id_tipo_estado,
+             ps_id_funcionario,
+             ps_id_usuario_reg,
+             ps_id_depto,
+             ps_codigo_estado,
+             ps_id_estado_wf_ant
+          into
+             v_id_tipo_estado,
+             v_id_funcionario,
+             v_id_usuario_reg,
+             v_id_depto,
+             v_codigo_estado,
+             v_id_estado_wf_ant 
+          FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
+                        
+                        
+           --
+          select 
+               ew.id_proceso_wf 
+            into 
+               v_id_proceso_wf
+          from wf.testado_wf ew
+          where ew.id_estado_wf= v_id_estado_wf_ant;
+          
+          
+         --configurar acceso directo para la alarma   
+             v_acceso_directo = '';
+             v_clase = '';
+             v_parametros_ad = '';
+             v_tipo_noti = 'notificacion';
+             v_titulo  = 'Notificacion';
+             
+           
+            IF   v_codigo_estado_siguiente not in('registro_funcionarios','obligaciones_generadas','comprobante_presupuestario_validado','comprobante_obligaciones','planilla_finalizada')   THEN
+                  v_acceso_directo = '../../../sis_planillas/vista/planilla/Planilla.php';
+                  v_clase = 'Planilla';
+                  v_parametros_ad = '{filtro_directo:{campo:"plani.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                  v_tipo_noti = 'notificacion';
+                  v_titulo  = 'Notificacion';             
+             END IF;
+             
+          
+          -- registra nuevo estado
+                      
+          v_id_estado_actual = wf.f_registra_estado_wf(
+              v_id_tipo_estado, 
+              v_id_funcionario, 
+              v_parametros.id_estado_wf, 
+              v_id_proceso_wf, 
+              p_id_usuario,
+              v_parametros._id_usuario_ai,
+              v_parametros._nombre_usuario_ai,
+              v_id_depto,
+              '[RETROCESO] '|| v_parametros.obs,
+              v_acceso_directo,
+              v_clase,
+              v_parametros_ad,
+              v_tipo_noti,
+              v_titulo);
+                      
+         
+          
+                         
+            IF  not plani.f_fun_regreso_planilla_wf(p_id_usuario, 
+                                                   v_parametros._id_usuario_ai, 
+                                                   v_parametros._nombre_usuario_ai, 
+                                                   v_id_estado_actual, 
+                                                   v_parametros.id_proceso_wf, 
+                                                   v_codigo_estado) THEN
             
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
+               raise exception 'Error al retroceder estado';
+            
+            END IF;              
+                         
+                         
+         -- si hay mas de un estado disponible  preguntamos al usuario
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+                        
+                              
+          --Devuelve la respuesta
             return v_resp;
-
-		end;
+                        
+           
+        
+        
+        
+        end;	
     
-    /*********************************    
- 	#TRANSACCION:  'PLA_PLANIGENPRE_MOD'
- 	#DESCRIPCION:	Generacion de presupuestos de la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
+     /*********************************    
+ 	#TRANSACCION:  'PLA_SIGEPLA_IME'
+ 	#DESCRIPCION:	funcion que controla el cambio al Siguiente estado de las planillas, integrado  con el WF
+ 	#AUTOR:		JRR	
+ 	#FECHA:		17-10-2014 12:12:51
 	***********************************/
 
-	elsif(p_transaccion='PLA_PLANIGENPRE_MOD')then
-
-		begin
-        	v_resp = (select plani.f_prorratear_pres_cos_empleados(v_parametros.id_planilla, 'presupuestos', p_id_usuario));
-            
-            v_resp = (select plani.f_consolidar_pres_cos(v_parametros.id_planilla, 'presupuestos',p_id_usuario)); 
+	elseif(p_transaccion='PLA_SIGEPLA_IME')then   
+        begin
         	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-             v_parametros._nombre_usuario_ai,'siguiente'));           
+         /*   PARAMETROS
+         
+        $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
+        $this->setParametro('id_tipo_estado','id_tipo_estado','int4');
+        $this->setParametro('id_funcionario_wf','id_funcionario_wf','int4');
+        $this->setParametro('id_depto_wf','id_depto_wf','int4');
+        $this->setParametro('obs','obs','text');
+        $this->setParametro('json_procesos','json_procesos','text');
+        */        
+      select pla.*
+      into v_planilla
+      from plani.tplanilla pla     
+      where id_proceso_wf = v_parametros.id_proceso_wf_act;
+      
+          select 
+            ew.id_tipo_estado ,
+            te.pedir_obs,
+            ew.id_estado_wf
+           into 
+            v_id_tipo_estado,
+            v_pedir_obs,
+            v_id_estado_wf
             
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
+          from wf.testado_wf ew
+          inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
+          where ew.id_estado_wf =  v_parametros.id_estado_wf_act;
+          
+         
+           -- obtener datos tipo estado
+                
+                select
+                 te.codigo
+                into
+                 v_codigo_estado_siguiente
+                from wf.ttipo_estado te
+                where te.id_tipo_estado = v_parametros.id_tipo_estado;
+                
+             IF  pxp.f_existe_parametro(p_tabla,'id_depto_wf') THEN
+                 
+               v_id_depto = v_parametros.id_depto_wf;
+                
+             END IF;
+                
+                
+                
+             IF  pxp.f_existe_parametro(p_tabla,'obs') THEN
+                  v_obs=v_parametros.obs;
+             ELSE
+                   v_obs='---';
+                
+             END IF;
+               
+             --configurar acceso directo para la alarma   
+             v_acceso_directo = '';
+             v_clase = '';
+             v_parametros_ad = '';
+             v_tipo_noti = 'notificacion';
+             v_titulo  = 'Visto Bueno';
+             
+           
+             IF   v_codigo_estado_siguiente not in('registro_funcionarios','obligaciones_generadas','comprobante_presupuestario_validado','comprobante_obligaciones','planilla_finalizada')   THEN
+                  v_acceso_directo = '../../../sis_planillas/vista/planilla/Planilla.php';
+                  v_clase = 'Planilla';
+                  v_parametros_ad = '{filtro_directo:{campo:"plani.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
+                  v_tipo_noti = 'notificacion';
+                  v_titulo  = 'Notificacion';             
+             END IF;
+             
+             
+             -- hay que recuperar el supervidor que seria el estado inmediato,...
+             v_id_estado_actual =  wf.f_registra_estado_wf(v_parametros.id_tipo_estado, 
+                                                             v_parametros.id_funcionario_wf, 
+                                                             v_parametros.id_estado_wf_act, 
+                                                             v_parametros.id_proceso_wf_act,
+                                                             p_id_usuario,
+                                                             v_parametros._id_usuario_ai,
+                                                             v_parametros._nombre_usuario_ai,
+                                                             v_id_depto,
+                                                             COALESCE(v_planilla.nro_planilla,'--')||' Obs:'||v_obs,
+                                                             v_acceso_directo ,
+                                                             v_clase,
+                                                             v_parametros_ad,
+                                                             v_tipo_noti,
+                                                             v_titulo);
+                
+          --------------------------------------
+          -- registra los procesos disparados
+          --------------------------------------
+         
+          FOR v_registros_proc in ( select * from json_populate_recordset(null::wf.proceso_disparado_wf, v_parametros.json_procesos::json)) LOOP
     
-    /*********************************    
- 	#TRANSACCION:  'PLA_PLANIGENOBLI_MOD'
- 	#DESCRIPCION:	Generacion de obligaciones de la planilla
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
-
-	elsif(p_transaccion='PLA_PLANIGENOBLI_MOD')then
-
-		begin
-        	--raise exception 'llega generar obligaciones';
-        	
-            v_resp = (select plani.f_generar_obligaciones(v_parametros.id_planilla, p_id_usuario)); 
-        	
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-            v_parametros._nombre_usuario_ai,'siguiente'));           
-            
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Obligaciones generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+               --get cdigo tipo proceso
+               select   
+                  tp.codigo 
+               into 
+                  v_codigo_tipo_pro   
+               from wf.ttipo_proceso tp 
+               where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
+          
+          
+               -- disparar creacion de procesos seleccionados
               
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
-    elsif(p_transaccion='PLA_PLANIVALOBLI_MOD')then
-
-		begin
-        	--raise exception 'llega generar obligaciones';
-        	           
-            v_resp = (select plani.f_planilla_cambiar_estado(v_parametros.id_planilla, p_id_usuario,v_parametros._id_usuario_ai,
-            v_parametros._nombre_usuario_ai,'siguiente'));           
-            
-            --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Obligaciones generadas para la planilla'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
-            --Devuelve la respuesta
-            return v_resp;
-
-		end;
+              SELECT
+                       ps_id_proceso_wf,
+                       ps_id_estado_wf,
+                       ps_codigo_estado
+                 into
+                       v_id_proceso_wf,
+                       v_id_estado_wf,
+                       v_codigo_estado
+              FROM wf.f_registra_proceso_disparado_wf(
+                       p_id_usuario,
+                       v_parametros._id_usuario_ai,
+                       v_parametros._nombre_usuario_ai,
+                       v_id_estado_actual, 
+                       v_registros_proc.id_funcionario_wf_pro, 
+                       v_registros_proc.id_depto_wf_pro,
+                       v_registros_proc.obs_pro,
+                       v_codigo_tipo_pro,    
+                       v_codigo_tipo_pro);
+              /*Generar una olbigacion de pago en caso de ser necesario*/
+                       
+                       
+           END LOOP; 
+           
+           -- actualiza estado en la solicitud
+           -- funcion para cambio de estado     
+           
+          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
+           									v_parametros._id_usuario_ai, 
+                                            v_parametros._nombre_usuario_ai, 
+                                            v_id_estado_actual, 
+                                            v_parametros.id_proceso_wf_act, 
+                                            v_codigo_estado_siguiente) THEN
+                                            
+          END IF;
+          
+          
+          -- si hay mas de un estado disponible  preguntamos al usuario
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado de la planilla)'); 
+          v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
+          
+          
+          -- Devuelve la respuesta
+          return v_resp;
+        
+     end;        
         
         
         

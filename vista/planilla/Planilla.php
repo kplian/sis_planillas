@@ -13,41 +13,32 @@ header("content-type: text/javascript; charset=UTF-8");
 Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 
 	constructor:function(config){
-		this.maestro=config.maestro;
-		this.initButtons=[this.cmbReporte,this.cmbTipoReporte];
+		this.maestro=config.maestro;		
     	//llama al constructor de la clase padre
 		Phx.vista.Planilla.superclass.constructor.call(this,config);
 		this.init();
 		this.iniciarEventos();
 		this.load({params:{start:0, limit:this.tam_pag}});
+		this.addButton('ant_estado',{argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+        this.addButton('sig_estado',{text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
+		this.addButton('diagrama_gantt',{text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
+  
+		this.addButton('btnChequeoDocumentosWf',
+            {
+                text: 'Documentos',
+                iconCls: 'bchecklist',
+                disabled: true,
+                handler: this.loadCheckDocumentosPlanWf,
+                tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
+            }
+        );
 			
 		this.addButton('btnHoras',
             {
                 iconCls: 'bclock',
-                disabled: false,
-                tooltip: 'Gestion de Horas Trabajadas',
-                xtype: 'splitbutton',
-                menu: [{
-                    text: 'Generar Horas',
-                    id: 'btnHorasGenerar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'horasGenerar' },
-                    tooltip: 'Generar Horas Trabajadas',
-                    scope: this
-                }, {
-                    text: 'Detalle Horas',
-                    id: 'btnHorasDetalle-' + this.idContenedor,
-                    handler: this.onButtonHorasDetalle,
-                    tooltip: 'Detalle Horas Trabajadas',
-                    scope: this
-                }, {
-                    text: 'Validar Horas',
-                    id: 'btnHorasValidar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'horasValidar' },
-                    tooltip: 'Detalle Horas Trabajadas',
-                    scope: this
-                }]
+                disabled: true,                               
+                handler: this.onButtonHorasDetalle,
+                tooltip: 'Detalle Horas Trabajadas'                
             }
         );
         
@@ -55,16 +46,9 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             {
                 iconCls: 'bcalculator',
                 disabled: false,
-                tooltip: 'Gestion de Columnas',
+                tooltip: 'Gestion de Columnas (solo es posible subir csv y editar columnas si el estado es calculo_columnas)',
                 xtype: 'splitbutton',
                 menu: [{
-                    text: 'Calcular Columnas',
-                    id: 'btnColumnasCalcular-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'columnasCalcular' },
-                    tooltip: 'Calcular Columnas',
-                    scope: this
-                }, {
                     text: 'Detalle Columnas',
                     id: 'btnColumnasDetalle-' + this.idContenedor,
                     handler: this.onButtonColumnasDetalle,
@@ -76,13 +60,6 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     handler: this.onButtonColumnasCsv,
                     tooltip: 'Subir Columnas desde archivo Csv',
                     scope: this
-                }, {
-                    text: 'Validar Columnas',
-                    id: 'btnColumnasValidar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'columnasValidar' },
-                    tooltip: 'Validar Calculo de Columnas',
-                    scope: this
                 }]
             }
         );
@@ -90,68 +67,31 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.addButton('btnPresupuestos',
             {
                 iconCls: 'bstats',
-                disabled: false,
-                tooltip: 'Gestion de Presupuestos',
-                xtype: 'splitbutton',
-                menu: [{
-                    text: 'Generar Presupuestos',
-                    id: 'btnPresupuestos-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'presupuestosGenerar' },
-                    tooltip: 'Generar Porcentajes Presupuestarios por Empleado y Consolidados <br>	(Estos porcentajes pueden ser revisados desde la pantalla de Gestionar Horas Trabajadas->Detalle Horas <br> o desde el detalle de funcionarios)',
-                    scope: this
-                }, {
-                    text: 'Presupuestos Consolidados',
-                    id: 'btnPresupuestosConsolidado-' + this.idContenedor,
-                    handler: this.onButtonPresupuestosConsolidado,
-                    tooltip: 'Presupuestos Consolidados por Columnas',
-                    scope: this
-                },
-                {
-                    text: 'Validar Presupuestos',
-                    id: 'btnPresupuestosValidar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'presupuestosValidar' },
-                    scope: this
-                }]
+                disabled: true,               
+                handler: this.onButtonPresupuestosConsolidado,
+                tooltip: 'Presupuestos Consolidados por Columnas'                
             }
         );
         this.addButton('btnObligaciones',
             {
                 iconCls: 'bmoney',
-                disabled: false,
-                tooltip: 'Gestión de Obligaciones',
-                xtype: 'splitbutton',
-                menu: [{
-                    text: 'Generar Obligaciones',
-                    id: 'btnObligacionesGenerar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'obligacionesGenerar' },
-                    tooltip: 'Generar Obligaciones',
-                    scope: this
-                }, {
-                    text: 'Detalle de Obligaciones',
-                    id: 'btnObligacionesDetalle-' + this.idContenedor,
-                    handler: this.onButtonObligacionesDetalle,
-                    tooltip: 'Detalle de Obligaciones',
-                    scope: this
-                }, {
-                    text: 'Validar Obligaciones',
-                    id: 'btnObligacionesValidar-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'obligacionesValidar' },
-                    tooltip: 'Validar Obligaciones de la Planilla',
-                    scope: this
-                }, {
-                    text: 'Enviar Obligaciones',
-                    id: 'btnObligacionesPago-' + this.idContenedor,
-                    handler: this.onButtonAjax,
-                    argument: { accion: 'obligacionesEnviar' },
-                    tooltip: 'Genera las Obligaciones de Pago en Tesorería',
-                    scope: this
-                }]
+                disabled: true,                
+                handler: this.onButtonObligacionesDetalle,
+                tooltip: 'Detalle de Obligaciones'                
             }
         );
+        function diagramGantt(){            
+            var data=this.sm.getSelected().data.id_proceso_wf;
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_workflow/control/ProcesoWf/diagramaGanttTramite',
+                params:{'id_proceso_wf':data},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });         
+        } 
 	},
 			
 	Atributos:[
@@ -480,27 +420,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
 		},this);
 		
-		this.cmbReporte.on('select', function (c,r,i) {
-			var rec=this.sm.getSelected();
-			var url_reporte = '../../sis_planillas/control/';
-			if (r.data.control_reporte == '' || r.data.control_reporte == undefined) {
-				url_reporte = url_reporte + 'Reporte/reportePlanilla'
-			} else {
-				url_reporte = url_reporte + r.data.control_reporte;
-			}
-			Phx.CP.loadingShow();
-		    Ext.Ajax.request({
-		        url:url_reporte,
-		        params:{'id_proceso_wf':rec.data.id_proceso_wf, 'id_reporte' : r.data.id_reporte,
-		        		'tipo_reporte':this.cmbTipoReporte.getValue()},
-		        success: this.successExport,
-		        failure: this.conexionFailure,
-		        timeout:this.timeout,
-		        scope:this
-		    }); 
-		    this.cmbReporte.reset();
-			
-		}, this);
+		
 	},
 	onButtonEdit : function () {
 		this.ocultarComponente(this.Cmp.id_depto);
@@ -600,106 +520,49 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     },
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
-        this.desactivarMenu();
-        if (rec.data.estado == 'registro_horas' || rec.data.estado == 'registro_funcionarios'  || rec.data.estado == 'borrador' ) {
-        	this.cmbReporte.disable();        	
-        } else {
-        	this.cmbReporte.enable();
-        }
-        
-        
+        this.desactivarMenu();         
         //MANEJO DEL BOTON DE GESTION DE HORAS      
         if (rec.data.calculo_horas == 'si') {
-        	this.getBoton('btnHoras').enable(); 
-        	if (rec.data.estado == 'registro_funcionarios' ) {        		
-        		this.getBoton('btnHoras').menu.items.items[0].enable();
-        		this.getBoton('btnHoras').menu.items.items[1].disable();
-        		this.getBoton('btnHoras').menu.items.items[2].disable();        		     		
-        	} else if (rec.data.estado == 'registro_horas') {
-        		this.getBoton('btnHoras').menu.items.items[0].disable();
-        		this.getBoton('btnHoras').menu.items.items[1].enable();
-        		this.getBoton('btnHoras').menu.items.items[2].enable();  
-        	} else {
-        		this.getBoton('btnHoras').menu.items.items[0].disable();
-        		this.getBoton('btnHoras').menu.items.items[1].enable();
-        		this.getBoton('btnHoras').menu.items.items[2].disable();
-        	}
+        	this.getBoton('btnHoras').enable();
         }
-        
-        //MANEJO DEL BOTON DE GESTION DE COLUMNAS
-        if ((	rec.data.estado != 'registro_horas' && rec.data.estado != 'registro_funcionarios') ||
-        		(rec.data.estado == 'registro_funcionarios' && rec.data.calculo_horas != 'si') ) {
-        	this.getBoton('btnColumnas').enable();
-        } 
-        
-        if (rec.data.estado == 'calculo_columnas') { 
-        	this.getBoton('btnColumnas').menu.items.items[0].enable();
-        	this.getBoton('btnColumnas').menu.items.items[1].enable();
-        	this.getBoton('btnColumnas').menu.items.items[2].enable();
-        	this.getBoton('btnColumnas').menu.items.items[3].enable();
-        	
-        } else if (rec.data.estado == 'registro_funcionarios' && rec.data.calculo_horas != 'si') {
+        this.getBoton('btnColumnas').enable();
+        if (rec.data.estado== 'calculo_columnas') { 
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
         	this.getBoton('btnColumnas').menu.items.items[1].enable();        	
         } else {
-        	this.getBoton('btnColumnas').menu.items.items[1].enable();
-        	this.getBoton('btnColumnas').menu.items.items[0].disable();
-        	this.getBoton('btnColumnas').menu.items.items[2].disable();
-        	this.getBoton('btnColumnas').menu.items.items[3].disable();        	
+        	this.getBoton('btnColumnas').menu.items.items[0].enable();
+        	this.getBoton('btnColumnas').menu.items.items[1].disable(); 
         }
+        
+        if (rec.data.estado == 'registro_funcionarios') {
+	          this.getBoton('ant_estado').disable();
+	          this.getBoton('sig_estado').enable();
+                          
+        } else if (rec.data.estado == 'obligaciones_generadas' ||
+        	 rec.data.estado == 'comprobante_presupuestario_validado' ||
+        	 rec.data.estado == 'comprobante_obligaciones'||
+        	 rec.data.estado == 'planilla_finalizada') {
+        	 this.getBoton('ant_estado').disable();
+             this.getBoton('sig_estado').disable();
+	
+        } else {
+        	 this.getBoton('ant_estado').enable();
+             this.getBoton('sig_estado').enable();
+        }
+        this.getBoton('btnChequeoDocumentosWf').enable();       
+         
         //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
         
-    	this.getBoton('btnPresupuestos').enable(); 
-    	if (rec.data.estado == 'calculo_validado' ) {        		
-    		this.getBoton('btnPresupuestos').menu.items.items[0].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].disable(); 
-    		 
-    		      		     		
-    	} else if (rec.data.estado == 'presupuestos') {
-    		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].enable();
-    		
-    		 
-    	} else if (rec.data.estado == 'obligaciones_validado') {
-    		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].disable();
-    		
-    		 
-    	} else {
-    		this.getBoton('btnPresupuestos').menu.items.items[0].disable();
-    		this.getBoton('btnPresupuestos').menu.items.items[1].enable();
-    		this.getBoton('btnPresupuestos').menu.items.items[2].disable();    		
-    	}
-        
-        this.getBoton('btnObligaciones').enable(); 
-        if (rec.data.estado == 'presupuestos_validado' ) {        		
-    		this.getBoton('btnObligaciones').menu.items.items[0].enable();
-    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
-    		this.getBoton('btnObligaciones').menu.items.items[2].disable();
-    		this.getBoton('btnObligaciones').menu.items.items[3].disable();      		 
-    		      		     		
-    	} else if (rec.data.estado == 'obligaciones') {
-    		this.getBoton('btnObligaciones').menu.items.items[0].disable();
-    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
-    		this.getBoton('btnObligaciones').menu.items.items[2].enable();
-    		this.getBoton('btnObligaciones').menu.items.items[3].enable();  		
-    		 
-    	} else {
-    		this.getBoton('btnObligaciones').menu.items.items[0].disable();
-    		this.getBoton('btnObligaciones').menu.items.items[1].enable();
-    		this.getBoton('btnObligaciones').menu.items.items[2].disable();
-    		this.getBoton('btnObligaciones').menu.items.items[3].disable(); 
-    	}
+    	this.getBoton('btnPresupuestos').enable();         
+        this.getBoton('btnObligaciones').enable();         
+        this.getBoton('diagrama_gantt').enable();         
+               
     	        
         Phx.vista.Planilla.superclass.preparaMenu.call(this);
     },
     liberaMenu:function()
     {	
-        this.desactivarMenu();
-        this.cmbReporte.disable();
+        this.desactivarMenu();        
         Phx.vista.Planilla.superclass.liberaMenu.call(this);
     },
     desactivarMenu:function() {
@@ -708,7 +571,11 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.getBoton('btnHoras').disable();     	
         this.getBoton('btnColumnas').disable();        
         this.getBoton('btnPresupuestos').disable(); 
-        this.getBoton('btnObligaciones').disable(); 
+        this.getBoton('btnObligaciones').disable();
+        this.getBoton('diagrama_gantt').disable();
+        this.getBoton('ant_estado').disable();
+        this.getBoton('sig_estado').disable();
+        this.getBoton('btnChequeoDocumentosWf').disable();  
         
     },
     south:{
@@ -716,56 +583,123 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		  title:'Funcionarios', 
 		  height:'50%',
 		  cls:'FuncionarioPlanilla'
-	},
-    cmbReporte:new Ext.form.ComboBox({
-				fieldLabel: '',
-				allowBlank: true,
-				emptyText:'Reporte...',
-				store:new Ext.data.JsonStore(
-				{
-					url: '../../sis_planillas/control/Reporte/listarReporte',
-					id: 'id_reporte',
-					root: 'datos',
-					sortInfo:{
-						field: 'titulo_reporte',
-						direction: 'DESC'
-					},
-					totalProperty: 'total',
-					fields: ['id_reporte','titulo_reporte', 'control_reporte'],
-					// turn on remote sorting
-					remoteSort: true,
-					baseParams:{par_filtro:'titulo_reporte'}
-				}),
-				valueField: 'id_reporte',
-				triggerAction: 'all',
-				displayField: 'titulo_reporte',
-			    hiddenName: 'id_reporte',
-    			mode:'remote',
-				pageSize:50,
-				queryDelay:500,
-				listWidth:'280',
-				width:100
-	}),
-	cmbTipoReporte :new Ext.form.ComboBox({
-				fieldLabel: '',
-				allowBlank:false,
-				emptyText:'Tipo Rep...',
-	       		typeAhead: false,
-	       		triggerAction: 'all',
-	       		lazyRender:true,
-	       		mode: 'local',
-				width: 80,
-				store:['pdf','excel'],
-				value:'pdf'
-	}),
-	EnableSelect : function (n, extra) {
-		var selected = this.sm.getSelected().data;
-		this.cmbReporte.reset();
-   		this.cmbReporte.store.setBaseParam('id_tipo_planilla', selected.id_tipo_planilla);
-   		this.cmbReporte.modificado = true;	
-   		Phx.vista.Planilla.superclass.EnableSelect.call(this,n,extra);  
-   		
-   }
+	},    
+  loadCheckDocumentosPlanWf:function() {
+            var rec=this.sm.getSelected();
+            rec.data.nombreVista = this.nombreVista;
+            Phx.CP.loadWindows('../../../sis_workflow/vista/documento_wf/DocumentoWf.php',
+                    'Chequear documento del WF',
+                    {
+                        width:'90%',
+                        height:500
+                    },
+                    rec.data,
+                    this.idContenedor,
+                    'DocumentoWf'
+        )
+    },
+    sigEstado:function(){                   
+      var rec=this.sm.getSelected();
+      this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
+                                'Estado de Wf',
+                                {
+                                    modal:true,
+                                    width:700,
+                                    height:450
+                                }, {data:{
+                                       id_estado_wf:rec.data.id_estado_wf,
+                                       id_proceso_wf:rec.data.id_proceso_wf,
+                                       fecha_ini:rec.data.fecha_tentativa,
+                                       //url_verificacion:'../../sis_tesoreria/control/PlanPago/siguienteEstadoPlanPago'
+                                       
+                                       
+                                    
+                                    }}, this.idContenedor,'FormEstadoWf',
+                                {
+                                    config:[{
+                                              event:'beforesave',
+                                              delegate: this.onSaveWizard,
+                                              
+                                            }],
+                                    
+                                    scope:this
+                                 });        
+               
+     },
+     
+    
+     onSaveWizard:function(wizard,resp){
+        Phx.CP.loadingShow();
+        
+        Ext.Ajax.request({
+            url:'../../sis_planillas/control/Planilla/siguienteEstadoPlanilla',
+            params:{
+                    
+                id_proceso_wf_act:  resp.id_proceso_wf_act,
+                id_estado_wf_act:   resp.id_estado_wf_act,
+                id_tipo_estado:     resp.id_tipo_estado,
+                id_funcionario_wf:  resp.id_funcionario_wf,
+                id_depto_wf:        resp.id_depto_wf,
+                obs:                resp.obs,
+                json_procesos:      Ext.util.JSON.encode(resp.procesos)
+                },
+            success:this.successWizard,
+            failure: this.conexionFailure,
+            argument:{wizard:wizard},
+            timeout:this.timeout,
+            scope:this
+        });
+    },
+     
+    successWizard:function(resp){
+        Phx.CP.loadingHide();
+        resp.argument.wizard.panel.destroy()
+        this.reload();
+     },
+     
+     antEstado:function(){
+         var rec=this.sm.getSelected();
+            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
+            'Estado de Wf',
+            {
+                modal:true,
+                width:450,
+                height:250
+            }, {data:rec.data}, this.idContenedor,'AntFormEstadoWf',
+            {
+                config:[{
+                          event:'beforesave',
+                          delegate: this.onAntEstado,
+                        }
+                        ],
+               scope:this
+             })
+   },
+   
+   onAntEstado:function(wizard,resp){
+            Phx.CP.loadingShow(); 
+            Ext.Ajax.request({ 
+                // form:this.form.getForm().getEl(),
+                url:'../../sis_planillas/control/Planilla/anteriorEstadoPlanilla',
+                params:{
+                        id_proceso_wf:resp.id_proceso_wf,
+                        id_estado_wf:resp.id_estado_wf,  
+                        obs:resp.obs
+                 },
+                argument:{wizard:wizard},  
+                success:this.successEstadoSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+           
+     },
+     
+   successEstadoSinc:function(resp){
+        Phx.CP.loadingHide();
+        resp.argument.wizard.panel.destroy()
+        this.reload();
+     },  
 	
    }
 )

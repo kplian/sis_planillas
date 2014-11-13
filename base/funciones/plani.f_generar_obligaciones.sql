@@ -281,9 +281,9 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'cheque',
-                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre,
+                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre || ' ' ||
                     v_lugar,
-                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre,
+                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre ||  ' ' ||
                     v_lugar,
                     v_obligaciones.valor
                   ) returning id_obligacion into v_id_obligacion;

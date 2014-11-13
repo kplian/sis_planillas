@@ -17,7 +17,16 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.TipoColumna.superclass.constructor.call(this,config);
 		this.iniciarEventos();
-		this.init();		
+		this.init();
+		this.addButton('btnPrueba',
+            {
+                text: 'Prueba',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.onButtonAjax,
+                tooltip: 'Obligaciones de la Planilla'
+            }
+        );		
 	},
 			
 	Atributos:[
@@ -344,6 +353,19 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 			this.maestro=m;					
 			this.load({params:{start:0, limit:this.tam_pag,id_tipo_planilla:this.maestro.id_tipo_planilla}});			
 	},
+	onButtonAjax : function (params){
+    	var rec = this.sm.getSelected();	
+    	Phx.CP.loadingShow();	
+		Ext.Ajax.request({
+				url:'../../sis_planillas/control/TipoColumna/reporte',
+				success:this.successDel,
+				failure:this.conexionFailure,				
+				timeout:this.timeout,
+				params:{'accion':'x'},
+				scope:this
+			})
+    	    	
+    },
 	loadValoresIniciales:function()
     {
     	this.Cmp.id_tipo_planilla.setValue(this.maestro.id_tipo_planilla);       

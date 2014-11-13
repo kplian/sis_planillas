@@ -45,6 +45,22 @@ class ACTPlanilla extends ACTbase{
 		$this->res=$this->objFunc->ejecutarProcesoPlanilla($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+	function siguienteEstadoPlanilla(){
+        $this->objFunc=$this->create('MODPlanilla');  
+        
+        $this->objParam->addParametro('id_funcionario_usu',$_SESSION["ss_id_funcionario"]); 
+        
+        $this->res=$this->objFunc->siguienteEstadoPlanilla($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+    
+     function anteriorEstadoPlanilla(){
+        $this->objFunc=$this->create('MODPlanilla');  
+        $this->objParam->addParametro('id_funcionario_usu',$_SESSION["ss_id_funcionario"]); 
+        $this->res=$this->objFunc->anteriorEstadoPlanilla($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 			
 }
 
