@@ -308,7 +308,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 	preparaMenu : function () {
 		
-		if (this.maestro.estado == 'registro_horas') {
+		if (this.maestro.estado == 'registro_horas' || this.maestro.estado == 'calculo_columnas') {
 			this.getBoton('save').enable();  
 		} else {
 			this.getBoton('save').disable();  
