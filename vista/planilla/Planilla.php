@@ -109,14 +109,14 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
    			config:{
    				name:'id_depto',
    				 hiddenName: 'id_depto',
-   				 url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
 	   				origen:'DEPTO',
 	   				allowBlank:false,
 	   				fieldLabel: 'Depto',
 	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
 	   				width:250,
    			        gwidth:180,
-	   				baseParams:{estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
+	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
 	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
    			},
    			//type:'TrigguerCombo',
@@ -542,7 +542,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	 rec.data.estado == 'comprobante_presupuestario_validado' ||
         	 rec.data.estado == 'comprobante_obligaciones'||
         	 rec.data.estado == 'planilla_finalizada') {
-        	 this.getBoton('ant_estado').disable();
+        	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').disable();
 	
         } else {
