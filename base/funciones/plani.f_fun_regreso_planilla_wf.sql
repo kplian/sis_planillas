@@ -1,3 +1,13 @@
+CREATE OR REPLACE FUNCTION plani.f_fun_regreso_planilla_wf (
+  p_id_usuario integer,
+  p_id_usuario_ai integer,
+  p_usuario_ai varchar,
+  p_id_estado_wf integer,
+  p_id_proceso_wf integer,
+  p_codigo_estado varchar
+)
+RETURNS boolean AS
+$body$
 /*
 *
 *  Autor:   JRR
@@ -137,3 +147,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
