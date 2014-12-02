@@ -31,13 +31,13 @@ BEGIN
     
     
     for v_registros in execute('
-          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar 
+          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,car.id_cargo 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
           inner join orga.ttipo_contrato tc
               on car.id_tipo_contrato = tc.id_tipo_contrato  
-          inner join orga.toficina ofi
+          left join orga.toficina ofi
               on car.id_oficina = ofi.id_oficina 
           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and ' 
           	|| v_filtro_uo || ' uofun.fecha_asignacion <= ''' || v_planilla.fecha_fin || ''' and 
@@ -53,7 +53,9 @@ BEGIN
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
     	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_fin);
         v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
-            
+        if (v_registros.id_lugar is null) then
+        	raise exception 'El cargo con identificador:% , no tiene una oficina asignada',v_registros.id_cargo;
+        end if;    
     	INSERT INTO plani.tfuncionario_planilla (
         	id_usuario_reg,					estado_reg,					id_funcionario,
             id_planilla,					id_uo_funcionario,			id_lugar,

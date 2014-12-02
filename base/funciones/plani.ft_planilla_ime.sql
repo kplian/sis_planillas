@@ -66,6 +66,7 @@ DECLARE
     v_id_estado_wf_ant	integer;
     v_id_funcionario	integer;
     v_id_usuario_reg	integer;
+    v_codigo_llave		varchar;
     
 			    
 BEGIN
@@ -512,11 +513,13 @@ BEGIN
     
                --get cdigo tipo proceso
                select   
-                  tp.codigo 
+                  tp.codigo,
+                  tp.codigo_llave  
                into 
-                  v_codigo_tipo_pro   
+                  v_codigo_tipo_pro, 
+                  v_codigo_llave  
                from wf.ttipo_proceso tp 
-               where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
+                where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
           
           
                -- disparar creacion de procesos seleccionados
@@ -539,7 +542,32 @@ BEGIN
                        v_registros_proc.obs_pro,
                        v_codigo_tipo_pro,    
                        v_codigo_tipo_pro);
+              
               /*Generar una olbigacion de pago en caso de ser necesario*/
+              IF v_codigo_llave = 'obligacion_pago' THEN
+                     
+                  IF  v_registros_proc.id_depto_wf_pro::integer  is NULL  THEN
+                          
+                     raise exception 'Para obligaciones de pago el depto es indispensable';
+                          
+                  END IF;
+                  
+                  IF NOT plani.f_generar_obligaciones_tesoreria(
+                  								v_planilla.id_planilla,
+                                                p_id_usuario,
+                                                v_parametros._id_usuario_ai,
+                                                v_parametros._nombre_usuario_ai 
+                                                ) THEN
+                                                         
+                     raise exception 'Error al generar el contrato';
+                          
+                  END IF;
+                     
+                   
+                    
+              ELSE
+              	 raise exception 'Codigo llave no reconocido  verifique el WF (%)', v_codigo_llave;
+              END IF;
                        
                        
            END LOOP; 

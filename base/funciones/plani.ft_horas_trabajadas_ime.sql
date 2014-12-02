@@ -108,8 +108,8 @@ BEGIN
         	inner join plani.tfuncionario_planilla fp on fp.id_planilla = pla.id_planilla 
         	where fp.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
         	
-        	if (v_planilla.estado != 'registro_horas')then
-        		raise exception 'La planilla debe estar en estado registro_horas para poder modificar las horas trabajadas';
+        	if (v_planilla.estado not in ('registro_horas','calculo_columnas'))then
+        		raise exception 'La planilla debe estar en estado registro_horas o calculo_columnas para poder modificar las horas trabajadas';
         	end if;
         	
 			--Sentencia de la modificacion
@@ -127,6 +127,9 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now()
 			where id_horas_trabajadas=v_parametros.id_horas_trabajadas;
+            
+            update plani.tplanilla set requiere_calculo = 'si'
+            where id_planilla =  v_planilla.id_planilla;
                
 			--Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Horas Trabajadas modificado(a)'); 

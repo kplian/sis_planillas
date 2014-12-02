@@ -52,17 +52,13 @@ BEGIN
             v_cod_columna_limpio= split_part( v_cod_columna_limpio,'}',1);
             --validar que la columna esta en columna_valor            
             
-            SELECT
-               cv.valor
-            INTO
-               v_valor_columna
-            FROM plani.tcolumna_valor cv
-            WHERE cv.codigo_columna = v_cod_columna_limpio  and 
-            	cv.id_funcionario_planilla = p_id_funcionario_planilla;
-            
+            v_valor_columna = (plani.f_get_valor_parametro_valor(v_cod_columna_limpio, p_fecha_ini));
             if (v_valor_columna is null) then
-            	v_valor_columna = (plani.f_get_valor_parametro_valor(v_cod_columna_limpio, p_fecha_ini));
-            end if;
+            	v_valor_columna = plani.f_get_valor_columna_valor(v_cod_columna_limpio, p_id_funcionario_planilla);
+                 --v_valor_columna = 1000;
+                
+            end if; 
+            -- v_valor_columna = 0;      
             
             if (v_valor_columna is null) then            	
         		raise exception 'No se encontro la columna %, definida en la formula : %',
@@ -86,7 +82,8 @@ BEGIN
     	
   	ELSE
     	RAISE EXCEPTION  'La formula % no contiene variables',v_formula;
-  	END IF;     
+  	END IF;   
+    
   	return v_resultado;
 EXCEPTION
 				

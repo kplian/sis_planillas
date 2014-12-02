@@ -52,6 +52,8 @@ BEGIN
             v_resp = (select plani.f_plasue_generar_horas(v_planilla.id_planilla,p_id_usuario));
             
      elsif (p_codigo_estado  in ('calculo_columnas')) then
+     	update plani.tplanilla set requiere_calculo = 'no'
+           where id_planilla =  v_planilla.id_planilla; 
      
      	v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
         	
@@ -95,7 +97,11 @@ BEGIN
             v_resp = (select plani.f_planilla_calcular(v_planilla.id_planilla,p_id_usuario));
             
      elsif (p_codigo_estado  in ('calculo_validado')) then
-      
+      		
+      		if (v_planilla.requiere_calculo = 'si') then
+      			raise exception 'Esta planilla debe ser recalculada antes de validar el calculo';
+      		end if;
+      		
      		for v_empleados in (select * 
             					from plani.tfuncionario_planilla 
                                 where id_planilla = v_planilla.id_planilla) loop

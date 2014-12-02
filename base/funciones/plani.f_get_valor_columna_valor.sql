@@ -1,6 +1,6 @@
-CREATE OR REPLACE FUNCTION plani.f_get_valor_parametro_valor (
+CREATE OR REPLACE FUNCTION plani.f_get_valor_columna_valor (
   p_codigo_columna varchar,
-  p_fecha date = now()
+  p_id_funcionario_planilla integer
 )
 RETURNS numeric AS
 $body$
@@ -10,12 +10,16 @@ DECLARE
   v_mensaje_error         	text;
   v_valor					numeric;
 BEGIN
-  v_nombre_funcion = 'plani.f_get_valor_parametro_valor';
-  select pv.valor 
-  into	v_valor 
-  from plani.tparametro_valor pv
-  where codigo = p_codigo_columna and estado_reg = 'activo' and 
-                (fecha_fin is null or fecha_fin >= p_fecha);
+  v_nombre_funcion = 'plani.f_get_valor_columna_valor';
+  --obtener id_tipo_columna
+  
+  SELECT
+     cv.valor
+  INTO
+     v_valor
+  FROM plani.tcolumna_valor cv
+  WHERE cv.id_funcionario_planilla = p_id_funcionario_planilla and 
+  cv.codigo_columna = p_codigo_columna;
   
   
   return v_valor;

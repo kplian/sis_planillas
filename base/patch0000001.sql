@@ -433,3 +433,30 @@ CREATE TABLE plani.tdetalle_transferencia (
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-11/07/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-17/11/2014****************************************/
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN id_obligacion_pago INTEGER;
+  
+ALTER TABLE plani.tconsolidado_columna
+  ADD COLUMN id_obligacion_det INTEGER;
+  
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_plan_pago INTEGER;
+  
+
+/***********************************F-SCP-JRR-PLANI-0-17/11/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-20/11/2014****************************************/
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN requiere_calculo VARCHAR(2) DEFAULT 'no' NOT NULL;
+  
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_partida INTEGER;
+  
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_afp INTEGER;
+  
+/***********************************F-SCP-JRR-PLANI-0-20/11/2014****************************************/

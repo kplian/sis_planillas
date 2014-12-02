@@ -49,14 +49,14 @@ BEGIN
         into v_resultado
         from plani.thoras_trabajadas ht
         where ht.id_funcionario_planilla = p_id_funcionario_planilla;
-    
+    	
     --Horas Trabajadas
     ELSIF (p_codigo = 'HORNORM') THEN
     	select sum(ht.horas_normales)
         into v_resultado
         from plani.thoras_trabajadas ht
         where ht.id_funcionario_planilla = p_id_funcionario_planilla;
-    
+    	
     --Factor de Antiguedad
     ELSIF (p_codigo = 'FACTORANTI') THEN
     	select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
@@ -72,12 +72,13 @@ BEGIN
     	v_periodo:= v_periodo + (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
 
 		v_periodo:=(select floor(v_periodo/12));
-    	v_gestion:=v_gestion+v_periodo;
         
         select porcentaje
     	into v_resultado
     	from plani.tantiguedad
-    	where v_gestion BETWEEN valor_min and valor_max;
+    	where v_gestion + v_periodo BETWEEN valor_min and valor_max;
+        
+       
     --Jubilado de 55
     ELSIF (p_codigo = 'JUB55') THEN
     	
@@ -101,6 +102,7 @@ BEGIN
 			v_resultado = 1;
 		end if;
         
+        
     --Jubilado de 65
     ELSIF (p_codigo = 'JUB65') THEN
     	
@@ -118,6 +120,7 @@ BEGIN
 		else
 			v_resultado = 1;
 		end if;
+        
     --Factor del bono de frontera    
     ELSIF (p_codigo = 'FACFRONTERA') THEN 	
         select coalesce (sum(ht.porcentaje_sueldo),0)
@@ -127,12 +130,14 @@ BEGIN
         		ht.frontera = 'si';
         
         v_resultado = v_resultado/100;
+       
     --Factor actualizacion UFV  
     ELSIF (p_codigo = 'FAC_ACT') THEN 
     	v_fecha_ini:=(select pxp.f_ultimo_dia_habil_mes((p_fecha_ini- interval '1 day')::date));
     	v_fecha_fin:=(select pxp.f_ultimo_dia_habil_mes(p_fecha_fin));	
         
         v_resultado = param.f_get_factor_actualizacion_ufv(v_fecha_ini, v_fecha_fin);
+        
     --Saldo del periodo anterior del dependiente
     ELSIF (p_codigo = 'SALDOPERIANTDEP') THEN 	
         
@@ -147,6 +152,7 @@ BEGIN
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and 
         									cv.codigo_columna = 'SALDODEPSIGPER'
         where p.id_periodo = v_id_periodo_anterior and tp.codigo = 'PLASUE';
+        
     
     --Factor del zona franca    
     ELSIF (p_codigo = 'FAC_ZONAFRAN') THEN 	
@@ -157,6 +163,7 @@ BEGIN
         		ht.zona_franca = 'si';
         
         v_resultado = 1-(v_resultado/100);
+        
                  
     ELSE
     	raise exception 'No hay una definición para la columna básica %',p_codigo;
