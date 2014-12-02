@@ -460,3 +460,14 @@ ALTER TABLE plani.tobligacion
   ADD COLUMN id_afp INTEGER;
   
 /***********************************F-SCP-JRR-PLANI-0-20/11/2014****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-02/12/2014****************************************/
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_obligacion_pago INTEGER;
+  
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_partida INTEGER;
+  
+
+/***********************************F-SCP-JRR-PLANI-0-02/12/2014****************************************/
