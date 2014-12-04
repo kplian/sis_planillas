@@ -194,7 +194,8 @@ BEGIN
 			id_proceso_macro,
 			id_proceso_wf,
 			estado,
-			id_depto
+			id_depto,
+			fecha_planilla
           	) values(
 			v_parametros.id_periodo,
 			v_parametros.id_gestion,
@@ -211,7 +212,8 @@ BEGIN
 			v_id_proceso_macro,
 			v_id_proceso_wf,
 			v_codigo_estado,
-			v_parametros.id_depto				
+			v_parametros.id_depto,
+			v_parametros.fecha_planilla				
 			)RETURNING id_planilla into v_id_planilla;
            
             execute 'select ' || v_tipo_planilla.funcion_obtener_empleados || '(' || v_id_planilla || ')'
@@ -240,6 +242,7 @@ BEGIN
 			update plani.tplanilla set
 			observaciones = v_parametros.observaciones,
 			id_usuario_mod = p_id_usuario,
+			fecha_planilla = v_parametros.fecha_planilla,
 			fecha_mod = now()
 			where id_planilla=v_parametros.id_planilla;
                

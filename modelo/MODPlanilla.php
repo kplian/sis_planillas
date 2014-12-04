@@ -75,6 +75,7 @@ class MODPlanilla extends MODbase{
 		$this->setParametro('nro_planilla','nro_planilla','varchar');
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('id_depto','id_depto','integer');
+		$this->setParametro('fecha_planilla','fecha_planilla','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -103,6 +104,7 @@ class MODPlanilla extends MODbase{
 		$this->setParametro('observaciones','observaciones','text');
 		$this->setParametro('nro_planilla','nro_planilla','varchar');
 		$this->setParametro('estado','estado','varchar');
+		$this->setParametro('fecha_planilla','fecha_planilla','date');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
