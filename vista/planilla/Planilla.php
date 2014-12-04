@@ -241,6 +241,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	   			grid : true,
 	   			form : true
 	   	},
+	   	{
+			config:{
+				name: 'fecha_planilla',
+				fieldLabel: 'Fecha Planilla',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+							format: 'd/m/Y', 
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+			},
+				type:'DateField',
+				filters:{pfiltro:'plani.fecha_planilla',type:'date'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		
 		{
    			config:{
@@ -390,6 +406,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'nro_planilla', type: 'string'},
 		{name:'estado', type: 'string'},
 		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
+		{name:'fecha_planilla', type: 'date',dateFormat:'Y-m-d'},
 		{name:'id_usuario_reg', type: 'numeric'},
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
@@ -409,9 +426,14 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				this.ocultarComponente(this.Cmp.id_periodo);
 				this.Cmp.id_periodo.allowBlank = true;
 				this.Cmp.id_periodo.reset();
+				this.mostrarComponente(this.Cmp.fecha_planilla);
+				this.Cmp.fecha_planilla.allowBlank = false;
 			} else {
 				this.mostrarComponente(this.Cmp.id_periodo);
 				this.Cmp.id_periodo.allowBlank = false;
+				this.ocultarComponente(this.Cmp.fecha_planilla);
+				this.Cmp.fecha_planilla.allowBlank = true;
+
 			}
 		},this);
 		

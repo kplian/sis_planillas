@@ -57,6 +57,7 @@ class ACTReporte extends ACTbase{
 		
 		$this->res=$this->objFunc->listarReporteMaestro($this->objParam);
 		
+		
 		$this->objFunc=$this->create('MODReporte');	
 		$this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
 		//obtener titulo del reporte

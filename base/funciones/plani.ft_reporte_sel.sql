@@ -137,8 +137,8 @@ BEGIN
 						
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
-                        inner join param.tperiodo per on per.id_periodo = plani.id_periodo
-                        inner join param.tgestion ges on ges.id_gestion = per.id_gestion
+                        left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                        inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
                         left join orga.tuo uo on uo.id_uo = plani.id_uo
                         inner join param.tdepto dep on dep.id_depto = plani.id_depto
 				        where ';
@@ -146,7 +146,7 @@ BEGIN
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
 			--v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+			
 			--Devuelve la respuesta
 			return v_consulta;
 						

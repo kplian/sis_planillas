@@ -2780,3 +2780,71 @@ ALTER TABLE plani.tobligacion
     NOT DEFERRABLE;
        
 /***********************************F-DEP-JRR-PLANI-0-25/11/2014****************************************/
+
+
+/***********************************I-DEP-JRR-PLANI-0-03/12/2014****************************************/
+
+CREATE OR REPLACE VIEW plani.vplanilla(
+    id_usuario_reg,
+    id_usuario_mod,
+    fecha_reg,
+    fecha_mod,
+    estado_reg,
+    id_planilla,
+    id_gestion,
+    id_depto,
+    id_periodo,
+    nro_planilla,
+    id_uo,
+    id_tipo_planilla,
+    observaciones,
+    id_proceso_macro,
+    id_proceso_wf,
+    id_estado_wf,
+    estado,
+    id_usuario_ai,
+    usuario_ai,
+    requiere_calculo,
+    id_obligacion_pago,
+    calculo_horas,
+    codigo,
+    nombre,
+    periodicidad,
+    gestion,
+    fecha_ini,
+    fecha_fin)
+AS
+  SELECT pl.id_usuario_reg,
+         pl.id_usuario_mod,
+         pl.fecha_reg,
+         pl.fecha_mod,
+         pl.estado_reg,
+         pl.id_planilla,
+         pl.id_gestion,
+         pl.id_depto,
+         pl.id_periodo,
+         pl.nro_planilla,
+         pl.id_uo,
+         pl.id_tipo_planilla,
+         pl.observaciones,
+         pl.id_proceso_macro,
+         pl.id_proceso_wf,
+         pl.id_estado_wf,
+         pl.estado,
+         pl.id_usuario_ai,
+         pl.usuario_ai,
+         pl.requiere_calculo,
+         pl.id_obligacion_pago,
+         tp.calculo_horas,
+         tp.codigo,
+         tp.nombre,
+         tp.periodicidad,
+         ges.gestion,
+         per.fecha_ini,
+         per.fecha_fin
+  FROM plani.tplanilla pl
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = pl.id_tipo_planilla
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pl.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pl.id_gestion;
+       
+/***********************************F-DEP-JRR-PLANI-0-03/12/2014****************************************/

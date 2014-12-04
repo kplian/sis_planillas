@@ -32,6 +32,7 @@ DECLARE
     v_planilla				record;
     v_id_periodo_anterior	integer;
     v_fecha_fin				date;
+    
     	
 BEGIN
 	v_nombre_funcion = 'plani.f_calcular_basica';
@@ -164,7 +165,63 @@ BEGIN
         
         v_resultado = 1-(v_resultado/100);
         
-                 
+    ELSIF (p_codigo = 'REISUELDOBA') THEN 
+    	
+                
+        select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        			  
+        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
+        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+                     else 
+                     	0
+                     end) into v_resultado
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+        where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
+    
+    ELSIF (p_codigo = 'REINBANT') THEN 
+    	
+        
+        select sum(((plani.f_get_valor_parametro_valor('SALMIN', v_planilla.fecha_planilla)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) 
+                    	- 
+                    ((plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) ) into v_resultado
+        from plani.tplanilla p
+        inner join param.tperiodo per on per.id_periodo = p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla        
+        where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+        cv.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACTORANTI';
+                
+    ELSIF (p_codigo = 'BONFRONTERA') THEN 
+    	
+        
+        select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        			  
+        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales * 0.2) - 
+        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales * 0.2)
+                     else 
+                     	0
+                     end) into v_resultado
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+        where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACFRONTERA' 
+        and cv.valor = 1 ;
+                      
     ELSE
     	raise exception 'No hay una definición para la columna básica %',p_codigo;
 	END IF;

@@ -81,7 +81,8 @@ BEGIN
 						depto.nombre,
 						tippla.calculo_horas,
 						pxp.f_get_variable_global(''plani_tiene_presupuestos''),
-						pxp.f_get_variable_global(''plani_tiene_costos'')	
+						pxp.f_get_variable_global(''plani_tiene_costos''),
+						plani.fecha_planilla	
 						from plani.tplanilla plani
 						inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod

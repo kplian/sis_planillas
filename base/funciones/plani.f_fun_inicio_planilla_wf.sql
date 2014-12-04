@@ -38,10 +38,12 @@ BEGIN
 
 	 v_nombre_funcion = 'plani.f_fun_inicio_planilla_wf';
     
-     select pla.*, pe.fecha_ini, pe.fecha_fin
+     select pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas
       into v_planilla
       from plani.tplanilla pla
-      inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
+      inner join plani.ttipo_planilla tp
+      	on tp.id_tipo_planilla = pla.id_tipo_planilla
+      left join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
       where id_proceso_wf = p_id_proceso_wf;
           
     -----------------------------------------------------------------------------------
@@ -54,45 +56,46 @@ BEGIN
      elsif (p_codigo_estado  in ('calculo_columnas')) then
      	update plani.tplanilla set requiere_calculo = 'no'
            where id_planilla =  v_planilla.id_planilla; 
-     
-     	v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
-        	
-        	for v_empleados in (select funpla.*,fun.desc_funcionario1 as nombre from plani.tfuncionario_planilla funpla
-            	 				inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
-        						where id_planilla = v_planilla.id_planilla)loop
-        						
-        		select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * horas_normales),2)
-        		into v_suma_horas, v_suma_sueldo
-        		from plani.thoras_trabajadas
-        		where id_funcionario_planilla = v_empleados.id_funcionario_planilla;
-        		
-        		if (v_suma_horas > v_cantidad_horas_mes)then
-        			raise exception 'La cantidad de horas trabajadas para el empleado : % , superan las : % horas',
-        							v_empleados.nombre,v_cantidad_horas_mes;
-        		end if;
-        		
-        		if (v_suma_horas < 0 )then
-        			raise exception 'La cantidad de horas trabajadas para el empleado : % , es 0 o menor a 0',
-        							v_empleados.nombre;
-        		end if;        		
-        		
-    			update plani.thoras_trabajadas set
-    				porcentaje_sueldo = (round((sueldo / v_cantidad_horas_mes * horas_normales),2) / v_suma_sueldo) * 100
-    			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
-    			
-    			select sum(porcentaje_sueldo),max(id_horas_trabajadas)
-    			into v_suma_porcentaje,v_id_horas_trabajadas
-                from plani.thoras_trabajadas
-    			where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
-    			
-    			if (v_suma_porcentaje != 100 ) then
-    				update plani.thoras_trabajadas set
-    					porcentaje_sueldo = porcentaje_sueldo + (100 - v_suma_porcentaje)
-    				where id_horas_trabajadas = v_id_horas_trabajadas; 
-    			end if;
-        		
-        		
-        	end loop; 
+     	if (v_planilla.calculo_horas = 'si') then
+            v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
+            	
+                for v_empleados in (select funpla.*,fun.desc_funcionario1 as nombre from plani.tfuncionario_planilla funpla
+                                    inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
+                                    where id_planilla = v_planilla.id_planilla)loop
+            						
+                    select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * horas_normales),2)
+                    into v_suma_horas, v_suma_sueldo
+                    from plani.thoras_trabajadas
+                    where id_funcionario_planilla = v_empleados.id_funcionario_planilla;
+            		
+                    if (v_suma_horas > v_cantidad_horas_mes)then
+                        raise exception 'La cantidad de horas trabajadas para el empleado : % , superan las : % horas',
+                                        v_empleados.nombre,v_cantidad_horas_mes;
+                    end if;
+            		
+                    if (v_suma_horas < 0 )then
+                        raise exception 'La cantidad de horas trabajadas para el empleado : % , es 0 o menor a 0',
+                                        v_empleados.nombre;
+                    end if;        		
+            		
+                    update plani.thoras_trabajadas set
+                        porcentaje_sueldo = (round((sueldo / v_cantidad_horas_mes * horas_normales),2) / v_suma_sueldo) * 100
+                    where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
+        			
+                    select sum(porcentaje_sueldo),max(id_horas_trabajadas)
+                    into v_suma_porcentaje,v_id_horas_trabajadas
+                    from plani.thoras_trabajadas
+                    where id_funcionario_planilla = v_empleados.id_funcionario_planilla; 
+        			
+                    if (v_suma_porcentaje != 100 ) then
+                        update plani.thoras_trabajadas set
+                            porcentaje_sueldo = porcentaje_sueldo + (100 - v_suma_porcentaje)
+                        where id_horas_trabajadas = v_id_horas_trabajadas; 
+                    end if;
+            		
+            		
+                end loop; 
+            end if;
         	--calcula columas despues de validar las horas
             v_resp = (select plani.f_planilla_calcular(v_planilla.id_planilla,p_id_usuario));
             

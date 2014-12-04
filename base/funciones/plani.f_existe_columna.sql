@@ -1,8 +1,9 @@
 CREATE OR REPLACE FUNCTION plani.f_existe_columna (
   p_codigo_columna varchar,
+  p_id_tipo_planilla integer = NULL::integer,
   p_fecha date = now()
 )
-RETURNS bool AS
+RETURNS boolean AS
 $body$
 DECLARE  
   v_resp		            varchar;
@@ -18,7 +19,8 @@ BEGIN
   
   if (exists (	select 1 
   				from plani.ttipo_columna tc
-  				where codigo = p_codigo_columna and estado_reg = 'activo'))then
+  				where codigo = p_codigo_columna and id_tipo_planilla = p_id_tipo_planilla 
+                and estado_reg = 'activo'))then
   		return true;		
   end if;
   

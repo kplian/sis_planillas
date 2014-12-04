@@ -46,7 +46,8 @@ class MODPlanilla extends MODbase{
 		$this->captura('nombre_depto','varchar');
 		$this->captura('calculo_horas','varchar');
 		$this->captura('plani_tiene_presupuestos','varchar');
-		$this->captura('plani_tiene_costos','varchar');			
+		$this->captura('plani_tiene_costos','varchar');	
+		$this->captura('fecha_planilla','date');		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
