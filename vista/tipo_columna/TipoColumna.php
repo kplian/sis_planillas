@@ -103,7 +103,31 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},				
+		},
+		
+		{
+			config:{
+				name: 'tiene_detalle',
+				fieldLabel: 'Tiene Detalle',
+				allowBlank:false,
+				emptyText:'Detalle...',
+				qtip:'Permite generar un detalle de calculos para la columna(Generalmente usada para planillas de retroactivos)',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},						
 		{
 			config:{
 				name: 'formula',
@@ -341,6 +365,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'tiene_detalle', type: 'string'},
 		
 	],
 	sortInfo:{
@@ -368,7 +393,8 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
     },
 	loadValoresIniciales:function()
     {
-    	this.Cmp.id_tipo_planilla.setValue(this.maestro.id_tipo_planilla);       
+    	this.Cmp.id_tipo_planilla.setValue(this.maestro.id_tipo_planilla); 
+    	this.Cmp.tiene_detalle.setValue('no');    
         Phx.vista.TipoColumna.superclass.loadValoresIniciales.call(this);        
     },
     onButtonEdit:function(){

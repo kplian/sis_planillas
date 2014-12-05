@@ -19,7 +19,8 @@ DECLARE
   v_filtro_uo			varchar;
   v_existe				varchar;
   v_fecha_ini		date;
-  
+  v_cantidad_horas_mes	integer;
+  v_resultado			numeric;
   v_tiene_incremento	integer;
   v_id_escala			integer;
 BEGIN
@@ -35,7 +36,7 @@ BEGIN
     where p.id_planilla = p_id_planilla;
     
     v_fecha_ini = ('01/01/' || v_planilla.gestion) ::date;
-    
+    v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_inicio)::integer;
     
     for v_registros in execute('
           select uofun.id_funcionario , array_agg(car.id_cargo) as cargos, 
@@ -61,12 +62,25 @@ BEGIN
                           p.id_gestion = ' || v_planilla.id_gestion || ')
           group by uofun.id_funcionario')loop
           	 v_tiene_incremento = 0;
-          	FOREACH v_id_escala IN ARRAY v_registros.escalas
-              LOOP
-                  if (plani.f_tiene_incremento_escala(v_id_escala, v_planilla.gestion)) THEN
-                      v_tiene_incremento = 1;
-                  end if;  
-              END LOOP;
+          	select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+            			  
+                            (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
+                            (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+                         else 
+                            0
+                         end) into v_resultado
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+            where fp.id_funcionario = v_registros.id_funcionario and  tp.codigo = 'PLASUE' and
+            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
+        	
+            if (v_resultado > 0) then
+                v_tiene_incremento = 1;
+            end if;
     	
               if (v_tiene_incremento = 0)then
                   --si no hay incremento en escala, verificar si el empleado recibio bono de antiguedad 

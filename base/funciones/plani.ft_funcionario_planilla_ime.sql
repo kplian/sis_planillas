@@ -34,6 +34,8 @@ DECLARE
 	v_id_uo_funcionario		integer;
 	v_func_planilla			record;
 	v_columnas				record;
+    v_id_columna_valor		integer;
+    v_detalle				record;
 			    
 BEGIN
 
@@ -50,7 +52,7 @@ BEGIN
 	if(p_transaccion='PLA_FUNPLAN_INS')then
 					
         begin
-        	select tp.* into v_tipo_planilla
+        	select tp.*,p.id_gestion into v_tipo_planilla
         	from plani.tplanilla p
         	inner join plani.ttipo_planilla tp
         		on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -115,7 +117,38 @@ BEGIN
 		                v_columnas.formula,
 		                0,
 		                0
-		              );
+		              )returning id_columna_valor into v_id_columna_valor;
+                      
+                      --registrando el detalle en caso de ser necesario  
+                if (v_columna.tiene_detalle = 'si')then
+                	for v_detalle in (	
+                    	select ht.id_horas_trabajadas
+                    	from plani.tplanilla p
+                    	inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+                    	inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+                    	inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+                    	where fp.id_funcionario = v_parametros.id_funcionario and  tp.codigo = 'PLASUE' and
+                    	ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion) loop
+                        
+                        INSERT INTO 
+                            plani.tcolumna_detalle
+                          (
+                            id_usuario_reg,  
+                            id_horas_trabajadas,
+                            id_columna_valor,
+                            valor,
+                            valor_generado
+                          ) 
+                          VALUES (
+                            p_id_usuario,  
+                            v_detalle.id_horas_trabajadas,
+                            v_id_columna_valor,
+                            0,
+                            0
+                          );
+                          
+                    end loop;
+                end if;
         end loop;
 			
 			--Definicion de la respuesta

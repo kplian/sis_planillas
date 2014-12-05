@@ -32,6 +32,12 @@ DECLARE
     v_planilla				record;
     v_id_periodo_anterior	integer;
     v_fecha_fin				date;
+    v_fecha_plani			date;
+    v_resultado_array		numeric[];
+    v_array_actual			numeric[];
+    v_i						integer;
+    v_tamano_array			integer;
+    v_detalle				record;
     
     	
 BEGIN
@@ -39,9 +45,10 @@ BEGIN
     v_resultado = 0;
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', p_fecha_ini)::integer;
     
-    select p.*,fp.id_funcionario into v_planilla 
+    select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo into v_planilla 
     from plani.tplanilla p
-    inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+    inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla    
     where fp.id_funcionario_planilla = p_id_funcionario_planilla;
     
     --Sueldo Básico
@@ -83,44 +90,75 @@ BEGIN
     --Jubilado de 55
     ELSIF (p_codigo = 'JUB55') THEN
     	
-        select fp.id_funcionario
-        into  v_id_funcionario
-        from plani.tfuncionario_planilla fp
-        where fp.id_funcionario_planilla = p_id_funcionario_planilla;
-    	
-         select fp.id_funcionario
-        into  v_id_funcionario
-        from plani.tfuncionario_planilla fp
-        where fp.id_funcionario_planilla = p_id_funcionario_planilla;
-    	
-        if (exists (select 1
-			        from plani.tfuncionario_afp fa
-			        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
-			        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
-			        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
-			v_resultado = 0;       
-		else
-			v_resultado = 1;
-		end if;
+    	if (v_planilla.codigo = 'PLAREISU') then
+        
+        	select array_agg(cv.valor) into v_resultado_array
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+            where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB55' ;
+            
+            update plani.tfuncionario_planilla set afp_55 = v_resultado_array::integer[]
+        	where id_funcionario_planilla = p_id_funcionario_planilla;
+        	v_resultado = 0;
+        else
+        
+            select fp.id_funcionario
+            into  v_id_funcionario
+            from plani.tfuncionario_planilla fp
+            where fp.id_funcionario_planilla = p_id_funcionario_planilla;
+        	            	
+            if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
+                        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+                v_resultado = 0;       
+            else
+                v_resultado = 1;
+            end if;
+        end if;
         
         
     --Jubilado de 65
     ELSIF (p_codigo = 'JUB65') THEN
-    	
-        select fp.id_funcionario
-        into  v_id_funcionario
-        from plani.tfuncionario_planilla fp
-        where fp.id_funcionario_planilla = p_id_funcionario_planilla;
-    	
-        if (exists (select 1
-			        from plani.tfuncionario_afp fa
-			        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
-			        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
-			        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
-			v_resultado = 0;       
-		else
-			v_resultado = 1;
-		end if;
+    	if (v_planilla.codigo = 'PLAREISU') then
+        	select array_agg(cv.valor) into v_resultado_array
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+            where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB65' ;
+            
+            update plani.tfuncionario_planilla set afp_65 = v_resultado_array::integer[]
+        	where id_funcionario_planilla = p_id_funcionario_planilla;
+            
+        	v_resultado = 0;
+        else
+            select fp.id_funcionario
+            into  v_id_funcionario
+            from plani.tfuncionario_planilla fp
+            where fp.id_funcionario_planilla = p_id_funcionario_planilla;
+        	
+            if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
+                        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+                v_resultado = 0;       
+            else
+                v_resultado = 1;
+            end if;
+        end if;
         
     --Factor del bono de frontera    
     ELSIF (p_codigo = 'FACFRONTERA') THEN 	
@@ -133,7 +171,7 @@ BEGIN
         v_resultado = v_resultado/100;
        
     --Factor actualizacion UFV  
-    ELSIF (p_codigo = 'FAC_ACT') THEN 
+    ELSIF (p_codigo = 'FAC_ACT') THEN     	
     	v_fecha_ini:=(select pxp.f_ultimo_dia_habil_mes((p_fecha_ini- interval '1 day')::date));
     	v_fecha_fin:=(select pxp.f_ultimo_dia_habil_mes(p_fecha_fin));	
         
@@ -142,17 +180,22 @@ BEGIN
     --Saldo del periodo anterior del dependiente
     ELSIF (p_codigo = 'SALDOPERIANTDEP') THEN 	
         
-        v_id_periodo_anterior = param.f_get_id_periodo_anterior(v_planilla.id_periodo);
+        --v_id_periodo_anterior = param.f_get_id_periodo_anterior(v_planilla.id_periodo);
         
-        
-        select cv.valor into v_resultado
+        select 	(case when per.id_periodo is not null then
+        			per.fecha_fin
+                 ELSE
+                 	p.fecha_planilla
+                 end) as fecha_plani, cv.valor into v_fecha_plani, v_resultado
         from plani.tplanilla p
         inner join plani.tfuncionario_planilla fp 
         	on p.id_planilla = fp.id_planilla and fp.id_funcionario = v_planilla.id_funcionario 
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and 
         									cv.codigo_columna = 'SALDODEPSIGPER'
-        where p.id_periodo = v_id_periodo_anterior and tp.codigo = 'PLASUE';
+        left join param.tperiodo per on per.id_periodo = p.id_periodo and per.fecha_fin = p_fecha_fin -  interval '1 month'
+        where (tp.codigo = 'PLASUE' or tp.codigo = 'PLAREISU')
+        order by fecha_plani desc limit 1;
         
     
     --Factor del zona franca    
@@ -174,7 +217,14 @@ BEGIN
         				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
                      else 
                      	0
-                     end) into v_resultado
+                     end),
+                array_agg( (case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        			  
+        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
+        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+                     else 
+                     	0
+                     end) order by ht.id_horas_trabajadas asc) into v_resultado, v_resultado_array
         from plani.tplanilla p
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
@@ -182,7 +232,29 @@ BEGIN
         inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
         where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
-        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
+        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;        
+        
+        v_resultado = 0;
+        v_i = 1;
+        FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+        					from plani.tcolumna_detalle cd
+                            inner join plani.tcolumna_valor cv
+                            	on cv.id_columna_valor = cd.id_columna_valor
+                            inner join plani.tfuncionario_planilla fp
+                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
+                            where cv.codigo = 'REISUELDOBA' and cv.estado_reg = 'activo'
+                            order by cv.id_horas_trabajadas asc) loop
+        	if (cd.valor = cd.valor_generado) then
+            	update plani.tcolumna_detalle set 
+                	valor = v_resultado_array[v_i],
+                    valor_generado = v_resultado_array[v_i]
+                where id_columna_detalle = v_detalle.id_columna_detalle;
+                v_resultado = v_resultado + v_resultado_array[v_i];
+            else
+            	v_resultado = v_resultado + v_detalle.valor;
+            end if;
+            v_i = v_i + 1;
+        end loop;
     
     ELSIF (p_codigo = 'REINBANT') THEN 
     	
@@ -191,7 +263,12 @@ BEGIN
         			(ht.horas_normales/v_cantidad_horas_mes)) 
                     	- 
                     ((plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3)*
-        			(ht.horas_normales/v_cantidad_horas_mes)) ) into v_resultado
+        			(ht.horas_normales/v_cantidad_horas_mes)) ),
+               array_agg(((plani.f_get_valor_parametro_valor('SALMIN', v_planilla.fecha_planilla)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) 
+                    	- 
+                    ((plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) order by ht.id_horas_trabajadas asc) into v_resultado,v_resultado_array
         from plani.tplanilla p
         inner join param.tperiodo per on per.id_periodo = p.id_periodo
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -200,17 +277,47 @@ BEGIN
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla        
         where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
         cv.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACTORANTI';
+        v_tamano_array = array_length(v_resultado_array,1);
+        
+        v_resultado = 0;
+        v_i = 1;
+        FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+        					from plani.tcolumna_detalle cd
+                            inner join plani.tcolumna_valor cv
+                            	on cv.id_columna_valor = cd.id_columna_valor
+                            inner join plani.tfuncionario_planilla fp
+                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
+                            where cv.codigo = 'REINBANT' and cv.estado_reg = 'activo'
+                            order by cv.id_horas_trabajadas asc) loop
+        	if (cd.valor = cd.valor_generado) then
+            	update plani.tcolumna_detalle set 
+                	valor = v_resultado_array[v_i],
+                    valor_generado = v_resultado_array[v_i]
+                where id_columna_detalle = v_detalle.id_columna_detalle;
+                v_resultado = v_resultado + v_resultado_array[v_i];
+            else
+            	v_resultado = v_resultado + v_detalle.valor;
+            end if;
+            v_i = v_i + 1;
+        end loop;
                 
     ELSIF (p_codigo = 'BONFRONTERA') THEN 
     	
         
         select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
         			  
-        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales * 0.2) - 
-        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales * 0.2)
+        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor) - 
+        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor)
                      else 
                      	0
-                     end) into v_resultado
+                     end),
+                array_agg((case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        			  
+        				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor) - 
+        				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor)
+                     else 
+                     	0
+                     end) order by ht.id_horas_trabajadas asc) into v_resultado,v_resultado_array
         from plani.tplanilla p
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
@@ -219,8 +326,30 @@ BEGIN
         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
         where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
-        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACFRONTERA' 
-        and cv.valor = 1 ;
+        ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACFRONTERA' ;
+        v_tamano_array = array_length(v_resultado_array,1);
+        
+        v_resultado = 0;
+        v_i = 1;
+        FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+        					from plani.tcolumna_detalle cd
+                            inner join plani.tcolumna_valor cv
+                            	on cv.id_columna_valor = cd.id_columna_valor
+                            inner join plani.tfuncionario_planilla fp
+                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
+                            where cv.codigo = 'BONFRONTERA' and cv.estado_reg = 'activo'
+                            order by cv.id_horas_trabajadas asc) loop
+        	if (cd.valor = cd.valor_generado) then
+            	update plani.tcolumna_detalle set 
+                	valor = v_resultado_array[v_i],
+                    valor_generado = v_resultado_array[v_i]
+                where id_columna_detalle = v_detalle.id_columna_detalle;
+                v_resultado = v_resultado + v_resultado_array[v_i];
+            else
+            	v_resultado = v_resultado + v_detalle.valor;
+            end if;
+            v_i = v_i + 1;
+        end loop;
                       
     ELSE
     	raise exception 'No hay una definición para la columna básica %',p_codigo;

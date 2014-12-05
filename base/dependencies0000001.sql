@@ -2847,4 +2847,18 @@ AS
        LEFT JOIN param.tperiodo per ON per.id_periodo = pl.id_periodo
        JOIN param.tgestion ges ON ges.id_gestion = pl.id_gestion;
        
+ALTER TABLE plani.tcolumna_detalle
+  ADD CONSTRAINT fk_tcolumna_detalle__id_horas_trabajadas FOREIGN KEY (id_horas_trabajadas) 
+    REFERENCES plani.thoras_trabajadas(id_horas_trabajadas)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tcolumna_detalle
+  ADD CONSTRAINT fk_tcolumna_detalle__columna_valor FOREIGN KEY (id_columna_valor) 
+    REFERENCES plani.tcolumna_valor(id_columna_valor)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+       
 /***********************************F-DEP-JRR-PLANI-0-03/12/2014****************************************/

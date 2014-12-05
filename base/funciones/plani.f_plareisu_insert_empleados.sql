@@ -21,6 +21,8 @@ DECLARE
   v_tiene_incremento		integer;
   v_cantidad_horas_mes	integer;
   v_resultado			numeric;
+  v_detalle				record;
+  v_id_columna_valor	integer;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plareisu_insert_empleados';
@@ -72,14 +74,7 @@ BEGIN
     	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_planilla);
         v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla);
         v_tiene_incremento = 0;
-        --verificar si hay algun incremento a nivel de escala salarial
-        /*FOREACH v_id_escala IN ARRAY v_registros.escalas
-        LOOP
-        	if (plani.f_tiene_incremento_escala(v_id_escala, v_planilla.gestion,fechas[])) THEN
-            	v_tiene_incremento = 1;
-            end if;  
-        END LOOP;*/
-        
+                      
         --calcular si tendra algun incremento durante el año        
         select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
         			  
@@ -119,7 +114,7 @@ BEGIN
         
         if (v_tiene_incremento = 1) then
             if (v_registros.lugares[1] is null) then
-                raise exception 'El cargo con identificador:% , no tiene una oficina asignada',v_registros.id_cargo;
+                raise exception 'El cargo con identificador:% , no tiene una oficina asignada',v_registros.cargos[1];
             end if;   
             INSERT INTO plani.tfuncionario_planilla (
                 id_usuario_reg,					estado_reg,					id_funcionario,
@@ -157,7 +152,38 @@ BEGIN
                     v_columnas.formula,
                     0,
                     0
-                  );
+                  )returning id_columna_valor into v_id_columna_valor;
+                
+                --registrando el detalle en caso de ser necesario  
+                if (v_columnas.tiene_detalle = 'si')then
+                	for v_detalle in (	
+                    	select ht.id_horas_trabajadas
+                    	from plani.tplanilla p
+                    	inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+                    	inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+                    	inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+                    	where fp.id_funcionario = v_id_funcionario and  tp.codigo = 'PLASUE' and
+                    	ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion) loop
+                        
+                        INSERT INTO 
+                            plani.tcolumna_detalle
+                          (
+                            id_usuario_reg,  
+                            id_horas_trabajadas,
+                            id_columna_valor,
+                            valor,
+                            valor_generado
+                          ) 
+                          VALUES (
+                            v_planilla.id_usuario_reg,  
+                            v_detalle.id_horas_trabajadas,
+                            v_id_columna_valor,
+                            0,
+                            0
+                          );
+                          
+                    end loop;
+                end if;
             end loop;
         end if;
     end loop;

@@ -477,4 +477,25 @@ ALTER TABLE plani.tobligacion
 ALTER TABLE plani.tplanilla
   ADD COLUMN fecha_planilla DATE;
   
+ALTER TABLE plani.ttipo_columna
+  ADD COLUMN tiene_detalle VARCHAR(2) DEFAULT 'no' NOT NULL;  
+  
+CREATE TABLE plani.tcolumna_detalle (
+  id_columna_detalle SERIAL NOT NULL, 
+  id_horas_trabajadas INTEGER NOT NULL,
+  id_columna_valor INTEGER NOT NULL, 
+  valor NUMERIC(18,10) NOT NULL,
+  valor_generado NUMERIC(18,10) NOT NULL,   
+  PRIMARY KEY (id_columna_detalle) 
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE INDEX tcolumna_detalle_idx1 ON plani.tcolumna_detalle
+  USING btree (id_horas_trabajadas);
+  
+CREATE INDEX tcolumna_detalle_idx2 ON plani.tcolumna_detalle
+  USING btree (id_columna_valor);
+
+  
 /***********************************F-SCP-JRR-PLANI-0-04/12/2014****************************************/
+
