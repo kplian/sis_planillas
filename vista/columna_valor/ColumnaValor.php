@@ -232,7 +232,7 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 		  url:'../../../sis_planillas/vista/columna_detalle/ColumnaDetalle.php',
 		  title:'Columna Detalle', 
 		  height:'50%',
-		  cls:'Columna Detalle',
+		  cls:'ColumnaDetalle',
 		  collapsed:true
 	},    
 	bdel:false,

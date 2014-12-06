@@ -96,7 +96,7 @@ BEGIN
 			select pla.estado
 			into v_estado_planilla
 			from plani.tcolumna_valor cv				
-			plani.tfuncionario_planilla funplan
+			inner join plani.tfuncionario_planilla funplan
 				on cv.id_funcionario_planilla =  funplan.id_funcionario_planilla
 			inner join plani.tplanilla  pla on pla.id_planilla = funplan.id_planilla
 			where  cv.id_columna_valor = v_parametros.id_columna_valor;
