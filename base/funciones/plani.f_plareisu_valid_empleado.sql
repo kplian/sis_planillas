@@ -36,7 +36,7 @@ BEGIN
     where p.id_planilla = p_id_planilla;
     
     v_fecha_ini = ('01/01/' || v_planilla.gestion) ::date;
-    v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_inicio)::integer;
+    v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_ini)::integer;
     
     for v_registros in execute('
           select uofun.id_funcionario , array_agg(car.id_cargo) as cargos, 

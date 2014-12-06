@@ -20,9 +20,9 @@ BEGIN
   delete from plani.tprorrateo
   where id_funcionario_planilla = p_id_funcionario_planilla;
   
-  delete from plani.tcolumna_detalle using plani.thoras_trabajadas
-  where plani.tcolumna_detalle.id_horas_trabajadas = plani.thoras_trabajadas.id_horas_trabajadas and 
-  plani.thoras_trabajadas.id_funcionario_planilla = p_id_funcionario_planilla;
+  delete from plani.tcolumna_detalle using plani.tcolumna_valor
+  where plani.tcolumna_detalle.id_columna_valor = plani.tcolumna_valor.id_columna_valor and 
+  plani.tcolumna_valor.id_funcionario_planilla = p_id_funcionario_planilla;
   
   
   delete from plani.thoras_trabajadas

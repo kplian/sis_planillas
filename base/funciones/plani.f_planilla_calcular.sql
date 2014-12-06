@@ -48,7 +48,7 @@ BEGIN
             	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
                 
                     v_valor_generado = plani.f_calcular_basica(v_funcionarios.id_funcionario_planilla, 
-                        					v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,v_funcionarios.codigo_columna);
+                        					v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,v_funcionarios.codigo_columna,v_funcionarios.id_columna_valor);
                                         
                     v_valor = v_valor_generado;
                     
@@ -61,7 +61,7 @@ BEGIN
                	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
                 
                     v_valor_generado = plani.f_calcular_formula(v_funcionarios.id_funcionario_planilla, 
-                                                v_funcionarios.formula, v_planilla.fecha_ini);
+                                                v_funcionarios.formula, v_planilla.fecha_ini, v_funcionarios.id_columna_valor);
                     v_valor = v_valor_generado;
                     
                 ELSE                	

@@ -162,7 +162,7 @@ BEGIN
                     	inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
                     	inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
                     	inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-                    	where fp.id_funcionario = v_id_funcionario and  tp.codigo = 'PLASUE' and
+                    	where fp.id_funcionario = v_registros.id_funcionario and  tp.codigo = 'PLASUE' and
                     	ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion) loop
                         
                         INSERT INTO 

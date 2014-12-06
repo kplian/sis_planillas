@@ -3,7 +3,8 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
   p_fecha_ini date,
   p_fecha_fin date,
   p_id_tipo_columna integer,
-  p_codigo varchar
+  p_codigo varchar,
+  p_id_columna_valor integer
 )
 RETURNS numeric AS
 $body$
@@ -92,19 +93,33 @@ BEGIN
     	
     	if (v_planilla.codigo = 'PLAREISU') then
         
-        	select array_agg(cv.valor) into v_resultado_array
+        	select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
             from plani.tplanilla p
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
             inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
             inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
-            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario            
             inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
             where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
             ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB55' ;
             
-            update plani.tfuncionario_planilla set afp_55 = v_resultado_array::integer[]
-        	where id_funcionario_planilla = p_id_funcionario_planilla;
+            v_i = 1;
+            FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+                                from plani.tcolumna_detalle cd
+                                inner join plani.tcolumna_valor cv
+                                    on cv.id_columna_valor = cd.id_columna_valor
+                                inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                                where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                                order by ht.id_horas_trabajadas asc) loop
+                if (v_detalle.valor = v_detalle.valor_generado) then
+                    update plani.tcolumna_detalle set 
+                        valor = v_resultado_array[v_i],
+                        valor_generado = v_resultado_array[v_i]
+                    where id_columna_detalle = v_detalle.id_columna_detalle;                    
+                end if;
+                v_i = v_i + 1;
+            end loop;
         	v_resultado = 0;
         else
         
@@ -128,20 +143,34 @@ BEGIN
     --Jubilado de 65
     ELSIF (p_codigo = 'JUB65') THEN
     	if (v_planilla.codigo = 'PLAREISU') then
-        	select array_agg(cv.valor) into v_resultado_array
+        	select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
             from plani.tplanilla p
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
             inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
             inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
-            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario            
             inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
             where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
             ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB65' ;
-            
-            update plani.tfuncionario_planilla set afp_65 = v_resultado_array::integer[]
-        	where id_funcionario_planilla = p_id_funcionario_planilla;
-            
+            v_i = 1;
+            FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+                                from plani.tcolumna_detalle cd
+                                inner join plani.tcolumna_valor cv
+                                    on cv.id_columna_valor = cd.id_columna_valor
+                                inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                                where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                                order by ht.id_horas_trabajadas asc) loop
+                if (v_detalle.valor = v_detalle.valor_generado) then
+                	
+                    update plani.tcolumna_detalle set 
+                        valor = v_resultado_array[v_i],
+                        valor_generado = v_resultado_array[v_i]
+                    where id_columna_detalle = v_detalle.id_columna_detalle;
+                                        
+                end if;
+                v_i = v_i + 1;
+            end loop;
         	v_resultado = 0;
         else
             select fp.id_funcionario
@@ -236,15 +265,18 @@ BEGIN
         
         v_resultado = 0;
         v_i = 1;
+        
         FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
         					from plani.tcolumna_detalle cd
                             inner join plani.tcolumna_valor cv
                             	on cv.id_columna_valor = cd.id_columna_valor
-                            inner join plani.tfuncionario_planilla fp
-                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
-                            where cv.codigo = 'REISUELDOBA' and cv.estado_reg = 'activo'
-                            order by cv.id_horas_trabajadas asc) loop
-        	if (cd.valor = cd.valor_generado) then
+                            inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                            where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                            order by ht.id_horas_trabajadas asc) loop
+        	
+            if (v_detalle.valor = v_detalle.valor_generado) then
+            	
             	update plani.tcolumna_detalle set 
                 	valor = v_resultado_array[v_i],
                     valor_generado = v_resultado_array[v_i]
@@ -285,11 +317,11 @@ BEGIN
         					from plani.tcolumna_detalle cd
                             inner join plani.tcolumna_valor cv
                             	on cv.id_columna_valor = cd.id_columna_valor
-                            inner join plani.tfuncionario_planilla fp
-                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
-                            where cv.codigo = 'REINBANT' and cv.estado_reg = 'activo'
-                            order by cv.id_horas_trabajadas asc) loop
-        	if (cd.valor = cd.valor_generado) then
+                            inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                            where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                            order by ht.id_horas_trabajadas asc) loop
+        	if (v_detalle.valor = v_detalle.valor_generado) then
             	update plani.tcolumna_detalle set 
                 	valor = v_resultado_array[v_i],
                     valor_generado = v_resultado_array[v_i]
@@ -335,11 +367,11 @@ BEGIN
         					from plani.tcolumna_detalle cd
                             inner join plani.tcolumna_valor cv
                             	on cv.id_columna_valor = cd.id_columna_valor
-                            inner join plani.tfuncionario_planilla fp
-                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
-                            where cv.codigo = 'BONFRONTERA' and cv.estado_reg = 'activo'
-                            order by cv.id_horas_trabajadas asc) loop
-        	if (cd.valor = cd.valor_generado) then
+                            inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                            where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                            order by ht.id_horas_trabajadas asc) loop
+        	if (v_detalle.valor = v_detalle.valor_generado) then
             	update plani.tcolumna_detalle set 
                 	valor = v_resultado_array[v_i],
                     valor_generado = v_resultado_array[v_i]

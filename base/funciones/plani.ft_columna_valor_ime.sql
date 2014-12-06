@@ -32,6 +32,7 @@ DECLARE
 	v_id_columna_valor	integer;
 	v_estado_planilla		varchar;
     v_id_funcionario_planilla	integer;
+    v_tipo_columna			record;
 			    
 BEGIN
 
@@ -100,7 +101,15 @@ BEGIN
 			from plani.tfuncionario_planilla funplan
 			inner join plani.tplanilla  pla on pla.id_planilla = funplan.id_planilla
 			where  funplan.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
+            
+            select tc.* into v_tipo_columna
+            from plani.ttipo_columna tc
+            where id_tipo_columna = v_parametros.id_tipo_columna;
 			
+            if (v_tipo_columna.tiene_detalle = 'si') then
+            	raise exception 'La columna tiene detalle, no es posible modificar el valor de la columna directamente. Modifique el detalle';
+            end if;
+            
 			if (v_estado_planilla != 'calculo_columnas')then
 				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado "calculo_columnas"';
 			end if;
@@ -136,7 +145,13 @@ BEGIN
 	elsif(p_transaccion='PLA_COLVALCSV_MOD')then
 
 		begin
+			select tc.* into v_tipo_columna
+            from plani.ttipo_columna tc
+            where id_tipo_columna = v_parametros.id_tipo_columna;
 			
+            if (v_tipo_columna.tiene_detalle = 'si') then
+            	raise exception 'La columna tiene detalle, no es posible modificar el valor de la columna directamente. Modifique el detalle';
+            end if;
             
              /*obtener id_empleado_planilla*/
             select fp.id_funcionario_planilla

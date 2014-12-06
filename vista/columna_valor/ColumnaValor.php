@@ -228,6 +228,13 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 		field: 'id_columna_valor',
 		direction: 'ASC'
 	},
+	east:{
+		  url:'../../../sis_planillas/vista/columna_detalle/ColumnaDetalle.php',
+		  title:'Columna Detalle', 
+		  height:'50%',
+		  cls:'Columna Detalle',
+		  collapsed:true
+	},    
 	bdel:false,
 	bnew:false,
 	bedit:false,

@@ -120,7 +120,7 @@ BEGIN
 		              )returning id_columna_valor into v_id_columna_valor;
                       
                       --registrando el detalle en caso de ser necesario  
-                if (v_columna.tiene_detalle = 'si')then
+                if (v_columnas.tiene_detalle = 'si')then
                 	for v_detalle in (	
                     	select ht.id_horas_trabajadas
                     	from plani.tplanilla p
@@ -128,7 +128,7 @@ BEGIN
                     	inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
                     	inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
                     	where fp.id_funcionario = v_parametros.id_funcionario and  tp.codigo = 'PLASUE' and
-                    	ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion) loop
+                    	ht.estado_reg = 'activo' and p.id_gestion = v_tipo_planilla.id_gestion) loop
                         
                         INSERT INTO 
                             plani.tcolumna_detalle

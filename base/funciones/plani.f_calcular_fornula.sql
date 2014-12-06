@@ -45,18 +45,20 @@ BEGIN
     from plani.tcolumna_valor cv
     inner join plani.ttipo_columna tc
     	on tc.id_tipo_columna = cv.id_tipo_columna
-    where id_tipo_columna = p_id_tipo_columna;
+    where cv.id_columna_valor = p_id_columna_valor;
     
     if (v_tipo_columna.tiene_detalle = 'si') then
-    	FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+    	v_resultado = 0;
+    	FOR v_detalle in (	select ht.id_horas_trabajadas,cd.id_columna_detalle, cd.valor,cd.valor_generado
         					from plani.tcolumna_detalle cd
                             inner join plani.tcolumna_valor cv
                             	on cv.id_columna_valor = cd.id_columna_valor
-                            inner join plani.tfuncionario_planilla fp
-                            	on fp.id_funcionario_planilla = cv.id_funcionario_planilla
+                            inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
                             where cv.id_columna_valor = p_id_columna_valor
-                            order by cv.id_horas_trabajadas asc) loop
-        	if (cd.valor = cd.valor_generado) then
+                            ) loop
+        	
+        	if (v_detalle.valor = v_detalle.valor_generado) then
             	
                 v_existen_variables = true;
             	v_formula = p_formula;
@@ -76,7 +78,7 @@ BEGIN
                           
                           v_valor_columna = (plani.f_get_valor_parametro_valor(v_cod_columna_limpio, p_fecha_ini));
                           if (v_valor_columna is null) then
-                              v_valor_columna = plani.f_get_valor_columna_detalle(v_detalle.id_columna_detalle);
+                              v_valor_columna = plani.f_get_valor_columna_detalle(v_cod_columna_limpio,v_detalle.id_horas_trabajadas);
                                --v_valor_columna = 1000;
                               
                           end if; 
@@ -104,9 +106,13 @@ BEGIN
                   ELSE
                       RAISE EXCEPTION  'La formula % no contiene variables',v_formula;
                   END IF;
-                  
+                  update plani.tcolumna_detalle
+                  set valor = v_resultado_detalle,
+                  valor_generado = v_resultado_detalle
+                  where id_columna_detalle = v_detalle.id_columna_detalle ;
                   v_resultado = v_resultado + v_resultado_detalle;
               else
+                  
                   v_resultado = v_resultado + v_detalle.valor;
               end if;
               

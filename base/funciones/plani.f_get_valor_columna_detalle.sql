@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION plani.f_get_valor_columna_detalle (
-  p_id_columna_detalle varchar
+  p_codigo_columna varchar,
+  p_id_horas_trabajadas integer
 )
 RETURNS numeric AS
 $body$
@@ -13,11 +14,13 @@ BEGIN
   --obtener id_tipo_columna
   
   SELECT
-     cv.valor
+     cd.valor
   INTO
      v_valor
   FROM plani.tcolumna_detalle cd
-  WHERE cd.id_columna_detalle = p_id_columna_detalle;
+  inner join plani.tcolumna_valor cv on cd.id_columna_valor = cv.id_columna_valor
+  where cd.id_horas_trabajadas = p_id_horas_trabajadas and
+  cv.codigo_columna = p_codigo_columna;
   
   
   return v_valor;
