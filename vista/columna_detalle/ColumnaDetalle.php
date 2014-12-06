@@ -94,21 +94,6 @@ Phx.vista.ColumnaDetalle=Ext.extend(Phx.gridInterfaz,{
 		
 		{
 			config:{
-				name: 'valor_generado',
-				fieldLabel: 'valor_generado',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:1179658
-			},
-				type:'NumberField',
-				filters:{pfiltro:'coldet.valor_generado',type:'numeric'},
-				id_grupo:1,
-				grid:true,				
-				form:true
-		},
-		{
-			config:{
 				name: 'valor',
 				fieldLabel: 'valor',
 				allowBlank: false,
@@ -123,6 +108,22 @@ Phx.vista.ColumnaDetalle=Ext.extend(Phx.gridInterfaz,{
 				egrid:true,
 				form:true
 		},
+		{
+			config:{
+				name: 'valor_generado',
+				fieldLabel: 'valor_generado',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:1179658
+			},
+				type:'NumberField',
+				filters:{pfiltro:'coldet.valor_generado',type:'numeric'},
+				id_grupo:1,
+				grid:true,				
+				form:true
+		},
+		
 		
 		{
 			config:{
