@@ -15,7 +15,7 @@ class ACTColumnaDetalle extends ACTbase{
 		$this->objParam->defecto('dir_ordenacion','asc');
 		
 		if ($this->objParam->getParametro('id_columna_valor') != '') {
-			$this->objParam->addFiltro("tipdet.id_columna_valor = ". $this->objParam->getParametro('id_columna_valor'));
+			$this->objParam->addFiltro("coldet.id_columna_valor = ". $this->objParam->getParametro('id_columna_valor'));
 		}	
 	
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
