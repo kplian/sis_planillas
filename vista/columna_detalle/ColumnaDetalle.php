@@ -66,7 +66,7 @@ Phx.vista.ColumnaDetalle=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'ht.fecha_ini',type:'date'},
@@ -83,7 +83,7 @@ Phx.vista.ColumnaDetalle=Ext.extend(Phx.gridInterfaz,{
 				anchor: '80%',
 				gwidth: 100,
 							format: 'd/m/Y', 
-							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
+							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
 			},
 				type:'DateField',
 				filters:{pfiltro:'ht.fecha_ini',type:'date'},
@@ -259,7 +259,7 @@ Phx.vista.ColumnaDetalle=Ext.extend(Phx.gridInterfaz,{
 		
 	],
 	sortInfo:{
-		field: 'id_columna_detalle',
+		field: 'fecha_ini',
 		direction: 'ASC'
 	},
 	bdel:false,
