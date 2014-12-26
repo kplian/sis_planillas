@@ -17,23 +17,46 @@ DECLARE
     v_nombre_obligacion	   varchar;
     v_suma_pago				numeric;
     v_suma_detalle			numeric;
+    v_tipo_contrato			varchar;
+    v_join_ht				varchar;
+    v_max_tipo_columna		integer;
+    v_consulta				varchar;
+    v_suma_detalle_si		numeric;
+    v_valor_columna_resta	numeric;
+    
 BEGIN
+	select * into v_planilla
+    from plani.tplanilla p
+    inner join plani.ttipo_planilla tp
+    	on tp.id_tipo_planilla = p.id_tipo_planilla
+    where p.id_planilla = p_id_planilla;
+    
 	v_nombre_funcion = 'plani.f_inserta_detalle_obligaciones';
 	--inserta el detalle de los pagos presupuestarios en la tabla temporal para las obligaciones indicadas
+    
+    if (v_planilla.tipo_presu_cc = 'parametrizacion' ) then
+    	v_tipo_contrato = 'ht.tipo_contrato';
+        v_join_ht = 'inner join plani.thoras_trabajadas ht 
+                  on ht.id_horas_trabajadas = pro.id_horas_trabajadas
+              inner join plani.tfuncionario_planilla fp 
+                  on fp.id_funcionario_planilla = ht.id_funcionario_planilla';
+    else
+    	v_tipo_contrato = 'fp.tipo_contrato';
+        v_join_ht = '
+              inner join plani.tfuncionario_planilla fp 
+                  on fp.id_funcionario_planilla = pro.id_funcionario_planilla';
+    end if;
         
     EXECUTE('INSERT into ' || p_nombre_tabla || '
     		 select 	toc.id_tipo_obligacion,fp.id_funcionario,fun.desc_funcionario2 as nombre_funcionario,fp.id_funcionario_planilla,
-                  pro.id_presupuesto,	pro.id_cc, ht.tipo_contrato,
+                  pro.id_presupuesto,	pro.id_cc, ' || v_tipo_contrato ||',
                   cv.id_tipo_columna,cv.codigo_columna,procol.porcentaje,
                   cv.valor*procol.porcentaje/100 as valor,toc.es_ultimo,
                   lug.id_lugar, lug.nombre as nombre_lugar, afp.id_afp ,afp.nombre as nombre_afp, fafp.nro_afp,
                   ins.nombre as nombre_banco,ins.id_institucion, fcu.nro_cuenta 
               
               from plani.tprorrateo pro 
-              inner join plani.thoras_trabajadas ht 
-                  on ht.id_horas_trabajadas = pro.id_horas_trabajadas
-              inner join plani.tfuncionario_planilla fp 
-                  on fp.id_funcionario_planilla = ht.id_funcionario_planilla
+              ' || v_join_ht || '             
               inner join plani.tcolumna_valor cv 
                   on cv.id_funcionario_planilla = fp.id_funcionario_planilla
               inner join plani.ttipo_obligacion_columna toc
@@ -69,20 +92,53 @@ BEGIN
                 group by fp.id_funcionario_planilla)loop
         		
                 --sumar los montos registrados para pago por funcionario menos los ultimos
-                execute('	select sum(valor)
+                execute('	select coalesce(sum(valor))
                 			from ' || p_nombre_tabla || ' 
                             where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
                             	  and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
                             		and es_ultimo = ''no''') into v_suma_detalle;
                 
-                
-                --actualizar el monto de pago para el ultimo tipo columna de la resta del total a pagar                
-                --menos la suma de montos menos el ultimo y multiplicar por el porcentaje
-                execute('	update ' || p_nombre_tabla || '
-                			set valor = ' || v_registros.suma_pago - coalesce(v_suma_detalle, 0.00) || ' * porcentaje/100 
+                --si es mas de una ultima columna entonces obtner cual es el valor mas grande
+                execute ('	select id_tipo_columna,valor
+                			from ' || p_nombre_tabla || '
                             where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
                             	and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
-                            		and es_ultimo = ''si''');
+                            		and es_ultimo = ''si''  and valor > 0
+                            order by valor desc
+                            limit 1') into v_max_tipo_columna,v_valor_columna_resta;
+                -- Si existe una columna de resta cuyo valor es mayor a 0           
+                if (v_max_tipo_columna is not null)then
+                	--Si la columna de resta es mayor o igual a la obligacion cubrimos el total con la columna de resta
+                	IF (v_valor_columna_resta >= v_registros.suma_pago) THEN
+                    	execute('	update  ' || p_nombre_tabla || ' 
+                        				set valor = 0
+                                    where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
+                                          and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
+                                            and es_ultimo = ''si'' and id_tipo_columna != ' || v_max_tipo_columna);
+                    --sino cubrimos parte con la columna de resta menor y lo sobrante con la columna de resta mayor
+                    else
+                       --sumar los montos registrados para pago por funcionario que son ultimos pero no seran calculados por diferencia
+               
+                        execute('	select coalesce(sum(valor),0)
+                                    from ' || p_nombre_tabla || ' 
+                                    where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
+                                          and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
+                                            and es_ultimo = ''si'' and id_tipo_columna != ' || v_max_tipo_columna) into v_suma_detalle_si;
+                        v_suma_detalle = v_suma_detalle + v_suma_detalle_si;  
+                    end if;                  
+                                          
+                    --actualizar el monto de pago para el ultimo tipo columna de la resta del total a pagar                
+                    --menos la suma de montos menos el ultimo y multiplicar por el porcentaje
+                	execute('	update ' || p_nombre_tabla || '
+                                set valor = ' || v_registros.suma_pago - coalesce(v_suma_detalle, 0.00) || ' * porcentaje/100 
+                                where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
+                                and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
+                                and es_ultimo = ''si'' and id_tipo_columna = ' || v_max_tipo_columna );
+                end if;
+        		
+        		
+                
+               
                 
         end loop;
      end if;

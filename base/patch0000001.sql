@@ -495,6 +495,12 @@ CREATE INDEX tcolumna_detalle_idx1 ON plani.tcolumna_detalle
   
 CREATE INDEX tcolumna_detalle_idx2 ON plani.tcolumna_detalle
   USING btree (id_columna_valor);
+  
+ALTER TABLE plani.tfuncionario_planilla
+  ADD COLUMN tipo_contrato VARCHAR;  
+
+ALTER TABLE plani.thoras_trabajadas
+  ADD COLUMN horas_normales_contrato NUMERIC(10,2);
 
   
 /***********************************F-SCP-JRR-PLANI-0-04/12/2014****************************************/

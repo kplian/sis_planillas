@@ -109,7 +109,7 @@ BEGIN
   			  	
     end loop;
     if (v_existe = 'no') then
-    	raise exception 'No se puede añadir el funcionario a la planilla ya que no tiene una asignacion de cargo para el periodo';
+    	raise exception 'No se puede añadir el funcionario a la planilla ya que no le corresponde entrar a la planilla de retroactivo';
     end if;
     return;
 EXCEPTION

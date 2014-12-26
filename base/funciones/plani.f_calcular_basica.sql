@@ -39,6 +39,7 @@ DECLARE
     v_i						integer;
     v_tamano_array			integer;
     v_detalle				record;
+    v_subsidio_actual		numeric;
     
     	
 BEGIN
@@ -382,6 +383,29 @@ BEGIN
             end if;
             v_i = v_i + 1;
         end loop;
+    
+    --Factor del zona franca    
+    ELSIF (p_codigo = 'RETLACPRE') THEN 	
+        v_subsidio_actual = plani.f_get_valor_parametro_valor('MONTOSUB',v_planilla.fecha_planilla);
+        
+        select sum(v_subsidio_actual - cv.valor) into v_resultado
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+        where fp.id_funcionario = v_planilla.id_funcionario and cv.estado_reg = 'activo' and
+        p.id_gestion = v_planilla.id_gestion and cv.codigo_columna in ('SUBLAC','SUBPRE') and 
+        cv.valor < v_subsidio_actual and cv.valor > 0;
+    
+    ELSIF (p_codigo = 'RETNATSEP') THEN 	
+        v_subsidio_actual = plani.f_get_valor_parametro_valor('MONTOSUB',v_planilla.fecha_planilla);
+        
+        select sum(v_subsidio_actual - cv.valor) into v_resultado
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+        where fp.id_funcionario = v_planilla.id_funcionario and cv.estado_reg = 'activo' and
+        p.id_gestion = v_planilla.id_gestion and cv.codigo_columna in ('SUBNAT','SUBSEP') and 
+        cv.valor < v_subsidio_actual and cv.valor > 0;       
                       
     ELSE
     	raise exception 'No hay una definición para la columna básica %',p_codigo;

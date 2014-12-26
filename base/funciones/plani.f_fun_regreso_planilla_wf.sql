@@ -42,7 +42,7 @@ BEGIN
      select pla.*, pe.fecha_ini, pe.fecha_fin
       into v_planilla
       from plani.tplanilla pla
-      inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
+      left join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
       where id_proceso_wf = p_id_proceso_wf;
           
     -----------------------------------------------------------------------------------
@@ -60,6 +60,21 @@ BEGIN
             delete from plani.thoras_trabajadas using plani.tfuncionario_planilla
   			where plani.tfuncionario_planilla.id_funcionario_planilla = plani.thoras_trabajadas.id_funcionario_planilla and
             plani.tfuncionario_planilla.id_planilla = v_planilla.id_planilla;
+            
+            update plani.tcolumna_valor
+            set valor = 0,
+            valor_generado = 0
+            from plani.tfuncionario_planilla fp
+            where fp.id_funcionario_planilla = plani.tcolumna_valor.id_funcionario_planilla and
+            fp.id_planilla = v_planilla.id_planilla;
+            
+            update plani.tcolumna_detalle
+            set valor = 0,
+            valor_generado = 0
+            from plani.tcolumna_valor cv, plani.tfuncionario_planilla fp
+            where cv.id_columna_valor = plani.tcolumna_detalle.id_columna_valor and
+            fp.id_funcionario_planilla = cv.id_funcionario_planilla and
+            fp.id_planilla = v_planilla.id_planilla;
             
      ELSIF p_codigo_estado  in ('registro_horas')  THEN              
             update plani.tcolumna_valor
@@ -109,7 +124,8 @@ BEGIN
         delete from plani.tconsolidado
         where id_planilla = v_planilla.id_planilla;
      
-     elsif (p_codigo_estado  in ('presupuestos_validado')) then               
+     elsif (p_codigo_estado  in ('presupuestos_validado')) then    
+     		         
      		--eliminacion de obligacion_columna
             delete from plani.tobligacion_columna using plani.tobligacion
             where plani.tobligacion_columna.id_obligacion = plani.tobligacion.id_obligacion and 

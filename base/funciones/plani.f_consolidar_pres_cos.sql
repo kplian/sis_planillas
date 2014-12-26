@@ -22,6 +22,7 @@ DECLARE
   v_id_consolidado_columna	integer;
   v_valor_acumulado			numeric;
   v_valor_ejecutado			numeric;
+  v_tipo_contrato			varchar;
 BEGIN
 	v_nombre_funcion = 'plani.f_consolidar_pres_cos';
 	SELECT p.*,tp.tipo_presu_cc,tp.calculo_horas,id_gestion
@@ -37,7 +38,7 @@ BEGIN
     end if;
     
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
-    	
+    	v_tipo_contrato = 'ht.tipo_contrato';
         v_consulta = 'select ' || v_campo || ' as id_campo
     					from plani.tprorrateo pro
                         inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
@@ -45,9 +46,10 @@ BEGIN
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
     elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_periodo' or v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then
+    	v_tipo_contrato = 'fp.tipo_contrato';
     	v_consulta = 'select ' || v_campo || ' as id_campo 
     					from plani.tprorrateo pro
-                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
+                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
     
@@ -84,7 +86,7 @@ BEGIN
           p_tipo_generacion
         )RETURNING id_consolidado into v_id_consolidado;
         
-        v_consulta = 'select ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor,procol.compromete
+        v_consulta = 'select ' || v_tipo_contrato || ',cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor,procol.compromete
     					from plani.tprorrateo pro ';
     	if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
         	v_consulta = v_consulta || 'inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
@@ -99,7 +101,7 @@ BEGIN
                         inner join plani.tprorrateo_columna procol on procol.id_prorrateo = pro.id_prorrateo
                         											and procol.id_tipo_columna = cv.id_tipo_columna
                         where cv.valor > 0 and id_planilla = ' || p_id_planilla || ' and ' || v_campo || ' = ' || v_registros.id_campo || '
-                        group by ht.tipo_contrato,cv.id_tipo_columna,cv.codigo_columna,procol.compromete';
+                        group by ' || v_tipo_contrato || ',cv.id_tipo_columna,cv.codigo_columna,procol.compromete';
         
         for v_columnas in execute (v_consulta) loop
         	if (p_tipo_generacion = 'costos' or 
