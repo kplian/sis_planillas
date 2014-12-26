@@ -1,3 +1,13 @@
+CREATE OR REPLACE FUNCTION plani.f_plaretsub_valid_empleado (
+  p_id_funcionario integer,
+  p_id_planilla integer,
+  out o_id_uo_funcionario integer,
+  out o_id_lugar integer,
+  out o_id_afp integer,
+  out o_id_cuenta_bancaria integer
+)
+RETURNS record AS
+$body$
 DECLARE
   v_registros			record;
   v_planilla			record;
@@ -72,3 +82,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
