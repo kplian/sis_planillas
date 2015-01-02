@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION plani.f_plaretsub_valid_empleado (
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -39,11 +40,14 @@ BEGIN
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_ini)::integer;
     v_subsidio_actual = plani.f_get_valor_parametro_valor('MONTOSUB',v_planilla.fecha_planilla);    
     for v_registros in execute('
-          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,fp.id_lugar,uofun.fecha_asignacion as fecha_ini
+          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,fp.id_lugar,uofun.fecha_asignacion as fecha_ini,
+          tc.codigo as tipo_contrato
           from plani.tfuncionario_planilla fp
           inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
           inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
           where cv.codigo_columna in (''SUBPRE'',''SUBNAT'',''SUBLAC'',''SUBSEP'') and cv.valor < ' || v_subsidio_actual || ' and cv.valor > 0
           and p.id_gestion = ' || v_planilla.id_gestion 
           	 || ' and uofun.id_funcionario = ' || p_id_funcionario || ' 
@@ -65,6 +69,7 @@ BEGIN
         o_id_lugar = v_registros.id_lugar;
         o_id_uo_funcionario = v_registros.id_uo_funcionario;
         o_id_afp = NULL;
+        o_tipo_contrato = v_registros.tipo_contrato;
          
   			  	
     end loop;

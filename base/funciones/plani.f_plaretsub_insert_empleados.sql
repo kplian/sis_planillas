@@ -43,11 +43,14 @@ BEGIN
         
         
     for v_registros in execute('
-          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,fp.id_lugar,uofun.fecha_asignacion as fecha_ini
+          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,fp.id_lugar,uofun.fecha_asignacion as fecha_ini,
+          tc.codigo as tipo_contrato
           from plani.tfuncionario_planilla fp
           inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
           inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
           where cv.codigo_columna in (''SUBPRE'',''SUBNAT'',''SUBLAC'',''SUBSEP'') and cv.valor < ' || v_subsidio_actual || ' and cv.valor > 0
           and p.id_gestion = ' || v_planilla.id_gestion || ' and '
           	|| v_filtro_uo || ' 
@@ -71,12 +74,12 @@ BEGIN
               id_usuario_reg,					estado_reg,					id_funcionario,
               id_planilla,					id_uo_funcionario,			id_lugar,
               forzar_cheque,					finiquito,					id_afp,
-              id_cuenta_bancaria)
+              id_cuenta_bancaria,				tipo_contrato)
           VALUES (
               v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
               p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
               'no',							'no',						NULL,
-              v_id_cuenta_bancaria)
+              v_id_cuenta_bancaria,				v_registros.tipo_contrato)
           RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
             
           for v_columnas in (	select * 

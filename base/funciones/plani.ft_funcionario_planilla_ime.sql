@@ -75,7 +75,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
             id_afp,
-            id_cuenta_bancaria
+            id_cuenta_bancaria,
+            tipo_contrato
           	) values(
 			v_parametros.finiquito,
 			v_parametros.forzar_cheque,
@@ -89,7 +90,8 @@ BEGIN
 			null,
 			null,
             v_func_planilla.o_id_afp,
-            v_func_planilla.o_id_cuenta_bancaria
+            v_func_planilla.o_id_cuenta_bancaria,
+            v_func_planilla.tipo_contrato
 							
 			)RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
 			
