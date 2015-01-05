@@ -54,45 +54,54 @@ BEGIN
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
     	--v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_fin);
         v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
+        if (exists(
+              select 1
+              from plani.tdescuento_bono db
+              inner join plani.ttipo_columna tc on db.id_tipo_columna = tc.id_tipo_columna
+              where db.id_funcionario = v_registros.id_funcionario and db.estado_reg = 'activo' and
+              tc.codigo = 'SUBLAC' and db.fecha_ini <= v_planilla.fecha_ini and 
+              db.fecha_fin is not null and 
+              db.fecha_fin > v_planilla.fecha_ini)) then
             
-    	INSERT INTO plani.tfuncionario_planilla (
-        	id_usuario_reg,					estado_reg,					id_funcionario,
-            id_planilla,					id_uo_funcionario,			id_lugar,
-            forzar_cheque,					finiquito,					id_afp,
-            id_cuenta_bancaria)
-        VALUES (
-        	v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
-            p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
-            'no',							'no',						v_id_afp,
-            v_id_cuenta_bancaria)
-        RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
-            
-        for v_columnas in (	select * 
-        					from plani.ttipo_columna 
-                            where id_tipo_planilla = v_planilla.id_tipo_planilla and estado_reg = 'activo' order by orden) loop
-        	INSERT INTO 
-                plani.tcolumna_valor
-              (
-                id_usuario_reg,
-                estado_reg,
-                id_tipo_columna,
-                id_funcionario_planilla,
-                codigo_columna,
-                formula,
-                valor,
-                valor_generado
-              ) 
-              VALUES (
-                v_planilla.id_usuario_reg,
-                'activo',
-                v_columnas.id_tipo_columna,
-                v_id_funcionario_planilla,
-                v_columnas.codigo,
-                v_columnas.formula,
-                0,
-                0
-              );
-        end loop;
+            INSERT INTO plani.tfuncionario_planilla (
+                id_usuario_reg,					estado_reg,					id_funcionario,
+                id_planilla,					id_uo_funcionario,			id_lugar,
+                forzar_cheque,					finiquito,					id_afp,
+                id_cuenta_bancaria)
+            VALUES (
+                v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
+                p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
+                'no',							'no',						v_id_afp,
+                v_id_cuenta_bancaria)
+            RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
+                
+            for v_columnas in (	select * 
+                                from plani.ttipo_columna 
+                                where id_tipo_planilla = v_planilla.id_tipo_planilla and estado_reg = 'activo' order by orden) loop
+                INSERT INTO 
+                    plani.tcolumna_valor
+                  (
+                    id_usuario_reg,
+                    estado_reg,
+                    id_tipo_columna,
+                    id_funcionario_planilla,
+                    codigo_columna,
+                    formula,
+                    valor,
+                    valor_generado
+                  ) 
+                  VALUES (
+                    v_planilla.id_usuario_reg,
+                    'activo',
+                    v_columnas.id_tipo_columna,
+                    v_id_funcionario_planilla,
+                    v_columnas.codigo,
+                    v_columnas.formula,
+                    0,
+                    0
+                  );
+            end loop;
+        end if;
     end loop;
     return 'exito';
 EXCEPTION
