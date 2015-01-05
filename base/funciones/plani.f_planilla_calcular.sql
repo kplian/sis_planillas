@@ -38,7 +38,7 @@ BEGIN
                                         v_planilla.fecha_ini, v_planilla.fecha_fin, v_funcionarios.id_tipo_columna,
                                         v_funcionarios.tipo_descuento_bono,v_funcionarios.formula,
                                         v_funcionarios.id_funcionario_planilla,v_funcionarios.codigo_columna,
-                                        v_funcionarios.tipo_dato);
+                                        v_funcionarios.tipo_dato, v_funcionarios.id_columna_valor);
                     v_valor = v_valor_generado;
                 else
                     v_valor_generado = v_funcionarios.valor_generado;

@@ -91,7 +91,7 @@ BEGIN
 			null,
             v_func_planilla.o_id_afp,
             v_func_planilla.o_id_cuenta_bancaria,
-            v_func_planilla.tipo_contrato
+            v_func_planilla.o_tipo_contrato
 							
 			)RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
 			
