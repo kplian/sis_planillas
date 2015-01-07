@@ -44,7 +44,7 @@ DECLARE
     
 BEGIN
 	v_nombre_funcion = 'plani.f_generar_obligaciones_tesoreria';
-    
+     
     select p.*,tp.nombre as tipo_planilla,per.fecha_fin as fecha_planilla
     into v_planilla
     from plani.tplanilla p
@@ -127,7 +127,7 @@ BEGIN
      if (v_id_concepto_ingas is null) then
      	raise exception 'Debe crear un concepto generico "Planilla de Sueldos"';
      end if;
-     
+    
      --Inserta obligaciones_det
      FOR v_registros in (
               select 
@@ -161,7 +161,7 @@ BEGIN
                       v_id_partida,
                       v_id_cuenta, 
                       v_id_auxiliar
-                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_planilla.id_gestion, v_registros.id_tipo_columna, 399 /* cambiar esto v_registros.id_presupuesto*/);
+                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_planilla.id_gestion, v_registros.id_tipo_columna, v_registros.id_presupuesto /* cambiar esto 399*/);
                  
                            INSERT INTO 
                             tes.tobligacion_det
@@ -184,7 +184,7 @@ BEGIN
                             'activo',
                             v_id_obligacion_pago,
                             v_id_concepto_ingas,
-                            399,--v_registros.id_presupuesto,
+                            v_registros.id_presupuesto,--399,
                             v_id_partida,
                             v_id_cuenta,
                             v_id_auxiliar,                        

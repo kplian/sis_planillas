@@ -556,10 +556,14 @@ BEGIN
                   END IF;
                   
                   IF NOT plani.f_generar_obligaciones_tesoreria(
+                  								p_administrador,
                   								v_planilla.id_planilla,
                                                 p_id_usuario,
                                                 v_parametros._id_usuario_ai,
-                                                v_parametros._nombre_usuario_ai 
+                                                v_parametros._nombre_usuario_ai,
+                                                v_id_proceso_wf,
+                                                v_id_estado_wf,
+                                                v_registros_proc.id_depto_wf_pro 
                                                 ) THEN
                                                          
                      raise exception 'Error al generar el contrato';
