@@ -38,13 +38,20 @@ BEGIN
     from tes.tobligacion_pago
     where id_obligacion_pago = p_id_obligacion;
     
-    select p.*,tp.nombre as tipo_planilla,per.fecha_fin as fecha_planilla
+    select p.id_usuario_reg,p.estado_reg,p.id_usuario_ai,p.usuario_ai,
+    p.usuario_ai,p.id_planilla,p.id_gestion,p.id_depto,p.id_periodo,p.id_tipo_planilla,
+    p.observaciones,p.id_proceso_wf,p.id_estado_wf,p.estado,p.requiere_calculo,
+    p.nro_planilla,
+    tp.nombre as tipo_planilla,(case when p.fecha_planilla is not null then
+    							p.fecha_planilla ELSE
+                                per.fecha_fin end) as fecha_planilla
     into v_planilla
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
     inner join param.tperiodo per on per.id_periodo = p.id_periodo
     where p.id_obligacion_pago = p_id_obligacion;
-    
+     
+  
     --obtener el concepto generico
      select c.id_concepto_ingas into v_id_concepto_ingas
      from param.tconcepto_ingas c
