@@ -1,9 +1,3 @@
-CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
-  p_id_planilla integer,
-  p_id_usuario integer
-)
-RETURNS varchar AS
-$body$
 DECLARE
 	v_planilla			  record;
     v_sql_tabla			  text;
@@ -273,7 +267,8 @@ BEGIN
                     tipo_pago,
                     acreedor,
                     descripcion,
-                    monto_obligacion
+                    monto_obligacion,
+                    id_afp
                   ) 
                   VALUES (
                     p_id_usuario,
@@ -285,7 +280,8 @@ BEGIN
                     v_lugar,
                     v_obligaciones.nombre_afp || ' ' || v_registros.nombre ||  ' ' ||
                     v_lugar,
-                    v_obligaciones.valor
+                    v_obligaciones.valor,
+                    v_obligaciones.id_afp
                   ) returning id_obligacion into v_id_obligacion;
                 
                 if (v_registros.dividir_por_lugar = 'si') then
@@ -487,9 +483,3 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;

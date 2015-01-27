@@ -45,7 +45,13 @@ DECLARE
 BEGIN
 	v_nombre_funcion = 'plani.f_generar_obligaciones_tesoreria';
      
-    select p.*,tp.nombre as tipo_planilla,per.fecha_fin as fecha_planilla
+    select p.id_usuario_reg,p.estado_reg,p.id_usuario_ai,p.usuario_ai,
+    p.usuario_ai,p.id_planilla,p.id_gestion,p.id_depto,p.id_periodo,p.id_tipo_planilla,
+    p.observaciones,p.id_proceso_wf,p.id_estado_wf,p.estado,p.requiere_calculo,
+    p.nro_planilla,
+    tp.nombre as tipo_planilla,(case when p.fecha_planilla is not null then
+    							p.fecha_planilla ELSE
+                                per.fecha_fin end) as fecha_planilla
     into v_planilla
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -101,7 +107,7 @@ BEGIN
               v_id_moneda,
              p_id_depto_tes,    ------------------ojo
               'rrhh',
-              now(),
+              v_planilla.fecha_planilla,
               v_planilla.nro_planilla,
               1,
               v_planilla.nro_planilla,
