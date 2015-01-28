@@ -167,7 +167,7 @@ BEGIN
                       v_id_partida,
                       v_id_cuenta, 
                       v_id_auxiliar
-                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_planilla.id_gestion, v_registros.id_tipo_columna, v_registros.id_presupuesto /* cambiar esto 399*/);
+                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_planilla.id_gestion, v_registros.id_tipo_columna, v_registros.id_presupuesto /* cambiar esto 399*/,'No existe cuenta para:'||v_registros.codigo_columna);
                  
                            INSERT INTO 
                             tes.tobligacion_det
