@@ -1,3 +1,9 @@
+CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
+  p_id_planilla integer,
+  p_id_usuario integer
+)
+RETURNS varchar AS
+$body$
 DECLARE
 	v_planilla			  record;
     v_sql_tabla			  text;
@@ -483,3 +489,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
