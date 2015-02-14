@@ -223,8 +223,8 @@ BEGIN
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and 
         									cv.codigo_columna = 'SALDODEPSIGPER'
-        left join param.tperiodo per on per.id_periodo = p.id_periodo and per.fecha_fin = p_fecha_fin -  interval '1 month'
-        where (tp.codigo = 'PLASUE' or tp.codigo = 'PLAREISU')
+        left join param.tperiodo per on per.id_periodo = p.id_periodo
+        where ((tp.codigo = 'PLASUE' and p.id_periodo is not NULL  and per.fecha_fin = (p_fecha_ini -  interval '1 day')) or (tp.codigo = 'PLAREISU' and p.id_periodo is null))
         order by fecha_plani desc limit 1;
         
     
