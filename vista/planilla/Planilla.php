@@ -139,7 +139,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'plani.nro_planilla',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form:false,
+				bottom_filter : true
 		},
 		{
 			config:{
@@ -154,7 +155,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'plani.estado',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form:false,
+				bottom_filter : true
 		},
 		{
 			config: {
@@ -343,7 +345,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'usu1.cuenta',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form:false,
+				bottom_filter : true
 		},
 		{
 			config:{

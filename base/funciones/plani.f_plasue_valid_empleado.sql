@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION plani.f_plasue_valid_empleado (
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -32,7 +33,7 @@ BEGIN
     
         
     for v_registros in execute('
-          select uofun.id_funcionario, uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar 
+          select uofun.id_funcionario, uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,tc.codigo as tipo_contrato 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -59,7 +60,7 @@ BEGIN
             o_id_uo_funcionario = v_registros.id_uo_funcionario;
             o_id_afp = plani.f_get_afp(p_id_funcionario, v_planilla.fecha_fin);
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_fin);
-            
+            o_tipo_contrato = v_registros.tipo_contrato;
   			  	
     end loop;
     if (v_existe = 'no') then
