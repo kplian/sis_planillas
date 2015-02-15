@@ -17,7 +17,8 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.HorasTrabajadas.superclass.constructor.call(this,config);
 		this.init();
-		this.load({params:{start:0, limit:this.tam_pag,id_planilla :this.maestro.id_planilla}});
+		this.store.baseParams.id_planilla = this.maestro.id_planilla;
+		this.load({params:{start:0, limit:this.tam_pag}});
 		
 	},
 			
