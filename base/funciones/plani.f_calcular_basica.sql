@@ -124,15 +124,104 @@ BEGIN
         	v_resultado = 0;
         else
         
-            select fp.id_funcionario
-            into  v_id_funcionario
-            from plani.tfuncionario_planilla fp
-            where fp.id_funcionario_planilla = p_id_funcionario_planilla;
-        	            	
+                    	            	
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
-                        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+                v_resultado = 0;       
+            else
+                v_resultado = 1;
+            end if;
+        end if;
+        
+    --Jubilado de 55
+    ELSIF (p_codigo = 'MAY55') THEN
+    	
+    	if (v_planilla.codigo = 'PLAREISU') then
+        
+        	select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario            
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+            where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'MAY55' ;
+            
+            v_i = 1;
+            FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+                                from plani.tcolumna_detalle cd
+                                inner join plani.tcolumna_valor cv
+                                    on cv.id_columna_valor = cd.id_columna_valor
+                                inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                                where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                                order by ht.id_horas_trabajadas asc) loop
+                if (v_detalle.valor = v_detalle.valor_generado) then
+                    update plani.tcolumna_detalle set 
+                        valor = v_resultado_array[v_i],
+                        valor_generado = v_resultado_array[v_i]
+                    where id_columna_detalle = v_detalle.id_columna_detalle;                    
+                end if;
+                v_i = v_i + 1;
+            end loop;
+        	v_resultado = 0;
+        else
+        
+                 	
+            if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'mayor_55' AND
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+                v_resultado = 0;       
+            else
+                v_resultado = 1;
+            end if;
+        end if;
+    
+    --Jubilado de 55
+    ELSIF (p_codigo = 'MAY65') THEN
+    	
+    	if (v_planilla.codigo = 'PLAREISU') then
+        
+        	select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario            
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+            where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'MAY65' ;
+            
+            v_i = 1;
+            FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+                                from plani.tcolumna_detalle cd
+                                inner join plani.tcolumna_valor cv
+                                    on cv.id_columna_valor = cd.id_columna_valor
+                                inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                                where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                                order by ht.id_horas_trabajadas asc) loop
+                if (v_detalle.valor = v_detalle.valor_generado) then
+                    update plani.tcolumna_detalle set 
+                        valor = v_resultado_array[v_i],
+                        valor_generado = v_resultado_array[v_i]
+                    where id_columna_detalle = v_detalle.id_columna_detalle;                    
+                end if;
+                v_i = v_i + 1;
+            end loop;
+        	v_resultado = 0;
+        else
+        	
+            if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'mayor_65' AND
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else
@@ -174,15 +263,11 @@ BEGIN
             end loop;
         	v_resultado = 0;
         else
-            select fp.id_funcionario
-            into  v_id_funcionario
-            from plani.tfuncionario_planilla fp
-            where fp.id_funcionario_planilla = p_id_funcionario_planilla;
-        	
+            
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
-                        id_funcionario = v_id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else
