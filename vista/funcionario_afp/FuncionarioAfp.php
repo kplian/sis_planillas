@@ -113,12 +113,12 @@ Phx.vista.FuncionarioAfp=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['no','jubilado_55','jubilado_65']
+				store:['no','mayor_65','mayor_55','jubilado_55','jubilado_65']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['no','jubilado_55','jubilado_65']	
+	       				 options: ['no','mayor_65','mayor_55','jubilado_55','jubilado_65']	
 	       		 	},
 				id_grupo:1,
 				grid:true,
