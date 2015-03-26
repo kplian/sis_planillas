@@ -56,7 +56,7 @@ class RMinisterioTrabajoXLS
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
 		
-		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(4);
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(7);
 		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(18);
 		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
 		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(18);

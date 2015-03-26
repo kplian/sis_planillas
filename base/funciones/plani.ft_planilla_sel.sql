@@ -155,7 +155,7 @@ BEGIN
                 select
                 uo.prioridad,
                 uo.id_uo,
-                (row_number() over ())::integer as fila,
+                (row_number() over (order by uo.prioridad::integer, uo.id_uo,perso.apellido_paterno,perso.apellido_materno,perso.nombre))::integer as fila,
                 fp.id_funcionario_planilla,
                 (case when perso.id_tipo_doc_identificacion = 1 then 1 
                         when perso.id_tipo_doc_identificacion = 5 then
@@ -201,13 +201,19 @@ BEGIN
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
                 where tp.codigo = ''PLASUE'' and per.id_periodo = ' || v_parametros.id_periodo || '
-                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
+                order by fila
                 )
 
                 select 
                 emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
                 emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
-                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,cv.valor,emp.oficina
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,
+                (case when (cv.codigo_columna = ''HORNORM'') then
+                	cv.valor/8
+                else
+                	cv.valor
+                end),
+                emp.oficina
                 from empleados emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna

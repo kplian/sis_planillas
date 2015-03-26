@@ -207,7 +207,7 @@ BEGIN
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by uo.prioridad, uo.id_uo,' || v_ordenar_por || ', fun.id_funcionario,repcol.orden asc';
+			v_consulta:=v_consulta||' order by uo.prioridad::integer, uo.id_uo,' || v_ordenar_por || ', fun.id_funcionario,repcol.orden asc';
 
 			--Devuelve la respuesta
 			return v_consulta;
