@@ -141,6 +141,82 @@ BEGIN
 			return v_consulta;
 
 		end;
+        /*********************************    
+        #TRANSACCION:  'PLA_PLANI_CONT'
+        #DESCRIPCION:	Conteo de registros
+        #AUTOR:		admin	
+        #FECHA:		22-01-2014 16:11:04
+        ***********************************/
+
+	elsif(p_transaccion='PLA_REPMINTRASUE_SEL')then
+
+		begin
+            v_consulta = 'with empleados as (
+                select
+                uo.prioridad,
+                uo.id_uo,
+                (row_number() over ())::integer as fila,
+                fp.id_funcionario_planilla,
+                (case when perso.id_tipo_doc_identificacion = 1 then 1 
+                        when perso.id_tipo_doc_identificacion = 5 then
+                        3
+                        ELSE
+                        0
+                        end)::integer as tipo_documento,
+                perso.ci,perso.expedicion,afp.nombre as afp,fafp.nro_afp,perso.apellido_paterno,
+                perso.apellido_materno,''''::varchar as apellido_casada,
+                split_part(perso.nombre,'' '',1)::varchar as primer_nombre,
+
+                trim(both '' '' from replace(perso.nombre,split_part(perso.nombre,'' '',1), ''''))::varchar as otros_nombres,
+                (case when lower(perso.nacionalidad) like ''%bolivi%'' then
+                ''Bolivia''
+                ELSE
+                perso.nacionalidad
+                end)::varchar as nacionalidad,
+                perso.fecha_nacimiento,
+                (case when genero= ''VARON'' then
+                1 else
+                0 end)::integer as sexo,
+                (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
+                1
+                else
+                0 end)::integer as jubilado,
+                ''''::varchar as clasificacion_laboral,
+                car.nombre as cargo,
+                 plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso,
+                1::integer as modalidad_contrato,
+                uofun.fecha_finalizacion,
+                8::integer as horas_dia,
+				ofi.nombre as oficina
+                from plani.tplanilla p
+                inner join param.tperiodo per on per.id_periodo = p.id_periodo
+                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+                inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+                inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                inner join segu.tpersona perso on perso.id_persona = fun.id_persona
+                inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
+                inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
+                inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                where tp.codigo = ''PLASUE'' and per.id_periodo = ' || v_parametros.id_periodo || '
+                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
+                )
+
+                select 
+                emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
+                emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,cv.valor,emp.oficina
+                from empleados emp
+                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
+                inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
+                where cv.codigo_columna in (''HORNORM'',''SUELDOBA'',''BONANT'',''BONFRONTERA'',''REINBANT'',''COTIZABLE'',''AFP_LAB'',''IMPURET'',''OTRO_DESC'',''TOT_DESC'',''LIQPAG'')
+                order by emp.fila,tc.orden';
+                
+            --Devuelve la respuesta
+			return v_consulta;
+        end;
 					
 	else
 					     

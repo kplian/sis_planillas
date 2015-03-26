@@ -55,6 +55,48 @@ class MODPlanilla extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarReportePlanillaMinisterio(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_REPMINTRASUE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('fila','int4');
+		$this->captura('tipo_documento','int4');
+		$this->captura('ci','varchar');
+		$this->captura('expedicion','varchar');
+		$this->captura('afp','varchar');
+		$this->captura('nro_afp','varchar');
+		$this->captura('apellido_paterno','varchar');
+		$this->captura('apellido_materno','varchar');
+		$this->captura('apellido_casada','varchar');
+		$this->captura('primer_nombre','varchar');
+		$this->captura('otros_nombres','varchar');
+		$this->captura('nacionalidad','varchar');
+		$this->captura('fecha_nacimiento','text');
+		$this->captura('sexo','int4');
+		$this->captura('jubilado','int4');
+		$this->captura('clasificacion_laboral','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('fecha_ingreso','text');
+		$this->captura('modalidad_contrato','int4');
+		$this->captura('fecha_finalizacion','text');
+		$this->captura('horas_dia','int4');
+		$this->captura('codigo_columna','varchar');
+		$this->captura('valor','numeric');
+		$this->captura('oficina','varchar');			
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 	function insertarPlanilla(){
 		//Definicion de variables para ejecucion del procedimiento

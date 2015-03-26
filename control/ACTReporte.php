@@ -68,16 +68,16 @@ class ACTReporte extends ACTbase{
 		
 		//obtener tamaño y orientacion
 		if ($this->res->datos[0]['hoja_posicion'] == 'carta_vertical') {
-			$tamano = 'Letter';
+			$tamano = 'LETTER';
 			$orientacion = 'P';
 		} else if ($this->res->datos[0]['hoja_posicion'] == 'carta_horizontal') {
-			$tamano = 'Letter';
+			$tamano = 'LETTER';
 			$orientacion = 'L';
 		} else if ($this->res->datos[0]['hoja_posicion'] == 'oficio_vertical') {
-			$tamano = 'Legal';
+			$tamano = 'LEGAL';
 			$orientacion = 'P';
 		} else {
-			$tamano = 'Legal';
+			$tamano = 'LEGAL';
 			$orientacion = 'L';
 		}
 		
