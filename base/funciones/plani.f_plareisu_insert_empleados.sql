@@ -23,6 +23,7 @@ DECLARE
   v_resultado			numeric;
   v_detalle				record;
   v_id_columna_valor	integer;
+  v_max_retro			numeric;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plareisu_insert_empleados';
@@ -43,7 +44,7 @@ BEGIN
     end if;
     v_fecha_inicio = ('01/01/' || v_planilla.gestion) ::date;
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_inicio)::integer;
-    
+    v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', v_fecha_inicio)::integer;
     
     
     for v_registros in execute('
@@ -76,7 +77,8 @@ BEGIN
         v_tiene_incremento = 0;
                       
         --calcular si tendra algun incremento durante el año        
-        select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+        			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
         			  
         				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
         				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)

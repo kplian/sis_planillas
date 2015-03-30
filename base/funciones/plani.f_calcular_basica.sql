@@ -40,6 +40,7 @@ DECLARE
     v_tamano_array			integer;
     v_detalle				record;
     v_subsidio_actual		numeric;
+    v_max_retro				numeric;
     
     	
 BEGIN
@@ -309,8 +310,10 @@ BEGIN
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and 
         									cv.codigo_columna = 'SALDODEPSIGPER'
         left join param.tperiodo per on per.id_periodo = p.id_periodo
-        where ((tp.codigo = 'PLASUE' and p.id_periodo is not NULL  and per.fecha_fin = (p_fecha_ini -  interval '1 day')) or (tp.codigo = 'PLAREISU' and p.id_periodo is null))
+        where ((tp.codigo = 'PLASUE' and p.id_periodo is not NULL  and per.fecha_fin = (coalesce(p_fecha_ini,('01/' || to_char(v_planilla.fecha_planilla,'MM/YYYY'))::date) -  interval '1 day')) or (tp.codigo = 'PLAREISU' and p.id_periodo is null and p.fecha_planilla < v_planilla.fecha_planilla))
         order by fecha_plani desc limit 1;
+        
+       
         
     
     --Factor del zona franca    
@@ -324,16 +327,19 @@ BEGIN
         v_resultado = 1-(v_resultado/100);
         
     ELSIF (p_codigo = 'REISUELDOBA') THEN 
-    	
+    	v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
+    
                 
-        select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+        			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
         			  
         				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
         				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
                      else 
                      	0
                      end),
-                array_agg( (case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+                array_agg( (case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+        			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
         			  
         				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
         				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
