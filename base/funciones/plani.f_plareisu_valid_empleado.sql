@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION plani.f_plareisu_valid_empleado (
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -23,6 +24,7 @@ DECLARE
   v_resultado			numeric;
   v_tiene_incremento	integer;
   v_id_escala			integer;
+  v_max_retro			numeric;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plareisu_valid_empleado';
@@ -37,6 +39,7 @@ BEGIN
     
     v_fecha_ini = ('01/01/' || v_planilla.gestion) ::date;
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_ini)::integer;
+    v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', v_fecha_inicio)::integer;
     
     for v_registros in execute('
           select uofun.id_funcionario , array_agg(car.id_cargo) as cargos, 
@@ -62,7 +65,8 @@ BEGIN
                           p.id_gestion = ' || v_planilla.id_gestion || ')
           group by uofun.id_funcionario')loop
           	 v_tiene_incremento = 0;
-          	select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+          	select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+        			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
             			  
                             (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
                             (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
@@ -105,6 +109,12 @@ BEGIN
             o_id_uo_funcionario = v_registros.id_uo_funcionario;
             o_id_afp = plani.f_get_afp(p_id_funcionario, v_planilla.fecha_planilla);
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
+            
+            select tc.codigo into o_tipo_contrato
+            from orga.tuo_funcionario uofun
+            inner join orga.tcargo c on (uofun.id_cargo = c.id_cargo)
+            inner join orga.ttipo_contrato tc on (tc.id_tipo_contrato = c.id_tipo_contrato)
+            where uofun.id_uo_funcionario = v_registros.id_uo_funcionario;
         end if;    
   			  	
     end loop;

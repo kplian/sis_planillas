@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_parametro_valor_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_parametro_valor_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_parametro_valor_ime
@@ -44,7 +47,7 @@ BEGIN
 	if(p_transaccion='PLA_PARVAR_INS')then
 					
         begin
-        	if (plani.f_existe_columna(v_parametros.codigo,v_parametros.fecha_ini)) then
+        	if (plani.f_existe_columna(v_parametros.codigo,NULL,v_parametros.fecha_ini)) then
         		raise exception 'Ya existe otro parametro o columna con este codigo';
         	end if;
         	--Sentencia de la insercion
@@ -169,7 +172,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_parametro_valor_ime"(integer, integer, character varying, character varying) OWNER TO postgres;
