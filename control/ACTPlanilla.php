@@ -45,6 +45,8 @@ class ACTPlanilla extends ACTbase{
 		
 		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {		
 			$this->objReporteFormato->imprimeDatosSueldo();
+			$this->objReporteFormato->imprimeDatosSueldoReducido();
+			$this->objReporteFormato->imprimeResumen();
 		}
 		
 		$this->objReporteFormato->generarReporte();

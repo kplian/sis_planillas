@@ -18,6 +18,7 @@ DECLARE
   v_entra				varchar;
   v_fecha_fin_planilla	date;
   v_dias				integer;
+  v_tipo_contrato		varchar;
   
 BEGIN
 	
@@ -82,17 +83,17 @@ BEGIN
         
         if (v_dias >= 90  and v_entra = 'si') then
         	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
-            
+             v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
                 id_usuario_reg,					estado_reg,					id_funcionario,
                 id_planilla,					id_uo_funcionario,			id_lugar,
                 forzar_cheque,					finiquito,					id_afp,
-                id_cuenta_bancaria)
+                id_cuenta_bancaria,				tipo_contrato)
             VALUES (
                 v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
                 p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
                 'no',							'no',						v_id_afp,
-                v_id_cuenta_bancaria)
+                v_id_cuenta_bancaria,			v_tipo_contrato)
             RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
             
             for v_columnas in (	select * 

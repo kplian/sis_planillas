@@ -155,7 +155,7 @@ BEGIN
                 select
                 uo.prioridad,
                 uo.id_uo,
-                (row_number() over (order by uo.prioridad::integer, uo.id_uo,perso.apellido_paterno,perso.apellido_materno,perso.nombre))::integer as fila,
+                (row_number() over ())::integer as fila,
                 fp.id_funcionario_planilla,
                 (case when perso.id_tipo_doc_identificacion = 1 then 1 
                         when perso.id_tipo_doc_identificacion = 5 then
@@ -185,9 +185,22 @@ BEGIN
                 car.nombre as cargo,
                  plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso,
                 1::integer as modalidad_contrato,
-                uofun.fecha_finalizacion,
+                (case when (uofun.fecha_finalizacion is not null and uofun.fecha_finalizacion < per.fecha_fin) then
+                	(case when (orga.f_existe_sgte_asignacion(uofun.fecha_finalizacion, uofun.id_funcionario) = 1) then
+                    	NULL
+                    else
+                    	uofun.fecha_finalizacion
+                    end)
+                else
+                	NULL
+                end)::date as fecha_finalizacion,
                 8::integer as horas_dia,
-				ofi.nombre as oficina
+				ofi.nombre as oficina,
+                (case when perso.discapacitado= ''no''  or perso.discapacitado is null then
+                ''no'' else
+                ''si'' end)::varchar as discapacitado,
+                per.fecha_ini as inicio_periodo,
+                per.fecha_fin as fin_periodo
                 from plani.tplanilla p
                 inner join param.tperiodo per on per.id_periodo = p.id_periodo
                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -201,19 +214,21 @@ BEGIN
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
                 where tp.codigo = ''PLASUE'' and per.id_periodo = ' || v_parametros.id_periodo || '
-                order by fila
+                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
                 )
 
                 select 
                 emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
                 emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
-                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,
-                (case when (cv.codigo_columna = ''HORNORM'') then
-                	cv.valor/8
-                else
-                	cv.valor
-                end),
-                emp.oficina
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,cv.valor,emp.oficina,emp.discapacitado,
+                (case when emp.fecha_ingreso >= emp.inicio_periodo then
+                ''si''
+                else 
+                ''no'' end):: varchar as contrato_periodo,
+                (case when emp.fecha_finalizacion < emp.fin_periodo then
+                ''si''
+                else 
+                ''no'' end):: varchar as retiro_periodo
                 from empleados emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna

@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION plani.f_plaguin_valid_empleado (
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -86,6 +87,7 @@ BEGIN
             o_id_lugar = v_registros.id_lugar;
             o_id_uo_funcionario = v_registros.id_uo_funcionario;           
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
+            o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
         end if; 
   			  	
     end loop;

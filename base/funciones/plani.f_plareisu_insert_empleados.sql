@@ -23,6 +23,8 @@ DECLARE
   v_resultado			numeric;
   v_detalle				record;
   v_id_columna_valor	integer;
+  v_max_retro			numeric;
+  v_tipo_contrato		varchar;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plareisu_insert_empleados';
@@ -43,7 +45,7 @@ BEGIN
     end if;
     v_fecha_inicio = ('01/01/' || v_planilla.gestion) ::date;
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_fecha_inicio)::integer;
-    
+    v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', v_fecha_inicio)::integer;
     
     
     for v_registros in execute('
@@ -76,7 +78,8 @@ BEGIN
         v_tiene_incremento = 0;
                       
         --calcular si tendra algun incremento durante el año        
-        select sum( case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
+        select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+        			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
         			  
         				(orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) - 
         				(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
@@ -115,17 +118,18 @@ BEGIN
         if (v_tiene_incremento = 1) then
             if (v_registros.lugares[1] is null) then
                 raise exception 'El cargo con identificador:% , no tiene una oficina asignada',v_registros.cargos[1];
-            end if;   
+            end if; 
+            v_tipo_contrato = plani.f_get_tipo_contrato(id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
                 id_usuario_reg,					estado_reg,					id_funcionario,
                 id_planilla,					id_uo_funcionario,			id_lugar,
                 forzar_cheque,					finiquito,					id_afp,
-                id_cuenta_bancaria)
+                id_cuenta_bancaria,				tipo_contrato)
             VALUES (
                 v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
                 p_id_planilla,					v_registros.id_uo_funcionario,v_registros.lugares[1],
                 'no',							'no',						v_id_afp,
-                v_id_cuenta_bancaria)
+                v_id_cuenta_bancaria,			v_tipo_contrato)
             RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
                 
             for v_columnas in (	select * 

@@ -4,7 +4,8 @@ CREATE OR REPLACE FUNCTION plani.f_plasegagui_valid_empleado (
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -56,7 +57,7 @@ BEGIN
               on car.id_oficina = ofi.id_oficina 
           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and  
           coalesce(uofun.fecha_finalizacion,''' || v_fecha_fin_planilla || ''') >= (''01/04/' || v_planilla.gestion ||''')::date and 
-            uofun.fecha_asignacion <=  '''|| '31/12/' || v_planilla.gestion || ''' and 
+            uofun.fecha_asignacion <=  '''|| '31/10/' || v_planilla.gestion || ''' and 
               uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = ' || p_id_funcionario || '  
               and uofun.id_funcionario not in (
                   select id_funcionario
@@ -77,6 +78,7 @@ BEGIN
             o_id_lugar = v_registros.id_lugar;
             o_id_uo_funcionario = v_registros.id_uo_funcionario;           
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
+            o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
         end if; 
   			  	
     end loop;

@@ -33,9 +33,11 @@ BEGIN
     
     for v_empleados in (select * 
     					from plani.tfuncionario_planilla 
-                        where id_planilla = p_id_planilla) loop
+                        where id_funcionario_planilla = 129439) loop
+                        
     	v_horas_total = 0;
         v_ultimo_id_mayor_uno = NULL;
+        raise notice 'llega%,%,_%',v_planilla.fecha_ini,v_planilla.fecha_fin,v_empleados.id_funcionario;
         for v_asignacion in (    	
             select
             uofun.id_uo_funcionario,
@@ -116,7 +118,8 @@ BEGIN
         if(v_horas_total = v_planilla.horas_mes and v_horas_total < v_cantidad_horas_mes)THEN
         	       
             update plani.thoras_trabajadas
-            set horas_normales = v_cantidad_horas_mes
+            set horas_normales = v_cantidad_horas_mes,
+            horas_normales_contrato = v_cantidad_horas_mes
             where id_uo_funcionario = v_ultimo_id_uo_funcionario and 
                 id_funcionario_planilla = v_empleados.id_funcionario_planilla;
             
@@ -126,7 +129,8 @@ BEGIN
         if(v_horas_total >= v_cantidad_horas_mes and v_planilla.horas_mes = 248 and v_ultimo_id_mayor_uno is not null)THEN
                             
             update plani.thoras_trabajadas
-            set horas_normales = horas_normales - 8            
+            set horas_normales = horas_normales - 8 ,
+            horas_normales_contrato = horas_normales_contrato - 8            
             where id_uo_funcionario = v_ultimo_id_mayor_uno and 
             	id_funcionario_planilla = v_empleados.id_funcionario_planilla;
             

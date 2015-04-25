@@ -89,10 +89,14 @@ class MODPlanilla extends MODbase{
 		$this->captura('horas_dia','int4');
 		$this->captura('codigo_columna','varchar');
 		$this->captura('valor','numeric');
-		$this->captura('oficina','varchar');			
+		$this->captura('oficina','varchar');
+		$this->captura('discapacitado','varchar');
+		$this->captura('contrato_periodo','varchar');
+		$this->captura('retiro_periodo','varchar');			
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
+		
 		
 		//Devuelve la respuesta
 		return $this->respuesta;
