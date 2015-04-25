@@ -559,7 +559,7 @@ class RMinisterioTrabajoXLS
 		$this->docexcel->getActiveSheet()->getStyle('A6:F6')->applyFromArray($styleTitulos);
 		
 		$this->docexcel->getActiveSheet()->getStyle('C12:D12')->applyFromArray($styleTitulos);
-		$this->docexcel->getActiveSheet()->getStyle('D13:F13')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('D14:F14')->applyFromArray($styleTitulos);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A1','Seguro social a largo plazo');
 				
