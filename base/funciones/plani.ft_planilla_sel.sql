@@ -200,7 +200,9 @@ BEGIN
                 ''no'' else
                 ''si'' end)::varchar as discapacitado,
                 per.fecha_ini as inicio_periodo,
-                per.fecha_fin as fin_periodo
+                per.fecha_fin as fin_periodo,
+                EXTRACT(year from age( per.fecha_fin,perso.fecha_nacimiento ))::integer as edad,
+                lug.nombre as lugar
                 from plani.tplanilla p
                 inner join param.tperiodo per on per.id_periodo = p.id_periodo
                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -210,6 +212,7 @@ BEGIN
                 inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                 inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                 left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                 inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
@@ -220,7 +223,14 @@ BEGIN
                 select 
                 emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
                 emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
-                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,cv.valor,emp.oficina,emp.discapacitado,
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,
+                (case when cv.codigo_columna = ''HORNORM'' then
+                	cv.valor/emp.horas_dia
+                else
+                	cv.valor
+                end)::numeric as valor,
+                
+                emp.oficina,emp.discapacitado,
                 (case when emp.fecha_ingreso >= emp.inicio_periodo then
                 ''si''
                 else 
@@ -228,11 +238,13 @@ BEGIN
                 (case when emp.fecha_finalizacion < emp.fin_periodo then
                 ''si''
                 else 
-                ''no'' end):: varchar as retiro_periodo
+                ''no'' end):: varchar as retiro_periodo,
+                emp.edad,
+                emp.lugar
                 from empleados emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
-                where cv.codigo_columna in (''HORNORM'',''SUELDOBA'',''BONANT'',''BONFRONTERA'',''REINBANT'',''COTIZABLE'',''AFP_LAB'',''IMPURET'',''OTRO_DESC'',''TOT_DESC'',''LIQPAG'')
+                where cv.codigo_columna in (''HORNORM'',''SUELDOBA'',''BONANT'',''BONFRONTERA'',''REINBANT'',''COTIZABLE'',''AFP_LAB'',''IMPURET'',''OTRO_DESC'',''TOT_DESC'',''LIQPAG'',''CAJSAL'')
                 order by emp.fila,tc.orden';
                 
             --Devuelve la respuesta

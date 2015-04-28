@@ -47,6 +47,7 @@ class ACTPlanilla extends ACTbase{
 			$this->objReporteFormato->imprimeDatosSueldo();
 			$this->objReporteFormato->imprimeDatosSueldoReducido();
 			$this->objReporteFormato->imprimeResumen();
+			$this->objReporteFormato->imprimeResumenRegional();
 		}
 		
 		$this->objReporteFormato->generarReporte();

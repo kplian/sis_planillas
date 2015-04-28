@@ -17,6 +17,7 @@ class RMinisterioTrabajoXLS
 	private $objParam;
 	public  $url_archivo;
 	private $resumen = array();	
+	private $resumen_regional = array();	
 	
 	function __construct(CTParametro $objParam){
 		
@@ -217,6 +218,7 @@ class RMinisterioTrabajoXLS
 			if ($numero != $value['fila']) {
 				$fila++;
 				$columna = 0;
+				$this->armaResumenRegional($value['lugar'], $value);
 				if ($value['sexo']== 1) {
 					$this->resumen['trabajadores_varones']++;
 					if ($value['jubilado']== 1) {
@@ -260,7 +262,8 @@ class RMinisterioTrabajoXLS
 					}
 				}				
 				foreach ($value as $key => $val) {
-					if ($key != 'codigo_columna' && $key != 'valor'&& $key != 'oficina' && $key != 'discapacitado'&& $key != 'contrato_periodo'&& $key != 'retiro_periodo') {
+					if ($key != 'codigo_columna' && $key != 'valor'&& $key != 'oficina' && $key != 'discapacitado'&& $key != 'contrato_periodo'&& $key != 'retiro_periodo'
+						&& $key != 'edad'&& $key != 'lugar') {
 						$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$val);
 						$columna++;
 					}
@@ -287,10 +290,12 @@ class RMinisterioTrabajoXLS
 			
 			if ($value['codigo_columna'] == 'COTIZABLE') {
 				$this->resumen['total_ganado'] = $this->resumen['total_ganado'] + $value['valor'];
+				$this->resumen_regional[$value['lugar']]['total_ganado'] = $this->resumen_regional[$value['lugar']]['total_ganado'] + $value['valor'];
 			}
 			
 			if ($value['codigo_columna'] == 'AFP_LAB') {
 				$this->resumen['afp'] = $this->resumen['afp'] + $value['valor'];
+				$this->resumen_regional[$value['lugar']]['afp'] = $this->resumen_regional[$value['lugar']]['afp'] + $value['valor'];
 			}
 			
 			if ($value['codigo_columna'] == 'IMPURET') {
@@ -308,9 +313,14 @@ class RMinisterioTrabajoXLS
 				$this->resumen['liquido_pagable'] = $this->resumen['liquido_pagable'] + $value['valor'];
 			}
 			
+			if ($value['codigo_columna'] == 'CAJSAL') {
+				$this->resumen_regional[$value['lugar']]['caja'] = $this->resumen_regional[$value['lugar']]['caja'] + $value['valor'];
+			}
 			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
-			$columna++;
+			if ($value['codigo_columna'] != 'CAJSAL') {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
+				$columna++;
+			}
 			
 			if ($columna == 22) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
@@ -486,7 +496,8 @@ class RMinisterioTrabajoXLS
 				$fila++;
 				$columna = 0;				
 				foreach ($value as $key => $val) {
-					if ($key != 'codigo_columna' && $key != 'valor'&& $key != 'oficina'&& $key != 'discapacitado'&& $key != 'contrato_periodo'&& $key != 'retiro_periodo') {
+					if ($key != 'codigo_columna' && $key != 'valor'&& $key != 'oficina'&& $key != 'discapacitado'&& $key != 'contrato_periodo'&& $key != 'retiro_periodo'
+						&& $key != 'edad'&& $key != 'lugar') {
 						$this->docexcel->setActiveSheetIndex(1)->setCellValueByColumnAndRow($columna,$fila,$val);
 						$columna++;
 					}
@@ -495,7 +506,7 @@ class RMinisterioTrabajoXLS
 				
 			}
 			
-			if ($value['codigo_columna'] != 'BONFRONTERA') {
+			if ($value['codigo_columna'] != 'BONFRONTERA' && $value['codigo_columna'] != 'CAJSAL') {
 				$this->docexcel->setActiveSheetIndex(1)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 				$columna++;
 			}
@@ -516,6 +527,90 @@ class RMinisterioTrabajoXLS
 			}
 		}
 		//************************************************Fin Detalle***********************************************
+	}
+	function imprimeResumenRegional(){
+		$sheetId = 3;
+		$this->docexcel->createSheet(NULL, $sheetId);	
+		$this->docexcel->setActiveSheetIndex($sheetId);	
+		$this->docexcel->getActiveSheet()->setTitle('Resumen Regional');
+		
+		$this->docexcel->setActiveSheetIndex(3);
+		
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(45);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(20);
+		
+		$styleTitulos = array(
+		    'font'  => array(
+		        'bold'  => true,
+		        'size'  => 8,
+		        'name'  => 'Arial'
+		    ),
+		    'alignment' => array(
+		        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+		    ),
+			'fill' => array(
+        		'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array(
+            		'rgb' => 'c5d9f1'
+            	)
+        	),
+			'borders' => array(
+	        'allborders' => array(
+	            'style' => PHPExcel_Style_Border::BORDER_THIN
+	        )
+	    ));
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:H1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A1:A16')->applyFromArray($styleTitulos);
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A2','# TOTAL TRABAJADORES');
+		$this->docexcel->getActiveSheet()->setCellValue('A3','# HOMBRES');
+		$this->docexcel->getActiveSheet()->setCellValue('A4','# MUJERES');
+		$this->docexcel->getActiveSheet()->setCellValue('A5','# EXTRANJEROS');
+		$this->docexcel->getActiveSheet()->setCellValue('A6','# TRABAJADORES FIJOS');
+		$this->docexcel->getActiveSheet()->setCellValue('A7','# TRABAJADORES EVENTUALES');
+		$this->docexcel->getActiveSheet()->setCellValue('A8','MENORES 18 AÑOS');
+		$this->docexcel->getActiveSheet()->setCellValue('A9','MAYORES 60 AÑOS');
+		$this->docexcel->getActiveSheet()->setCellValue('A10','PERSONAL TRABAJANDO JUBILADO');
+		$this->docexcel->getActiveSheet()->setCellValue('A11','PERSONAL CON CAPACIDADES DIFERENTES');
+		$this->docexcel->getActiveSheet()->setCellValue('A12','TOTAL GANADO EN LA PLANILLA');
+		$this->docexcel->getActiveSheet()->setCellValue('A13','# ASEGURADOS EN CAJA DE SALUD');
+		$this->docexcel->getActiveSheet()->setCellValue('A14','MONTO APORTADO EN BS.');
+		$this->docexcel->getActiveSheet()->setCellValue('A15','# ASEGURADOS AFP');
+		$this->docexcel->getActiveSheet()->setCellValue('A16','MONTO APORTADO AFP');
+		$this->docexcel->getActiveSheet()->setCellValue('A1','ITEM');
+		
+		$columna = 1;
+		foreach ($this->resumen_regional as $key => $value) {
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,1,$key);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,2,$value['varones'] + $value['mujeres']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,3,$value['varones']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,4,$value['mujeres']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,5,$value['extranjeros']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,6,$value['varones'] + $value['mujeres']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,7,0);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,8,$value['menores_18']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,9,$value['mayores_60']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,10,$value['jubilados']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,11,$value['discapacitados']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,12,$value['total_ganado']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,13,$value['varones'] + $value['mujeres']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,14,$value['caja']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,15,$value['varones'] + $value['mujeres']);
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,16,$value['afp']);
+			$columna++;
+		}
+		
+			
 	}
 	function imprimeResumen(){
 		$sheetId = 2;
@@ -666,10 +761,46 @@ class RMinisterioTrabajoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('C19','');
 		$this->docexcel->getActiveSheet()->setCellValue('D19','');
 		$this->docexcel->getActiveSheet()->setCellValue('E19','');
-		$this->docexcel->getActiveSheet()->setCellValue('F19','');
+		$this->docexcel->getActiveSheet()->setCellValue('F19','');		
+	}
+	function armaResumenRegional($lugar, $value){
+		if (!array_key_exists($lugar, $this->resumen_regional)) {
+			$this->resumen_regional[$lugar]['varones'] = 0;
+			$this->resumen_regional[$lugar]['mujeres'] = 0;
+			$this->resumen_regional[$lugar]['mayores_60'] = 0;
+			$this->resumen_regional[$lugar]['menores_18'] = 0;
+			$this->resumen_regional[$lugar]['jubilados'] = 0;
+			$this->resumen_regional[$lugar]['extranjeros'] = 0;
+			$this->resumen_regional[$lugar]['discapacitados'] = 0;
+			$this->resumen_regional[$lugar]['total_ganado'] = 0;
+			$this->resumen_regional[$lugar]['afp'] = 0;
+			$this->resumen_regional[$lugar]['caja'] = 0;
+		}
+		if ($value['sexo']== 1) {
+			$this->resumen_regional[$lugar]['varones']++;
+		} else {
+			$this->resumen_regional[$lugar]['mujeres']++;
+		}
 		
+		if ($value['edad'] > 60) {
+			$this->resumen_regional[$lugar]['mayores_60']++;
+		}
 		
+		if ($value['edad'] < 18) {
+			$this->resumen_regional[$lugar]['menores_18']++;
+		}
 		
+		if ($value['jubilado']== 1) {
+			$this->resumen_regional[$lugar]['jubilados']++;
+		}
+		
+		if ($value['nacionalidad']!= 'Bolivia') {
+			$this->resumen_regional[$lugar]['extranjeros']++;
+		}
+		
+		if ($value['discapacitado']== 'si') {
+			$this->resumen_regional[$lugar]['discapacitados']++;
+		}		
 	}
 	function generarReporte(){
 		//echo $this->nombre_archivo; exit;
