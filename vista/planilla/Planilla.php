@@ -201,7 +201,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				type: 'string'
 			},
 			grid: true,
-			form: true
+			form: true,
+            bottom_filter : true
 		},		
 		{
 	   			config:{
@@ -221,7 +222,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				},
 	   		   
 	   			grid : true,
-	   			form : true
+	   			form : true,
+                bottom_filter : true
 	   	},
 		{
 	   			config:{
@@ -241,7 +243,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				},
 	   		   
 	   			grid : true,
-	   			form : true
+	   			form : true,
+                bottom_filter : true
 	   	},
 	   	{
 			config:{

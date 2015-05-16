@@ -49,7 +49,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				type:'TextField',
 				filters:{pfiltro:'funcio.ci',type:'string'},				
 				grid:true,
-				form:false
+				form:false,
+                bottom_filter : true
 		},
 		{
    			config:{
@@ -70,7 +71,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 			},
    		   
    			grid:true,
-   			form:true
+   			form:true,
+            bottom_filter : true
    	      },
 		 
 		{
