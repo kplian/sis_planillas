@@ -105,27 +105,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		{
-   			config:{
-   				name:'id_depto',
-   				 hiddenName: 'id_depto',
-   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
-	   				origen:'DEPTO',
-	   				allowBlank:false,
-	   				fieldLabel: 'Depto',
-	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
-	   				width:250,
-   			        gwidth:180,
-	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
-	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
-   			},
-   			//type:'TrigguerCombo',
-   			type:'ComboRec',
-   			id_grupo:0,
-   			filters:{pfiltro:'depto.nombre',type:'string'},
-   		    grid:true,
-   			form:true
-       	},
+		
 		{
 			config:{
 				name: 'nro_planilla',
@@ -142,22 +122,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				form:false,
 				bottom_filter : true
 		},
-		{
-			config:{
-				name: 'estado',
-				fieldLabel: 'Estado',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:50
-			},
-				type:'TextField',
-				filters:{pfiltro:'plani.estado',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false,
-				bottom_filter : true
-		},
+		
 		{
 			config: {
 				name: 'id_tipo_planilla',
@@ -183,7 +148,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				}),
 				valueField: 'id_tipo_planilla',
 				displayField: 'nombre',
-				gdisplayField: 'codigo_planilla',
+				gdisplayField: 'nombre_planilla',
 				triggerAction: 'all',
 				lazyRender: true,
 				mode: 'remote',
@@ -197,13 +162,51 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			type: 'ComboBox',
 			id_grupo: 0,
 			filters: {
-				pfiltro: 'tippla.codigo',
+				pfiltro: 'tippla.nombre',
 				type: 'string'
 			},
 			grid: true,
 			form: true,
             bottom_filter : true
-		},		
+		},
+		{
+			config:{
+				name: 'estado',
+				fieldLabel: 'Estado',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:50
+			},
+				type:'TextField',
+				filters:{pfiltro:'plani.estado',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false,
+				bottom_filter : true
+		},
+		
+		{
+   			config:{
+   				name:'id_depto',
+   				 hiddenName: 'id_depto',
+   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+	   				origen:'DEPTO',
+	   				allowBlank:false,
+	   				fieldLabel: 'Depto',
+	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+	   				width:250,
+   			        gwidth:180,
+	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
+	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
+   			},
+   			//type:'TrigguerCombo',
+   			type:'ComboRec',
+   			id_grupo:0,
+   			filters:{pfiltro:'depto.nombre',type:'string'},
+   		    grid:true,
+   			form:true
+       	},		
 		{
 	   			config:{
 	   				name : 'id_gestion',
@@ -397,7 +400,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_gestion', type: 'numeric'},
 		{name:'gestion', type: 'numeric'},
 		{name:'periodo', type: 'numeric'},
-		{name:'codigo_planilla', type: 'string'},
+		{name:'nombre_planilla', type: 'string'},
 		{name:'calculo_horas', type: 'string'},
 		{name:'plani_tiene_presupuestos', type: 'string'},
 		{name:'plani_tiene_costos', type: 'string'},
@@ -422,7 +425,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_planilla',
-		direction: 'ASC'
+		direction: 'DESC'
 	},
 	bdel:true,
 	bsave:true,

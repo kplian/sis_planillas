@@ -40,7 +40,7 @@ class MODPlanilla extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('gestion','int4');
 		$this->captura('periodo','int4');
-		$this->captura('codigo_planilla','varchar');
+		$this->captura('nombre_planilla','varchar');
 		$this->captura('desc_uo','varchar');
 		$this->captura('id_depto','int4');
 		$this->captura('nombre_depto','varchar');
