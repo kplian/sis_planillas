@@ -44,6 +44,7 @@ DECLARE
     v_max_retro				numeric;
     v_id_funcionario_planilla_mes integer;
     v_fecha_fin_planilla	date;
+    v_horas_normales		numeric;
     
     	
 BEGIN
@@ -674,6 +675,151 @@ BEGIN
             cv.estado_reg = 'activo' and cv.codigo_columna = 'PROMSUEL2';
             
         end if;
+    
+    ELSIF(p_codigo = 'PROMPRI1') THEN
+    	select fp.id_funcionario_planilla
+        into v_id_funcionario_planilla_mes
+        from plani.tfuncionario_planilla fp
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+        and fun.id_funcionario = v_planilla.id_funcionario 
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla 
+        inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+        and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') 
+        and p.id_gestion=v_planilla.id_gestion and
+        pe.periodo != 12
+        group by fp.id_funcionario_planilla,pe.periodo
+        having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+        order by  pe.periodo desc
+        limit 1
+        offset 0;
+        v_aux = 0;        
+        
+        --Obtener el salario a la fecha del 31/12
+        select sum(orga.f_get_haber_basico_a_fecha(c.id_escala_salarial,('31/12/' || v_planilla.gestion)::date )/v_cantidad_horas_mes * ht.horas_normales) into v_resultado
+        from plani.thoras_trabajadas ht
+        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+        inner join orga.tcargo c  on c.id_cargo = uofun.id_cargo      
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
+        
+        --Obtener el bono de frontera en base al promedio del sueldo
+        SELECT v_resultado * 0.2 * cv.valor into v_aux
+        from plani.tcolumna_valor cv
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+        	cv.codigo_columna IN ('FACFRONTERA') and cv.estado_reg = 'activo';
+        
+                
+        --obtener el bono de antiguedad en base al minimo al 31/12
+        SELECT (plani.f_get_valor_parametro_valor('SALMIN', ('31/12/' || v_planilla.gestion)::date) * cv.valor / 100 * 3 ) + v_aux  into v_aux
+        from plani.tcolumna_valor cv
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+        	cv.codigo_columna IN ('FACTORANTI') and cv.estado_reg = 'activo'; 
+            
+            
+    	v_resultado = v_resultado + v_aux;
+        
+    	v_resultado = v_resultado + v_aux;
+        
+        
+    
+    ELSIF(p_codigo = 'PROMPRI2') THEN
+    	select fp.id_funcionario_planilla
+        into v_id_funcionario_planilla_mes
+        from plani.tfuncionario_planilla fp
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+        and fun.id_funcionario = v_planilla.id_funcionario 
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla 
+        inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+        and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') 
+        and p.id_gestion=v_planilla.id_gestion and
+        pe.periodo != 12
+        group by fp.id_funcionario_planilla,pe.periodo
+        having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+        order by  pe.periodo desc
+        limit 1
+        offset 1;
+        v_aux = 0;        
+        
+        --Obtener el salario a la fecha del 31/12
+        select sum(orga.f_get_haber_basico_a_fecha(c.id_escala_salarial,('31/12/' || v_planilla.gestion)::date )/v_cantidad_horas_mes * ht.horas_normales) into v_resultado
+        from plani.thoras_trabajadas ht
+        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+        inner join orga.tcargo c  on c.id_cargo = uofun.id_cargo      
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
+        
+        --Obtener el bono de frontera en base al promedio del sueldo
+        SELECT v_resultado * 0.2 * cv.valor into v_aux
+        from plani.tcolumna_valor cv
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+        	cv.codigo_columna IN ('FACFRONTERA') and cv.estado_reg = 'activo';
+        
+                
+        --obtener el bono de antiguedad en base al minimo al 31/12
+        SELECT (plani.f_get_valor_parametro_valor('SALMIN', ('31/12/' || v_planilla.gestion)::date) * cv.valor / 100 * 3 ) + v_aux  into v_aux
+        from plani.tcolumna_valor cv
+        where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+        	cv.codigo_columna IN ('FACTORANTI') and cv.estado_reg = 'activo'; 
+            
+            
+    	v_resultado = v_resultado + v_aux;
+    
+    ELSIF(p_codigo = 'PROMPRI3') THEN
+    	select fp.id_funcionario_planilla
+        into v_id_funcionario_planilla_mes
+        from plani.tfuncionario_planilla fp
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+        and fun.id_funcionario = v_planilla.id_funcionario 
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla 
+        inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+        and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') 
+        and p.id_gestion=v_planilla.id_gestion and
+        pe.periodo != 12
+        group by fp.id_funcionario_planilla,pe.periodo
+        having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+        order by  pe.periodo desc
+        limit 1
+        offset 2;
+        
+        v_aux = 0;
+        if (v_id_funcionario_planilla_mes is null) then
+        	select cv.valor into v_resultado
+            from plani.tcolumna_valor cv
+            where cv.id_funcionario_planilla = p_id_funcionario_planilla and 
+            cv.estado_reg = 'activo' and cv.codigo_columna = 'PROMPRI2';
+        else
+        	 --Obtener el salario a la fecha del 31/12
+            select sum(orga.f_get_haber_basico_a_fecha(c.id_escala_salarial,('31/12/' || v_planilla.gestion)::date )/v_cantidad_horas_mes * ht.horas_normales) into v_resultado
+            from plani.thoras_trabajadas ht
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo c  on c.id_cargo = uofun.id_cargo      
+            where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
+            
+            --Obtener el bono de frontera en base al promedio del sueldo
+            SELECT v_resultado * 0.2 * cv.valor into v_aux
+            from plani.tcolumna_valor cv
+            where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+                cv.codigo_columna IN ('FACFRONTERA') and cv.estado_reg = 'activo';
+            
+                    
+            --obtener el bono de antiguedad en base al minimo al 31/12
+            SELECT (plani.f_get_valor_parametro_valor('SALMIN', ('31/12/' || v_planilla.gestion)::date) * cv.valor / 100 * 3 ) + v_aux  into v_aux
+            from plani.tcolumna_valor cv
+            where id_funcionario_planilla = v_id_funcionario_planilla_mes and 
+                cv.codigo_columna IN ('FACTORANTI') and cv.estado_reg = 'activo'; 
+                
+                
+            v_resultado = v_resultado + v_aux;
+            
+        end if;        
+        
+       
+        
+        
         
     ELSIF(p_codigo = 'PROMHAB1') THEN
     	select fp.id_funcionario_planilla

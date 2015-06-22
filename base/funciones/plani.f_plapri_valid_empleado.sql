@@ -1,12 +1,11 @@
---------------- SQL ---------------
-
-CREATE OR REPLACE FUNCTION plani.f_plaguin_valid_empleado (
+CREATE OR REPLACE FUNCTION plani.f_plapri_valid_empleado (
   p_id_funcionario integer,
   p_id_planilla integer,
   out o_id_uo_funcionario integer,
   out o_id_lugar integer,
   out o_id_afp integer,
-  out o_id_cuenta_bancaria integer
+  out o_id_cuenta_bancaria integer,
+  out o_tipo_contrato varchar
 )
 RETURNS record AS
 $body$
@@ -30,7 +29,7 @@ DECLARE
   v_dias				integer;
 BEGIN
 	
-    v_nombre_funcion = 'plani.f_plaguin_valid_empleado';
+    v_nombre_funcion = 'plani.f_plapri_valid_empleado';
    
 	v_existe = 'no';
 	select id_tipo_planilla, p.id_gestion, ges.gestion,id_uo, p.id_usuario_reg,p.fecha_planilla
@@ -74,25 +73,27 @@ BEGIN
                           p.id_gestion = ' || v_planilla.id_gestion || ')
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
              
-        v_entra = 'si';
-        if (v_fecha_fin_planilla != ('31/12/' || v_planilla.gestion)::date) then
-        	if (v_registros.fecha_fin_real is null or v_registros.fecha_fin_real > v_fecha_fin_planilla)then
-            	v_entra = 'no';
-            end if;
-        end if;
+        
+        if (exists (select 1 from orga.tuo_funcionario uofun 
+        			where uofun.id_funcionario =  uofun.estado_reg = 'activo' and uofun.id_funcionario = v_registros.id_funcionario and
+                    uofun.fecha_finalizacion BETWEEN ('01/04/' || v_planilla.gestion)::date and ('31/12/' || v_planilla.gestion)::date and
+                    uofun.observaciones_finalizacion = 'retiro' )) then
+        	raise exception 'El empleado ha sido retirado de la empresa, por lo que no corresponde el pago de prima';            
+    	end if;
         v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
         
         
-        if (v_dias >= 90  and v_entra = 'si') then
+        if (v_dias >= 90 ) then
         	v_existe = 'si'; 
             o_id_lugar = v_registros.id_lugar;
             o_id_uo_funcionario = v_registros.id_uo_funcionario;           
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
+            o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
         end if; 
   			  	
     end loop;
     if (v_existe = 'no') then
-    	raise exception 'No se puede añadir el funcionario a la planilla ya que no le corresponde entrar a esta planilla de aguinaldo';
+    	raise exception 'No se puede añadir el funcionario a la planilla ya que no le corresponde entrar a esta planilla de prima';
     end if;
     return;
 EXCEPTION
