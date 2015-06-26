@@ -148,7 +148,89 @@ BEGIN
         #FECHA:		22-01-2014 16:11:04
         ***********************************/
 
-	elsif(p_transaccion='PLA_REPMINTRASUE_SEL')then
+	elsif(p_transaccion='PLA_REPMINPRIMA_SEL')then
+
+		begin
+            v_consulta = 'with empleados as (
+                select
+                uo.prioridad,
+                uo.id_uo,
+                (row_number() over ())::integer as fila,
+                fp.id_funcionario_planilla,
+                (case when perso.id_tipo_doc_identificacion = 1 then 1 
+                        when perso.id_tipo_doc_identificacion = 5 then
+                        3
+                        ELSE
+                        0
+                        end)::integer as tipo_documento,
+                perso.ci,perso.expedicion,afp.nombre as afp,fafp.nro_afp,fun.desc_funcionario2,
+                (case when lower(perso.nacionalidad) like ''%bolivi%'' then
+                ''Bolivia''
+                ELSE
+                perso.nacionalidad
+                end)::varchar as nacionalidad,
+                perso.fecha_nacimiento,
+                (case when genero= ''VARON'' then
+                ''V'' else
+                ''M'' end)::varchar as sexo,
+                (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
+                1
+                else
+                0 end)::integer as jubilado,
+                ''''::varchar as clasificacion_laboral,
+                car.nombre as cargo,
+                 plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso,
+                1::integer as modalidad_contrato,
+                (case when (uofun.fecha_finalizacion is not null and uofun.fecha_finalizacion < (''31/12/''||ges.gestion)::date) then
+                	(case when (orga.f_existe_sgte_asignacion(uofun.fecha_finalizacion, uofun.id_funcionario) = 1) then
+                    	NULL
+                    else
+                    	uofun.fecha_finalizacion
+                    end)
+                else
+                	NULL
+                end)::date as fecha_finalizacion,
+                8::integer as horas_dia,
+                30::integer as dias_mes,
+				ofi.nombre as oficina,
+                (case when perso.discapacitado= ''no''  or perso.discapacitado is null then
+                ''no'' else
+                ''si'' end)::varchar as discapacitado,                
+                EXTRACT(year from age( (''31/12/''||ges.gestion)::date,perso.fecha_nacimiento ))::integer as edad,
+                lug.nombre as lugar
+                from plani.tplanilla p
+                inner join param.tgestion ges on ges.id_gestion = p.id_gestion
+                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+                inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+                inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                inner join orga.tfuncionario f1 on f1.id_funcionario = fp.id_funcionario
+                inner join segu.tpersona perso on perso.id_persona = f1.id_persona
+                inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
+                inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
+                inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
+                inner join plani.tafp afp on afp.id_afp = fafp.id_afp
+                where tp.codigo = ''PLAPRI'' and ges.id_gestion = ' || v_parametros.id_gestion || '
+                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
+                )
+
+                select 
+                emp.fila,emp.ci,emp.desc_funcionario2,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.cargo,
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.horas_dia, emp.dias_mes,cv.codigo_columna,
+               	cv.valor,emp.jubilado,emp.discapacitado
+                from empleados emp
+                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
+                inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
+                where cv.codigo_columna in (''PRIMA'',''IMPDET'',''OTDESC'',''TOTDESC'',''LIQPAG'')
+                order by emp.fila,tc.orden';
+                raise notice '%',v_consulta;
+            --Devuelve la respuesta
+			return v_consulta;
+        end;
+        
+    elsif(p_transaccion='PLA_REPMINTRASUE_SEL')then
 
 		begin
             v_consulta = 'with empleados as (

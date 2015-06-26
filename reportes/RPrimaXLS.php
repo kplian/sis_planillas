@@ -2,7 +2,7 @@
 //incluimos la libreria
 //echo dirname(__FILE__);
 //include_once(dirname(__FILE__).'/../PHPExcel/Classes/PHPExcel.php');
-class RMinisterioTrabajoXLS
+class RPrimaXLS
 {
 	private $docexcel;
 	private $objWriter;
@@ -39,10 +39,10 @@ class RMinisterioTrabajoXLS
 							 ->setKeywords("office 2007 openxml php")
 							 ->setCategory("Report File");
 		
-		$sheetId = 1;
-		$this->docexcel->createSheet(NULL, $sheetId);	
-		$this->docexcel->setActiveSheetIndex($sheetId);	
-		$this->docexcel->getActiveSheet()->setTitle('Planilla Prima');
+		//$sheetId = 1;
+		//$this->docexcel->createSheet(NULL, $sheetId);	
+		//$this->docexcel->setActiveSheetIndex($sheetId);	
+		//$this->docexcel->getActiveSheet()->setTitle('Planilla Prima');
 		
 		$this->docexcel->setActiveSheetIndex(0);
 		
@@ -62,10 +62,11 @@ class RMinisterioTrabajoXLS
 	
 	function imprimeDatosSueldo(){
 		$this->docexcel->getActiveSheet()->setTitle('Planilla Prima');
-		$datos = $this->objParam->getParametro('datos');	
+		$datos = $this->objParam->getParametro('datos');
+			
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
-		
+		$this->docexcel->getActiveSheet()->getRowDimension('1')->setRowHeight(60);
 		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(7);
 		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(11);
 		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
@@ -119,8 +120,15 @@ class RMinisterioTrabajoXLS
 	        )
 	    ));
 		$this->docexcel->getActiveSheet()->getStyle('A1:X1')->getAlignment()->setWrapText(true); 	
-		
-		
+		$this->docexcel->getActiveSheet()->getStyle('A1:Q1')->applyFromArray($styleTitulos);
+		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
+		$this->docexcel->getActiveSheet()->getStyle('R1')->applyFromArray($styleTitulos);
+		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
+		$this->docexcel->getActiveSheet()->getStyle('S1:U1')->applyFromArray($styleTitulos);
+		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
+		$this->docexcel->getActiveSheet()->getStyle('V1:W1')->applyFromArray($styleTitulos);
+		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
+		$this->docexcel->getActiveSheet()->getStyle('X1')->applyFromArray($styleTitulos);
 		//*************************************Cabecera*****************************************
 		$this->docexcel->getActiveSheet()->setCellValue('A1','Nº');
 		$this->docexcel->getActiveSheet()->setCellValue('B1','Documento de identidad');
@@ -153,6 +161,7 @@ class RMinisterioTrabajoXLS
 		$numero = 0;
 		$columna = 0;
 		$fila = 1;
+		$this->docexcel->getActiveSheet()->getRowDimension($fila+1)->setRowHeight(60);
 		$this->resumen['basico'] = 0;
 		$this->resumen['antiguedad'] = 0;
 		$this->resumen['frontera'] = 0;
@@ -178,6 +187,24 @@ class RMinisterioTrabajoXLS
 		foreach($datos as $value) {
 			
 			if ($numero != $value['fila']) {
+				$styleTotales = array(					    
+						'fill' => array(
+			        		'type' => PHPExcel_Style_Fill::FILL_SOLID,
+							'color' => array(
+			            		'rgb' => 'FFFFFF'
+			            	)			        	
+				    	),
+						'borders' => array(
+					        'allborders' => array(
+					            'style' => PHPExcel_Style_Border::BORDER_THIN
+					        )
+					    ));
+				$this->docexcel->getActiveSheet()->getStyle('A' . ($fila + 1) . ":X" . ($fila + 1))->applyFromArray($styleTotales);
+				$styleTotales['fill']['color']['rgb'] = 'D9D9D9';
+				$this->docexcel->getActiveSheet()->getStyle('R' . ($fila + 1))->applyFromArray($styleTotales);
+				$this->docexcel->getActiveSheet()->getStyle('V' . ($fila + 1))->applyFromArray($styleTotales);
+				$this->docexcel->getActiveSheet()->getStyle('W' . ($fila + 1))->applyFromArray($styleTotales);
+				$this->docexcel->getActiveSheet()->getRowDimension($fila+1)->setRowHeight(40);
 				$fila++;
 				$columna = 0;
 				//$this->armaResumenRegional($value['lugar'], $value);
@@ -234,6 +261,10 @@ class RMinisterioTrabajoXLS
 				
 			}
 
+			if ($value['codigo_columna'] == 'PRIMA') {
+				$this->resumen['basico'] = $this->resumen['basico'] + $value['valor'];
+			}
+
 			if ($value['codigo_columna'] == 'IMPDET') {
 				$this->resumen['iva'] = $this->resumen['iva'] + $value['valor'];
 			}
@@ -253,8 +284,14 @@ class RMinisterioTrabajoXLS
 			
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 			$columna++;
+			if ($value['codigo_columna'] == 'PRIMA') {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(17,$fila,$value['valor']);
+			}
 			
-			
+			if ($columna == 11) {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
+				$columna++;
+			}
 			if ($columna == 12) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
@@ -271,18 +308,19 @@ class RMinisterioTrabajoXLS
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
+			
 			if ($columna == 16) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
-			if ($columna == 17) {
+			if ($columna == 17) {				
+				$columna++;
+			}
+			if ($columna == 18) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
-			if ($columna == 19) {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
-				$columna++;
-			}
+			
 			
 		}
 
@@ -526,12 +564,12 @@ class RMinisterioTrabajoXLS
 			
 	}
 	function imprimeResumen(){
-		$sheetId = 2;
+		$sheetId = 1;
 		$this->docexcel->createSheet(NULL, $sheetId);	
 		$this->docexcel->setActiveSheetIndex($sheetId);	
 		$this->docexcel->getActiveSheet()->setTitle('Resumen');
 		
-		$this->docexcel->setActiveSheetIndex(2);
+		$this->docexcel->setActiveSheetIndex($sheetId);
 		
 		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(55);
 		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
@@ -553,7 +591,7 @@ class RMinisterioTrabajoXLS
 			'fill' => array(
         		'type' => PHPExcel_Style_Fill::FILL_SOLID,
 				'color' => array(
-            		'rgb' => 'c5d9f1'
+            		'rgb' => 'D9D9D9'
             	)
         	),
 			'borders' => array(
@@ -566,15 +604,14 @@ class RMinisterioTrabajoXLS
 		$this->docexcel->getActiveSheet()->getStyle('A4:C4')->applyFromArray($styleTitulos);
 		$this->docexcel->getActiveSheet()->getStyle('A6:F6')->applyFromArray($styleTitulos);
 		
-		$this->docexcel->getActiveSheet()->getStyle('C12:D12')->applyFromArray($styleTitulos);
-		$this->docexcel->getActiveSheet()->getStyle('D14:F14')->applyFromArray($styleTitulos);
+		
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A1','Seguro social a largo plazo');
 				
 		$this->docexcel->getActiveSheet()->setCellValue('A2','4.4 Nº total de afiliados al seguro a largo plazo (AFP´s)');
 		$this->docexcel->getActiveSheet()->setCellValue('B2',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
 		$this->docexcel->getActiveSheet()->setCellValue('C2','4.5 Monto aportado (Total aporte de los trabajadores Bs)');
-		$this->docexcel->getActiveSheet()->setCellValue('D2',$this->resumen['afp']);
+		$this->docexcel->getActiveSheet()->setCellValue('D2',0);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A4','5. COMPOSICIÓN SALARIAL');
 		$this->docexcel->getActiveSheet()->setCellValue('C4','6. TRABAJADORES');
@@ -593,7 +630,7 @@ class RMinisterioTrabajoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('F7',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A8','5.2 Bono de antigüedad');
-		$this->docexcel->getActiveSheet()->setCellValue('B8',$this->resumen['antiguedad']);
+		$this->docexcel->getActiveSheet()->setCellValue('B8',0);
 		$this->docexcel->getActiveSheet()->setCellValue('C8','6.2 Personas jubiladas');
 		$this->docexcel->getActiveSheet()->setCellValue('D8',$this->resumen['jubilados_varones']);
 		$this->docexcel->getActiveSheet()->setCellValue('E8',$this->resumen['jubilados_mujeres']);
@@ -607,7 +644,7 @@ class RMinisterioTrabajoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('F9',$this->resumen['extranjeros_varones'] + $this->resumen['extranjeros_mujeres']);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A10','5.4 Subsidio de frontera');
-		$this->docexcel->getActiveSheet()->setCellValue('B10',$this->resumen['frontera']);
+		$this->docexcel->getActiveSheet()->setCellValue('B10',0);
 		$this->docexcel->getActiveSheet()->setCellValue('C10','6.4 Personas con discapacidad');
 		$this->docexcel->getActiveSheet()->setCellValue('D10',$this->resumen['discapacitados_varones']);
 		$this->docexcel->getActiveSheet()->setCellValue('E10',$this->resumen['discapacitados_mujeres']);
@@ -622,38 +659,21 @@ class RMinisterioTrabajoXLS
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A12','5.6 Pago dominical y domingo trabajado');
 		$this->docexcel->getActiveSheet()->setCellValue('B12',0);
-		$this->docexcel->getActiveSheet()->setCellValue('C12','7. INFORMACIÓN TRIMESTRAL, ACCIDENTES Y ENFERMEDADES DE TRABAJO');
-		$this->docexcel->getActiveSheet()->setCellValue('D12','');
-		$this->docexcel->getActiveSheet()->setCellValue('E12','');
-		$this->docexcel->getActiveSheet()->setCellValue('F12','');
+		
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A13','5.7 Otros bonos');
-		$this->docexcel->getActiveSheet()->setCellValue('B13',$this->resumen['otros_bonos']);
-		$this->docexcel->getActiveSheet()->setCellValue('C13','');
-		$this->docexcel->getActiveSheet()->setCellValue('D13','');
-		$this->docexcel->getActiveSheet()->setCellValue('E13','');
-		$this->docexcel->getActiveSheet()->setCellValue('F13','');
+		$this->docexcel->getActiveSheet()->setCellValue('B13',0);
+		
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A14','5.8 Total ganado');
-		$this->docexcel->getActiveSheet()->setCellValue('B14',$this->resumen['total_ganado']);
-		$this->docexcel->getActiveSheet()->setCellValue('C14','');
-		$this->docexcel->getActiveSheet()->setCellValue('D14','Varones');
-		$this->docexcel->getActiveSheet()->setCellValue('E14','Mujeres');
-		$this->docexcel->getActiveSheet()->setCellValue('F14','Total');
+		$this->docexcel->getActiveSheet()->setCellValue('B14',$this->resumen['basico']);
+		
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A15','5.9 Aporte a las AFPs');
-		$this->docexcel->getActiveSheet()->setCellValue('B15',$this->resumen['afp']);
-		$this->docexcel->getActiveSheet()->setCellValue('C15','7.1 Personas contratadas en el trimestre');
-		$this->docexcel->getActiveSheet()->setCellValue('D15',$this->resumen['contrato_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E15',$this->resumen['contrato_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F15',$this->resumen['contrato_varones'] + $this->resumen['contrato_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('B15',0);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A16','5.10 RC-IVA');
 		$this->docexcel->getActiveSheet()->setCellValue('B16',$this->resumen['iva']);
-		$this->docexcel->getActiveSheet()->setCellValue('C16','7.2 Personas retiradas en el trimestre');
-		$this->docexcel->getActiveSheet()->setCellValue('D16',$this->resumen['retiro_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E16',$this->resumen['retiro_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F16',$this->resumen['retiro_varones'] + $this->resumen['retiro_mujeres']);
 		
 		$this->docexcel->getActiveSheet()->setCellValue('A17','5.11 Otros descuentos');
 		$this->docexcel->getActiveSheet()->setCellValue('B17',$this->resumen['otros_descuentos']);

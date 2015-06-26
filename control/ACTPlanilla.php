@@ -48,8 +48,10 @@ class ACTPlanilla extends ACTbase{
 			$this->objReporteFormato->imprimeDatosSueldo();			
 			$this->objReporteFormato->imprimeResumen();			
 		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7) {
+			
 			$this->objReporteFormato=new RPrimaXLS($this->objParam);
 			$this->objReporteFormato->imprimeDatosSueldo();	
+			$this->objReporteFormato->imprimeResumen();	
 		}
 		
 		$this->objReporteFormato->generarReporte();

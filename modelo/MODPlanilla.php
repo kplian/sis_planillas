@@ -127,10 +127,14 @@ class MODPlanilla extends MODbase{
 		
 		$this->captura('codigo_columna','varchar');
 		$this->captura('valor','numeric');
+		$this->captura('jubilado','integer');
+		$this->captura('discapacitado','varchar');
+		
 					
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
+		
 		
 		
 		//Devuelve la respuesta
