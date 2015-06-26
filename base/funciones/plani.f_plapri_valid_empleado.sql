@@ -89,6 +89,7 @@ BEGIN
             o_id_uo_funcionario = v_registros.id_uo_funcionario;           
             o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
             o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
+            o_id_afp = plani.f_get_afp(p_id_funcionario,v_registros.fecha_fin);
         end if; 
   			  	
     end loop;

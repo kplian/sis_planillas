@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RPrimaXLS.php');
 class ACTPlanilla extends ACTbase{    
 			
 	function listarPlanilla(){
@@ -30,6 +31,8 @@ class ACTPlanilla extends ACTbase{
 			
 			$this->res=$this->objFunc->listarReportePlanillaMinisterio($this->objParam);		
 			
+		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7) {
+			$this->res=$this->objFunc->listarReportePrimaMinisterio($this->objParam);
 		}
 		//obtener titulo del reporte
 		$titulo = 'RepMinisterioTrabajo';
@@ -39,15 +42,14 @@ class ACTPlanilla extends ACTbase{
 		$nombreArchivo.='.xls';
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
 		$this->objParam->addParametro('datos',$this->res->datos);
-		
-		//Instancia la clase de excel
-		$this->objReporteFormato=new RMinisterioTrabajoXLS($this->objParam);
-		
-		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {		
-			$this->objReporteFormato->imprimeDatosSueldo();
-			$this->objReporteFormato->imprimeDatosSueldoReducido();
-			$this->objReporteFormato->imprimeResumen();
-			$this->objReporteFormato->imprimeResumenRegional();
+		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {	
+			//Instancia la clase de excel
+			$this->objReporteFormato=new RMinisterioTrabajoXLS($this->objParam);			
+			$this->objReporteFormato->imprimeDatosSueldo();			
+			$this->objReporteFormato->imprimeResumen();			
+		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7) {
+			$this->objReporteFormato=new RPrimaXLS($this->objParam);
+			$this->objReporteFormato->imprimeDatosSueldo();	
 		}
 		
 		$this->objReporteFormato->generarReporte();

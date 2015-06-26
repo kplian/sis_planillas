@@ -72,7 +72,7 @@ BEGIN
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
     	v_entra = 'si';
         if (exists (select 1 from orga.tuo_funcionario uofun 
-        			where uofun.id_funcionario =  uofun.estado_reg = 'activo' and uofun.id_funcionario = v_registros.id_funcionario and
+        			where uofun.id_funcionario = v_registros.id_funcionario and  uofun.estado_reg = 'activo' and uofun.id_funcionario = v_registros.id_funcionario and
                     uofun.fecha_finalizacion BETWEEN ('01/04/' || v_planilla.gestion)::date and ('31/12/' || v_planilla.gestion)::date and
                     uofun.observaciones_finalizacion = 'retiro' )) then
         	v_entra = 'no';            
@@ -81,7 +81,8 @@ BEGIN
         
         
         if (v_dias >= 90  and v_entra = 'si') then
-        	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
+        	--v_id_afp = plani.f_get_afp(v_registros.id_funcionario, ('31/12/'||v_planilla.gestion)::date);
+        	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, ('31/12/'||v_planilla.gestion)::date);
              v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
                 id_usuario_reg,					estado_reg,					id_funcionario,

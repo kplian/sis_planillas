@@ -75,7 +75,7 @@ BEGIN
 						usu2.cuenta as usr_mod,
 						ges.gestion,
 						per.periodo,
-						tippla.nombre,
+						tippla.codigo,
 						uo.nombre_unidad,
 						plani.id_depto,
 						depto.nombre,
