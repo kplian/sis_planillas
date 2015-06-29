@@ -45,8 +45,10 @@ class ACTPlanilla extends ACTbase{
 		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {	
 			//Instancia la clase de excel
 			$this->objReporteFormato=new RMinisterioTrabajoXLS($this->objParam);			
-			$this->objReporteFormato->imprimeDatosSueldo();			
-			$this->objReporteFormato->imprimeResumen();			
+			$this->objReporteFormato->imprimeDatosSueldo();
+			$this->objReporteFormato->imprimeDatosSueldoReducido();
+			$this->objReporteFormato->imprimeResumen();
+			$this->objReporteFormato->imprimeResumenRegional();		
 		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7) {
 			
 			$this->objReporteFormato=new RPrimaXLS($this->objParam);
