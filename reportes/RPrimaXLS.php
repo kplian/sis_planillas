@@ -284,9 +284,7 @@ class RPrimaXLS
 			
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 			$columna++;
-			if ($value['codigo_columna'] == 'PRIMA') {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(17,$fila,$value['valor']);
-			}
+			
 			
 			if ($columna == 11) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
@@ -313,9 +311,7 @@ class RPrimaXLS
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
-			if ($columna == 17) {				
-				$columna++;
-			}
+			
 			if ($columna == 18) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;

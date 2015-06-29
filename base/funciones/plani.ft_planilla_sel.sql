@@ -213,7 +213,7 @@ BEGIN
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
                 where tp.codigo = ''PLAPRI'' and ges.id_gestion = ' || v_parametros.id_gestion || '
-                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
+                order by perso.apellido_paterno,perso.apellido_materno,perso.nombre
                 )
 
                 select 
