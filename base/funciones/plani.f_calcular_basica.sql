@@ -53,13 +53,15 @@ BEGIN
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', p_fecha_ini)::integer;
     
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
-    uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion
+    uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
+    per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo
     into v_planilla 
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
     inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
     inner join orga.tuo_funcionario uofun ON uofun.id_uo_funcionario = fp.id_uo_funcionario 
-    inner join param.tgestion ges on ges.id_gestion = p.id_gestion  
+    inner join param.tgestion ges on ges.id_gestion = p.id_gestion
+    left join param.tperiodo per on per.id_periodo = p.id_periodo  
     where fp.id_funcionario_planilla = p_id_funcionario_planilla;
     
     --Sueldo Básico
@@ -929,6 +931,30 @@ BEGIN
         				v_fecha_fin) * 8) - v_resultado;
         	
         v_resultado = v_resultado / 8;
+    ELSIF(p_codigo = 'TIENEPRE') THEN
+    	v_resultado = 0;
+        if (exists(
+              select 1
+              from plani.tdescuento_bono db
+              inner join plani.ttipo_columna tc on db.id_tipo_columna = tc.id_tipo_columna
+              where db.id_funcionario = v_planilla.id_funcionario and db.estado_reg = 'activo' and
+              tc.codigo = 'SUBPRE' and db.fecha_ini <= v_planilla.fecha_ini_periodo and 
+              (db.fecha_fin is null or 
+              db.fecha_fin > v_planilla.fecha_ini_periodo))) then
+        	v_resultado = 1;
+        end if;
+    ELSIF(p_codigo = 'TIENELAC') THEN
+    	v_resultado = 0;
+        if (exists(
+              select 1
+              from plani.tdescuento_bono db
+              inner join plani.ttipo_columna tc on db.id_tipo_columna = tc.id_tipo_columna
+              where db.id_funcionario = v_planilla.id_funcionario and db.estado_reg = 'activo' and
+              tc.codigo = 'SUBLAC' and db.fecha_ini <= v_planilla.fecha_ini_periodo and 
+              (db.fecha_fin is null or 
+              db.fecha_fin > v_planilla.fecha_ini_periodo))) then
+        	v_resultado = 1;
+        end if;
          
                       
     ELSE

@@ -59,7 +59,7 @@ BEGIN
               from plani.tdescuento_bono db
               inner join plani.ttipo_columna tc on db.id_tipo_columna = tc.id_tipo_columna
               where db.id_funcionario = v_registros.id_funcionario and db.estado_reg = 'activo' and
-              tc.codigo = 'SUBLAC' and db.fecha_ini <= v_planilla.fecha_ini and 
+              (tc.codigo = 'SUBLAC' or tc.codigo = 'SUBPRE') and db.fecha_ini <= v_planilla.fecha_ini and 
               db.fecha_fin is not null and 
               db.fecha_fin > v_planilla.fecha_ini)) then
             

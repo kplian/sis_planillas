@@ -33,7 +33,7 @@ BEGIN
     
     for v_empleados in (select * 
     					from plani.tfuncionario_planilla 
-                        where id_funcionario_planilla = 129439) loop
+                        where id_planilla = p_id_planilla) loop
                         
     	v_horas_total = 0;
         v_ultimo_id_mayor_uno = NULL;

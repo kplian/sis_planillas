@@ -44,12 +44,12 @@ BEGIN
         db.id_tipo_columna = p_id_tipo_columna and db.fecha_ini <= p_fecha_ini and 
         db.monto_total > 0;
     elsif (p_tipo_descuento_bono = 'monto_fijo_por_fechas') then
+    	
     	select sum(db.valor_por_cuota),1 into v_resultado,v_tiene_descuento
         from plani.tdescuento_bono db
         where db.id_funcionario = p_id_funcionario and db.estado_reg = 'activo' and
         db.id_tipo_columna = p_id_tipo_columna and db.fecha_ini <= p_fecha_ini and 
-        db.fecha_fin is not null and 
-        db.fecha_fin > p_fecha_ini;
+        (db.fecha_fin is null or db.fecha_fin > p_fecha_ini);
     end if;
     
     if (p_tipo_dato = 'basica' and v_tiene_descuento =1) then
