@@ -172,12 +172,12 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['parametrizacion','ultimo_activo_periodo','ultimo_activo_aguinaldo']
+				store:['parametrizacion','ultimo_activo_periodo','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['parametrizacion','ultimo_activo_periodo','ultimo_activo_aguinaldo'],	
+	       				 options: ['parametrizacion','ultimo_activo_periodo','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,

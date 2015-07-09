@@ -170,7 +170,7 @@ BEGIN
                 perso.nacionalidad
                 end)::varchar as nacionalidad,
                 perso.fecha_nacimiento,
-                (case when genero= ''VARON'' then
+                (case when upper(genero)= ''VARON'' then
                 ''V'' else
                 ''M'' end)::varchar as sexo,
                 (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
@@ -256,7 +256,7 @@ BEGIN
                 perso.nacionalidad
                 end)::varchar as nacionalidad,
                 perso.fecha_nacimiento,
-                (case when genero= ''VARON'' then
+                (case when upper(genero)= ''VARON'' then
                 1 else
                 0 end)::integer as sexo,
                 (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
