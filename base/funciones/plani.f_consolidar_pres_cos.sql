@@ -45,8 +45,8 @@ BEGIN
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
-    elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_periodo' or v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then
-    	v_tipo_contrato = 'fp.tipo_contrato';
+    elsif (v_planilla.tipo_presu_cc IN('ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones') ) then
+    	v_tipo_contrato = 'pro.tipo_contrato';
     	v_consulta = 'select ' || v_campo || ' as id_campo 
     					from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla
@@ -92,7 +92,7 @@ BEGIN
         	v_consulta = v_consulta || 'inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
                         ';
-        elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_periodo' or v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then
+        elsif (v_planilla.tipo_presu_cc IN('ultimo_activo_periodo','prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
         	v_consulta = v_consulta || ' inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla
                         ';
         end if;

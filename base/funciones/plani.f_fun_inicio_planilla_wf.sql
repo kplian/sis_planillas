@@ -133,7 +133,13 @@ BEGIN
      	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));        	 
      
      elsif (p_codigo_estado  in ('obligaciones_generadas')) then  
-              
+        --Generamos Presupuestos
+        v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));            
+        v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario)); 
+     	--Calculamos obligaciones Obligaciones
+     	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
+     	
+        --Generamos  obligaciones     
      	for v_registros in (select o.*,tipo.nombre as tipo_obligacion
         					from plani.tobligacion o
                             inner join plani.ttipo_obligacion tipo on tipo.id_tipo_obligacion = o.id_tipo_obligacion

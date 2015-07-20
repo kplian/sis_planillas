@@ -505,3 +505,23 @@ ALTER TABLE plani.thoras_trabajadas
   
 /***********************************F-SCP-JRR-PLANI-0-04/12/2014****************************************/
 
+
+/***********************************I-SCP-JRR-PLANI-0-10/07/2015****************************************/
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (tipo_presu_cc = 'parametrizacion' OR tipo_presu_cc = 'ultimo_activo_periodo' OR tipo_presu_cc = 'prorrateo_aguinaldo' OR tipo_presu_cc = 'retroactivo_sueldo' OR tipo_presu_cc = 'retroactivo_asignaciones');
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN tipo_contrato VARCHAR(10);  
+
+/***********************************F-SCP-JRR-PLANI-0-10/07/2015****************************************/
+
+
+/***********************************I-SCP-JRR-PLANI-0-20/07/2015****************************************/
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN porcentaje_dias NUMERIC(5,2); 
+  
+/***********************************F-SCP-JRR-PLANI-0-20/07/2015****************************************/ 
