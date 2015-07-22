@@ -375,8 +375,9 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 	bdel:true,
 	bsave:true,
 	onReloadPage:function(m){
-			this.maestro=m;					
-			this.load({params:{start:0, limit:this.tam_pag,id_tipo_planilla:this.maestro.id_tipo_planilla}});			
+			this.maestro=m;		
+			this.store.baseParams={id_tipo_planilla:this.maestro.id_tipo_planilla};			
+			this.load({params:{start:0, limit:this.tam_pag}});			
 	},
 	onButtonAjax : function (params){
     	var rec = this.sm.getSelected();	
