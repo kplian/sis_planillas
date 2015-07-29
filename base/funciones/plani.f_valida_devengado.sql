@@ -33,6 +33,7 @@ DECLARE
     v_administrador					integer;
     v_nombre_pago					varchar;
     v_forma_pago					varchar;
+    v_resp_fin						varchar;
     
     
 BEGIN
@@ -164,7 +165,7 @@ BEGIN
          END LOOP;
      else
      	v_codigo_estado = 'planilla_finalizada';        
-             
+        --v_resp_fin = tes.f_finalizar_obligacion_total(v_obligacion.id_obligacion_pago,p_id_usuario,p_id_usuario_ai, p_nombre_usuario_ai);     
      end if;
      
       --Obtener el estado de registro
@@ -197,7 +198,7 @@ BEGIN
      --update id_estado_wf y id_proceso_wf
      update plani.tplanilla set 
      id_estado_wf =v_id_estado_registro,     
-     estado = 'comprobante_presupuestario_validado' 
+     estado = v_codigo_estado
      where id_planilla = v_planilla.id_planilla;
       
    return true;

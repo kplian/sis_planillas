@@ -525,3 +525,19 @@ ALTER TABLE plani.tprorrateo
   ADD COLUMN porcentaje_dias NUMERIC(5,2); 
   
 /***********************************F-SCP-JRR-PLANI-0-20/07/2015****************************************/ 
+
+/***********************************I-SCP-JRR-PLANI-0-29/07/2015****************************************/
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN id_oficina INTEGER; 
+  
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN id_lugar INTEGER;
+  
+ALTER TABLE plani.tprorrateo_columna
+  ADD COLUMN id_oficina INTEGER; 
+  
+ALTER TABLE plani.tprorrateo_columna
+  ADD COLUMN id_lugar INTEGER; 
+  
+/***********************************F-SCP-JRR-PLANI-0-29/07/2015****************************************/ 

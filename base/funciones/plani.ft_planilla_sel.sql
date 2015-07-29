@@ -237,7 +237,7 @@ BEGIN
                 select
                 uo.prioridad,
                 uo.id_uo,
-                (row_number() over ())::integer as fila,
+                (row_number() over (ORDER BY fun.desc_funcionario2 ASC))::integer as fila,
                 fp.id_funcionario_planilla,
                 (case when perso.id_tipo_doc_identificacion = 1 then 1 
                         when perso.id_tipo_doc_identificacion = 5 then
@@ -289,8 +289,9 @@ BEGIN
                 inner join param.tperiodo per on per.id_periodo = p.id_periodo
                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
                 inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
-                inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
-                inner join segu.tpersona perso on perso.id_persona = fun.id_persona
+                inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                inner join orga.tfuncionario f1 on f1.id_funcionario = fp.id_funcionario
+                inner join segu.tpersona perso on perso.id_persona = f1.id_persona
                 inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                 inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                 left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
@@ -299,7 +300,7 @@ BEGIN
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
                 where tp.codigo = ''PLASUE'' and per.id_periodo = ' || v_parametros.id_periodo || '
-                order by uo.prioridad, uo.id_uo, perso.apellido_paterno,perso.apellido_materno,perso.nombre
+                order by fun.desc_funcionario2 ASC
                 )
 
                 select 

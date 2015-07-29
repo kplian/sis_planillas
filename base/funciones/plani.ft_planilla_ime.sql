@@ -507,6 +507,15 @@ BEGIN
                                                              v_parametros_ad,
                                                              v_tipo_noti,
                                                              v_titulo);
+          
+          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
+           									v_parametros._id_usuario_ai, 
+                                            v_parametros._nombre_usuario_ai, 
+                                            v_id_estado_actual, 
+                                            v_parametros.id_proceso_wf_act, 
+                                            v_codigo_estado_siguiente) THEN
+                                            
+          END IF;
                 
           --------------------------------------
           -- registra los procesos disparados
@@ -582,14 +591,7 @@ BEGIN
            -- actualiza estado en la solicitud
            -- funcion para cambio de estado     
            
-          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
-           									v_parametros._id_usuario_ai, 
-                                            v_parametros._nombre_usuario_ai, 
-                                            v_id_estado_actual, 
-                                            v_parametros.id_proceso_wf_act, 
-                                            v_codigo_estado_siguiente) THEN
-                                            
-          END IF;
+          
           
           
           -- si hay mas de un estado disponible  preguntamos al usuario

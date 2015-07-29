@@ -55,13 +55,14 @@ BEGIN
             and c.codigo_columna = 'SUELDOBA' and c.estado_reg = 'activo'; 
             
         	v_presupuesto = NULL;
-            v_consulta = 'select cp.fecha_ini, sum(cp.porcentaje) as suma, pxp.aggarray(cp.id_centro_costo) as ids_presupuesto, pxp.aggarray(cp.porcentaje) as porcentajes,sum(ht.horas_normales) as suma_horas,sum(ht.horas_normales*ht.sueldo/' || v_horas_laborales || ') as suma_sueldos	
+            v_consulta = 'select ofi.id_oficina,ofi.id_lugar,cp.fecha_ini, sum(cp.porcentaje) as suma, pxp.aggarray(cp.id_centro_costo) as ids_presupuesto, pxp.aggarray(cp.porcentaje) as porcentajes,sum(ht.horas_normales) as suma_horas,sum(ht.horas_normales*ht.sueldo/' || v_horas_laborales || ') as suma_sueldos	
                           from plani.thoras_trabajadas ht 
                           inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
                           inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
                           inner join param.tperiodo per on per.id_periodo = p.id_periodo
                           inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
-                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo';
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina';
             --hacer el join con cargo_presupeusto o cargo_centro_costo segun corresponda
             if (p_tipo_generacion = 'presupuestos') then 
             	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo''  ';
@@ -72,7 +73,7 @@ BEGIN
             --obtener los presupeustos por contrato
             v_consulta = v_consulta || ' where 	cp.id_gestion = p.id_gestion and p.id_gestion = cp.id_gestion and 
                                   ht.id_horas_trabajadas = ' || v_registros.id_horas_trabajadas||  ' and cp.fecha_ini<= ht.fecha_ini
-                          group by cp.fecha_ini
+                          group by ofi.id_oficina,ofi.id_lugar,cp.fecha_ini
                           order by cp.fecha_ini desc
                           limit 1 offset 0'; 
             
@@ -103,7 +104,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  porcentaje_dias
+                  porcentaje_dias,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -123,7 +126,9 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   v_presupuesto.porcentajes[v_count]*v_registros.sueldo/v_horas_laborales*v_registros.horas_normales/v_valor_total,
-                  v_presupuesto.porcentajes[v_count]*v_registros.horas_normales/v_valor_horas
+                  v_presupuesto.porcentajes[v_count]*v_registros.horas_normales/v_valor_horas,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
                 v_count = v_count + 1;
             end loop;      
@@ -142,13 +147,16 @@ BEGIN
         	
             v_presupuesto = NULL;
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta =  ' select ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto,NULL::integer as id_cc, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto,NULL::integer as id_cc, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
             else
-            	v_consulta =  ' select ht.tipo_contrato,fp.id_funcionario,pro.id_cc,NULL::integer as id_presupuesto, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_cc,NULL::integer as id_presupuesto, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
             end if;
             v_consulta =  v_consulta || '
                           from plani.tfuncionario_planilla fp
                           inner join plani.thoras_trabajadas ht  on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+                          inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
                           inner join plani.tprorrateo pro  on pro.id_horas_trabajadas = ht.id_horas_trabajadas                          
                           inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
                           inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -158,9 +166,9 @@ BEGIN
                           p.estado_reg=''activo''';
             
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' group by ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto ';
             else
-            	v_consulta = v_consulta || ' group by ht.tipo_contrato,fp.id_funcionario,pro.id_cc ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_cc ';
             end if;
             
            
@@ -192,7 +200,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  tipo_contrato
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -212,7 +222,9 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   v_porcentaje,
-                  v_presupuesto.tipo_contrato
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
                 
            end loop;
@@ -232,7 +244,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  tipo_contrato
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -252,7 +266,9 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   100 - v_suma,
-                  v_presupuesto.tipo_contrato
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
            elsif (v_suma > 100) then
            		raise exception 'La suma de presupuestos para el empleado %, suma mas del 100 porciento',v_registros.desc_funcionario1;
@@ -272,9 +288,9 @@ BEGIN
         	
             v_presupuesto = NULL;
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta =  ' select ht.tipo_contrato,cp.id_presupuesto,NULL::integer as id_cc, sum(cd.valor) as valor_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_presupuesto,NULL::integer as id_cc, sum(cd.valor) as valor_presupuesto ';
             else
-            	v_consulta =  ' select ht.tipo_contrato,cp.id_cc,NULL::integer as id_presupuesto, sum(cd.valor) as valor_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_cc,NULL::integer as id_presupuesto, sum(cd.valor) as valor_presupuesto ';
             end if;
             v_consulta =  v_consulta || '
                           from plani.tfuncionario_planilla fp
@@ -282,7 +298,8 @@ BEGIN
                           inner join plani.tcolumna_detalle cd  on cd.id_columna_valor = cv.id_columna_valor                          
                           inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = cv.id_horas_trabajadas
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = ht.id_uo_funcionario
-                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo';
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina';
                           
             if (p_tipo_generacion = 'presupuestos') then 
             	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo''  ';
@@ -294,9 +311,9 @@ BEGIN
                           	and fp.id_funcionario = ' || v_registros.id_funcionario_planilla || ' and cp.fecha_ini<= ht.fecha_ini ';
             
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' group by ht.tipo_contrato,cp.id_presupuesto ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_presupuesto ';
             else
-            	v_consulta = v_consulta || ' group by ht.tipo_contrato,cp.id_cc ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_cc ';
             end if;
             
            
@@ -328,7 +345,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  tipo_contrato
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -348,7 +367,9 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   v_porcentaje,
-                  v_presupuesto.tipo_contrato
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
                 
            end loop;
@@ -376,12 +397,12 @@ BEGIN
             v_presupuesto = NULL;
             if (p_tipo_generacion = 'presupuestos') then 
             	
-                v_consulta =  ' select tc.codigo as tipo_contrato,cp.id_presupuesto,NULL::integer as id_cc, 
+                v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,tc.codigo as tipo_contrato,cp.id_presupuesto,NULL::integer as id_cc, 
                 ((cv.valor/plani.f_get_valor_parametro_valor(''MONTOSUB'',p.fecha_fin)) * (' || v_subsidio_actual || ' - plani.f_get_valor_parametro_valor(''MONTOSUB'',p.fecha_fin))) as valor_presupuesto ';
             
             else
             	
-                v_consulta =  ' select tc.codigo as tipo_contrato,cp.id_cc,NULL::integer as id_presupuesto, 
+                v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,tc.codigo as tipo_contrato,cp.id_cc,NULL::integer as id_presupuesto, 
                 ((cv.valor/plani.f_get_valor_parametro_valor(''MONTOSUB'',p.fecha_fin)) * (' || v_subsidio_actual || ' - plani.f_get_valor_parametro_valor(''MONTOSUB'',p.fecha_fin))) as valor_presupuesto ';
             
             end if;
@@ -393,6 +414,7 @@ BEGIN
                           inner join plani.tcolumna_valor cv  on cv.id_funcionario_planilla = fp.id_funcionario_planilla
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = ht.id_uo_funcionario
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
                           inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato';
                           
             if (p_tipo_generacion = 'presupuestos') then 
@@ -405,9 +427,9 @@ BEGIN
                           	and fp.id_funcionario = ' || v_registros.id_funcionario_planilla || ' and cp.fecha_ini<= ht.fecha_ini ';
             
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' group by tc.codigo,cp.id_presupuesto ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,tc.codigo,cp.id_presupuesto ';
             else
-            	v_consulta = v_consulta || ' group by tc.codigo,cp.id_cc ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,tc.codigo,cp.id_cc ';
             end if;
             
            
@@ -439,7 +461,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  tipo_contrato
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -459,7 +483,9 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   v_porcentaje,
-                  v_presupuesto.tipo_contrato
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
                 
            end loop;
@@ -483,12 +509,14 @@ BEGIN
                                     where fp.id_planilla = p_id_planilla) loop
         	
             v_presupuesto = NULL;
-            v_consulta = 'select tc.codigo as tipo_contrato,cp.fecha_ini, sum(cp.porcentaje) as suma, pxp.aggarray(cp.id_centro_costo) as ids_presupuesto, pxp.aggarray(cp.porcentaje) as porcentajes	
+            v_consulta = 'select ofi.id_oficina,ofi.id_lugar,tc.codigo as tipo_contrato,cp.fecha_ini, sum(cp.porcentaje) as suma, pxp.aggarray(cp.id_centro_costo) as ids_presupuesto, pxp.aggarray(cp.porcentaje) as porcentajes	
                           from plani.tfuncionario_planilla fp
                           inner join plani.tplanilla p on p.id_planilla = fp.id_planilla                          
                           inner join orga.tuo_funcionario uofun on fp.id_uo_funcionario = uofun.id_uo_funcionario
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato';
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join param.tperiodo per on per.id_periodo = p.id_periodo ';
             --hacer el join con cargo_presupeusto o cargo_centro_costo segun corresponda
             if (p_tipo_generacion = 'presupuestos') then 
             	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo ';
@@ -498,12 +526,12 @@ BEGIN
             
             --obtener los presupeustos por contrato
             v_consulta = v_consulta || ' where 	cp.id_gestion = p.id_gestion and p.id_gestion = cp.id_gestion and 
-                                  fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla||  ' and cp.fecha_ini<= p.fecha_planilla
-                          group by tc.codigo,cp.fecha_ini
+                                  fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla||  ' and cp.fecha_ini<= per.fecha_fin
+                          group by ofi.id_oficina,ofi.id_lugar,tc.codigo,cp.fecha_ini
                           order by cp.fecha_ini desc
                           limit 1 offset 0'; 
             
-            
+            --raise exception '%',v_consulta;
             execute v_consulta
         	into v_presupuesto;
             
@@ -531,7 +559,9 @@ BEGIN
                   id_cc,
                   tipo_prorrateo,
                   porcentaje,
-                  tipo_contrato
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
                 ) 
                 VALUES (
                   p_id_usuario,
@@ -551,7 +581,98 @@ BEGIN
                   END,
                   p_tipo_generacion,
                   v_presupuesto.porcentajes[v_count],
-                  v_presupuesto.tipo_contrato
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
+                );
+                v_count = v_count + 1;
+            end loop;      
+    	   	
+        end loop;
+    --llenar tprorrateo con los datos del ultimo centro de costo
+    elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_gestion') then
+    	
+        for v_registros in (select fp.id_funcionario_planilla, fun.desc_funcionario1	
+        							from plani.tfuncionario_planilla fp
+                                    inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                                    where fp.id_planilla = p_id_planilla) loop
+        	
+            v_presupuesto = NULL;
+            v_consulta = 'select ofi.id_oficina,ofi.id_lugar,tc.codigo as tipo_contrato,cp.fecha_ini, sum(cp.porcentaje) as suma, pxp.aggarray(cp.id_centro_costo) as ids_presupuesto, pxp.aggarray(cp.porcentaje) as porcentajes	
+                          from plani.tfuncionario_planilla fp
+                          inner join plani.tplanilla p on p.id_planilla = fp.id_planilla                          
+                          inner join orga.tuo_funcionario uofun on fp.id_uo_funcionario = uofun.id_uo_funcionario
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join param.tgestion ges on ges.id_gestion = p.id_gestion ';
+            --hacer el join con cargo_presupeusto o cargo_centro_costo segun corresponda
+            if (p_tipo_generacion = 'presupuestos') then 
+            	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo ';
+            else
+            	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo ';
+            end if;
+            
+            --obtener los presupeustos por contrato
+            v_consulta = v_consulta || ' where 	cp.id_gestion = p.id_gestion and p.id_gestion = cp.id_gestion and 
+                                  fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla||  ' and cp.fecha_ini<= (''31/12/'' || ges.gestion)::date 
+                          group by ofi.id_oficina,ofi.id_lugar,tc.codigo,cp.fecha_ini
+                          order by cp.fecha_ini desc
+                          limit 1 offset 0'; 
+            
+            --raise exception '%',v_consulta;
+            execute v_consulta
+        	into v_presupuesto;
+            
+            if (v_presupuesto is null) then
+            	raise exception 'El cargo del funcionario % no tiene registrado un presupuesto',v_registros.desc_funcionario1;
+            end if;
+            
+            if (v_presupuesto.suma != 100) then
+            	raise exception 'El cargo del funcionario % no tiene registrado presupuesto al 100 porciento',v_registros.desc_funcionario1;
+            end if;
+            v_count = 1;
+            
+            --para cada presupeusto en el array de presupuestos
+            foreach v_id_presupuesto in array v_presupuesto.ids_presupuesto loop
+            	--actualizr el id_presupuesto a la gestion actual
+            	INSERT INTO 
+                  plani.tprorrateo
+                (
+                  id_usuario_reg,
+                  fecha_reg,
+                  estado_reg,
+                  id_funcionario_planilla,
+                  id_horas_trabajadas,
+                  id_presupuesto,
+                  id_cc,
+                  tipo_prorrateo,
+                  porcentaje,
+                  tipo_contrato,
+                  id_oficina,
+                  id_lugar
+                ) 
+                VALUES (
+                  p_id_usuario,
+                  now(),
+                  'activo',
+                  v_registros.id_funcionario_planilla,
+                  NULL,
+                  case when p_tipo_generacion = 'presupuestos' then 
+                  	v_id_presupuesto
+                  else 
+                  	NULL
+                  END,
+                  case when p_tipo_generacion = 'costos' then 
+                  	v_id_presupuesto
+                  else 
+                  	NULL
+                  END,
+                  p_tipo_generacion,
+                  v_presupuesto.porcentajes[v_count],
+                  v_presupuesto.tipo_contrato,
+                  v_presupuesto.id_oficina,
+                  v_presupuesto.id_lugar
                 );
                 v_count = v_count + 1;
             end loop;      
@@ -560,7 +681,7 @@ BEGIN
     end if;
     --llenar tprorrateo_columna de acuerdo al prorrateo
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
-    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje,pro.porcentaje_dias, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
+    	v_consulta = '	select pro.id_oficina,pro.id_lugar,pro.id_prorrateo, pro.porcentaje,pro.porcentaje_dias, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
         				from plani.tprorrateo pro
                         inner join plani.thoras_trabajadas ht on pro.id_horas_trabajadas = ht.id_horas_trabajadas
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla 
@@ -569,7 +690,7 @@ BEGIN
                         								(tc.compromete = ''si'' or tc.compromete = ''si_contable'')
                         where fp.id_planilla = ' || p_id_planilla;
     elsif (v_planilla.tipo_presu_cc in ('ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
-    	v_consulta = '	select pro.id_prorrateo, pro.porcentaje,pro.porcentaje_dias, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
+    	v_consulta = '	select pro.id_oficina,pro.id_lugar,pro.id_prorrateo, pro.porcentaje,pro.porcentaje_dias, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
         				from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla 
                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = pro.id_funcionario_planilla
@@ -590,7 +711,9 @@ BEGIN
           id_tipo_columna,
           codigo_columna,
           porcentaje,
-          compromete
+          compromete,
+          id_oficina,
+          id_lugar
         ) 
         VALUES (
           p_id_usuario,
@@ -604,7 +727,9 @@ BEGIN
           else
           	v_registros.porcentaje
           end),
-          v_registros.compromete
+          v_registros.compromete,
+          v_registros.id_oficina,
+          v_registros.id_lugar
         );
     end loop;
     

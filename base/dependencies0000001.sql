@@ -2862,3 +2862,36 @@ ALTER TABLE plani.tcolumna_detalle
     NOT DEFERRABLE;
        
 /***********************************F-DEP-JRR-PLANI-0-03/12/2014****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-29/07/2015****************************************/
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk_tprorrateo__id_oficina FOREIGN KEY (id_oficina) 
+    REFERENCES orga.toficina(id_oficina)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk_tprorrateo__id_lugar FOREIGN KEY (id_lugar) 
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tprorrateo_columna
+  ADD CONSTRAINT fk_tprorrateo_columna__id_oficina FOREIGN KEY (id_oficina) 
+    REFERENCES orga.toficina(id_oficina)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT fk_tprorrateo_columna__id_lugar FOREIGN KEY (id_lugar) 
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+/***********************************F-DEP-JRR-PLANI-0-29/07/2015****************************************/
