@@ -541,3 +541,13 @@ ALTER TABLE plani.tprorrateo_columna
   ADD COLUMN id_lugar INTEGER; 
   
 /***********************************F-SCP-JRR-PLANI-0-29/07/2015****************************************/ 
+
+/***********************************I-SCP-JRR-PLANI-0-29/08/2015****************************************/
+ -- object recreation
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text));
+  
+/***********************************F-SCP-JRR-PLANI-0-29/08/2015****************************************/

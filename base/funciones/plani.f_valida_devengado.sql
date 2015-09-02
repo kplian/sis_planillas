@@ -45,11 +45,13 @@ BEGIN
     inner join tes.ttipo_plan_pago tp on tp.codigo = pp.tipo
     where pp.id_plan_pago = p_id_plan_pago;
     
-    select p.*,tp.nombre as tipo_planilla,per.fecha_fin as fecha_planilla
+    select (case when p.fecha_planilla is not null then
+    							p.fecha_planilla ELSE
+                                per.fecha_fin end) as fecha_planilla, p.*,tp.nombre as tipo_planilla
     into v_planilla
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-    inner join param.tperiodo per on per.id_periodo = p.id_periodo
+    left join param.tperiodo per on per.id_periodo = p.id_periodo
     where p.id_obligacion_pago = v_obligacion.id_obligacion_pago;
     
     if exists(select 1 from segu.tusuario_rol ur where id_usuario=p_id_usuario and id_rol=1 and estado_reg='activo')then
@@ -176,7 +178,7 @@ BEGIN
        inner join wf.tproceso_wf p
           on p.id_tipo_proceso = tp.id_tipo_proceso
        where te.codigo = v_codigo_estado and p.id_proceso_wf = v_planilla.id_proceso_wf;
-          
+       
        --Obtener el funcionario responsable para el siguiente estado
        select id_funcionario into v_id_funcionario_responsable 
        from wf.f_funcionario_wf_sel(p_id_usuario, v_id_tipo_estado_registro, now()::date,v_planilla.id_estado_wf)

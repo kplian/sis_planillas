@@ -48,9 +48,10 @@ BEGIN
     into v_planilla
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-    inner join param.tperiodo per on per.id_periodo = p.id_periodo
+    left join param.tperiodo per on per.id_periodo = p.id_periodo
     where p.id_obligacion_pago = p_id_obligacion;
-     
+    
+    
   
     --obtener el concepto generico
      select c.id_concepto_ingas into v_id_concepto_ingas

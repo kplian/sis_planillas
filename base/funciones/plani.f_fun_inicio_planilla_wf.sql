@@ -33,6 +33,7 @@ DECLARE
     v_id_horas_trabajadas	integer;
     v_config			record;
     v_registros			record;
+    v_id_gestion		integer;
    
 	
     
@@ -40,7 +41,9 @@ BEGIN
 
 	 v_nombre_funcion = 'plani.f_fun_inicio_planilla_wf';
     
-     select pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas
+     select (case when pla.fecha_planilla is not null then
+    							pla.fecha_planilla ELSE
+                                pe.fecha_fin end) as fecha_planilla, pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas
       into v_planilla
       from plani.tplanilla pla
       inner join plani.ttipo_planilla tp
@@ -138,7 +141,8 @@ BEGIN
         v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario)); 
      	--Calculamos obligaciones Obligaciones
      	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
-     	
+     	select po_id_gestion into  v_id_gestion from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
+    
         --Generamos  obligaciones     
      	for v_registros in (select o.*,tipo.nombre as tipo_obligacion
         					from plani.tobligacion o
@@ -149,7 +153,7 @@ BEGIN
               ps_id_partida,ps_id_cuenta,ps_id_auxiliar 
             into 
               v_config 
-          	FROM conta.f_get_config_relacion_contable('CUEOBLI', v_planilla.id_gestion, v_registros.id_tipo_obligacion,
+          	FROM conta.f_get_config_relacion_contable('CUEOBLI', v_id_gestion, v_registros.id_tipo_obligacion,
              NULL, 'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion ||'. <br> Mensaje: ');
              
              update plani.tobligacion SET

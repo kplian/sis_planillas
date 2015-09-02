@@ -41,6 +41,7 @@ DECLARE
     
     v_id_estado_registro			integer;
     v_id_tipo_estado_registro		integer;
+    v_id_gestion					integer;
     
 BEGIN
 	v_nombre_funcion = 'plani.f_generar_obligaciones_tesoreria';
@@ -55,10 +56,11 @@ BEGIN
     into v_planilla
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-    inner join param.tperiodo per on per.id_periodo = p.id_periodo
+    left join param.tperiodo per on per.id_periodo = p.id_periodo
     where id_planilla = p_id_planilla;
     
-    
+    --raise exception '%', v_planilla.fecha_planilla;
+    select po_id_gestion into  v_id_gestion from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
     
     --get id_funcionario responsable
     
@@ -111,7 +113,7 @@ BEGIN
               v_planilla.nro_planilla,
               1,
               v_planilla.nro_planilla,
-              v_planilla.id_gestion,
+              v_id_gestion,
               'no',
               --v_id_categoria_compra,
               --v_tipo,
@@ -167,7 +169,7 @@ BEGIN
                       v_id_partida,
                       v_id_cuenta, 
                       v_id_auxiliar
-                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_planilla.id_gestion, v_registros.id_tipo_columna, v_registros.id_presupuesto /* cambiar esto 399*/,'No existe cuenta para:'||v_registros.codigo_columna);
+                    FROM conta.f_get_config_relacion_contable(v_codigo_tipo_cuenta, v_id_gestion, v_registros.id_tipo_columna, v_registros.id_presupuesto /* cambiar esto 399*/,'No existe cuenta para:'||v_registros.codigo_columna);
                  
                            INSERT INTO 
                             tes.tobligacion_det

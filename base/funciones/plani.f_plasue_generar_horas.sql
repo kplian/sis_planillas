@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION plani.f_plasue_generar_horas (
   p_id_planilla integer,
-  p_id_usuario integer
+  p_id_usuario integer,
+  p_id_funcionario_planilla integer = NULL::integer
 )
 RETURNS varchar AS
 $body$
@@ -16,6 +17,7 @@ DECLARE
   v_mensaje_error         	text;
   v_cantidad_horas_mes		integer;
   v_planilla			record;
+  v_filter				varchar;
 BEGIN
 	v_nombre_funcion = 'plani.f_plasue_generar_horas';
 	
@@ -31,9 +33,14 @@ BEGIN
     
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
     
-    for v_empleados in (select * 
-    					from plani.tfuncionario_planilla 
-                        where id_planilla = p_id_planilla) loop
+    if (p_id_funcionario_planilla is not null) then
+    	v_filter = ' where id_funcionario_planilla = ' || p_id_funcionario_planilla ;
+    else
+    	v_filter = ' where id_planilla = ' || p_id_planilla ;
+    end if;
+    
+    for v_empleados in execute ('select * 
+    					from plani.tfuncionario_planilla ' || v_filter) loop
                         
     	v_horas_total = 0;
         v_ultimo_id_mayor_uno = NULL;

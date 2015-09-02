@@ -81,6 +81,7 @@ BEGIN
         	into v_presupuesto;
             
             if (v_presupuesto is null) then
+            	raise exception '%',v_consulta;
             	raise exception 'El cargo del funcionario % no tiene registrado un presupuesto',v_registros.desc_funcionario1;
             end if;
             
@@ -636,6 +637,10 @@ BEGIN
             --para cada presupeusto en el array de presupuestos
             foreach v_id_presupuesto in array v_presupuesto.ids_presupuesto loop
             	--actualizr el id_presupuesto a la gestion actual
+                select pids.id_presupuesto_dos into v_id_presupuesto
+                from pre.tpresupuesto_ids pids 
+                where pids.id_presupuesto_uno = v_id_presupuesto;
+                 
             	INSERT INTO 
                   plani.tprorrateo
                 (
@@ -689,7 +694,7 @@ BEGIN
                         inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and 
                         								(tc.compromete = ''si'' or tc.compromete = ''si_contable'')
                         where fp.id_planilla = ' || p_id_planilla;
-    elsif (v_planilla.tipo_presu_cc in ('ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
+    elsif (v_planilla.tipo_presu_cc in ('ultimo_activo_gestion','ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
     	v_consulta = '	select pro.id_oficina,pro.id_lugar,pro.id_prorrateo, pro.porcentaje,pro.porcentaje_dias, cv.id_tipo_columna,cv.codigo_columna,tc.compromete
         				from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla 

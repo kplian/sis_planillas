@@ -52,7 +52,7 @@ BEGIN
 	if(p_transaccion='PLA_FUNPLAN_INS')then
 					
         begin
-        	select tp.*,p.id_gestion into v_tipo_planilla
+        	select tp.*,p.id_gestion,p.estado into v_tipo_planilla
         	from plani.tplanilla p
         	inner join plani.ttipo_planilla tp
         		on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -152,7 +152,11 @@ BEGIN
                     end loop;
                 end if;
         end loop;
-			
+		
+        if (v_tipo_planilla.estado in ('calculo_columnas', 'registro_horas'))then
+        	v_resp = plani.f_plasue_generar_horas(v_parametros.id_planilla,p_id_usuario,v_id_funcionario_planilla);
+        end if;
+        	
 			--Definicion de la respuesta
 			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Funcionario Planilla almacenado(a) con exito (id_funcionario_planilla'||v_id_funcionario_planilla||')'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_funcionario_planilla',v_id_funcionario_planilla::varchar);
