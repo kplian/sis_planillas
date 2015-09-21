@@ -119,6 +119,9 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->procedimiento='plani.ft_funcionario_planilla_sel';
 		$this->transaccion='PLA_ALTPER_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('nombre_unidad','varchar');
@@ -131,6 +134,97 @@ class MODFuncionarioPlanilla extends MODbase{
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarReporteBajasPeriodo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_funcionario_planilla_sel';
+		$this->transaccion='PLA_BAJPER_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('nombre_unidad','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('haber_basico','numeric');
+		$this->captura('tipo_contrato','varchar');
+		$this->captura('codigo_cc','text');
+		$this->captura('funcionario','text');
+		$this->captura('fecha_fin','date');
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	function listarReporteMovimientosPeriodo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_funcionario_planilla_sel';
+		$this->transaccion='PLA_MOVPER_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('funcionario','text');
+		$this->captura('fecha_movimiento','date');
+		$this->captura('gerencia_anterior','varchar');
+		$this->captura('cargo_anterior','varchar');
+		$this->captura('tipo_contrato_anterior','varchar');
+		$this->captura('presupuesto_anterior','text');
+		$this->captura('haber_basico_anterior','numeric');
+		$this->captura('gerencia_actual','varchar');
+		$this->captura('cargo_actual','varchar');
+		$this->captura('tipo_contrato_actual','varchar');
+		$this->captura('presupuesto_actual','text');
+		$this->captura('haber_basico_actual','numeric');
+		
+		
+		
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	function listarReporteAntiguedadPeriodo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_funcionario_planilla_sel';
+		$this->transaccion='PLA_ANTIPER_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('antiguedad','varchar');
+		$this->captura('nombre_unidad','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('tipo_contrato','varchar');
+		$this->captura('codigo_cc','text');			
+		$this->captura('funcionario','text');
+		$this->captura('fecha_inicio','date');
+		$this->captura('fecha_antiguedad','date');
+		
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

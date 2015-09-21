@@ -13,7 +13,7 @@ class RCambiosPeriodoXLS
 	private $equivalencias=array();
 	
 	private $indice, $m_fila, $titulo;
-	private $swEncabezado=0; //variable que define si ya se imprimi� el encabezado
+	private $swEncabezado=0; //variable que define si ya se imprimió el encabezado
 	private $objParam;
 	public  $url_archivo;
 	
@@ -38,10 +38,7 @@ class RCambiosPeriodoXLS
 							 ->setKeywords("office 2007 openxml php")
 							 ->setCategory("Report File");
 		
-		$sheetId = 1;
-		$this->docexcel->createSheet(NULL, $sheetId);	
-		$this->docexcel->setActiveSheetIndex($sheetId);	
-		$this->docexcel->getActiveSheet()->setTitle('OVTPLA-T01');
+		
 		
 		$this->docexcel->setActiveSheetIndex(0);
 		
@@ -65,13 +62,7 @@ class RCambiosPeriodoXLS
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
 		
-		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(20);
-		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
-		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(12);
-		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
-		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
-		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
-		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);
+		
 				
 		$styleTitulos = array(
 		    'font'  => array(
@@ -94,6 +85,15 @@ class RCambiosPeriodoXLS
 	            'style' => PHPExcel_Style_Border::BORDER_THIN
 	        )
 	    ));
+		//ALTAS
+		
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(40);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);
 		
 		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->getAlignment()->setWrapText(true); 	
 		
@@ -111,10 +111,11 @@ class RCambiosPeriodoXLS
 				
 		//*************************************Detalle*****************************************
 		$fila = 1;
-		$columna = 0;
+		
 		
 		foreach($datos as $value) {			
 			$fila++;
+			$columna = 0;
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['nombre_unidad']);
 			$columna++;
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['cargo']);
@@ -132,6 +133,183 @@ class RCambiosPeriodoXLS
 
 		
 		//************************************************Fin Detalle***********************************************
+		//BAJAS
+		$sheetId = 1;
+		$this->docexcel->createSheet(NULL, $sheetId);	
+		$this->docexcel->setActiveSheetIndex($sheetId);	
+		$this->docexcel->getActiveSheet()->setTitle('BAJAS');
+		
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(40);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->getAlignment()->setWrapText(true); 	
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($styleTitulos);
+		
+		
+		//*************************************Cabecera*****************************************
+		$this->docexcel->getActiveSheet()->setCellValue('A1','Gerencia');
+		$this->docexcel->getActiveSheet()->setCellValue('B1','Cargo');
+		$this->docexcel->getActiveSheet()->setCellValue('C1','Haber Básico');
+		$this->docexcel->getActiveSheet()->setCellValue('D1','Tipo Contrato');
+		$this->docexcel->getActiveSheet()->setCellValue('E1','Presupuesto');
+		$this->docexcel->getActiveSheet()->setCellValue('F1','Nombre');
+		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Fin');
+		
+		$fila = 1;
+		$datos = $this->objParam->getParametro('bajas');
+		
+		foreach($datos as $value) {			
+			$fila++;
+			$columna = 0;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['nombre_unidad']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['cargo']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['haber_basico']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['tipo_contrato']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['codigo_cc']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['funcionario']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_fin']);						
+		}
+		
+		//MOVIMIENTOS
+		$sheetId = 2;
+		$this->docexcel->createSheet(NULL, $sheetId);	
+		$this->docexcel->setActiveSheetIndex($sheetId);	
+		$this->docexcel->getActiveSheet()->setTitle('MOVIMIENTOS');
+		
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(40);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
+		$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(40);
+		$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(20);
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:L1')->getAlignment()->setWrapText(true); 	
+		$styleTitulos['fill']['color']['rgb'] = 'fffafa';
+		$this->docexcel->getActiveSheet()->getStyle('C1:G1')->applyFromArray($styleTitulos);
+		
+		$styleTitulos['fill']['color']['rgb'] = 'c5d9f1';
+		$this->docexcel->getActiveSheet()->getStyle('A1:B1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('H1:L1')->applyFromArray($styleTitulos);
+		
+		//*************************************Cabecera*****************************************
+		$this->docexcel->getActiveSheet()->setCellValue('A1','Funcionario');
+		$this->docexcel->getActiveSheet()->setCellValue('B1','Fecha Mov');
+		$this->docexcel->getActiveSheet()->setCellValue('C1','Gerencia Ant.');
+		$this->docexcel->getActiveSheet()->setCellValue('D1','Cargo Ant');
+		$this->docexcel->getActiveSheet()->setCellValue('E1','Tipo Ant');
+		$this->docexcel->getActiveSheet()->setCellValue('F1','Presupuesto Ant.');
+		$this->docexcel->getActiveSheet()->setCellValue('G1','Haber Ant.');
+		$this->docexcel->getActiveSheet()->setCellValue('H1','Gerencia Act.');
+		$this->docexcel->getActiveSheet()->setCellValue('I1','Cargo Act');
+		$this->docexcel->getActiveSheet()->setCellValue('J1','Tipo Act');
+		$this->docexcel->getActiveSheet()->setCellValue('K1','Presupuesto Act.');
+		$this->docexcel->getActiveSheet()->setCellValue('L1','Haber Act.');
+		
+		$fila = 1;
+		$datos = $this->objParam->getParametro('movimientos');
+		
+		foreach($datos as $value) {			
+			$fila++;
+			$columna = 0;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['funcionario']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_movimiento']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['gerencia_anterior']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['cargo_anterior']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['tipo_contrato_anterior']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['presupuesto_anterior']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['haber_basico_anterior']);
+			$columna++;			
+			
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['gerencia_actual']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['cargo_actual']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['tipo_contrato_actual']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['presupuesto_actual']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['haber_basico_actual']);
+			$columna++;						
+		}
+		
+		//ANTIGUEDAD
+		$sheetId = 3;
+		$this->docexcel->createSheet(NULL, $sheetId);	
+		$this->docexcel->setActiveSheetIndex($sheetId);	
+		$this->docexcel->getActiveSheet()->setTitle('ANTIGUEDAD');
+		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(40);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(30);
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:H1')->getAlignment()->setWrapText(true); 	
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:H1')->applyFromArray($styleTitulos);
+		
+		
+		//*************************************Cabecera*****************************************
+		$this->docexcel->getActiveSheet()->setCellValue('A1','Antiguedad');
+		$this->docexcel->getActiveSheet()->setCellValue('B1','Gerencia');
+		$this->docexcel->getActiveSheet()->setCellValue('C1','Cargo');
+		$this->docexcel->getActiveSheet()->setCellValue('D1','Tipo Contrato');
+		$this->docexcel->getActiveSheet()->setCellValue('E1','Presupuesto');
+		$this->docexcel->getActiveSheet()->setCellValue('F1','Nombre');
+		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Inicio');
+		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Antiguedad');
+				
+		//*************************************Detalle*****************************************
+		$fila = 1;
+		
+		$datos = $this->objParam->getParametro('antiguedad');
+		foreach($datos as $value) {			
+			$fila++;
+			$columna = 0;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['antiguedad']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['nombre_unidad']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['cargo']);
+			$columna++;			
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['tipo_contrato']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['codigo_cc']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['funcionario']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_inicio']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_antiguedad']);											
+		}
+	
+		
 	}
 	
 	function generarReporte(){

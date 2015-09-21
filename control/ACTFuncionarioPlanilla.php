@@ -50,19 +50,18 @@ class ACTFuncionarioPlanilla extends ACTbase{
 		$this->res=$this->objFunc->listarReporteAltasPeriodo($this->objParam);		
 		$this->objParam->addParametro('altas',$this->res->datos);
 		
-			
-		/*$this->res=$this->objFunc->listarReporteBajasPeriodo($this->objParam);
+		$this->objFunc=$this->create('MODFuncionarioPlanilla');		
+		$this->res=$this->objFunc->listarReporteBajasPeriodo($this->objParam);
 		$this->objParam->addParametro('bajas',$this->res->datos);
 		
+		$this->objFunc=$this->create('MODFuncionarioPlanilla');	
 		$this->res=$this->objFunc->listarReporteMovimientosPeriodo($this->objParam);
 		$this->objParam->addParametro('movimientos',$this->res->datos);
 		
-		$this->res=$this->objFunc->listarReporteAntiguedad2Periodo($this->objParam);
-		$this->objParam->addParametro('antiguedad2',$this->res->datos);
+		$this->objFunc=$this->create('MODFuncionarioPlanilla');	
+		$this->res=$this->objFunc->listarReporteAntiguedadPeriodo($this->objParam);
+		$this->objParam->addParametro('antiguedad',$this->res->datos);		
 		
-		$this->res=$this->objFunc->listarReporteAntiguedad5Periodo($this->objParam);
-		$this->objParam->addParametro('antiguedad5',$this->res->datos);
-		*/
 			
 		//obtener titulo del reporte
 		$titulo = 'RepCambiosPeriodo';

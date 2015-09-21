@@ -278,13 +278,8 @@ class RPrimaXLS
 			}
 			if ($value['codigo_columna'] == 'LIQPAG') {
 				$this->resumen['liquido_pagable'] = $this->resumen['liquido_pagable'] + $value['valor'];
-			}		
-			
-			
-			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
-			$columna++;
-			
+			}
+					
 			
 			if ($columna == 11) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
@@ -316,6 +311,8 @@ class RPrimaXLS
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
+			$columna++;
 			
 			
 		}
