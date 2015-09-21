@@ -27,6 +27,8 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+    v_fecha_ini			date;
+    v_fecha_fin			date;
 			    
 BEGIN
 
@@ -118,6 +120,48 @@ BEGIN
 			return v_consulta;
 
 		end;
+    /*********************************    
+ 	#TRANSACCION:  'PLA_FUNPLAN_CONT'
+ 	#DESCRIPCION:	Conteo de registros
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:08
+	***********************************/
+
+	elsif(p_transaccion='PLA_ALTPER_SEL')then
+
+		begin
+        	select per.fecha_ini, per.fecha_fin into v_fecha_ini,v_fecha_fin
+            from param.tperiodo per
+            where per.id_periodo = v_parametros.id_periodo;
+            
+			--Sentencia de la consulta de conteo de registros
+			v_consulta:='with detail as
+                            (select  uo.prioridad,uo.nombre_unidad,car.nombre as cargo,esal.haber_basico, tc.nombre as tipo_contrato, fun.desc_funcionario2,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fecha_inicio,vcc.codigo_cc,
+                            ROW_NUMBER()OVER (PARTITION BY fun.desc_funcionario2 
+                                                             ORDER BY plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) ASC) as rk
+                            from orga.tuo_funcionario uofun
+                            inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                            inner join orga.tescala_salarial esal on esal.id_escala_salarial = car.id_escala_salarial
+                            left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                            left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                            inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                            inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,now()::date)
+                            where uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'') and
+                            (uofun.fecha_asignacion between ''' || v_fecha_ini || ''' and
+                            ''' || v_fecha_fin || ''') and 
+                            (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) between ''' || v_fecha_ini || ''' and
+                            ''' || v_fecha_fin || '''))
+            			select d.nombre_unidad,d.cargo,d.haber_basico,d.tipo_contrato,d.codigo_cc, d.desc_funcionario2,d.fecha_inicio
+                        from detail d
+                        where d.rk =1
+                        order by d.prioridad::integer ASC, d.desc_funcionario2 ASC';
+			
+			
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;        
 					
 	else
 					     

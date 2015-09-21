@@ -113,6 +113,29 @@ class MODFuncionarioPlanilla extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarReporteAltasPeriodo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_funcionario_planilla_sel';
+		$this->transaccion='PLA_ALTPER_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('nombre_unidad','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('haber_basico','numeric');
+		$this->captura('tipo_contrato','varchar');
+		$this->captura('codigo_cc','text');
+		$this->captura('funcionario','text');
+		$this->captura('fecha_inicio','date');
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
