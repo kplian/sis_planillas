@@ -118,8 +118,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			},this);
 			
 			
-		},
-		tipo : 'reporte',
+		},		
 		clsSubmit : 'bupload',
 		fileUpload:true
 })

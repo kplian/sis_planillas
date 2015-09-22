@@ -551,3 +551,19 @@ ALTER TABLE plani.ttipo_planilla
   ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text));
   
 /***********************************F-SCP-JRR-PLANI-0-29/08/2015****************************************/
+
+
+/***********************************I-SCP-JRR-PLANI-0-22/09/2015****************************************/
+
+CREATE TABLE plani.tplanilla_sigma (
+  id_planilla_sigma SERIAL NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  id_periodo INTEGER NOT NULL,
+  id_gestion INTEGER NOT NULL,
+  id_tipo_planilla INTEGER NOT NULL,
+  sueldo_liquido numeric NOT NULL,   
+  PRIMARY KEY(id_planilla_sigma)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-22/09/2015****************************************/

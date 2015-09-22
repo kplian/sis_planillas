@@ -2895,3 +2895,36 @@ ALTER TABLE plani.tprorrateo
     NOT DEFERRABLE;
     
 /***********************************F-DEP-JRR-PLANI-0-29/07/2015****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-22/09/2015****************************************/
+
+ALTER TABLE plani.tplanilla_sigma
+  ADD CONSTRAINT fk_tplanilla_sigma__id_funcionario FOREIGN KEY (id_funcionario) 
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla_sigma
+  ADD CONSTRAINT fk_tplanilla_sigma__id_periodo FOREIGN KEY (id_periodo) 
+    REFERENCES param.tperiodo(id_periodo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ALTER TABLE plani.tplanilla_sigma
+  ADD CONSTRAINT fk_tplanilla_sigma__id_gestion FOREIGN KEY (id_gestion) 
+    REFERENCES param.tgestion(id_gestion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ ALTER TABLE plani.tplanilla_sigma
+  ADD CONSTRAINT fk_tplanilla_sigma__id_tipo_planilla FOREIGN KEY (id_tipo_planilla) 
+    REFERENCES plani.ttipo_planilla(id_tipo_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+   
+
+/***********************************F-DEP-JRR-PLANI-0-22/09/2015****************************************/
