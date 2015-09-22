@@ -12,6 +12,21 @@ header("content-type: text/javascript; charset=UTF-8");
 	Phx.vista.SubirPlanillaSigma = Ext.extend(Phx.frmInterfaz, {
 		Atributos : [
 		{
+			config:{
+				name: 'accion',
+				fieldLabel: 'Accion',
+				allowBlank:false,
+				emptyText:'Obtener de...',	       		
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',				
+				store:['reemplazar','agregar']
+			},
+				type:'ComboBox',				
+				id_grupo:0,				
+				form:true
+		},
+		{
 			config: {
 				name: 'id_tipo_planilla',
 				fieldLabel: 'Tipo Planilla',
