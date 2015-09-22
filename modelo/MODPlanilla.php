@@ -216,6 +216,23 @@ class MODPlanilla extends MODbase{
 		return $this->respuesta;
 	}
 
+	function generarDescuentoCheque(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_ime';
+		$this->transaccion='PLA_GENDESCHE_PRO';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 	function ejecutarProcesoPlanilla(){
 		//Definicion de variables para ejecucion del procedimiento
 		$this->procedimiento='plani.ft_planilla_ime';

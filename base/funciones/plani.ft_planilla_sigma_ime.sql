@@ -27,6 +27,9 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_planilla_sigma	integer;
+    v_id_funcionario		integer;
+    v_ci_erp				varchar;
+    v_id_periodo			integer;
 			    
 BEGIN
 
@@ -43,6 +46,27 @@ BEGIN
 	if(p_transaccion='PLA_PLASI_INS')then
 					
         begin
+        	select id_funcionario into v_id_funcionario
+            from orga.vfuncionario fun
+            where fun.ci = v_parametros.ci;
+            if (pxp.f_existe_parametro(p_tabla,'id_periodo') = FALSE) then
+            	v_id_periodo = NULL;
+            else
+            	v_id_periodo = v_parametros.id_periodo;
+            end if;
+            
+            if (v_id_funcionario is null) then
+            	select se.ci_erp into v_ci_erp
+                from plani.tsigma_equivalencias se
+                where ci_sigma = v_parametros.ci;
+                if (v_ci_erp is null) then
+        			raise exception 'No existe un empleado con el ci: %',v_parametros.ci;
+            	else
+                    select id_funcionario into v_id_funcionario
+                    from orga.vfuncionario fun
+                    where fun.ci = v_ci_erp;
+                end if;
+            end if;
         	--Sentencia de la insercion
         	insert into plani.tplanilla_sigma(
 			id_funcionario,
@@ -58,8 +82,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod
           	) values(
-			v_parametros.id_funcionario,
-			v_parametros.id_periodo,
+			v_id_funcionario,
+			v_id_periodo,
 			v_parametros.id_gestion,
 			v_parametros.id_tipo_planilla,
 			v_parametros.sueldo_liquido,
@@ -127,12 +151,22 @@ BEGIN
 
 		begin
 			--Sentencia de la eliminacion
+             if (pxp.f_existe_parametro(p_tabla,'id_periodo') = FALSE) then
+            	v_id_periodo = NULL;
+             else
+            	v_id_periodo = v_parametros.id_periodo;
+             end if;
+             
+             
+             
 			delete from plani.tplanilla_sigma
-            where id_planilla_sigma=v_parametros.id_planilla_sigma;
+            where id_tipo_planilla=v_parametros.id_tipo_planilla and
+            id_periodo = v_id_periodo and 
+            id_gestion = v_parametros.id_gestion;
                
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla Sigma eliminado(a)'); 
-            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla_sigma',v_parametros.id_planilla_sigma::varchar);
+            v_resp = pxp.f_agrega_clave(v_resp,'v_id_periodo',v_id_periodo::varchar);
               
             --Devuelve la respuesta
             return v_resp;

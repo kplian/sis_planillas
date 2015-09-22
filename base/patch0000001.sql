@@ -558,12 +558,18 @@ ALTER TABLE plani.ttipo_planilla
 CREATE TABLE plani.tplanilla_sigma (
   id_planilla_sigma SERIAL NOT NULL, 
   id_funcionario INTEGER NOT NULL, 
-  id_periodo INTEGER NOT NULL,
+  id_periodo INTEGER,
   id_gestion INTEGER NOT NULL,
   id_tipo_planilla INTEGER NOT NULL,
   sueldo_liquido numeric NOT NULL,   
   PRIMARY KEY(id_planilla_sigma)
 ) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.tsigma_equivalencias (
+  ci_sigma VARCHAR NOT NULL, 
+  ci_erp VARCHAR NOT NULL
+) 
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-22/09/2015****************************************/

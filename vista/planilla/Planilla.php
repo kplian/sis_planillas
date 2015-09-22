@@ -60,6 +60,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     handler: this.onButtonColumnasCsv,
                     tooltip: 'Subir Columnas desde archivo Csv',
                     scope: this
+                }, {
+                    text: 'Generar descuento cheque',
+                    id: 'btnGenerarCheque-' + this.idContenedor,
+                    handler: this.onButtonGenerarCheque,
+                    tooltip: 'Generar descuento de cheque a partir de la diferencia entre la planilla Sigma y ERP',
+                    scope: this
                 }]
             }
         );
@@ -549,6 +555,23 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             height:200
         },rec.data,this.idContenedor,'ColumnaCsv')
     },
+    onButtonGenerarCheque : function() {                   
+        var rec=this.sm.getSelected();
+	    Phx.CP.loadingShow();
+	        
+	        Ext.Ajax.request({
+	            url:'../../sis_planillas/control/Planilla/generarDescuentoCheque',
+	            params:{
+	                    
+	                id_planilla:  rec.data.id_planilla
+	                },
+	            success:this.successSave,
+	            failure: this.conexionFailure,
+	            argument:{wizard:wizard},
+	            timeout:this.timeout,
+	            scope:this
+	        });
+	},
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
         this.desactivarMenu();         
@@ -559,10 +582,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('btnColumnas').enable();
         if (rec.data.estado== 'calculo_columnas') { 
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
-        	this.getBoton('btnColumnas').menu.items.items[1].enable();        	
+        	this.getBoton('btnColumnas').menu.items.items[1].enable(); 
+        	this.getBoton('btnColumnas').menu.items.items[2].enable();       	
         } else {
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
-        	this.getBoton('btnColumnas').menu.items.items[1].disable(); 
+        	this.getBoton('btnColumnas').menu.items.items[1].disable();
+        	this.getBoton('btnColumnas').menu.items.items[2].disable(); 
         }
         
         if (rec.data.estado == 'registro_funcionarios') {

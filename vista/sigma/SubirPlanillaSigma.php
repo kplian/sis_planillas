@@ -85,9 +85,22 @@ header("content-type: text/javascript; charset=UTF-8");
 	   			type : 'ComboRec',
 	   			id_grupo : 0,	   			
 	   			form : true
-	   	}
+	   },
+	   	{
+            config:{
+                fieldLabel: "Documento (archivo csv separado por |)",
+                gwidth: 130,
+                inputType:'file',
+                name: 'archivo',
+                buttonText: '', 
+                maxLength:150,
+                anchor:'100%'                   
+            },
+            type:'Field',
+            form:true 
+        }
 		],
-		title : 'Generar Reporte',
+		title : 'Subir Planilla',
 		ActSave : '../../sis_planillas/control/PlanillaSigma/subirCsvPlanillaSigma',
 		topBar : true,
 		botones : false,

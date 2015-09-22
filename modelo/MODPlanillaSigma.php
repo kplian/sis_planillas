@@ -51,15 +51,16 @@ class MODPlanillaSigma extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_funcionario','id_funcionario','int4');
+		$this->setParametro('ci','ci','varchar');
 		$this->setParametro('id_periodo','id_periodo','int4');
 		$this->setParametro('id_gestion','id_gestion','int4');
 		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
 		$this->setParametro('sueldo_liquido','sueldo_liquido','numeric');
-		$this->setParametro('estado_reg','estado_reg','varchar');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
 		$this->ejecutarConsulta();
 
 		//Devuelve la respuesta
@@ -96,10 +97,13 @@ class MODPlanillaSigma extends MODbase{
 		$this->tipo_procedimiento='IME';
 				
 		//Define los parametros para la funcion
-		$this->setParametro('id_planilla_sigma','id_planilla_sigma','int4');
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
 		$this->ejecutarConsulta();
 
 		//Devuelve la respuesta

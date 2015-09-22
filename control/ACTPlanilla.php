@@ -80,6 +80,12 @@ class ACTPlanilla extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 	
+	function generarDescuentoCheque(){
+			$this->objFunc=$this->create('MODPlanilla');	
+		$this->res=$this->objFunc->generarDescuentoCheque($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	
 	function ejecutarProcesoPlanilla(){
 		$this->objFunc=$this->create('MODPlanilla');
 		$this->res=$this->objFunc->ejecutarProcesoPlanilla($this->objParam);
