@@ -6,22 +6,33 @@
 *@date 22-09-2015 14:58:50
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
-
+require_once(dirname(__FILE__).'/../reportes/RDiferenciasPlanillaSigmaXLS.php');
 class ACTPlanillaSigma extends ACTbase{    
 			
-	function listarPlanillaSigma(){
-		$this->objParam->defecto('ordenacion','id_planilla_sigma');
-
-		$this->objParam->defecto('dir_ordenacion','asc');
-		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
-			$this->objReporte = new Reporte($this->objParam,$this);
-			$this->res = $this->objReporte->generarReporteListado('MODPlanillaSigma','listarPlanillaSigma');
-		} else{
-			$this->objFunc=$this->create('MODPlanillaSigma');
+	function listarDiferenciasPlanillaSigma(){
+		$this->objFunc=$this->create('MODPlanillaSigma');			
+		$this->res=$this->objFunc->listarPlanillaSigma($this->objParam);		
+		$this->objParam->addParametro('datos',$this->res->datos);			
+		
 			
-			$this->res=$this->objFunc->listarPlanillaSigma($this->objParam);
-		}
-		$this->res->imprimirRespuesta($this->res->generarJson());
+		//obtener titulo del reporte
+		$titulo = 'RepDiferenciasSigma';
+		
+		//Genera el nombre del archivo (aleatorio + titulo)
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);
+		$nombreArchivo.='.xls';
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
+		
+		$this->objReporteFormato=new RDiferenciasPlanillaSigmaXLS($this->objParam);
+		$this->objReporteFormato->imprimeDatos();		
+		
+		
+		$this->objReporteFormato->generarReporte();
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 				
 	function insertarPlanillaSigma(){

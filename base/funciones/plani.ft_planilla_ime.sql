@@ -349,7 +349,8 @@ BEGIN
                 ps.id_periodo = v_planilla.id_periodo and ps.id_gestion = v_planilla.id_gestion and
                 ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
                 
-                if (v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1) then
+                if (v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
+                	trunc(v_liquido_sigma) = v_liquido_sigma) then
                 	update plani.tcolumna_valor 
                     set valor = v_liquido_erp - v_liquido_sigma
                     where id_funcionario_planilla = v_registros.id_funcionario_planilla and

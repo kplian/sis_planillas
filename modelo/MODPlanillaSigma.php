@@ -18,26 +18,22 @@ class MODPlanillaSigma extends MODbase{
 		$this->procedimiento='plani.ft_planilla_sigma_sel';
 		$this->transaccion='PLA_PLASI_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
 				
 		//Definicion de la lista del resultado del query
-		$this->captura('id_planilla_sigma','int4');
-		$this->captura('id_funcionario','int4');
-		$this->captura('id_periodo','int4');
-		$this->captura('id_gestion','int4');
-		$this->captura('id_tipo_planilla','int4');
-		$this->captura('sueldo_liquido','numeric');
-		$this->captura('estado_reg','varchar');
-		$this->captura('id_usuario_ai','int4');
-		$this->captura('usuario_ai','varchar');
-		$this->captura('fecha_reg','timestamp');
-		$this->captura('id_usuario_reg','int4');
-		$this->captura('id_usuario_mod','int4');
-		$this->captura('fecha_mod','timestamp');
-		$this->captura('usr_reg','varchar');
-		$this->captura('usr_mod','varchar');
-		
+		$this->captura('gerencia','varchar');		
+		$this->captura('ci','varchar');
+		$this->captura('tipo_contrato','varchar');		
+		$this->captura('desc_funcionario','text');
+		$this->captura('liquido_erp','numeric');
+		$this->captura('liquido_sigma','numeric');
+				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -66,49 +62,7 @@ class MODPlanillaSigma extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
-			
-	function modificarPlanillaSigma(){
-		//Definicion de variables para ejecucion del procedimiento
-		$this->procedimiento='plani.ft_planilla_sigma_ime';
-		$this->transaccion='PLA_PLASI_MOD';
-		$this->tipo_procedimiento='IME';
-				
-		//Define los parametros para la funcion
-		$this->setParametro('id_planilla_sigma','id_planilla_sigma','int4');
-		$this->setParametro('id_funcionario','id_funcionario','int4');
-		$this->setParametro('id_periodo','id_periodo','int4');
-		$this->setParametro('id_gestion','id_gestion','int4');
-		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
-		$this->setParametro('sueldo_liquido','sueldo_liquido','numeric');
-		$this->setParametro('estado_reg','estado_reg','varchar');
-
-		//Ejecuta la instruccion
-		$this->armarConsulta();
-		$this->ejecutarConsulta();
-
-		//Devuelve la respuesta
-		return $this->respuesta;
-	}
-			
-	function eliminarPlanillaSigma(){
-		//Definicion de variables para ejecucion del procedimiento
-		$this->procedimiento='plani.ft_planilla_sigma_ime';
-		$this->transaccion='PLA_PLASI_ELI';
-		$this->tipo_procedimiento='IME';
-				
-		//Define los parametros para la funcion
-		$this->setParametro('id_periodo','id_periodo','int4');
-		$this->setParametro('id_gestion','id_gestion','int4');
-		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
-
-		//Ejecuta la instruccion
-		$this->armarConsulta();
-		
-		$this->ejecutarConsulta();
-
-		//Devuelve la respuesta
-		return $this->respuesta;
-	}
+	
 			
 }
 ?>
