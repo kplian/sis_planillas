@@ -326,6 +326,19 @@ BEGIN
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
             where pla.id_planilla = v_parametros.id_planilla;
             
+            if (v_planilla.estado != 'calculo_columnas') then
+            	raise exception 'La planilla debe estar en estado calculo_columnas para generar los descuentos por cheque';
+            end if;
+            
+            --verificar que la planilla del sigma haya sido subida
+            if (not exists(select 1 
+                          from plani.tplanilla_sigma ps
+                          where ps.id_periodo = v_planilla.id_periodo and ps.id_gestion = v_planilla.id_gestion and
+                          ps.id_tipo_planilla = v_planilla.id_tipo_planilla)) then
+            	raise exception 'No se ha subido la planilla del sigma para poder calcular el descuento por cheques';
+            
+            end if;
+            
             if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN'))then
             	v_columna_cheque = 'DESCCHEQ';
             elsif (v_planilla.tipo_planilla = 'PLAPRI') then
@@ -349,7 +362,7 @@ BEGIN
                 ps.id_periodo = v_planilla.id_periodo and ps.id_gestion = v_planilla.id_gestion and
                 ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
                 
-                if (v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
+                if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
                 	trunc(v_liquido_sigma) = v_liquido_sigma) then
                 	update plani.tcolumna_valor 
                     set valor = v_liquido_erp - v_liquido_sigma

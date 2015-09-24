@@ -63,6 +63,25 @@ class MODPlanillaSigma extends MODbase{
 		return $this->respuesta;
 	}
 	
+	function eliminarPlanillaSigma(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_sigma_ime';
+		$this->transaccion='PLA_PLASI_ELI';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_periodo','id_periodo','int4');
+		$this->setParametro('id_gestion','id_gestion','int4');
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
 			
 }
 ?>
