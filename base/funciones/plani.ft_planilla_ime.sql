@@ -69,7 +69,7 @@ DECLARE
     v_codigo_llave		varchar;
     v_liquido_erp	numeric;
     v_liquido_sigma		numeric;
-    v_columna_cheque	varchar;
+    v_columna_cheque	varchar;    
     
 			    
 BEGIN
@@ -354,7 +354,7 @@ BEGIN
                 select cv.valor into v_liquido_erp
                 from plani.tcolumna_valor cv
                 where cv.id_funcionario_planilla = v_registros.id_funcionario_planilla and
-                cv.codigo_columna IN ('LIQPAG','NATYSEP','AGUINA') and cv.estado_reg = 'activo';
+                cv.codigo_columna = 'LIQPAG' and cv.estado_reg = 'activo';
                 
                 select sum(ps.sueldo_liquido) into v_liquido_sigma
                 from plani.tplanilla_sigma ps
@@ -363,8 +363,9 @@ BEGIN
                 ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
                 
                 if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
-                	trunc(v_liquido_sigma) = v_liquido_sigma) then
-                	update plani.tcolumna_valor 
+                	trunc(v_liquido_sigma) = v_liquido_sigma) then                    
+                	
+                    update plani.tcolumna_valor 
                     set valor = v_liquido_erp - v_liquido_sigma
                     where id_funcionario_planilla = v_registros.id_funcionario_planilla and
                     codigo_columna = v_columna_cheque and estado_reg = 'activo';
@@ -372,7 +373,7 @@ BEGIN
                 
                 
             end loop;
-               
+             
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Descuento por cheque generado'); 
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);

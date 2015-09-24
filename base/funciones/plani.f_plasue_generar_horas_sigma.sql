@@ -107,7 +107,7 @@ BEGIN
                         es superior a la cantidad de dias en el periodo. 
                         Por favor revise la informacion de los contratos', p_nombre_empleado;
         	end if;
-            if (v_horas_contratos > 0) then
+            if (v_horas_contrato > 0) then
                INSERT INTO 
                   plani.thoras_trabajadas
                 (
