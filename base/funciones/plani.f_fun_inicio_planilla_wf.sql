@@ -56,7 +56,7 @@ BEGIN
     -----------------------------------------------------------------------------------
           
      IF p_codigo_estado  in ('registro_horas')  THEN              
-            v_resp = (select plani.f_plasue_generar_horas(v_planilla.id_planilla,p_id_usuario));
+            v_resp = (select plani.f_plasue_generar_horas_sigma(v_planilla.id_planilla,p_id_usuario));
             
      elsif (p_codigo_estado  in ('calculo_columnas')) then
      	update plani.tplanilla set requiere_calculo = 'no'
