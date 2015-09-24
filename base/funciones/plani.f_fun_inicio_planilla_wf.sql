@@ -55,8 +55,12 @@ BEGIN
     -- validacion del prorrateo--  (con el codigo actual de estado antes de cambiarlo)   
     -----------------------------------------------------------------------------------
           
-     IF p_codigo_estado  in ('registro_horas')  THEN              
+     IF p_codigo_estado  in ('registro_horas')  THEN   
+     	if (pxp.f_get_variable_global('plani_calculo_horas_sigma') = 'true') then           
             v_resp = (select plani.f_plasue_generar_horas_sigma(v_planilla.id_planilla,p_id_usuario));
+        else
+        	v_resp = (select plani.f_plasue_generar_horas(v_planilla.id_planilla,p_id_usuario));
+        end if;
             
      elsif (p_codigo_estado  in ('calculo_columnas')) then
      	update plani.tplanilla set requiere_calculo = 'no'
