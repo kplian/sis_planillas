@@ -566,8 +566,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	                id_planilla:  rec.data.id_planilla
 	                },
 	            success:this.successSave,
-	            failure: this.conexionFailure,
-	            argument:{wizard:wizard},
+	            failure: this.conexionFailure,	            
 	            timeout:this.timeout,
 	            scope:this
 	        });
