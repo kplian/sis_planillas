@@ -131,6 +131,8 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('codigo_cc','text');
 		$this->captura('funcionario','text');
 		$this->captura('fecha_inicio','date');
+		$this->captura('item','varchar');
+		$this->captura('certificacion','varchar');
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -158,6 +160,8 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('codigo_cc','text');
 		$this->captura('funcionario','text');
 		$this->captura('fecha_fin','date');
+		$this->captura('item','varchar');
+		
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -190,6 +194,8 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('tipo_contrato_actual','varchar');
 		$this->captura('presupuesto_actual','text');
 		$this->captura('haber_basico_actual','numeric');
+		$this->captura('item','varchar');
+		$this->captura('certificacion','varchar');
 		
 		
 		

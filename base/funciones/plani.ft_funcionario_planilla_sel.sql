@@ -137,6 +137,7 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='with detail as
                             (select  uo.prioridad,uo.nombre_unidad,car.nombre as cargo,esal.haber_basico, tc.nombre as tipo_contrato, fun.desc_funcionario2,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fecha_inicio,vcc.codigo_cc,
+                            car.codigo as item,uofun.certificacion_presupuestaria as certificacion,
                             ROW_NUMBER()OVER (PARTITION BY fun.desc_funcionario2 
                                                              ORDER BY plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) ASC) as rk
                             from orga.tuo_funcionario uofun
@@ -152,7 +153,7 @@ BEGIN
                             ''' || v_fecha_fin || ''') and 
                             (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) between ''' || v_fecha_ini || ''' and
                             ''' || v_fecha_fin || '''))
-            			select d.nombre_unidad,d.cargo,d.haber_basico,d.tipo_contrato,d.codigo_cc, d.desc_funcionario2,d.fecha_inicio
+            			select d.nombre_unidad,d.cargo,d.haber_basico,d.tipo_contrato,d.codigo_cc, d.desc_funcionario2,d.fecha_inicio,d.item,d.certificacion
                         from detail d
                         where d.rk =1
                         order by d.prioridad::integer ASC, d.desc_funcionario2 ASC';
@@ -182,6 +183,7 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='with detail as
                         (select  uo.prioridad,uo.nombre_unidad,car.nombre as cargo,tc.nombre as tipo_contrato, esal.haber_basico,fun.desc_funcionario2,uofun.fecha_finalizacion,vcc.codigo_cc,
+                        car.codigo as item,
                         ROW_NUMBER()OVER (PARTITION BY fun.desc_funcionario2 
                                                          ORDER BY uofun.fecha_finalizacion DESC) as rk
                         from orga.tuo_funcionario uofun
@@ -203,7 +205,7 @@ BEGIN
                                     temp2.fecha_asignacion = uofun.fecha_finalizacion + interval ''1 day'' 
                                     and temp2.estado_reg = ''activo'' and temp2.tipo= ''oficial'' and 
                                     temp2.id_funcionario = uofun.id_funcionario))
-                        select d.nombre_unidad,d.cargo,d.haber_basico,d.tipo_contrato,d.codigo_cc, d.desc_funcionario2,d.fecha_finalizacion
+                        select d.nombre_unidad,d.cargo,d.haber_basico,d.tipo_contrato,d.codigo_cc, d.desc_funcionario2,d.fecha_finalizacion,d.item
                         from detail d
                         where d.rk =1
                         order by d.prioridad::integer ASC, d.desc_funcionario2 ASC';
@@ -231,7 +233,7 @@ BEGIN
             v_fecha_fin = v_fecha_fin - interval '1 day';
             
 			--Sentencia de la consulta de conteo de registros
-			v_consulta:='select  fun.desc_funcionario2,uofundes.fecha_asignacion as fecha_movimiento,uo.nombre_unidad as gerencia_anterior, car.nombre as cargo_anterior,tc.nombre as tipo_contrato_anterior,vcc.codigo_cc as presupuesto_anterior, esal.haber_basico as sueldo_anterior,uodes.nombre_unidad as gerencia_actual, cardes.nombre as cargo_actual,tcdes.nombre as tipo_contrato_actual,vccdes.codigo_cc as presupuesto_actual, esaldes.haber_basico as sueldo_actual
+			v_consulta:='select  fun.desc_funcionario2,uofundes.fecha_asignacion as fecha_movimiento,uo.nombre_unidad as gerencia_anterior, car.nombre as cargo_anterior,tc.nombre as tipo_contrato_anterior,vcc.codigo_cc as presupuesto_anterior, esal.haber_basico as sueldo_anterior,uodes.nombre_unidad as gerencia_actual, cardes.nombre as cargo_actual,tcdes.nombre as tipo_contrato_actual,vccdes.codigo_cc as presupuesto_actual, esaldes.haber_basico as sueldo_actual,cardes.codigo as item_actual,uofundes.certificacion_presupuestaria as certificacion
                         from orga.tuo_funcionario uofun
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo

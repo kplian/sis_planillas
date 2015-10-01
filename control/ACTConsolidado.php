@@ -6,7 +6,7 @@
 *@date 14-07-2014 19:04:07
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
-
+require_once(dirname(__FILE__).'/../reportes/RDetalleEjecucionXLS.php');
 class ACTConsolidado extends ACTbase{    
 			
 	function listarConsolidado(){
@@ -43,6 +43,49 @@ class ACTConsolidado extends ACTbase{
 			$this->objFunc=$this->create('MODConsolidado');	
 		$this->res=$this->objFunc->eliminarConsolidado($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+
+	function listarDetalleEjecucionPeriodo(){
+		
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+			$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+		}
+		
+		if ($this->objParam->getParametro('id_gestion') != '') {
+			$this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
+		}	
+		
+		if ($this->objParam->getParametro('id_periodo') != '') {
+			$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+		}
+		
+		$this->objFunc=$this->create('MODConsolidado');	
+		
+		
+		
+				
+		$this->res=$this->objFunc->listarDetalleEjecucionPeriodo($this->objParam);		
+		$this->objParam->addParametro('datos',$this->res->datos);			
+		
+			
+		//obtener titulo del reporte
+		$titulo = 'RepDetalleEjecucion';
+		
+		//Genera el nombre del archivo (aleatorio + titulo)
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);
+		$nombreArchivo.='.xls';
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
+		
+		$this->objReporteFormato=new RDetalleEjecucionXLS($this->objParam);
+		$this->objReporteFormato->imprimeDatos();		
+		
+		
+		$this->objReporteFormato->generarReporte();
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 	}
 			
 }

@@ -94,10 +94,12 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(40);
 		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
 		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(20);
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->getAlignment()->setWrapText(true); 	
+		$this->docexcel->getActiveSheet()->getStyle('A1:I1')->getAlignment()->setWrapText(true); 	
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A1:I1')->applyFromArray($styleTitulos);
 		
 		
 		//*************************************Cabecera*****************************************
@@ -108,11 +110,13 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('E1','Presupuesto');
 		$this->docexcel->getActiveSheet()->setCellValue('F1','Nombre');
 		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Inicio');
+		$this->docexcel->getActiveSheet()->setCellValue('H1','Item');
+		$this->docexcel->getActiveSheet()->setCellValue('I1','Certificacion');
 				
 		//*************************************Detalle*****************************************
 		$fila = 1;
 		
-		
+		$this->docexcel->getActiveSheet()->getStyle('I2:I500')->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_GENERAL );
 		foreach($datos as $value) {			
 			$fila++;
 			$columna = 0;
@@ -128,7 +132,11 @@ class RCambiosPeriodoXLS
 			$columna++;
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['funcionario']);
 			$columna++;
-			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_inicio']);						
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_inicio']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['item']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['certificacion']." ");						
 		}
 
 		
@@ -146,10 +154,11 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(40);
 		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(35);
 		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->getAlignment()->setWrapText(true); 	
+		$this->docexcel->getActiveSheet()->getStyle('A1:H1')->getAlignment()->setWrapText(true); 	
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A1:H1')->applyFromArray($styleTitulos);
 		
 		
 		//*************************************Cabecera*****************************************
@@ -160,6 +169,7 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('E1','Presupuesto');
 		$this->docexcel->getActiveSheet()->setCellValue('F1','Nombre');
 		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Fin');
+		$this->docexcel->getActiveSheet()->setCellValue('H1','Item');
 		
 		$fila = 1;
 		$datos = $this->objParam->getParametro('bajas');
@@ -179,7 +189,9 @@ class RCambiosPeriodoXLS
 			$columna++;
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['funcionario']);
 			$columna++;
-			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_fin']);						
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['fecha_fin']);
+			$columna++;
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['item']);						
 		}
 		
 		//MOVIMIENTOS
@@ -200,6 +212,8 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(20);
 		$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(40);
 		$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(20);
 		
 		$this->docexcel->getActiveSheet()->getStyle('A1:L1')->getAlignment()->setWrapText(true); 	
 		$styleTitulos['fill']['color']['rgb'] = 'fffafa';
@@ -207,7 +221,7 @@ class RCambiosPeriodoXLS
 		
 		$styleTitulos['fill']['color']['rgb'] = 'c5d9f1';
 		$this->docexcel->getActiveSheet()->getStyle('A1:B1')->applyFromArray($styleTitulos);
-		$this->docexcel->getActiveSheet()->getStyle('H1:L1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('H1:N1')->applyFromArray($styleTitulos);
 		
 		//*************************************Cabecera*****************************************
 		$this->docexcel->getActiveSheet()->setCellValue('A1','Funcionario');
@@ -222,6 +236,9 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('J1','Tipo Act');
 		$this->docexcel->getActiveSheet()->setCellValue('K1','Presupuesto Act.');
 		$this->docexcel->getActiveSheet()->setCellValue('L1','Haber Act.');
+		$this->docexcel->getActiveSheet()->setCellValue('M1','Item');
+		$this->docexcel->getActiveSheet()->setCellValue('N1','Certificacion');
+		
 		
 		$fila = 1;
 		$datos = $this->objParam->getParametro('movimientos');
@@ -253,6 +270,10 @@ class RCambiosPeriodoXLS
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['presupuesto_actual']);
 			$columna++;
 			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['haber_basico_actual']);
+			$columna++;	
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['item']);
+			$columna++;	
+			$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$value['certificacion']." ");
 			$columna++;						
 		}
 		
@@ -283,7 +304,7 @@ class RCambiosPeriodoXLS
 		$this->docexcel->getActiveSheet()->setCellValue('E1','Presupuesto');
 		$this->docexcel->getActiveSheet()->setCellValue('F1','Nombre');
 		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Inicio');
-		$this->docexcel->getActiveSheet()->setCellValue('G1','Fecha Antiguedad');
+		$this->docexcel->getActiveSheet()->setCellValue('H1','Fecha Antiguedad');
 				
 		//*************************************Detalle*****************************************
 		$fila = 1;
