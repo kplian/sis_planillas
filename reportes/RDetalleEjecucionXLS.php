@@ -138,7 +138,7 @@ class RDetalleEjecucionXLS
 		$ultima_columna = '';
 		
 		foreach($datos as $value) {
-			if ($value['columna'] != $ultima_columna) {
+			if ($value['columna'] != $ultima_columna || $presupuesto != $value['codigo_cc']) {
 				if ($ultima_columna != ''){
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$total_fila);
 				}		
@@ -187,9 +187,17 @@ class RDetalleEjecucionXLS
 			
 			
 		}
-		$fila++;
+		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$total_fila);
+		
 		$this->docexcel->getActiveSheet()->getStyle("A$fila:D$fila")->applyFromArray($styleTitulos);
 		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,$fila,'TOTAL');
+		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,$fila,$planta_presupuesto);
+		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,$eventual_presupuesto);
+		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$eventual_presupuesto + $planta_presupuesto);
+		
+		$fila++;
+		$this->docexcel->getActiveSheet()->getStyle("A$fila:D$fila")->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,$fila,'TOTAL PLANILLA');
 		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1,$fila,$planta_total);
 		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,$eventual_total);
 		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila,$eventual_total + $planta_total);
