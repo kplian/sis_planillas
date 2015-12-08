@@ -2928,3 +2928,14 @@ ALTER TABLE plani.tplanilla_sigma
    
 
 /***********************************F-DEP-JRR-PLANI-0-22/09/2015****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-29/10/2015****************************************/
+
+ALTER TABLE plani.tlicencia
+  ADD CONSTRAINT fk_tlicencia__id_tipo_licencia FOREIGN KEY (id_tipo_licencia) 
+    REFERENCES plani.ttipo_licencia(id_tipo_licencia)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+/***********************************F-DEP-JRR-PLANI-0-29/10/2015****************************************/

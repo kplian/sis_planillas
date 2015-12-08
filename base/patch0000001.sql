@@ -573,3 +573,28 @@ CREATE TABLE plani.tsigma_equivalencias (
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-22/09/2015****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-29/10/2015****************************************/
+CREATE TABLE plani.tlicencia (
+  id_licencia SERIAL NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  motivo TEXT NOT NULL,
+  desde DATE NOT NULL,
+  hasta DATE NOT NULL,
+  estado VARCHAR NOT NULL,
+  id_tipo_licencia INTEGER NOT NULL,   
+  PRIMARY KEY(id_licencia)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+
+CREATE TABLE plani.ttipo_licencia (
+  id_tipo_licencia SERIAL NOT NULL, 
+  codigo VARCHAR(20) NOT NULL, 
+  nombre VARCHAR (100) NOT NULL,
+  genera_descuento VARCHAR(2) NOT NULL,   
+  PRIMARY KEY(id_tipo_licencia)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-29/10/2015****************************************/

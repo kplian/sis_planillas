@@ -21,6 +21,7 @@ DECLARE
   v_dia_fin				integer;
   v_mes_fin				integer;
   v_ano_fin				integer;
+  v_horas_licencia		integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_plasue_generar_horas_sigma';
 	
@@ -66,7 +67,8 @@ BEGIN
             fun.desc_funcionario1 as nombre_funcionario,
             ofi.zona_franca,
             ofi.frontera,
-            es.id_escala_salarial
+            es.id_escala_salarial,
+            fun.id_funcionario
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -84,9 +86,47 @@ BEGIN
             
             v_horas_contrato = ((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)*8) + (1*8);
             
+             --obtener licencias para el empleado
+            v_horas_licencia = 0;
+            
+            --las que estan dentro del rango
+            v_horas_licencia = v_horas_licencia +
+            coalesce((select sum((l.hasta - l.desde)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde >= v_asignacion.fecha_ini_mes AND
+            l.hasta <= v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
+            
+            --las que estan inicio
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((l.hasta - v_asignacion.fecha_ini_mes)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde < v_asignacion.fecha_ini_mes AND
+            (l.hasta <= v_asignacion.fecha_fin_mes and l.hasta >= v_asignacion.fecha_ini_mes) and l.estado = 'finalizado'),0);
+            
+            --las que estan al final
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - l.desde)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and (l.desde >= v_asignacion.fecha_ini_mes AND l.desde <= v_asignacion.fecha_fin_mes) AND
+            l.hasta > v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
+            
+            --las que van de lado a lado           
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde < v_asignacion.fecha_ini_mes AND
+            l.hasta > v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
+            
             --Si la fecha fin es 31 se resta 8 horas
             if (v_dia_fin = 31) then
             	v_horas_contrato = v_horas_contrato - 8;
+                if (v_horas_licencia > v_horas_contrato) then
+                	v_horas_licencia = v_horas_contrato;
+                end if;
             end if;
             
             --Si el dia fin es 29 y el mes fin es 2 se incrementa 8 horas
@@ -127,7 +167,7 @@ BEGIN
                   p_id_usuario,
                   v_asignacion.id_uo_funcionario,
                   v_empleados.id_funcionario_planilla,
-                  v_horas_contrato,
+                  v_horas_contrato - v_horas_licencia,
                   v_horas_contrato,
                   v_asignacion.codigo,
                   orga.f_get_haber_basico_a_fecha(v_asignacion.id_escala_salarial,v_planilla.fecha_ini),

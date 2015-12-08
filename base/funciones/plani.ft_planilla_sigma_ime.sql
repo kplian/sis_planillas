@@ -68,6 +68,9 @@ BEGIN
                     select id_funcionario into v_id_funcionario
                     from orga.vfuncionario fun
                     where fun.ci = v_ci_erp;
+                    if (v_id_funcionario is null) then
+                    	raise exception 'No existe un empleado con el ci: %',v_parametros.ci;
+                    end if;
                 end if;
             end if;
         	--Sentencia de la insercion
