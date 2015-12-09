@@ -312,6 +312,10 @@ class RAguinaldoXLS
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
+			if ($value['codigo_columna'] == 'DESCCHEQ') {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
+				$columna++;
+			} 
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 			$columna++;
 			

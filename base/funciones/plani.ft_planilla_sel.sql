@@ -300,7 +300,7 @@ BEGIN
                 inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
-                where tp.codigo = ''PLAGUI'' and ges.id_gestion = ' || v_parametros.id_gestion || '
+                where tp.codigo = ''PLAGUIN'' and ges.id_gestion = ' || v_parametros.id_gestion || '
                 order by fun.desc_funcionario2 ASC
                 )
 

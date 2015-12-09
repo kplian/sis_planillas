@@ -81,7 +81,7 @@ BEGIN
         
         
         if (v_dias >= 90  and v_entra = 'si') then
-        	--v_id_afp = plani.f_get_afp(v_registros.id_funcionario, ('31/12/'||v_planilla.gestion)::date);
+        	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_registros.fecha_fin_real);
         	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, ('31/12/'||v_planilla.gestion)::date);
              v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
