@@ -49,8 +49,13 @@ BEGIN
         	if (pxp.f_existe_parametro(p_tabla,'id_periodo') = FALSE) then
             	v_filtro = 'pla.id_gestion = ' || v_parametros.id_gestion || '  and pla.id_tipo_planilla = ' || v_parametros.id_tipo_planilla;
             else
-            	v_filtro = 'pla.id_gestion = ' || v_parametros.id_gestion || ' and pla.id_periodo = ' || v_parametros.id_periodo || '  and pla.id_tipo_planilla = ' || v_parametros.id_tipo_planilla;
+            	if (v_parametros.id_periodo is null) then
+                	v_filtro = 'pla.id_gestion = ' || v_parametros.id_gestion || '  and pla.id_tipo_planilla = ' || v_parametros.id_tipo_planilla;
+                else
+            		v_filtro = 'pla.id_gestion = ' || v_parametros.id_gestion || ' and pla.id_periodo = ' || v_parametros.id_periodo || '  and pla.id_tipo_planilla = ' || v_parametros.id_tipo_planilla;
+                end if;
             end if;
+            
             
             select tp.codigo into v_codigo_tipo_planilla
             from plani.ttipo_planilla tp

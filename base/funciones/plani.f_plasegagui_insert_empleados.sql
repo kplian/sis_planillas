@@ -18,6 +18,8 @@ DECLARE
   v_fecha_fin_planilla	date;
   v_dias				integer;
   v_tipo_contrato		varchar;
+  v_max_sueldo_aguinaldo numeric;
+  v_sueldo				numeric;
   
 BEGIN
 	
@@ -38,6 +40,8 @@ BEGIN
     if (v_planilla.id_uo is not null) then
     	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
     end if;
+    
+    v_max_sueldo_aguinaldo = plani.f_get_valor_parametro_valor('MAXSUESEGAGUI', v_fecha_fin_planilla)::numeric;
         
         
     for v_registros in execute('
@@ -46,7 +50,7 @@ BEGIN
           	''' || v_fecha_fin_planilla || ''' 
           else 
           	uofun.fecha_finalizacion 
-          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real 
+          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real, car.id_escala_salarial 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -69,9 +73,9 @@ BEGIN
           order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
     	        
         v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
+        v_sueldo = orga.f_get_haber_basico_a_fecha(v_registros.id_escala_salarial, v_registros.fecha_fin);
         
-        
-        if (v_dias >= 90) then
+        if (v_dias >= 90 and v_sueldo <= v_max_sueldo_aguinaldo) then
         	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
             v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
             INSERT INTO plani.tfuncionario_planilla (

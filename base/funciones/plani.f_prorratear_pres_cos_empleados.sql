@@ -185,8 +185,9 @@ BEGIN
                 v_porcentaje = round(v_presupuesto.dias_presupuesto/v_dias_aguinaldo*100,2);
             	v_suma = v_suma + v_porcentaje;
                 --si se excede por redondeo restamos la diferencia del ultimo prorrateo
-                if (v_suma > 100 and v_suma < 100.10) then
+                if (v_suma > 100 and v_suma < 101) then
                 	v_porcentaje = v_porcentaje + (100 - v_suma);
+                    v_suma = v_suma + (100 - v_suma);
                 end if;
                 --insertamos un prorrateo
             	INSERT INTO 
@@ -272,7 +273,7 @@ BEGIN
                   v_presupuesto.id_lugar
                 );
            elsif (v_suma > 100) then
-           		raise exception 'La suma de presupuestos para el empleado %, suma mas del 100 porciento',v_registros.desc_funcionario1;
+           		raise exception 'La suma de presupuestos para el empleado %, suma mas del 100 porciento,%',v_registros.desc_funcionario1,v_suma;
            end if;         
                  
     	   	
@@ -330,8 +331,9 @@ BEGIN
                 v_porcentaje = round(v_presupuesto.valor_presupuesto/v_valor_total,2);
             	v_suma = v_suma + v_porcentaje;
                 --si se excede por redondeo restamos la diferencia del ultimo prorrateo
-                if (v_suma > 100 and v_suma < 100.10) then
+                if (v_suma > 100 and v_suma < 101) then
                 	v_porcentaje = v_porcentaje + (100 - v_suma);
+                    v_suma = v_suma + (100 - v_suma);
                 end if;
                 --insertamos un prorrateo
             	INSERT INTO 
@@ -446,8 +448,9 @@ BEGIN
                 v_porcentaje = round(v_presupuesto.valor_presupuesto/v_valor_total,2);
             	v_suma = v_suma + v_porcentaje;
                 --si se excede por redondeo restamos la diferencia del ultimo prorrateo
-                if (v_suma > 100 and v_suma < 100.10) then
+                if (v_suma > 100 and v_suma < 101) then
                 	v_porcentaje = v_porcentaje + (100 - v_suma);
+                    v_suma = v_suma + (100 - v_suma);
                 end if;
                 --insertamos un prorrateo
             	INSERT INTO 

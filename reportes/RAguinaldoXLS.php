@@ -66,7 +66,7 @@ class RAguinaldoXLS
 			
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
-		$this->docexcel->getActiveSheet()->getRowDimension('1')->setRowHeight(60);
+		$this->docexcel->getActiveSheet()->getRowDimension('8')->setRowHeight(60);
 		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(7);
 		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(11);
 		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
@@ -119,48 +119,94 @@ class RAguinaldoXLS
 	            'style' => PHPExcel_Style_Border::BORDER_THIN
 	        )
 	    ));
-		$this->docexcel->getActiveSheet()->getStyle('A1:X1')->getAlignment()->setWrapText(true); 	
-		$this->docexcel->getActiveSheet()->getStyle('A1:Q1')->applyFromArray($styleTitulos);
+		
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => true,
+		        'size'  => 10,
+		        'name'  => 'Arial'
+		    ));
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:L2')->applyFromArray($styleTitulos2);
+		
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A1','NOMBRE O RAZÓN SOCIAL  :  BOLIVIANA DE AVIACIÓN – BoA');
+		$this->docexcel->getActiveSheet()->setCellValue('A2','Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO  :  154422029-03');
+		$this->docexcel->getActiveSheet()->setCellValue('L1','Nº DE NIT  :  154422029');
+		$this->docexcel->getActiveSheet()->setCellValue('L2','Nº DE EMPLEADOR (Caja de Salud)  :  020-621-271');
+		
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => true,
+		        'size'  => 12,
+		        'name'  => 'Arial'
+		    ),
+			'alignment' => array(
+		        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+		    ));
+		
+		$this->docexcel->getActiveSheet()->mergeCells('A4:X4');	
+		$this->docexcel->getActiveSheet()->getStyle('A4')->applyFromArray($styleTitulos2);
+		$this->docexcel->getActiveSheet()->setCellValue('A4','PLANILLA DE AGUINALDOS');
+		
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => false,
+		        'size'  => 10,
+		        'name'  => 'Arial'
+		    ),
+			'alignment' => array(
+		        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+		    ));
+		$this->docexcel->getActiveSheet()->mergeCells('A5:X5');
+		$this->docexcel->getActiveSheet()->getStyle('A5')->applyFromArray($styleTitulos2);
+		$this->docexcel->getActiveSheet()->setCellValue('A5','(En Bolivianos)');
+		
+		
+		$this->docexcel->getActiveSheet()->getStyle('A8:X8')->getAlignment()->setWrapText(true); 	
+		$this->docexcel->getActiveSheet()->getStyle('A8:Q8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
-		$this->docexcel->getActiveSheet()->getStyle('R1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('R8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
-		$this->docexcel->getActiveSheet()->getStyle('S1:U1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('S8:U8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
-		$this->docexcel->getActiveSheet()->getStyle('V1:W1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('V8:W8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
 		$this->docexcel->getActiveSheet()->getStyle('X1')->applyFromArray($styleTitulos);
 		//*************************************Cabecera*****************************************
-		$this->docexcel->getActiveSheet()->setCellValue('A1','Nº');
-		$this->docexcel->getActiveSheet()->setCellValue('B1','Documento de identidad');
-		$this->docexcel->getActiveSheet()->setCellValue('C1','Apellidos y nombres');
-		$this->docexcel->getActiveSheet()->setCellValue('D1','País de nacionalidad');
-		$this->docexcel->getActiveSheet()->setCellValue('E1','Fecha de nacimiento');
-		$this->docexcel->getActiveSheet()->setCellValue('F1','Sexo (V/M)');
-		$this->docexcel->getActiveSheet()->setCellValue('G1','Ocupación que desempeña');
-		$this->docexcel->getActiveSheet()->setCellValue('H1','Fecha de ingreso');
-		$this->docexcel->getActiveSheet()->setCellValue('I1','Horas pagadas (Día)');
-		$this->docexcel->getActiveSheet()->setCellValue('J1','Días pagados (Mes)');		
-		$this->docexcel->getActiveSheet()->setCellValue('K1','(1) Haber básico');
-		$this->docexcel->getActiveSheet()->setCellValue('L1','(2) Bono de Antigüedad');
-		$this->docexcel->getActiveSheet()->setCellValue('M1','(3) Bono de producción');
-		$this->docexcel->getActiveSheet()->setCellValue('N1','(4) Subsidio de frontera');
-		$this->docexcel->getActiveSheet()->setCellValue('O1','(5) Trabajo extraordinario y nocturno');
-		$this->docexcel->getActiveSheet()->setCellValue('P1','(6) Pago dominical y domingo trabajado');
-		$this->docexcel->getActiveSheet()->setCellValue('Q1','(7) Otros bonos');
-		$this->docexcel->getActiveSheet()->setCellValue('R1','(8) TOTAL GANADO Suma (1 a 7)');
-		$this->docexcel->getActiveSheet()->setCellValue('S1','(9) Aporte a las AFPs');
-		$this->docexcel->getActiveSheet()->setCellValue('T1','(10) RC-IVA');
-		$this->docexcel->getActiveSheet()->setCellValue('U1','(11) Otros descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('V1','(12) TOTAL DESCUENTOS Suma (9 a 11)');
-		$this->docexcel->getActiveSheet()->setCellValue('W1','(13) LIQUIDO PAGABLE (12-8)');
-		$this->docexcel->getActiveSheet()->setCellValue('X1','(14) Firma');
+		$this->docexcel->getActiveSheet()->setCellValue('A8','Nº');
+		$this->docexcel->getActiveSheet()->setCellValue('B8','Documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('C8','Apellidos y nombres');
+		$this->docexcel->getActiveSheet()->setCellValue('D8','País de nacionalidad');
+		$this->docexcel->getActiveSheet()->setCellValue('E8','Fecha de nacimiento');
+		$this->docexcel->getActiveSheet()->setCellValue('F8','Sexo (V/M)');
+		$this->docexcel->getActiveSheet()->setCellValue('G8','Ocupación que desempeña');
+		$this->docexcel->getActiveSheet()->setCellValue('H8','Fecha de ingreso');
+		$this->docexcel->getActiveSheet()->setCellValue('I8','Horas pagadas (Día)');
+		$this->docexcel->getActiveSheet()->setCellValue('J8','Días pagados (Mes)');		
+		$this->docexcel->getActiveSheet()->setCellValue('K8','(1) Haber básico');
+		$this->docexcel->getActiveSheet()->setCellValue('L8','(2) Bono de Antigüedad');
+		$this->docexcel->getActiveSheet()->setCellValue('M8','(3) Bono de producción');
+		$this->docexcel->getActiveSheet()->setCellValue('N8','(4) Subsidio de frontera');
+		$this->docexcel->getActiveSheet()->setCellValue('O8','(5) Trabajo extraordinario y nocturno');
+		$this->docexcel->getActiveSheet()->setCellValue('P8','(6) Pago dominical y domingo trabajado');
+		$this->docexcel->getActiveSheet()->setCellValue('Q8','(7) Otros bonos');
+		$this->docexcel->getActiveSheet()->setCellValue('R8','(8) TOTAL GANADO Suma (1 a 7)');
+		$this->docexcel->getActiveSheet()->setCellValue('S8','(9) Aporte a las AFPs');
+		$this->docexcel->getActiveSheet()->setCellValue('T8','(10) RC-IVA');
+		$this->docexcel->getActiveSheet()->setCellValue('U8','(11) Otros descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('V8','(12) TOTAL DESCUENTOS Suma (9 a 11)');
+		$this->docexcel->getActiveSheet()->setCellValue('W8','(13) LIQUIDO PAGABLE (12-8)');
+		$this->docexcel->getActiveSheet()->setCellValue('X8','(14) Firma');
 				
 		
 		
 		//*************************************Detalle*****************************************
 		$numero = 0;
 		$columna = 0;
-		$fila = 1;
+		$fila = 8;
 		$this->docexcel->getActiveSheet()->getRowDimension($fila+1)->setRowHeight(60);
 		$this->resumen['basico'] = 0;
 		$this->resumen['antiguedad'] = 0;

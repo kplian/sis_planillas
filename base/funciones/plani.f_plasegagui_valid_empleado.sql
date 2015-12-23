@@ -27,6 +27,8 @@ DECLARE
   v_fecha_fin_planilla	date;
   v_entra				varchar;
   v_dias				integer;
+  v_max_sueldo_aguinaldo numeric;
+  v_sueldo				numeric;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plasegagui_valid_empleado';
@@ -40,6 +42,8 @@ BEGIN
     where p.id_planilla = p_id_planilla;
     
     v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date; 
+    v_max_sueldo_aguinaldo = plani.f_get_valor_parametro_valor('MAXSUESEGAGUI', v_fecha_fin_planilla)::numeric;
+    
     
     for v_registros in execute('
           select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,uofun.fecha_asignacion as fecha_ini,
@@ -47,7 +51,7 @@ BEGIN
           	''' || v_fecha_fin_planilla || ''' 
           else 
           	uofun.fecha_finalizacion 
-          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real 
+          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real,car.id_escala_salarial 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -71,7 +75,11 @@ BEGIN
              
         
         v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
-        
+        v_sueldo = orga.f_get_haber_basico_a_fecha(v_registros.id_escala_salarial, v_registros.fecha_fin);
+    	
+        /*if (v_sueldo > v_max_sueldo_aguinaldo) then
+    		raise exception 'El sueldo del empleado es mayor al maximo permitido para pago de segudno aguinaldo';
+    	end if;*/
         
         if (v_dias >= 90) then
         	v_existe = 'si'; 
