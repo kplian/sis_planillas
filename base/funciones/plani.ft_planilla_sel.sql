@@ -243,7 +243,7 @@ BEGIN
                 select
                 uo.prioridad,
                 uo.id_uo,
-                (row_number() over (ORDER BY fun.desc_funcionario2 ASC))::integer as fila,
+               
                 fp.id_funcionario_planilla,
                 (case when perso.id_tipo_doc_identificacion = 1 then 1 
                         when perso.id_tipo_doc_identificacion = 5 then
@@ -295,20 +295,27 @@ BEGIN
                 inner join segu.tpersona perso on perso.id_persona = f1.id_persona
                 inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                 inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                 inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
                 left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
                 left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                 inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
-                where tp.codigo = ''PLAGUIN'' and ges.id_gestion = ' || v_parametros.id_gestion || '
-                order by fun.desc_funcionario2 ASC
+                where tp.codigo = ''PLAGUIN'' and p.fecha_planilla >= (''20/12/''||ges.gestion)::date and tc.codigo in (''PLA'',''EVE'') and ges.id_gestion = ' || v_parametros.id_gestion || '
+                
+                ),
+                empleados2 as (
+                	select e.*,(row_number() over (ORDER BY e.desc_funcionario2 ASC))::integer as fila
+                    from empleados e
+                    where (e.fecha_finalizacion is null or e.ci = ''2620244'')
+                    order by e.desc_funcionario2 ASC
                 )
 
                 select 
                 emp.fila,emp.ci,emp.desc_funcionario2,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.cargo,
                 to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.horas_dia, emp.dias_mes,cv.codigo_columna,
                	cv.valor,emp.jubilado,emp.discapacitado
-                from empleados emp
+                from empleados2 emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
                 where cv.codigo_columna in (''AGUINA'',''DESCCHEQ'',''LIQPAG'')
