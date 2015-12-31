@@ -321,7 +321,7 @@ BEGIN
 
 		begin
         
-        	select pla.*, tp.codigo as tipo_planilla into v_planilla
+        	select pla.*, tp.codigo as tipo_planilla,tp.periodicidad into v_planilla
             from plani.tplanilla pla
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
             where pla.id_planilla = v_parametros.id_planilla;
@@ -333,13 +333,14 @@ BEGIN
             --verificar que la planilla del sigma haya sido subida
             if (not exists(select 1 
                           from plani.tplanilla_sigma ps
-                          where ps.id_periodo = v_planilla.id_periodo and ps.id_gestion = v_planilla.id_gestion and
+                          where (ps.id_periodo = v_planilla.id_periodo or 
+                          		(v_planilla.periodicidad = 'anual' and ps.id_periodo is null)) and ps.id_gestion = v_planilla.id_gestion and
                           ps.id_tipo_planilla = v_planilla.id_tipo_planilla)) then
             	raise exception 'No se ha subido la planilla del sigma para poder calcular el descuento por cheques';
             
             end if;
             
-            if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN'))then
+            if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN','PLASEGAGUI'))then
             	v_columna_cheque = 'DESCCHEQ';
             elsif (v_planilla.tipo_planilla = 'PLAPRI') then
             	v_columna_cheque = 'OTDESC';
@@ -359,7 +360,10 @@ BEGIN
                 select sum(ps.sueldo_liquido) into v_liquido_sigma
                 from plani.tplanilla_sigma ps
                 where ps.id_funcionario = v_registros.id_funcionario and
-                ps.id_periodo = v_planilla.id_periodo and ps.id_gestion = v_planilla.id_gestion and
+                (ps.id_periodo = v_planilla.id_periodo or 
+                (v_planilla.periodicidad = 'anual' and ps.id_periodo is null))
+                
+                and ps.id_gestion = v_planilla.id_gestion and
                 ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
                 
                 if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 

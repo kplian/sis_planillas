@@ -75,7 +75,7 @@ BEGIN
              
         
         v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
-        v_sueldo = orga.f_get_haber_basico_a_fecha(v_registros.id_escala_salarial, v_registros.fecha_fin);
+        v_sueldo = orga.f_get_haber_basico_a_fecha(v_registros.id_escala_salarial, v_planilla.fecha_planilla);
     	
         /*if (v_sueldo > v_max_sueldo_aguinaldo) then
     		raise exception 'El sueldo del empleado es mayor al maximo permitido para pago de segudno aguinaldo';
@@ -84,8 +84,9 @@ BEGIN
         if (v_dias >= 90) then
         	v_existe = 'si'; 
             o_id_lugar = v_registros.id_lugar;
-            o_id_uo_funcionario = v_registros.id_uo_funcionario;           
-            o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_planilla);
+            o_id_uo_funcionario = v_registros.id_uo_funcionario;    
+            o_id_afp = plani.f_get_afp(p_id_funcionario, v_registros.fecha_fin);       
+            o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_registros.fecha_fin);
             o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
         end if; 
   			  	
