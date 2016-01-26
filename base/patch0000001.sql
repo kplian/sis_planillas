@@ -598,3 +598,14 @@ CREATE TABLE plani.ttipo_licencia (
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-29/10/2015****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-31/12/2015****************************************/
+
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text));
+  
+
+/***********************************F-SCP-JRR-PLANI-0-31/12/2015****************************************/

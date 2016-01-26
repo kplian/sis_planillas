@@ -32,7 +32,7 @@ BEGIN
     
     v_fecha_ini =  (v_planilla.fecha_ini - interval '2 months')::DATE;
     for v_registros in execute('
-          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar 
+          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,tc.codigo as tipo_contrato 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -67,12 +67,12 @@ BEGIN
                 id_usuario_reg,					estado_reg,					id_funcionario,
                 id_planilla,					id_uo_funcionario,			id_lugar,
                 forzar_cheque,					finiquito,					id_afp,
-                id_cuenta_bancaria)
+                id_cuenta_bancaria,				tipo_contrato)
             VALUES (
                 v_planilla.id_usuario_reg,		'activo',					v_registros.id_funcionario,
                 p_id_planilla,					v_registros.id_uo_funcionario,v_registros.id_lugar,
                 'no',							'no',						v_id_afp,
-                v_id_cuenta_bancaria)
+                v_id_cuenta_bancaria,			v_registros.tipo_contrato)
             RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
                 
             for v_columnas in (	select * 
