@@ -76,7 +76,7 @@ BEGIN
     	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_planilla);
         v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla);
         v_tiene_incremento = 0;
-                      
+                   
         --calcular si tendra algun incremento durante el año        
         select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
         			and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
@@ -94,7 +94,7 @@ BEGIN
         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
         where fp.id_funcionario = v_registros.id_funcionario and  tp.codigo = 'PLASUE' and
         ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
-    	
+    	  
         if (v_resultado > 0) then
         	v_tiene_incremento = 1;
         end if;
@@ -119,7 +119,7 @@ BEGIN
             if (v_registros.lugares[1] is null) then
                 raise exception 'El cargo con identificador:% , no tiene una oficina asignada',v_registros.cargos[1];
             end if; 
-            v_tipo_contrato = plani.f_get_tipo_contrato(id_uo_funcionario);  
+            v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
                 id_usuario_reg,					estado_reg,					id_funcionario,
                 id_planilla,					id_uo_funcionario,			id_lugar,

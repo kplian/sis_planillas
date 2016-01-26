@@ -48,7 +48,9 @@ header("content-type: text/javascript; charset=UTF-8");
 			
 			this.Cmp.id_gestion.on('select',function(c,r,i){
 				this.Cmp.id_periodo.reset();
+				
 				this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
+				this.Cmp.id_periodo.modificado = true;
 			},this);
 			
 			

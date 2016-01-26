@@ -148,9 +148,9 @@ BEGIN
         	
             v_presupuesto = NULL;
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto,NULL::integer as id_cc, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_presupuesto,NULL::integer as id_cc, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto,max(uofun.fecha_asignacion) as fecha_asignacion ';
             else
-            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_cc,NULL::integer as id_presupuesto, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_cc,NULL::integer as id_presupuesto, sum((cv.valor*pro.porcentaje)/100)/8 as dias_presupuesto,max(uofun.fecha_asignacion) as fecha_asignacion ';
             end if;
             v_consulta =  v_consulta || '
                           from plani.tfuncionario_planilla fp
@@ -172,7 +172,7 @@ BEGIN
             	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,fp.id_funcionario,pro.id_cc ';
             end if;
             
-           
+            v_consulta = v_consulta || ' order by fecha_asignacion asc';
             select cv.valor::integer into v_dias_aguinaldo
             from  plani.tcolumna_valor cv
             where cv.id_funcionario_planilla = v_registros.id_funcionario_planilla and
@@ -290,15 +290,17 @@ BEGIN
         	
             v_presupuesto = NULL;
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_presupuesto,NULL::integer as id_cc, sum(cd.valor) as valor_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_centro_costo,NULL::integer as id_cc, sum(cd.valor) as valor_presupuesto ';
             else
-            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_cc,NULL::integer as id_presupuesto, sum(cd.valor) as valor_presupuesto ';
+            	v_consulta =  ' select ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_centro_costo,NULL::integer as id_presupuesto, sum(cd.valor) as valor_presupuesto ';
             end if;
             v_consulta =  v_consulta || '
                           from plani.tfuncionario_planilla fp
+                          inner join plani.tplanilla p
+                          	on p.id_planilla = fp.id_planilla
                           inner join plani.tcolumna_valor cv  on cv.id_funcionario_planilla = fp.id_funcionario_planilla
                           inner join plani.tcolumna_detalle cd  on cd.id_columna_valor = cv.id_columna_valor                          
-                          inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = cv.id_horas_trabajadas
+                          inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = cd.id_horas_trabajadas
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = ht.id_uo_funcionario
                           inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                           inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina';
@@ -309,17 +311,17 @@ BEGIN
             	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' ';
             end if;
                           
-            v_consulta = v_consulta || '   where cv.codigo_columna = ''COTIZABLE''  
-                          	and fp.id_funcionario = ' || v_registros.id_funcionario_planilla || ' and cp.fecha_ini<= ht.fecha_ini ';
+            v_consulta = v_consulta || '   where cv.codigo_columna = ''COTIZABLE''  and cp.id_gestion = p.id_gestion
+                          	and fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla|| ' and cp.fecha_ini<= ht.fecha_ini ';
             
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_presupuesto ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_centro_costo ';
             else
-            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_cc ';
+            	v_consulta = v_consulta || ' group by ofi.id_oficina,ofi.id_lugar,ht.tipo_contrato,cp.id_centro_costo ';
             end if;
             
            
-            select cv.valor::integer into v_valor_total
+            select cv.valor into v_valor_total
             from  plani.tcolumna_valor cv
             where cv.id_funcionario_planilla = v_registros.id_funcionario_planilla and
             cv.codigo_columna = 'COTIZABLE';          
@@ -328,7 +330,10 @@ BEGIN
                      
            for v_presupuesto in execute(v_consulta) loop
             	--se obtiene el porcentaje de los dias con el presupuesto de los dias del aguinaldo
-                v_porcentaje = round(v_presupuesto.valor_presupuesto/v_valor_total,2);
+                v_porcentaje = round(v_presupuesto.valor_presupuesto/v_valor_total,2)*100;
+                /*if (v_registros.id_funcionario_planilla = 217792) then
+                	raise exception '%,%',v_valor_total,v_presupuesto.valor_presupuesto;
+                end if;*/
             	v_suma = v_suma + v_porcentaje;
                 --si se excede por redondeo restamos la diferencia del ultimo prorrateo
                 if (v_suma > 100 and v_suma < 101) then
@@ -359,12 +364,12 @@ BEGIN
                   v_registros.id_funcionario_planilla,
                   NULL,
                   case when p_tipo_generacion = 'presupuestos' then 
-                  	v_presupuesto.id_presupuesto
+                  	v_presupuesto.id_centro_costo
                   else 
                   	NULL
                   END,
                   case when p_tipo_generacion = 'costos' then 
-                  	v_presupuesto.id_cc
+                  	v_presupuesto.id_centro_costo
                   else 
                   	NULL
                   END,
@@ -377,10 +382,10 @@ BEGIN
                 
            end loop;
            
-          if (v_suma < 100) then
-           		raise exception 'La suma de presupuestos para el empleado %, no suma el 100 porciento',v_registros.desc_funcionario1;
-           elsif (v_suma > 100) then
-           		raise exception 'La suma de presupuestos para el empleado %, suma mas del 100 porciento',v_registros.desc_funcionario1;
+          if (v_suma < 100) then          		
+           		raise exception 'La suma de presupuestos para el empleado %, no suma el 100 porciento,%',v_registros.desc_funcionario1,v_suma;
+           elsif (v_suma > 100) then           		
+           		raise exception 'La suma de presupuestos para el empleado %, suma mas del 100 porciento,%',v_registros.desc_funcionario1,v_suma;
            end if;         
                  
     	   	
@@ -535,11 +540,12 @@ BEGIN
                           order by cp.fecha_ini desc
                           limit 1 offset 0'; 
             
-            --raise exception '%',v_consulta;
+            
             execute v_consulta
         	into v_presupuesto;
             
             if (v_presupuesto is null) then
+            	
             	raise exception 'El cargo del funcionario % no tiene registrado un presupuesto',v_registros.desc_funcionario1;
             end if;
             
@@ -594,7 +600,7 @@ BEGIN
     	   	
         end loop;
     --llenar tprorrateo con los datos del ultimo centro de costo
-    elsif (v_planilla.tipo_presu_cc = 'ultimo_activo_gestion') then
+    elsif (v_planilla.tipo_presu_cc in ('ultimo_activo_gestion','ultimo_activo_gestion_anterior') ) then
     	
         for v_registros in (select fp.id_funcionario_planilla, fun.desc_funcionario1	
         							from plani.tfuncionario_planilla fp
@@ -639,10 +645,13 @@ BEGIN
             
             --para cada presupeusto en el array de presupuestos
             foreach v_id_presupuesto in array v_presupuesto.ids_presupuesto loop
-            	--actualizr el id_presupuesto a la gestion actual
-                select pids.id_presupuesto_dos into v_id_presupuesto
-                from pre.tpresupuesto_ids pids 
-                where pids.id_presupuesto_uno = v_id_presupuesto;
+            	if (v_planilla.tipo_presu_cc in ('ultimo_activo_gestion_anterior')) then
+                    --actualizr el id_presupuesto a la gestion actual
+                    select pids.id_presupuesto_dos into v_id_presupuesto
+                    from pre.tpresupuesto_ids pids 
+                    where pids.id_presupuesto_uno = v_id_presupuesto;
+                
+                end if;
                  
             	INSERT INTO 
                   plani.tprorrateo
@@ -705,6 +714,7 @@ BEGIN
                         inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and 
                         								(tc.compromete = ''si'' or tc.compromete = ''si_contable'')
                         where fp.id_planilla = ' || p_id_planilla;
+    
     
     end if;
     
