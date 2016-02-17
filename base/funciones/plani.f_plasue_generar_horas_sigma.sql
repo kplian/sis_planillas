@@ -22,6 +22,7 @@ DECLARE
   v_mes_fin				integer;
   v_ano_fin				integer;
   v_horas_licencia		integer;
+  v_horas_licencia_para_30 integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_plasue_generar_horas_sigma';
 	
@@ -81,6 +82,15 @@ BEGIN
                 tc.codigo in ('PLA', 'EVE') and fun.id_funcionario = v_empleados.id_funcionario
             order by fecha_asignacion asc) LOOP
         	v_dia_fin = extract(day from v_asignacion.fecha_fin_mes)::integer;
+            
+            if (v_dia_fin = 31) then
+            	v_horas_licencia_para_30 = -8;
+            elsif (29) then
+            	v_horas_licencia_para_30 = 8;
+            elsif (28) then
+            	v_horas_licencia_para_30 = 16;
+            end if;
+            
             v_mes_fin = extract(month from v_asignacion.fecha_fin_mes)::integer;
             v_ano_fin = extract(year from v_asignacion.fecha_fin_mes)::integer;
             
@@ -107,7 +117,7 @@ BEGIN
             
             --las que estan al final
             v_horas_licencia = v_horas_licencia +
-            COALESCE((select sum((v_asignacion.fecha_fin_mes - l.desde)* 8 + (1*8)) 
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - l.desde)* 8 + (1*8)) + v_horas_licencia_para_30
             from plani.tlicencia l
             where id_funcionario = v_asignacion.id_funcionario and
             l.estado_reg = 'activo' and (l.desde >= v_asignacion.fecha_ini_mes AND l.desde <= v_asignacion.fecha_fin_mes) AND
@@ -115,7 +125,7 @@ BEGIN
             
             --las que van de lado a lado           
             v_horas_licencia = v_horas_licencia +
-            COALESCE((select sum((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)* 8 + (1*8)) 
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)* 8 + (1*8)) + v_horas_licencia_para_30
             from plani.tlicencia l
             where id_funcionario = v_asignacion.id_funcionario and
             l.estado_reg = 'activo' and l.desde < v_asignacion.fecha_ini_mes AND

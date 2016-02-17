@@ -139,7 +139,7 @@ BEGIN
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
-                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else
@@ -186,7 +186,7 @@ BEGIN
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'mayor_55' AND
-                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else
@@ -232,7 +232,7 @@ BEGIN
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'mayor_65' AND
-                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else
@@ -278,7 +278,7 @@ BEGIN
             if (exists (select 1
                         from plani.tfuncionario_afp fa
                         where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
-                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini < p_fecha_ini and
+                        id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
                         (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
                 v_resultado = 0;       
             else

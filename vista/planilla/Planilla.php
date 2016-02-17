@@ -73,9 +73,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.addButton('btnPresupuestos',
             {
                 iconCls: 'bstats',
-                disabled: true,               
-                handler: this.onButtonPresupuestosConsolidado,
-                tooltip: 'Presupuestos Consolidados por Columnas'                
+                disabled: false,  
+                tooltip: 'Gestion de Presupuestos',
+                xtype: 'splitbutton',  
+                menu: [{
+                    text: 'Presupuesto por Empleado',
+                    id: 'btnPresupuestoEmpleado-' + this.idContenedor,
+                    handler: this.onButtonPresupuestoEmpleado,
+                    tooltip: 'Detalle de Presupuestos por Empleado',
+                    scope: this
+                }, {
+                    text: 'Subir Columnas desde CSV',
+                    id: 'btnPresupuestosCons-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosConsolidado,
+                    tooltip: 'Presupuestos Consolidados por Columnas' ,
+                    scope: this
+                }]                              
             }
         );
         this.addButton('btnObligaciones',
@@ -508,6 +521,20 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     'FuncionarioPlanillaColumna');
     },
     
+    onButtonPresupuestoEmpleado : function() {
+    	var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/presupuesto_empleado/PresupuestoEmpleado.php',
+                    'Apropiacion Presupuestaria por Empleado',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'PresupuestoEmpleado');
+    },
+    
     onButtonPresupuestosConsolidado : function () {
     		var rec = {maestro: this.sm.getSelected().data};
 						      
@@ -608,7 +635,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
          
         //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
         
-    	this.getBoton('btnPresupuestos').enable();         
+    	
+    	this.getBoton('btnPresupuestos').enable();           
         this.getBoton('btnObligaciones').enable();         
         this.getBoton('diagrama_gantt').enable();         
                
@@ -631,6 +659,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('ant_estado').disable();
         this.getBoton('sig_estado').disable();
         this.getBoton('btnChequeoDocumentosWf').disable();  
+        this.getBoton('btnPresupuestos').disable(); 
         
     },
     south:{
