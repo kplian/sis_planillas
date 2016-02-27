@@ -81,13 +81,14 @@ BEGIN
                 AND uofun.estado_reg = 'activo' and uofun.tipo = 'oficial' and 
                 tc.codigo in ('PLA', 'EVE') and fun.id_funcionario = v_empleados.id_funcionario
             order by fecha_asignacion asc) LOOP
+            
         	v_dia_fin = extract(day from v_asignacion.fecha_fin_mes)::integer;
             
             if (v_dia_fin = 31) then
             	v_horas_licencia_para_30 = -8;
-            elsif (29) then
+            elsif (v_dia_fin = 29) then
             	v_horas_licencia_para_30 = 8;
-            elsif (28) then
+            elsif (v_dia_fin = 28) then
             	v_horas_licencia_para_30 = 16;
             end if;
             
@@ -152,10 +153,11 @@ BEGIN
             
             v_horas_total = v_horas_total + v_horas_contrato;
             
-            if (v_horas_total > v_planilla.horas_mes) then
+            if (v_horas_total > v_cantidad_horas_mes) then
+            	
         		raise exception 'La cantidad de dias trabajados para el empleado % , 
                         es superior a la cantidad de dias en el periodo. 
-                        Por favor revise la informacion de los contratos', p_nombre_empleado;
+                        Por favor revise la informacion de los contratos', v_asignacion.nombre_funcionario;
         	end if;
             if (v_horas_contrato > 0) then
                INSERT INTO 
