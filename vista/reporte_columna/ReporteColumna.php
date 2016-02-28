@@ -139,7 +139,28 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
+		{
+			config:{
+				name: 'tipo_columna',
+				fieldLabel: 'Tipo de Columna',
+				allowBlank:false,
+				emptyText:'Tipo de Columna...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['planilla','boleta','archivo_texto']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['planilla','boleta','archivo_texto'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		{
 			config:{
 				name: 'titulo_reporte_inferior',
@@ -258,6 +279,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_reporte_columna', type: 'numeric'},
 		{name:'id_reporte', type: 'numeric'},
 		{name:'sumar_total', type: 'string'},
+		{name:'tipo_columna', type: 'string'},
 		{name:'ancho_columna', type: 'numeric'},
 		{name:'orden', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
@@ -279,7 +301,15 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 	bdel:true,
 	bsave:true,
 	onReloadPage:function(m){
-		this.maestro=m;					
+		this.maestro=m;
+		if (this.maestro.tipo_reporte == 'boleta') {
+			this.mostrarComponente(this.Cmp.tipo_columna);
+			this.Cmp.tipo_columna.allowBlank = false;
+						
+		} else {
+			this.ocultarComponente(this.Cmp.tipo_columna);
+			this.Cmp.tipo_columna.allowBlank = true;
+		}
 		this.load({params:{start:0, limit:this.tam_pag,id_reporte:this.maestro.id_reporte}});
 		this.Cmp.codigo_columna.store.baseParams.id_tipo_planilla = this.maestro.id_tipo_planilla;			
 	},

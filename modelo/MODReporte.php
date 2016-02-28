@@ -41,6 +41,7 @@ class MODReporte extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('control_reporte','varchar');
+		$this->captura('tipo_reporte','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -71,6 +72,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -102,6 +104,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
