@@ -69,6 +69,20 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 				form:true
 		},
 		{
+            config:{
+                name: 'ci',
+                fieldLabel: 'CI',
+                allowBlank: true,
+                gwidth: 130
+            },
+                type:'TextField',
+                filters:{pfiltro:'fun.ci',type:'string'},
+                id_grupo:1,
+                grid:true,
+                form:false,
+                bottom_filter : true
+        },  
+		{
 			config:{
 				name: 'desc_funcionario',
 				fieldLabel: 'Funcionario',
@@ -79,7 +93,8 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
 				id_grupo:1,
 				grid:true,
-				form:false
+				form:false,
+                bottom_filter : true
 		},		
 		{
 			config:{
@@ -297,6 +312,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'desc_funcionario', type: 'string'},
+		{name:'ci', type: 'string'},
 		
 	],
 	sortInfo:{

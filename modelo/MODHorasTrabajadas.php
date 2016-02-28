@@ -39,6 +39,7 @@ class MODHorasTrabajadas extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_funcionario','text');
+        $this->captura('ci','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

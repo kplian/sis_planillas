@@ -60,6 +60,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     handler: this.onButtonColumnasCsv,
                     tooltip: 'Subir Columnas desde archivo Csv',
                     scope: this
+                }, {
+                    text: 'Generar descuento cheque',
+                    id: 'btnGenerarCheque-' + this.idContenedor,
+                    handler: this.onButtonGenerarCheque,
+                    tooltip: 'Generar descuento de cheque a partir de la diferencia entre la planilla Sigma y ERP',
+                    scope: this
                 }]
             }
         );
@@ -67,9 +73,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.addButton('btnPresupuestos',
             {
                 iconCls: 'bstats',
-                disabled: true,               
-                handler: this.onButtonPresupuestosConsolidado,
-                tooltip: 'Presupuestos Consolidados por Columnas'                
+                disabled: false,  
+                tooltip: 'Gestion de Presupuestos',
+                xtype: 'splitbutton',  
+                menu: [{
+                    text: 'Presupuesto por Empleado',
+                    id: 'btnPresupuestoEmpleado-' + this.idContenedor,
+                    handler: this.onButtonPresupuestoEmpleado,
+                    tooltip: 'Detalle de Presupuestos por Empleado',
+                    scope: this
+                }, {
+                    text: 'Subir Columnas desde CSV',
+                    id: 'btnPresupuestosCons-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosConsolidado,
+                    tooltip: 'Presupuestos Consolidados por Columnas' ,
+                    scope: this
+                }]                              
             }
         );
         this.addButton('btnObligaciones',
@@ -105,27 +124,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		{
-   			config:{
-   				name:'id_depto',
-   				 hiddenName: 'id_depto',
-   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
-	   				origen:'DEPTO',
-	   				allowBlank:false,
-	   				fieldLabel: 'Depto',
-	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
-	   				width:250,
-   			        gwidth:180,
-	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
-	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
-   			},
-   			//type:'TrigguerCombo',
-   			type:'ComboRec',
-   			id_grupo:0,
-   			filters:{pfiltro:'depto.nombre',type:'string'},
-   		    grid:true,
-   			form:true
-       	},
+		
 		{
 			config:{
 				name: 'nro_planilla',
@@ -142,22 +141,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				form:false,
 				bottom_filter : true
 		},
-		{
-			config:{
-				name: 'estado',
-				fieldLabel: 'Estado',
-				allowBlank: false,
-				anchor: '80%',
-				gwidth: 100,
-				maxLength:50
-			},
-				type:'TextField',
-				filters:{pfiltro:'plani.estado',type:'string'},
-				id_grupo:1,
-				grid:true,
-				form:false,
-				bottom_filter : true
-		},
+		
 		{
 			config: {
 				name: 'id_tipo_planilla',
@@ -183,7 +167,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				}),
 				valueField: 'id_tipo_planilla',
 				displayField: 'nombre',
-				gdisplayField: 'codigo_planilla',
+				gdisplayField: 'nombre_planilla',
 				triggerAction: 'all',
 				lazyRender: true,
 				mode: 'remote',
@@ -197,12 +181,51 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			type: 'ComboBox',
 			id_grupo: 0,
 			filters: {
-				pfiltro: 'tippla.codigo',
+				pfiltro: 'tippla.nombre',
 				type: 'string'
 			},
 			grid: true,
-			form: true
-		},		
+			form: true,
+            bottom_filter : true
+		},
+		{
+			config:{
+				name: 'estado',
+				fieldLabel: 'Estado',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:50
+			},
+				type:'TextField',
+				filters:{pfiltro:'plani.estado',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:false,
+				bottom_filter : true
+		},
+		
+		{
+   			config:{
+   				name:'id_depto',
+   				 hiddenName: 'id_depto',
+   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+	   				origen:'DEPTO',
+	   				allowBlank:false,
+	   				fieldLabel: 'Depto',
+	   				gdisplayField:'desc_depto',//dibuja el campo extra de la consulta al hacer un inner join con orra tabla
+	   				width:250,
+   			        gwidth:180,
+	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'},//parametros adicionales que se le pasan al store
+	      			renderer:function (value, p, record){return String.format('{0}', record.data['nombre_depto']);}
+   			},
+   			//type:'TrigguerCombo',
+   			type:'ComboRec',
+   			id_grupo:0,
+   			filters:{pfiltro:'depto.nombre',type:'string'},
+   		    grid:true,
+   			form:true
+       	},		
 		{
 	   			config:{
 	   				name : 'id_gestion',
@@ -221,7 +244,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				},
 	   		   
 	   			grid : true,
-	   			form : true
+	   			form : true,
+                bottom_filter : true
 	   	},
 		{
 	   			config:{
@@ -241,7 +265,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				},
 	   		   
 	   			grid : true,
-	   			form : true
+	   			form : true,
+                bottom_filter : true
 	   	},
 	   	{
 			config:{
@@ -394,7 +419,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_gestion', type: 'numeric'},
 		{name:'gestion', type: 'numeric'},
 		{name:'periodo', type: 'numeric'},
-		{name:'codigo_planilla', type: 'string'},
+		{name:'nombre_planilla', type: 'string'},
 		{name:'calculo_horas', type: 'string'},
 		{name:'plani_tiene_presupuestos', type: 'string'},
 		{name:'plani_tiene_costos', type: 'string'},
@@ -419,7 +444,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	],
 	sortInfo:{
 		field: 'id_planilla',
-		direction: 'ASC'
+		direction: 'DESC'
 	},
 	bdel:true,
 	bsave:true,
@@ -496,6 +521,20 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     'FuncionarioPlanillaColumna');
     },
     
+    onButtonPresupuestoEmpleado : function() {
+    	var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/presupuesto_empleado/PresupuestoEmpleado.php',
+                    'Apropiacion Presupuestaria por Empleado',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'PresupuestoEmpleado');
+    },
+    
     onButtonPresupuestosConsolidado : function () {
     		var rec = {maestro: this.sm.getSelected().data};
 						      
@@ -543,6 +582,22 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             height:200
         },rec.data,this.idContenedor,'ColumnaCsv')
     },
+    onButtonGenerarCheque : function() {                   
+        var rec=this.sm.getSelected();
+	    Phx.CP.loadingShow();
+	        
+	        Ext.Ajax.request({
+	            url:'../../sis_planillas/control/Planilla/generarDescuentoCheque',
+	            params:{
+	                    
+	                id_planilla:  rec.data.id_planilla
+	                },
+	            success:this.successSave,
+	            failure: this.conexionFailure,	            
+	            timeout:this.timeout,
+	            scope:this
+	        });
+	},
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
         this.desactivarMenu();         
@@ -553,10 +608,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('btnColumnas').enable();
         if (rec.data.estado== 'calculo_columnas') { 
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
-        	this.getBoton('btnColumnas').menu.items.items[1].enable();        	
+        	this.getBoton('btnColumnas').menu.items.items[1].enable(); 
+        	this.getBoton('btnColumnas').menu.items.items[2].enable();       	
         } else {
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
-        	this.getBoton('btnColumnas').menu.items.items[1].disable(); 
+        	this.getBoton('btnColumnas').menu.items.items[1].disable();
+        	this.getBoton('btnColumnas').menu.items.items[2].disable(); 
         }
         
         if (rec.data.estado == 'registro_funcionarios') {
@@ -578,7 +635,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
          
         //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
         
-    	this.getBoton('btnPresupuestos').enable();         
+    	
+    	this.getBoton('btnPresupuestos').enable();           
         this.getBoton('btnObligaciones').enable();         
         this.getBoton('diagrama_gantt').enable();         
                
@@ -601,6 +659,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('ant_estado').disable();
         this.getBoton('sig_estado').disable();
         this.getBoton('btnChequeoDocumentosWf').disable();  
+        this.getBoton('btnPresupuestos').disable(); 
         
     },
     south:{

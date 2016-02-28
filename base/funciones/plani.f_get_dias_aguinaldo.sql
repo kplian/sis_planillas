@@ -16,6 +16,7 @@ DECLARE
     v_dias			integer;
     v_nombre_funcion	varchar;
     v_resp				varchar;
+    v_dias_en_mes		integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_get_dias_aguinaldo';
     
@@ -52,6 +53,18 @@ BEGIN
                                         
     --obtengo la cantidad de dias del mes inicial
     v_dias =  v_fecha_ini_mes	 - v_fecha_ini_emp;
+    
+     --solo por sigma
+    v_dias_en_mes = DATE_PART('days', 
+        DATE_TRUNC('month', v_fecha_ini_emp) 
+        + '1 MONTH'::INTERVAL 
+        - '1 day'::interval
+    )::integer;
+    
+    if (v_dias > 0 ) then
+    	v_dias = v_dias + (30 - v_dias_en_mes);
+    end if;
+    
                         
     --obtengo la cantidad de dias del mes final
     v_dias = v_dias + (v_fecha_fin_emp - v_fecha_fin_mes);

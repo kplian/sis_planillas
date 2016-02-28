@@ -505,6 +505,111 @@ ALTER TABLE plani.thoras_trabajadas
   
 /***********************************F-SCP-JRR-PLANI-0-04/12/2014****************************************/
 
+
+/***********************************I-SCP-JRR-PLANI-0-10/07/2015****************************************/
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (tipo_presu_cc = 'parametrizacion' OR tipo_presu_cc = 'ultimo_activo_periodo' OR tipo_presu_cc = 'prorrateo_aguinaldo' OR tipo_presu_cc = 'retroactivo_sueldo' OR tipo_presu_cc = 'retroactivo_asignaciones');
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN tipo_contrato VARCHAR(10);  
+
+/***********************************F-SCP-JRR-PLANI-0-10/07/2015****************************************/
+
+
+/***********************************I-SCP-JRR-PLANI-0-20/07/2015****************************************/
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN porcentaje_dias NUMERIC(5,2); 
+  
+/***********************************F-SCP-JRR-PLANI-0-20/07/2015****************************************/ 
+
+/***********************************I-SCP-JRR-PLANI-0-29/07/2015****************************************/
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN id_oficina INTEGER; 
+  
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN id_lugar INTEGER;
+  
+ALTER TABLE plani.tprorrateo_columna
+  ADD COLUMN id_oficina INTEGER; 
+  
+ALTER TABLE plani.tprorrateo_columna
+  ADD COLUMN id_lugar INTEGER; 
+  
+/***********************************F-SCP-JRR-PLANI-0-29/07/2015****************************************/ 
+
+/***********************************I-SCP-JRR-PLANI-0-29/08/2015****************************************/
+ -- object recreation
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text));
+  
+/***********************************F-SCP-JRR-PLANI-0-29/08/2015****************************************/
+
+
+/***********************************I-SCP-JRR-PLANI-0-22/09/2015****************************************/
+
+CREATE TABLE plani.tplanilla_sigma (
+  id_planilla_sigma SERIAL NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  id_periodo INTEGER,
+  id_gestion INTEGER NOT NULL,
+  id_tipo_planilla INTEGER NOT NULL,
+  sueldo_liquido numeric NOT NULL,   
+  PRIMARY KEY(id_planilla_sigma)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+CREATE TABLE plani.tsigma_equivalencias (
+  ci_sigma VARCHAR NOT NULL, 
+  ci_erp VARCHAR NOT NULL
+) 
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-22/09/2015****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-29/10/2015****************************************/
+CREATE TABLE plani.tlicencia (
+  id_licencia SERIAL NOT NULL, 
+  id_funcionario INTEGER NOT NULL, 
+  motivo TEXT NOT NULL,
+  desde DATE NOT NULL,
+  hasta DATE NOT NULL,
+  estado VARCHAR NOT NULL,
+  id_tipo_licencia INTEGER NOT NULL,   
+  PRIMARY KEY(id_licencia)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+
+CREATE TABLE plani.ttipo_licencia (
+  id_tipo_licencia SERIAL NOT NULL, 
+  codigo VARCHAR(20) NOT NULL, 
+  nombre VARCHAR (100) NOT NULL,
+  genera_descuento VARCHAR(2) NOT NULL,   
+  PRIMARY KEY(id_tipo_licencia)
+) INHERITS (pxp.tbase)
+WITHOUT OIDS;
+
+/***********************************F-SCP-JRR-PLANI-0-29/10/2015****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-31/12/2015****************************************/
+
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text));
+  
+
+/***********************************F-SCP-JRR-PLANI-0-31/12/2015****************************************/
+
 /***********************************I-SCP-JRR-PLANI-0-28/02/2016****************************************/
 
 ALTER TABLE plani.treporte
@@ -517,3 +622,4 @@ ALTER TABLE plani.treporte_columna
   ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (((((tipo_columna)::text = 'ingreso'::text) OR ((tipo_columna)::text = 'descuento_ley'::text)) OR ((tipo_columna)::text = 'otros_descuentos'::text)) OR ((tipo_columna)::text = 'iva'::text));
   
 /***********************************F-SCP-JRR-PLANI-0-28/02/2016****************************************/
+

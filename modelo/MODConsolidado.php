@@ -105,6 +105,28 @@ class MODConsolidado extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	function listarDetalleEjecucionPeriodo(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_consolidado_sel';
+		$this->transaccion='PLA_DETEJEREP_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		
+		$this->captura('codigo_cc','text');		
+		$this->captura('columna','varchar');
+		$this->captura('tipo_contrato','varchar');		
+		$this->captura('ejecutado','numeric');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
 			
 }
 ?>

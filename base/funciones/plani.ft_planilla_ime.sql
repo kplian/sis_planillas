@@ -67,6 +67,9 @@ DECLARE
     v_id_funcionario	integer;
     v_id_usuario_reg	integer;
     v_codigo_llave		varchar;
+    v_liquido_erp	numeric;
+    v_liquido_sigma		numeric;
+    v_columna_cheque	varchar;    
     
 			    
 BEGIN
@@ -308,6 +311,83 @@ BEGIN
 		end;
     
     /*********************************    
+ 	#TRANSACCION:  'PLA_GENDESCHE_PRO'
+ 	#DESCRIPCION:	Genera descuentos por cheque para la planilla en base a la diferencia entre planillas del erp y sigma
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_GENDESCHE_PRO')then
+
+		begin
+        
+        	select pla.*, tp.codigo as tipo_planilla,tp.periodicidad into v_planilla
+            from plani.tplanilla pla
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
+            where pla.id_planilla = v_parametros.id_planilla;
+            
+            if (v_planilla.estado != 'calculo_columnas') then
+            	raise exception 'La planilla debe estar en estado calculo_columnas para generar los descuentos por cheque';
+            end if;
+            
+            --verificar que la planilla del sigma haya sido subida
+            if (not exists(select 1 
+                          from plani.tplanilla_sigma ps
+                          where (ps.id_periodo = v_planilla.id_periodo or 
+                          		(v_planilla.periodicidad = 'anual' and ps.id_periodo is null)) and ps.id_gestion = v_planilla.id_gestion and
+                          ps.id_tipo_planilla = v_planilla.id_tipo_planilla)) then
+            	raise exception 'No se ha subido la planilla del sigma para poder calcular el descuento por cheques';
+            
+            end if;
+            
+            if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN','PLASEGAGUI'))then
+            	v_columna_cheque = 'DESCCHEQ';
+            elsif (v_planilla.tipo_planilla = 'PLAPRI') then
+            	v_columna_cheque = 'OTDESC';
+            else
+            	raise exception 'El tipo de planilla no tiene descuento por cheque';
+            end if;
+        	
+        	for v_registros in (select fp.id_funcionario, fp.id_funcionario_planilla
+            					from plani.tfuncionario_planilla fp                                
+                                where fp.id_planilla =  v_parametros.id_planilla) loop
+            	
+                select cv.valor into v_liquido_erp
+                from plani.tcolumna_valor cv
+                where cv.id_funcionario_planilla = v_registros.id_funcionario_planilla and
+                cv.codigo_columna = 'LIQPAG' and cv.estado_reg = 'activo';
+                
+                select sum(ps.sueldo_liquido) into v_liquido_sigma
+                from plani.tplanilla_sigma ps
+                where ps.id_funcionario = v_registros.id_funcionario and
+                (ps.id_periodo = v_planilla.id_periodo or 
+                (v_planilla.periodicidad = 'anual' and ps.id_periodo is null))
+                
+                and ps.id_gestion = v_planilla.id_gestion and
+                ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
+                
+                if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
+                	trunc(v_liquido_sigma) = v_liquido_sigma) then                    
+                	
+                    update plani.tcolumna_valor 
+                    set valor = v_liquido_erp - v_liquido_sigma
+                    where id_funcionario_planilla = v_registros.id_funcionario_planilla and
+                    codigo_columna = v_columna_cheque and estado_reg = 'activo';
+                end if;   
+                
+                
+            end loop;
+             
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Descuento por cheque generado'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+    
+    /*********************************    
  	#TRANSACCION:  'PLA_ANTEPLA_IME'
  	#DESCRIPCION:	Transaccion utilizada  pasar a  estados anterior en la planilla
                     segun la operacion definida
@@ -507,6 +587,15 @@ BEGIN
                                                              v_parametros_ad,
                                                              v_tipo_noti,
                                                              v_titulo);
+          
+          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
+           									v_parametros._id_usuario_ai, 
+                                            v_parametros._nombre_usuario_ai, 
+                                            v_id_estado_actual, 
+                                            v_parametros.id_proceso_wf_act, 
+                                            v_codigo_estado_siguiente) THEN
+                                            
+          END IF;
                 
           --------------------------------------
           -- registra los procesos disparados
@@ -582,14 +671,7 @@ BEGIN
            -- actualiza estado en la solicitud
            -- funcion para cambio de estado     
            
-          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
-           									v_parametros._id_usuario_ai, 
-                                            v_parametros._nombre_usuario_ai, 
-                                            v_id_estado_actual, 
-                                            v_parametros.id_proceso_wf_act, 
-                                            v_codigo_estado_siguiente) THEN
-                                            
-          END IF;
+          
           
           
           -- si hay mas de un estado disponible  preguntamos al usuario

@@ -65,9 +65,9 @@ BEGIN
                   on procol.id_prorrateo = pro.id_prorrateo and procol.id_tipo_columna = cv.id_tipo_columna
               inner join param.tlugar lug 
                   on lug.id_lugar = fp.id_lugar
-              inner join plani.tfuncionario_afp fafp
+              left join plani.tfuncionario_afp fafp
                   on fafp.id_funcionario_afp = fp.id_afp
-              inner join plani.tafp afp
+              left join plani.tafp afp
                   on afp.id_afp = fafp.id_afp
               inner join orga.vfuncionario fun 
                   on fun.id_funcionario = fp.id_funcionario

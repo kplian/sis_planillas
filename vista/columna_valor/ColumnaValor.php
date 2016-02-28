@@ -241,7 +241,8 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 	onReloadPage:function(m, x){  		 
 		this.maestro=m;
-		this.load({params:{start:0, limit:this.tam_pag,id_funcionario_planilla:this.maestro.id_funcionario_planilla}});
+		this.store.baseParams.id_funcionario_planilla = this.maestro.id_funcionario_planilla;
+		this.load({params:{start:0, limit:this.tam_pag}});
 
 
 	}

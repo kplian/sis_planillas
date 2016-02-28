@@ -120,8 +120,7 @@ BEGIN
 			id_funcionario_planilla = v_parametros.id_funcionario_planilla,
 			codigo_columna = v_parametros.codigo_columna,
 			valor = v_parametros.valor,
-			valor_generado = v_parametros.valor_generado,
-			formula = v_parametros.formula,
+			valor_generado = v_parametros.valor_generado,			
 			fecha_mod = now(),
 			id_usuario_mod = p_id_usuario
 			where id_columna_valor=v_parametros.id_columna_valor;

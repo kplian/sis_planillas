@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_consolidado_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.ft_consolidado_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_consolidado_sel
@@ -117,6 +121,43 @@ BEGIN
 			return v_consulta;
 
 		end;
+    /*********************************    
+ 	#TRANSACCION:  'PLA_DETEJEREP_SEL'
+ 	#DESCRIPCION:	Listado de ejecucion presupeustaria por tipo de planilla, periodo y gestion
+ 	#AUTOR:		jrivera	
+ 	#FECHA:		14-07-2014 19:04:10
+	***********************************/
+
+	elsif(p_transaccion='PLA_DETEJEREP_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						pre.codigo_cc,
+                        tipcol.nombre,
+						concol.tipo_contrato,
+                        
+						concol.valor_ejecutado
+						from plani.tconsolidado_columna concol
+						inner join plani.ttipo_columna tipcol
+							on tipcol.id_tipo_columna = concol.id_tipo_columna
+                        inner join plani.tconsolidado con 
+                        	on concol.id_consolidado = con.id_consolidado
+                        inner join plani.tplanilla plani 
+                        	on plani.id_planilla = con.id_planilla 
+                        inner join pre.vpresupuesto_cc pre 
+                        	on pre.id_centro_costo = con.id_presupuesto                      
+												
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by pre.codigo_cc, tipcol.nombre, concol.tipo_contrato';
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
 					
 	else
 					     
@@ -133,7 +174,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_consolidado_sel"(integer, integer, character varying, character varying) OWNER TO postgres;

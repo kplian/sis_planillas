@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION plani.f_plasue_generar_horas (
   p_id_planilla integer,
-  p_id_usuario integer
+  p_id_usuario integer,
+  p_id_funcionario_planilla integer = NULL::integer
 )
 RETURNS varchar AS
 $body$
@@ -16,6 +17,8 @@ DECLARE
   v_mensaje_error         	text;
   v_cantidad_horas_mes		integer;
   v_planilla			record;
+  v_filter				varchar;
+  v_horas_licencia		integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_plasue_generar_horas';
 	
@@ -31,9 +34,14 @@ BEGIN
     
     v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
     
-    for v_empleados in (select * 
-    					from plani.tfuncionario_planilla 
-                        where id_funcionario_planilla = 129439) loop
+    if (p_id_funcionario_planilla is not null) then
+    	v_filter = ' where id_funcionario_planilla = ' || p_id_funcionario_planilla ;
+    else
+    	v_filter = ' where id_planilla = ' || p_id_planilla ;
+    end if;
+    
+    for v_empleados in execute ('select * 
+    					from plani.tfuncionario_planilla ' || v_filter) loop
                         
     	v_horas_total = 0;
         v_ultimo_id_mayor_uno = NULL;
@@ -56,7 +64,8 @@ BEGIN
             fun.desc_funcionario1 as nombre_funcionario,
             ofi.zona_franca,
             ofi.frontera,
-            es.id_escala_salarial
+            es.id_escala_salarial,
+            uofun.id_funcionario
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -72,6 +81,41 @@ BEGIN
             v_horas_contrato = ((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)*8) + (1*8);
             
             v_horas_total = v_horas_total + v_horas_contrato;
+            
+            --obtener licencias para el empleado
+            v_horas_licencia = 0;
+            
+            --las que estan dentro del rango
+            v_horas_licencia = v_horas_licencia +
+            coalesce((select sum((l.hasta - l.desde)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde >= v_asignacion.fecha_ini_mes AND
+            l.hasta <= v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
+            
+            --las que estan inicio
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((l.hasta - v_asignacion.fecha_ini_mes)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde < v_asignacion.fecha_ini_mes AND
+            (l.hasta <= v_asignacion.fecha_fin_mes and l.hasta >= v_asignacion.fecha_ini_mes) and l.estado = 'finalizado'),0);
+            
+            --las que estan al final
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - l.desde)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and (l.desde >= v_asignacion.fecha_ini_mes AND l.desde <= v_asignacion.fecha_fin_mes) AND
+            l.hasta > v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
+            
+            --las que van de lado a lado           
+            v_horas_licencia = v_horas_licencia +
+            COALESCE((select sum((v_asignacion.fecha_fin_mes - v_asignacion.fecha_ini_mes)* 8 + (1*8)) 
+            from plani.tlicencia l
+            where id_funcionario = v_asignacion.id_funcionario and
+            l.estado_reg = 'activo' and l.desde < v_asignacion.fecha_ini_mes AND
+            l.hasta > v_asignacion.fecha_fin_mes and l.estado = 'finalizado'),0);
             
             if (v_horas_total > v_planilla.horas_mes) then
         		raise exception 'La cantidad de dias trabajados para el empleado % , 
@@ -98,7 +142,7 @@ BEGIN
               p_id_usuario,
               v_asignacion.id_uo_funcionario,
               v_empleados.id_funcionario_planilla,
-              v_horas_contrato,
+              v_horas_contrato - v_horas_licencia,
               v_horas_contrato,
               v_asignacion.codigo,
               orga.f_get_haber_basico_a_fecha(v_asignacion.id_escala_salarial,v_planilla.fecha_ini),
@@ -118,8 +162,14 @@ BEGIN
         if(v_horas_total = v_planilla.horas_mes and v_horas_total < v_cantidad_horas_mes)THEN
         	       
             update plani.thoras_trabajadas
-            set horas_normales = v_cantidad_horas_mes,
-            horas_normales_contrato = v_cantidad_horas_mes
+            set horas_normales = (case when horas_normales = horas_normales_contrato THEN
+            						 horas_normales_contrato + (v_cantidad_horas_mes - horas_normales_contrato)
+            					when horas_normales = 0 THEN
+                                    	0
+            					 else
+                                 	 horas_normales + (v_cantidad_horas_mes - horas_normales_contrato)
+                                 END),
+            horas_normales_contrato = horas_normales_contrato + (v_cantidad_horas_mes - horas_normales_contrato)
             where id_uo_funcionario = v_ultimo_id_uo_funcionario and 
                 id_funcionario_planilla = v_empleados.id_funcionario_planilla;
             
@@ -129,7 +179,7 @@ BEGIN
         if(v_horas_total >= v_cantidad_horas_mes and v_planilla.horas_mes = 248 and v_ultimo_id_mayor_uno is not null)THEN
                             
             update plani.thoras_trabajadas
-            set horas_normales = horas_normales - 8 ,
+            set horas_normales = (case when horas_normales = 0 then 0 else  horas_normales - 8 end) ,
             horas_normales_contrato = horas_normales_contrato - 8            
             where id_uo_funcionario = v_ultimo_id_mayor_uno and 
             	id_funcionario_planilla = v_empleados.id_funcionario_planilla;
