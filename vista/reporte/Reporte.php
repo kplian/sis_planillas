@@ -348,7 +348,29 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		}
+		},
+		{
+			config:{
+				name: 'tipo_reporte',
+				fieldLabel: 'Tipo de Reporte',
+				allowBlank:false,
+				emptyText:'Tipo hoja...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['planilla','boleta','archivo_texto']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['planilla','boleta','archivo_texto'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},	
 	],
 	tam_pag:50,	
 	title:'Reportes de Planilla',
@@ -378,6 +400,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		{name:'tipo_reporte', type: 'string'},
 		
 	],
 	sortInfo:{

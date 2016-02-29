@@ -41,6 +41,7 @@ class MODTipoColumna extends MODbase{
 		$this->captura('finiquito','varchar');
 		$this->captura('tiene_detalle','varchar');
 		
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -69,7 +70,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('formula','formula','varchar');
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
-
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -99,6 +100,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('formula','formula','varchar');
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

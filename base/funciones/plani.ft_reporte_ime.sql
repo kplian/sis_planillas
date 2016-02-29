@@ -61,7 +61,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
 			ancho_total,
-			control_reporte
+			control_reporte,
+			tipo_reporte
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.numerar,
@@ -80,7 +81,8 @@ BEGIN
 			null,
 			null,
 			plani.f_reporte_get_ancho_total_hoja(v_parametros.hoja_posicion),
-			v_parametros.control_reporte
+			v_parametros.control_reporte,
+			v_parametros.tipo_reporte
 							
 			)RETURNING id_reporte into v_id_reporte;
 			
@@ -120,7 +122,8 @@ BEGIN
 			titulo_reporte = v_parametros.titulo_reporte,
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
-			control_reporte = v_parametros.control_reporte
+			control_reporte = v_parametros.control_reporte,
+			tipo_reporte = v_parametros.tipo_reporte
 			where id_reporte=v_parametros.id_reporte;
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte);   
 			--Definicion de la respuesta
