@@ -150,12 +150,12 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['planilla','boleta','archivo_texto']
+				store:['ingreso','descuento_ley','otros_descuentos','iva'],	
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['planilla','boleta','archivo_texto'],	
+	       				 options: ['ingreso','descuento_ley','otros_descuentos','iva'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,

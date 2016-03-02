@@ -16,7 +16,16 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.FuncionarioPlanilla.superclass.constructor.call(this,config);
-		this.init();		
+		this.init();	
+		this.addButton('btnBoleta',
+            {
+            	text:'Boleta',
+                iconCls: 'bpdf32',
+                disabled: true,                               
+                handler: this.onButtonBoleta,
+                tooltip: 'Boleta de Pago'                
+            }
+        );	
 	},
 			
 	Atributos:[
@@ -319,7 +328,32 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
     	this.mostrarComponente(this.Cmp.id_funcionario);
     	Phx.vista.FuncionarioPlanilla.superclass.onButtonNew.call(this);
     	
-    }
+    },
+    liberaMenu:function()
+    {	
+        this.getBoton('btnBoleta').disable();      
+        Phx.vista.FuncionarioPlanilla.superclass.liberaMenu.call(this);
+    },
+    preparaMenu:function()
+    {	
+        this.getBoton('btnBoleta').enable();          
+        Phx.vista.FuncionarioPlanilla.superclass.preparaMenu.call(this);
+    },
+    onButtonBoleta : function() {            
+            var data=this.sm.getSelected().data;
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_planillas/control/Reporte/reporteBoleta',
+                params:{'id_tipo_planilla' : this.maestro.id_tipo_planilla,
+                		'id_gestion' : this.maestro.id_gestion,
+                		'id_periodo' : this.maestro.id_periodo,
+                		'id_funcionario' : data.id_funcionario},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });         
+    } 
 	}
 )
 </script>

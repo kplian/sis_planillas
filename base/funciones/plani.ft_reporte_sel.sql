@@ -117,6 +117,7 @@ BEGIN
      				
     	begin
         	
+        	
             --Sentencia de la consulta
 			v_consulta:='select
             				repo.numerar,
@@ -152,6 +153,105 @@ BEGIN
 			return v_consulta;
 						
 		end;
+		
+	/*********************************    
+ 	#TRANSACCION:  'PLA_REPOMAESBOL_SEL'
+ 	#DESCRIPCION:	Reporte Generico de boleta de sueldos maestro
+ 	#AUTOR:		admin	
+ 	#FECHA:		17-01-2014 22:07:28
+	***********************************/
+
+	elsif(p_transaccion='PLA_REPOMAESBOL_SEL')then
+     				
+    	begin
+    		if (not exists(	select 1 
+        					from plani.treporte r
+        					where r.id_tipo_planilla = v_parametros.id_tipo_planilla and r.estado_reg = 'activo' and
+        					r.tipo_reporte = 'boleta')) then
+        		raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
+        	end if;
+        	
+            --Sentencia de la consulta
+			v_consulta:='select            				
+                            repo.titulo_reporte,
+                            plani.nro_planilla,
+                            param.f_literal_periodo(per.id_periodo),
+                            ges.gestion,
+                            emp.nit,
+                            ''''::varchar as numero_patronal,
+                            fun.desc_funcionario1::varchar as nombre,
+                            car.nombre as cargo,
+                            fun.codigo as codigo_empleado,
+                            sum(ht.horas_normales)::integer
+                            
+						from plani.tplanilla plani
+						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+                        left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                        inner join param.tgestion ges on ges.id_gestion = plani.id_gestion    
+                        inner join param.tempresa emp on emp.estado_reg = ''activo'' 
+                        inner join plani.tfuncionario_planilla planifun  on planifun.id_planilla = plani.id_planilla
+                        inner join orga.vfuncionario fun on fun.id_funcionario = planifun.id_funcionario                                        
+				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = planifun.id_uo_funcionario
+				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
+				        where repo.tipo_reporte = ''boleta'' and ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' group by 
+							repo.titulo_reporte,
+							plani.nro_planilla,
+                            per.id_periodo,
+                            ges.gestion,
+                            emp.nit,                            
+                            fun.desc_funcionario1,
+                            car.nombre,
+                            fun.codigo
+			';
+			
+			return v_consulta;
+						
+		end;
+	/*********************************    
+ 	#TRANSACCION:  'PLA_REPODETBOL_SEL'
+ 	#DESCRIPCION:	Reporte Generico de planilla de sueldos detalle
+ 	#AUTOR:		admin	
+ 	#FECHA:		17-01-2014 22:07:28
+	***********************************/
+
+	elsif(p_transaccion='PLA_REPODETBOL_SEL')then
+     				
+    	begin        	
+            
+            
+    		--Sentencia de la consulta
+			v_consulta:='select
+                                                       
+                            repcol.titulo_reporte_superior,
+                            repcol.titulo_reporte_inferior,
+                            repcol.tipo_columna,
+                            colval.codigo_columna,
+                            colval.valor
+						
+						from plani.tfuncionario_planilla planifun
+                        inner join plani.tplanilla plani on plani.id_planilla = planifun.id_planilla
+						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+                        inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = planifun.id_funcionario_planilla
+                        inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte and 
+                        											repcol.codigo_columna = colval.codigo_columna
+                        
+				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' order by repcol.tipo_columna,repcol.orden asc';
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+	
+	
     
     /*********************************    
  	#TRANSACCION:  'PLA_REPODET_SEL'
