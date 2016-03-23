@@ -41,6 +41,7 @@ class MODReporte extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('control_reporte','varchar');
+		$this->captura('tipo_reporte','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -71,6 +72,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -102,6 +104,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('ancho_total','ancho_total','int4');
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -161,6 +164,38 @@ class MODReporte extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarReporteMaestroBoleta(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPOMAESBOL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');		
+		//Datos del tipo de reporte
+		
+		$this->captura('titulo_reporte','varchar');
+		
+		//Datos de la planilla
+		$this->captura('nro_planilla','varchar');
+		$this->captura('periodo','varchar');
+		$this->captura('gestion','integer');
+		$this->captura('nit','varchar');
+		$this->captura('nro_patronal','varchar');
+		$this->captura('nombre','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('codigo_empleado','varchar');
+		$this->captura('horas_trabajadas','integer');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 	
 	function listarReporteDetalle(){
 		//Definicion de variables para ejecucion del procedimientp
@@ -183,6 +218,30 @@ class MODReporte extends MODbase{
 		$this->captura('ancho_columna','integer');
 		$this->captura('titulo_reporte_superior','varchar');	
 		$this->captura('titulo_reporte_inferior','varchar');		
+		
+		//Datos de la columna
+		$this->captura('codigo_columna','varchar');	
+		$this->captura('valor_columna','numeric');			
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarReporteDetalleBoleta(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPODETBOL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		
+		$this->captura('titulo_reporte_superior','varchar');	
+		$this->captura('titulo_reporte_inferior','varchar');	
+		$this->captura('tipo_columna','varchar');	
 		
 		//Datos de la columna
 		$this->captura('codigo_columna','varchar');	

@@ -35,6 +35,7 @@ class MODReporteColumna extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('titulo_reporte_superior','varchar');
 		$this->captura('titulo_reporte_inferior','varchar');
+		$this->captura('tipo_columna','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -59,6 +60,7 @@ class MODReporteColumna extends MODbase{
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
 		$this->setParametro('titulo_reporte_superior','titulo_reporte_superior','varchar');
 		$this->setParametro('titulo_reporte_inferior','titulo_reporte_inferior','varchar');
+		$this->setParametro('tipo_columna','tipo_columna','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -84,6 +86,7 @@ class MODReporteColumna extends MODbase{
 		$this->setParametro('codigo_columna','codigo_columna','varchar');
 		$this->setParametro('titulo_reporte_superior','titulo_reporte_superior','varchar');
 		$this->setParametro('titulo_reporte_inferior','titulo_reporte_inferior','varchar');
+		$this->setParametro('tipo_columna','tipo_columna','varchar');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

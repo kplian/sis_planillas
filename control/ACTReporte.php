@@ -8,6 +8,7 @@
 */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
+require_once(dirname(__FILE__).'/../reportes/RBoletaGenerica.php');
 
 class ACTReporte extends ACTbase{    
 			
@@ -113,6 +114,57 @@ class ACTReporte extends ACTbase{
 		
 		
 		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+				
+	}
+
+	function reporteBoleta()	{
+		
+		if ($this->objParam->getParametro('id_funcionario') != '') {
+			$this->objParam->addFiltro("planifun.id_funcionario = ". $this->objParam->getParametro('id_funcionario'));
+		}
+		
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+			$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+		}
+		
+		if ($this->objParam->getParametro('id_gestion') != '') {
+			$this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
+		}
+		
+		if ($this->objParam->getParametro('id_periodo') != '') {
+			$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+		}
+				
+		$this->objFunc=$this->create('MODReporte');	
+		
+		$this->res=$this->objFunc->listarReporteMaestroBoleta($this->objParam);
+		
+		
+		$this->objFunc=$this->create('MODReporte');	
+		$this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+		
+		
+		//obtener titulo del reporte
+		$titulo = $this->res->datos[0]['titulo_reporte'];
+		//Genera el nombre del archivo (aleatorio + titulo)
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);
+				
+			
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+		
+		$nombreArchivo.='.pdf';
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		//Instancia la clase de pdf
+		$this->objReporteFormato=new RBoletaGenerica($this->objParam);
+		$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);		
+		$this->objReporteFormato->generarReporte();
+		$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+				
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
 										'Se generó con éxito el reporte: '.$nombreArchivo,'control');

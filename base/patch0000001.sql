@@ -609,3 +609,17 @@ ALTER TABLE plani.ttipo_planilla
   
 
 /***********************************F-SCP-JRR-PLANI-0-31/12/2015****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-28/02/2016****************************************/
+
+ALTER TABLE plani.treporte
+  ADD COLUMN tipo_reporte VARCHAR(200) DEFAULT 'planilla' NOT NULL;
+  
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN tipo_columna VARCHAR(200);
+ 
+ALTER TABLE plani.treporte_columna
+  ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (((((tipo_columna)::text = 'ingreso'::text) OR ((tipo_columna)::text = 'descuento_ley'::text)) OR ((tipo_columna)::text = 'otros_descuentos'::text)) OR ((tipo_columna)::text = 'iva'::text));
+  
+/***********************************F-SCP-JRR-PLANI-0-28/02/2016****************************************/
+

@@ -56,7 +56,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
 			titulo_reporte_superior,
-			titulo_reporte_inferior
+			titulo_reporte_inferior,
+			tipo_columna
           	) values(
 			v_parametros.id_reporte,
 			v_parametros.sumar_total,
@@ -69,7 +70,8 @@ BEGIN
 			null,
 			null,
 			v_parametros.titulo_reporte_superior,
-			v_parametros.titulo_reporte_inferior				
+			v_parametros.titulo_reporte_inferior,
+			v_parametros.tipo_columna				
 			)RETURNING id_reporte_columna into v_id_reporte_columna;
 			
 			v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte); 
@@ -103,7 +105,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			titulo_reporte_superior = v_parametros.titulo_reporte_superior,
-			titulo_reporte_inferior = v_parametros.titulo_reporte_inferior
+			titulo_reporte_inferior = v_parametros.titulo_reporte_inferior,
+			tipo_columna = v_parametros.tipo_columna
 			where id_reporte_columna=v_parametros.id_reporte_columna;
             
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte); 

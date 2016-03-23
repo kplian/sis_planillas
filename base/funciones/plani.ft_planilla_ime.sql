@@ -340,7 +340,7 @@ BEGIN
             
             end if;
             
-            if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN','PLASEGAGUI'))then
+            if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN','PLASEGAGUI','PLAREISU'))then
             	v_columna_cheque = 'DESCCHEQ';
             elsif (v_planilla.tipo_planilla = 'PLAPRI') then
             	v_columna_cheque = 'OTDESC';

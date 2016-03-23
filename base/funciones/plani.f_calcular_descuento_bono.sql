@@ -29,23 +29,24 @@ DECLARE
 	v_registros 			record;
 	v_resultado				numeric; 
     v_tiene_descuento		INTEGER;   	
+    v_cantidad_decuento_bono integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_calcular_descuento_bono';
     if (p_tipo_descuento_bono = 'monto_fijo_indefinido') then
-    	select sum(db.valor_por_cuota),1 into v_resultado,v_tiene_descuento
+    	select sum(db.valor_por_cuota),1,count(*) into v_resultado,v_tiene_descuento,v_cantidad_decuento_bono
         from plani.tdescuento_bono db
         where db.id_funcionario = p_id_funcionario and db.fecha_ini <= p_fecha_ini and 
         (db.fecha_fin > p_fecha_ini or db.fecha_fin is null) and
         db.id_tipo_columna = p_id_tipo_columna;
     elsif (p_tipo_descuento_bono = 'cantidad_cuotas') then
-    	select sum(db.valor_por_cuota),1 into v_resultado,v_tiene_descuento
+    	select sum(db.valor_por_cuota),1,count(*) into v_resultado,v_tiene_descuento,v_cantidad_decuento_bono
         from plani.tdescuento_bono db
         where db.id_funcionario = p_id_funcionario and db.estado_reg = 'activo' and
         db.id_tipo_columna = p_id_tipo_columna and db.fecha_ini <= p_fecha_ini and 
         db.monto_total > 0;
     elsif (p_tipo_descuento_bono = 'monto_fijo_por_fechas') then
     	
-    	select sum(db.valor_por_cuota),1 into v_resultado,v_tiene_descuento
+    	select sum(db.valor_por_cuota),1,count(*) into v_resultado,v_tiene_descuento,v_cantidad_decuento_bono
         from plani.tdescuento_bono db
         where db.id_funcionario = p_id_funcionario and db.estado_reg = 'activo' and
         db.id_tipo_columna = p_id_tipo_columna and db.fecha_ini <= p_fecha_ini and 
@@ -61,7 +62,7 @@ BEGIN
                                                 p_formula, p_fecha_ini, p_id_columna_valor);
     end if;
     
-        
+    v_resultado = v_cantidad_decuento_bono * v_resultado;    
   	return coalesce (v_resultado, 0.00);
 EXCEPTION
 				
