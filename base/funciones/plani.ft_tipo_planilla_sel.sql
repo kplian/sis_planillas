@@ -57,7 +57,8 @@ BEGIN
 						pm.nombre,
 						tippla.funcion_validacion_nuevo_empleado,
 						tippla.calculo_horas,
-						tippla.periodicidad
+						tippla.periodicidad,
+						tippla.funcion_calculo_horas
 						from plani.ttipo_planilla tippla
 						inner join segu.tusuario usu1 on usu1.id_usuario = tippla.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tippla.id_usuario_mod

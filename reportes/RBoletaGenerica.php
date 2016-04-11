@@ -33,14 +33,25 @@ class RBoletaGenerica extends  ReportePDF {
 		$this->SetRightMargin(5);
 		$this->AddPage();
 		$this->SetFont('','B',10);
-		$this->Cell(30,5,'Código','T',0,'C');
-		$this->Cell(70,5,'Nombres y Apellidos','LT',0,'C');
-		$this->Cell(100,5,'Cargo','TL',1,'C');
 		
-		$this->SetFont('','',10);
-		$this->Cell(30,5,$this->datos_titulo['codigo_empleado'],'B',0,'C');
-		$this->Cell(70,5,$this->datos_titulo['nombre'],'LB',0,'C');
-		$this->Cell(100,5,$this->datos_titulo['cargo'],'BL',1,'C');
+		$cargo = str_replace(',', "\n", $this->datos_titulo['cargo']);
+		$item = str_replace(',', "\n", $this->datos_titulo['item']);
+		
+		$this->Cell(30,5,'Nombre','',0,'L');
+		$this->Cell(100,5,$this->datos_titulo['nombre'],'',0,'L');
+		
+		$this->Cell(30,5,'CI','',0,'L');
+		$this->Cell(40,5,$this->datos_titulo['ci'],'',1,'L');
+		
+		$this->Cell(30,5,'Cargo','',0,'L');
+		$this->MultiCell(100,5,$cargo,'','L',false,0);
+		
+		$this->Cell(30,5,'Item','',0,'L');
+		$this->MultiCell(100,5,$item,'','L',false,1);
+		
+		$this->Cell(200,5,'','T',1,'L');
+		
+		
 		$ingresos = '<table style="with:100%;table-layout:fixed;">';
 		$descuentos = '<table style="with:100%;table-layout:fixed;">';
 		$otros_descuentos = '';

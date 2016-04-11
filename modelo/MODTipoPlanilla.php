@@ -37,6 +37,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->captura('funcion_validacion_nuevo_empleado','varchar');
 		$this->captura('calculo_horas','varchar');
 		$this->captura('periodicidad','varchar');
+		$this->captura('funcion_calculo_horas','varchar');
 		
 		
 		//Ejecuta la instruccion
@@ -63,6 +64,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
 		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
+		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
 		
 
 		//Ejecuta la instruccion
@@ -90,6 +92,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('funcion_validacion_nuevo_empleado','funcion_validacion_nuevo_empleado','varchar');
 		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
+		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

@@ -83,6 +83,30 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
    			form:true,
             bottom_filter : true
    	      },
+   	      
+   	      {
+			config:{
+				name: 'tipo_contrato',
+				fieldLabel: 'Tipo Contrato',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'funplan.tipo_contrato',type:'string'},				
+				grid:true,
+				form:false
+		},
+		
+		{
+			config:{
+				name: 'desc_cargo',
+				fieldLabel: 'Cargo',				
+				gwidth: 120
+			},
+				type:'TextField',
+				filters:{pfiltro:'c.nombre#c.codigo',type:'string'},				
+				grid:true,
+				form:false
+		},
 		 
 		{
 			config:{
@@ -110,6 +134,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'forzar_cheque',
 				fieldLabel: 'Forzar Cheque',
+				allowBlank: false,
 				emptyText:'Tipo...',
 	       		typeAhead: true,
 	       		triggerAction: 'all',
@@ -278,6 +303,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_funcionario_planilla', type: 'numeric'},
 		{name:'finiquito', type: 'string'},
 		{name:'forzar_cheque', type: 'string'},
+		{name:'tipo_contrato', type: 'string'},
+		{name:'desc_cargo', type: 'string'},
 		{name:'id_funcionario', type: 'numeric'},
 		{name:'desc_funcionario1', type: 'string'},
 		{name:'id_planilla', type: 'numeric'},

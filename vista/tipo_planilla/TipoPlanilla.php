@@ -160,7 +160,21 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
+		{
+			config:{
+				name: 'funcion_calculo_horas',
+				fieldLabel: 'Funcion Calculo Horas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 200,
+				maxLength:200
+			},
+				type:'TextField',
+				filters:{pfiltro:'tippla.funcion_calculo_horas',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		{
 			config:{
 				name: 'tipo_presu_cc',
@@ -333,6 +347,7 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'funcion_validacion_nuevo_empleado', type: 'string'},
+		{name:'funcion_calculo_horas', type: 'string'},		
 		{name:'calculo_horas', type: 'string'},
 		{name:'periodicidad', type: 'string'}
 		
