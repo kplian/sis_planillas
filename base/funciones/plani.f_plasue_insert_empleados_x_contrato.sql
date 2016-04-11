@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION plani.f_plasue_insert_empleados (
+CREATE OR REPLACE FUNCTION plani.f_plasue_insert_empleados_x_contrato (
   p_id_planilla integer
 )
 RETURNS varchar AS
@@ -16,7 +16,7 @@ DECLARE
   v_id_cuenta_bancaria	integer;
 BEGIN
 	
-    v_nombre_funcion = 'plani.f_plasue_insert_empleados';
+    v_nombre_funcion = 'plani.f_plasue_insert_empleados_x_contrato';
     v_filtro_uo = '';
 	select id_tipo_planilla, per.id_periodo, fecha_ini, fecha_fin, id_uo, p.id_usuario_reg
     into v_planilla 
@@ -31,7 +31,7 @@ BEGIN
     
     
     for v_registros in execute('
-          select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,car.id_cargo,tc.codigo as tipo_contrato  
+          select uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,car.id_cargo,tc.codigo as tipo_contrato 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -42,15 +42,15 @@ BEGIN
           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and ' 
           	|| v_filtro_uo || ' uofun.fecha_asignacion <= ''' || v_planilla.fecha_fin || ''' and 
               (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= ''' || v_planilla.fecha_ini || ''') AND
-              uofun.estado_reg != ''inactivo'' and uofun.id_funcionario not in (
-                  select id_funcionario
+              uofun.estado_reg != ''inactivo'' and uofun.id_uo_funcionario not in (
+                  select id_uo_funcionario
                   from plani.tfuncionario_planilla fp
                   inner join plani.tplanilla p
                       on p.id_planilla = fp.id_planilla
-                  where 	fp.id_funcionario = uofun.id_funcionario and 
+                  where 	fp.id_uo_funcionario = uofun.id_uo_funcionario and 
                           p.id_tipo_planilla = ' || v_planilla.id_tipo_planilla || ' and
                           p.id_periodo = ' || v_planilla.id_periodo || ')
-          order by uofun.id_funcionario, uofun.fecha_asignacion desc')loop
+          order by uofun.id_funcionario, uofun.fecha_asignacion asc')loop
     	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_fin);
         v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
         if (v_registros.id_lugar is null) then

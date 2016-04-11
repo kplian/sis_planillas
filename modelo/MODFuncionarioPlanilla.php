@@ -40,7 +40,9 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('nro_afp','varchar');
 		$this->captura('banco','varchar');
 		$this->captura('nro_cuenta','varchar');	
-		$this->captura('ci','varchar');		
+		$this->captura('ci','varchar');	
+		$this->captura('desc_cargo','varchar');	
+		$this->captura('tipo_contrato','varchar');		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION plani.f_plasue_valid_empleado (
+CREATE OR REPLACE FUNCTION plani.f_plasue_valid_empleado_x_contrato (
   p_id_usuario integer,
   p_id_funcionario integer,
   p_id_planilla integer,
@@ -25,7 +25,7 @@ DECLARE
   v_detalle		record;
 BEGIN
 	
-    v_nombre_funcion = 'plani.f_plasue_valid_empleado';
+    v_nombre_funcion = 'plani.f_plasue_valid_empleado_x_contrato';
    
 	v_existe = 'no';
 	select id_tipo_planilla, per.id_periodo, fecha_ini, fecha_fin, id_uo, p.id_usuario_reg
@@ -37,7 +37,7 @@ BEGIN
     
         
     for v_registros in execute('
-          select uofun.id_funcionario, uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,tc.codigo as tipo_contrato 
+          select uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,tc.codigo as tipo_contrato 
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -48,16 +48,15 @@ BEGIN
           where uofun.id_funcionario = ' || p_id_funcionario || ' and tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and 
           	 uofun.fecha_asignacion <= ''' || v_planilla.fecha_fin || ''' and 
               (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion >= ''' || v_planilla.fecha_ini || ''') AND
-              uofun.estado_reg != ''inactivo'' and uofun.id_funcionario not in (
-                  select id_funcionario
+              uofun.estado_reg != ''inactivo'' and uofun.id_uo_funcionario not in (
+                  select id_uo_funcionario
                   from plani.tfuncionario_planilla fp
                   inner join plani.tplanilla p
                       on p.id_planilla = fp.id_planilla
-                  where 	fp.id_funcionario = uofun.id_funcionario and 
+                  where 	fp.id_uo_funcionario = uofun.id_uo_funcionario and 
                           p.id_tipo_planilla = ' || v_planilla.id_tipo_planilla || ' and
                           p.id_periodo = ' || v_planilla.id_periodo || ')
-          order by uofun.fecha_asignacion desc
-          limit 1')loop
+          order by uofun.fecha_asignacion asc')loop
           
           select tp.*,p.id_gestion,p.estado into v_tipo_planilla
         	from plani.tplanilla p

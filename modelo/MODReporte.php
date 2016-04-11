@@ -185,12 +185,14 @@ class MODReporte extends MODbase{
 		$this->captura('nro_patronal','varchar');
 		$this->captura('nombre','varchar');
 		$this->captura('cargo','varchar');
+		$this->captura('item','varchar');
 		$this->captura('codigo_empleado','varchar');
 		$this->captura('horas_trabajadas','integer');
+		$this->captura('ci','varchar');
 		
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta();
+		$this->armarConsulta();		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
