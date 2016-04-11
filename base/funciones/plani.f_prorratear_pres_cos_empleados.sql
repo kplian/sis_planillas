@@ -182,7 +182,11 @@ BEGIN
                      
            for v_presupuesto in execute(v_consulta) loop
             	--se obtiene el porcentaje de los dias con el presupuesto de los dias del aguinaldo
-                v_porcentaje = round(v_presupuesto.dias_presupuesto/v_dias_aguinaldo*100,2);
+                if (v_presupuesto.dias_presupuesto > v_dias_aguinaldo) then
+                	v_porcentaje = 100;
+                else
+                	v_porcentaje = round(v_presupuesto.dias_presupuesto/v_dias_aguinaldo*100,2);
+                end if;
             	v_suma = v_suma + v_porcentaje;
                 --si se excede por redondeo restamos la diferencia del ultimo prorrateo
                 if (v_suma > 100 and v_suma < 101) then
