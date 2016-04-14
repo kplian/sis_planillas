@@ -62,7 +62,8 @@ class RMinisterioTrabajoXLS
 	
 	function imprimeDatosSueldo(){
 		$this->docexcel->getActiveSheet()->setTitle('OVTPLA-T02');
-		$datos = $this->objParam->getParametro('datos');	
+		$datos = $this->objParam->getParametro('datos');
+		$datos_cabecera = $this->objParam->getParametro('datos_cabecera');	
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
 		
@@ -132,65 +133,108 @@ class RMinisterioTrabajoXLS
 	            'style' => PHPExcel_Style_Border::BORDER_THIN
 	        )
 	    ));
-		$this->docexcel->getActiveSheet()->getStyle('A1:AR1')->getAlignment()->setWrapText(true); 	
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:N1')->applyFromArray($styleTitulos);
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => true,
+		        'size'  => 10,
+		        'name'  => 'Arial'
+		    ));
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:L2')->applyFromArray($styleTitulos2);
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A1','NOMBRE O RAZÓN SOCIAL  :  ' . $datos_cabecera[0]['nombre_entidad']);
+		$this->docexcel->getActiveSheet()->setCellValue('A2','Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO  :  ' . $datos_cabecera[0]['identificador_min_trabajo']);
+		$this->docexcel->getActiveSheet()->setCellValue('L1','Nº DE NIT  :  ' . $datos_cabecera[0]['nit']);
+		$this->docexcel->getActiveSheet()->setCellValue('L2','Nº DE EMPLEADOR (Caja de Salud)  :  ' . $datos_cabecera[0]['identificador_caja_salud']);
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => true,
+		        'size'  => 12,
+		        'name'  => 'Arial'
+		    ),
+			'alignment' => array(
+		        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+		    ));
+		
+		$this->docexcel->getActiveSheet()->mergeCells('A4:X4');	
+		$this->docexcel->getActiveSheet()->getStyle('A4')->applyFromArray($styleTitulos2);
+		$this->docexcel->getActiveSheet()->setCellValue('A4','PLANILLA DE SUELDOS');
+		
+		$styleTitulos2 = array(
+		    'font'  => array(
+		        'bold'  => false,
+		        'size'  => 10,
+		        'name'  => 'Arial'
+		    ),
+			'alignment' => array(
+		        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+		        'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+		    ));
+		$this->docexcel->getActiveSheet()->mergeCells('A5:X5');
+		$this->docexcel->getActiveSheet()->getStyle('A5')->applyFromArray($styleTitulos2);
+		$this->docexcel->getActiveSheet()->setCellValue('A5','(En Bolivianos)');
+		
+		$this->docexcel->getActiveSheet()->getStyle('A8:AR8')->getAlignment()->setWrapText(true); 	
+		
+		$this->docexcel->getActiveSheet()->getStyle('A8:N8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = '8DB4E2';
-		$this->docexcel->getActiveSheet()->getStyle('O1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('O8')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
-		$this->docexcel->getActiveSheet()->getStyle('P1:AR1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('P8:AR8')->applyFromArray($styleTitulos);
 		//*************************************Cabecera*****************************************
-		$this->docexcel->getActiveSheet()->setCellValue('A1','Nº');
-		$this->docexcel->getActiveSheet()->setCellValue('B1','Tipo de documento de identidad');
-		$this->docexcel->getActiveSheet()->setCellValue('C1','Número de documento de identidad');
-		$this->docexcel->getActiveSheet()->setCellValue('D1','Extensión del documento de identidad');
-		$this->docexcel->getActiveSheet()->setCellValue('E1','AFP a la que aporta');
-		$this->docexcel->getActiveSheet()->setCellValue('F1','NUA/CUA');
-		$this->docexcel->getActiveSheet()->setCellValue('G1','Apellido Paterno');
-		$this->docexcel->getActiveSheet()->setCellValue('H1','Apellido Materno');
-		$this->docexcel->getActiveSheet()->setCellValue('I1','Apellido de casada');
-		$this->docexcel->getActiveSheet()->setCellValue('J1','Primer nombre');		
-		$this->docexcel->getActiveSheet()->setCellValue('K1','Otros nombres');
-		$this->docexcel->getActiveSheet()->setCellValue('L1','País de nacionalidad');
-		$this->docexcel->getActiveSheet()->setCellValue('M1','Fecha de nacimiento');
-		$this->docexcel->getActiveSheet()->setCellValue('N1','Sexo');
-		$this->docexcel->getActiveSheet()->setCellValue('O1','Jubilado');
-		$this->docexcel->getActiveSheet()->setCellValue('P1','Clasificación laboral');
-		$this->docexcel->getActiveSheet()->setCellValue('Q1','Cargo');
-		$this->docexcel->getActiveSheet()->setCellValue('R1','Fecha de ingreso');
-		$this->docexcel->getActiveSheet()->setCellValue('S1','Modalidad de contrato');
-		$this->docexcel->getActiveSheet()->setCellValue('T1','Fecha de retiro');
-		$this->docexcel->getActiveSheet()->setCellValue('U1','Horas pagadas (día)');
-		$this->docexcel->getActiveSheet()->setCellValue('V1','Días pagados (mes)');
-		$this->docexcel->getActiveSheet()->setCellValue('W1','Nº de dominicales');
-		$this->docexcel->getActiveSheet()->setCellValue('X1','Domingos trabajados');
-		$this->docexcel->getActiveSheet()->setCellValue('Y1','Horas extra');
-		$this->docexcel->getActiveSheet()->setCellValue('Z1','Horas de recargo nocturno');
-		$this->docexcel->getActiveSheet()->setCellValue('AA1','Horas extra dominicales');
-		$this->docexcel->getActiveSheet()->setCellValue('AB1','Haber básico');
-		$this->docexcel->getActiveSheet()->setCellValue('AC1','Salario dominical');
-		$this->docexcel->getActiveSheet()->setCellValue('AD1','Monto pagado por domingo trabajado');
-		$this->docexcel->getActiveSheet()->setCellValue('AE1','Monto pagado por horas extra');
-		$this->docexcel->getActiveSheet()->setCellValue('AF1','Monto pagado por horas nocturnas');
-		$this->docexcel->getActiveSheet()->setCellValue('AG1','Monto pagado por horas extra dominicales');
-		$this->docexcel->getActiveSheet()->setCellValue('AH1','Bono de antiguedad');
-		$this->docexcel->getActiveSheet()->setCellValue('AI1','Bono de producción');
-		$this->docexcel->getActiveSheet()->setCellValue('AJ1','Subsidio de frontera');
-		$this->docexcel->getActiveSheet()->setCellValue('AK1','Otros bonos o pagos');
-		$this->docexcel->getActiveSheet()->setCellValue('AL1','Total ganado');
-		$this->docexcel->getActiveSheet()->setCellValue('AM1','Aporte a las AFPs');
-		$this->docexcel->getActiveSheet()->setCellValue('AN1','RC-IVA');
-		$this->docexcel->getActiveSheet()->setCellValue('AO1','Otros descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('AP1','Total descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('AQ1','Líqido pagable');
-		$this->docexcel->getActiveSheet()->setCellValue('AR1','Sucursal o ubicación adicional');
+		$this->docexcel->getActiveSheet()->setCellValue('A8','Nº');
+		$this->docexcel->getActiveSheet()->setCellValue('B8','Tipo de documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('C8','Número de documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('D8','Extensión del documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('E8','AFP a la que aporta');
+		$this->docexcel->getActiveSheet()->setCellValue('F8','NUA/CUA');
+		$this->docexcel->getActiveSheet()->setCellValue('G8','Apellido Paterno');
+		$this->docexcel->getActiveSheet()->setCellValue('H8','Apellido Materno');
+		$this->docexcel->getActiveSheet()->setCellValue('I8','Apellido de casada');
+		$this->docexcel->getActiveSheet()->setCellValue('J8','Primer nombre');		
+		$this->docexcel->getActiveSheet()->setCellValue('K8','Otros nombres');
+		$this->docexcel->getActiveSheet()->setCellValue('L8','País de nacionalidad');
+		$this->docexcel->getActiveSheet()->setCellValue('M8','Fecha de nacimiento');
+		$this->docexcel->getActiveSheet()->setCellValue('N8','Sexo');
+		$this->docexcel->getActiveSheet()->setCellValue('O8','Jubilado');
+		$this->docexcel->getActiveSheet()->setCellValue('P8','Clasificación laboral');
+		$this->docexcel->getActiveSheet()->setCellValue('Q8','Cargo');
+		$this->docexcel->getActiveSheet()->setCellValue('R8','Fecha de ingreso');
+		$this->docexcel->getActiveSheet()->setCellValue('S8','Modalidad de contrato');
+		$this->docexcel->getActiveSheet()->setCellValue('T8','Fecha de retiro');
+		$this->docexcel->getActiveSheet()->setCellValue('U8','Horas pagadas (día)');
+		$this->docexcel->getActiveSheet()->setCellValue('V8','Días pagados (mes)');
+		$this->docexcel->getActiveSheet()->setCellValue('W8','Nº de dominicales');
+		$this->docexcel->getActiveSheet()->setCellValue('X8','Domingos trabajados');
+		$this->docexcel->getActiveSheet()->setCellValue('Y8','Horas extra');
+		$this->docexcel->getActiveSheet()->setCellValue('Z8','Horas de recargo nocturno');
+		$this->docexcel->getActiveSheet()->setCellValue('AA8','Horas extra dominicales');
+		$this->docexcel->getActiveSheet()->setCellValue('AB8','Haber básico');
+		$this->docexcel->getActiveSheet()->setCellValue('AC8','Salario dominical');
+		$this->docexcel->getActiveSheet()->setCellValue('AD8','Monto pagado por domingo trabajado');
+		$this->docexcel->getActiveSheet()->setCellValue('AE8','Monto pagado por horas extra');
+		$this->docexcel->getActiveSheet()->setCellValue('AF8','Monto pagado por horas nocturnas');
+		$this->docexcel->getActiveSheet()->setCellValue('AG8','Monto pagado por horas extra dominicales');
+		$this->docexcel->getActiveSheet()->setCellValue('AH8','Bono de antiguedad');
+		$this->docexcel->getActiveSheet()->setCellValue('AI8','Bono de producción');
+		$this->docexcel->getActiveSheet()->setCellValue('AJ8','Subsidio de frontera');
+		$this->docexcel->getActiveSheet()->setCellValue('AK8','Otros bonos o pagos');
+		$this->docexcel->getActiveSheet()->setCellValue('AL8','Total ganado');
+		$this->docexcel->getActiveSheet()->setCellValue('AM8','Aporte a las AFPs');
+		$this->docexcel->getActiveSheet()->setCellValue('AN8','RC-IVA');
+		$this->docexcel->getActiveSheet()->setCellValue('AO8','Otros descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('AP8','Total descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('AQ8','Líqido pagable');
+		$this->docexcel->getActiveSheet()->setCellValue('AR8','Sucursal o ubicación adicional');
 		
 		
 		
 		//*************************************Detalle*****************************************
 		$numero = 0;
 		$columna = 0;
-		$fila = 1;
+		$fila = 9;
 		$this->resumen['basico'] = 0;
 		$this->resumen['antiguedad'] = 0;
 		$this->resumen['frontera'] = 0;

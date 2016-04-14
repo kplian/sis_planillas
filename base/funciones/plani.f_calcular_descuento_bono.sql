@@ -56,13 +56,14 @@ BEGIN
     if (p_tipo_dato = 'basica' and v_tiene_descuento =1) then
     	v_resultado = plani.f_calcular_basica(p_id_funcionario_planilla, 
                         					p_fecha_ini, p_fecha_fin, p_id_tipo_columna,p_codigo_columna,p_id_columna_valor);
-                                        
+        v_resultado = v_cantidad_decuento_bono * v_resultado;                                
     elsif (p_tipo_dato = 'formula' and v_tiene_descuento =1) then
     	v_resultado = plani.f_calcular_formula(p_id_funcionario_planilla, 
                                                 p_formula, p_fecha_ini, p_id_columna_valor);
+    	v_resultado = v_cantidad_decuento_bono * v_resultado;
     end if;
     
-    v_resultado = v_cantidad_decuento_bono * v_resultado;    
+        
   	return coalesce (v_resultado, 0.00);
 EXCEPTION
 				

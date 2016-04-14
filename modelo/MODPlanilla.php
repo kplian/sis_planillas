@@ -177,6 +177,32 @@ class MODPlanilla extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarReporteMinisterioCabecera(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_REPMINCABE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion	
+		
+		$this->setParametro('id_depto','id_depto','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('nombre_entidad','varchar');		
+		$this->captura('nit','varchar');
+		$this->captura('identificador_min_trabajo','varchar');
+		$this->captura('identificador_caja_salud','varchar');
+				
+					
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 	function insertarPlanilla(){
 		//Definicion de variables para ejecucion del procedimiento

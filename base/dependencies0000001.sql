@@ -2939,3 +2939,111 @@ ALTER TABLE plani.tlicencia
     NOT DEFERRABLE;
 
 /***********************************F-DEP-JRR-PLANI-0-29/10/2015****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-28/04/2016****************************************/
+
+DROP VIEW IF EXISTS plani.vcomp_dev_planilla;
+CREATE OR REPLACE VIEW plani.vcomp_dev_planilla(
+    id_plan_pago,
+    id_moneda,
+    id_depto_conta,
+    numero,
+    fecha_actual,
+    estado,
+    monto_ejecutar_total_mb,
+    monto_ejecutar_total_mo,
+    monto,
+    monto_mb,
+    monto_retgar_mb,
+    monto_retgar_mo,
+    monto_no_pagado,
+    monto_no_pagado_mb,
+    otros_descuentos,
+    otros_descuentos_mb,
+    id_plantilla,
+    id_cuenta_bancaria,
+    id_cuenta_bancaria_mov,
+    nro_cheque,
+    nro_cuenta_bancaria,
+    num_tramite,
+    tipo,
+    id_gestion_cuentas,
+    id_int_comprobante,
+    liquido_pagable,
+    liquido_pagable_mb,
+    nombre_pago,
+    porc_monto_excento_var,
+    obs_pp,
+    descuento_anticipo,
+    descuento_inter_serv,
+    tipo_obligacion,
+    id_proceso_wf,
+    forma_pago,
+    monto_ajuste_ag,
+    monto_ajuste_siguiente_pago,
+    monto_anticipo,
+    desc_planilla,
+    id_planilla,
+    id_centro_costo_depto)
+AS
+  SELECT pp.id_plan_pago,
+         op.id_moneda,
+         op.id_depto_conta,
+         op.numero,
+         op.fecha,
+         pp.estado,
+         pp.monto_ejecutar_total_mb,
+         pp.monto_ejecutar_total_mo,
+         pp.monto,
+         pp.monto_mb,
+         pp.monto_retgar_mb,
+         pp.monto_retgar_mo,
+         pp.monto_no_pagado,
+         pp.monto_no_pagado_mb,
+         pp.otros_descuentos,
+         pp.otros_descuentos_mb,
+         pp.id_plantilla,
+         pp.id_cuenta_bancaria,
+         pp.id_cuenta_bancaria_mov,
+         pp.nro_cheque,
+         pp.nro_cuenta_bancaria,
+         op.num_tramite,
+         pp.tipo,
+         op.id_gestion AS id_gestion_cuentas,
+         pp.id_int_comprobante,
+         pp.liquido_pagable,
+         pp.liquido_pagable_mb,
+         pp.nombre_pago,
+         pp.porc_monto_excento_var,
+         ((COALESCE(op.numero, ''::character varying)::text || ' '::text) ||
+           COALESCE(pp.obs_monto_no_pagado, ''::text))::character varying AS
+           obs_pp,
+         pp.descuento_anticipo,
+         pp.descuento_inter_serv,
+         op.tipo_obligacion,
+         pp.id_proceso_wf,
+         pp.forma_pago,
+         pp.monto_ajuste_ag,
+         pp.monto_ajuste_siguiente_pago,
+         pp.monto_anticipo,
+         ((tp.nombre::text || ' correspondiente a : '::text) || COALESCE(
+           per.periodo || '/'::text, ''::text)) || ges.gestion AS desc_planilla,
+         pla.id_planilla,
+         (
+           SELECT f_get_config_relacion_contable.ps_id_centro_costo
+           FROM conta.f_get_config_relacion_contable('CCDEPCON'::character
+             varying, pla.id_gestion, op.id_depto_conta)
+             f_get_config_relacion_contable(ps_id_cuenta, ps_id_auxiliar,
+             ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+         ) AS id_centro_costo_depto
+  FROM tes.tplan_pago pp
+       JOIN tes.tobligacion_pago op ON pp.id_obligacion_pago =
+         op.id_obligacion_pago
+       JOIN plani.tplanilla pla ON pla.id_obligacion_pago =
+         op.id_obligacion_pago
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla;
+         
+/***********************************F-DEP-JRR-PLANI-0-28/04/2016****************************************/
