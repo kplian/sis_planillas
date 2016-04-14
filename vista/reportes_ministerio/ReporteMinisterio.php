@@ -12,6 +12,23 @@ header("content-type: text/javascript; charset=UTF-8");
 	Phx.vista.ReporteMinisterio = Ext.extend(Phx.frmInterfaz, {
 		Atributos : [
 		{
+   			config:{
+   				name:'id_depto',
+   				 hiddenName: 'id_depto',
+   				 //url: '../../sis_parametros/control/Depto/listarDeptoFiltradoXUsuario',
+	   				origen:'DEPTO',
+	   				allowBlank:false,
+	   				fieldLabel: 'Depto',	   				
+	   				width:250,   			        
+	   				baseParams:{tipo_filtro:'DEPTO_UO',estado:'activo',codigo_subsistema:'ORGA'}//parametros adicionales que se le pasan al store
+	      			
+   			},
+   			//type:'TrigguerCombo',
+   			type:'ComboRec',
+   			id_grupo:0,   			
+   			form:true
+       	},	
+		{
 			config: {
 				name: 'id_tipo_planilla',
 				fieldLabel: 'Tipo Planilla',

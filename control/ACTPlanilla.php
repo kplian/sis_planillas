@@ -45,6 +45,11 @@ class ACTPlanilla extends ACTbase{
 		$nombreArchivo.='.xls';
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
 		$this->objParam->addParametro('datos',$this->res->datos);
+		
+		$this->objFunc=$this->create('MODPlanilla');
+		$this->res=$this->objFunc->listarReporteMinisterioCabecera($this->objParam);
+		$this->objParam->addParametro('datos_cabecera',$this->res->datos);
+		
 		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {	
 			//Instancia la clase de excel
 			$this->objReporteFormato=new RMinisterioTrabajoXLS($this->objParam);			
