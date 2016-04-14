@@ -1,13 +1,10 @@
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
-  p_id_funcionario_planilla integer,
-  p_fecha_ini date,
-  p_fecha_fin date,
-  p_id_tipo_columna integer,
-  p_codigo varchar,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
+-- Function: plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+
+-- DROP FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer);
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica(p_id_funcionario_planilla integer, p_fecha_ini date, p_fecha_fin date, p_id_tipo_columna integer, p_codigo character varying, p_id_columna_valor integer)
+  RETURNS numeric AS
+$BODY$
 /**************************************************************************
  PLANI
 ***************************************************************************
@@ -77,7 +74,32 @@ BEGIN
         into v_resultado
         from plani.thoras_trabajadas ht
         where ht.id_funcionario_planilla = p_id_funcionario_planilla;
-    	
+
+    --Dias dados por ley
+    ELSIF (p_codigo = 'DIALEY') THEN
+	v_resultado = 0;
+    	if ( v_cantidad_horas_mes = plani.f_get_valor_columna_valor('HORNORM', p_id_funcionario_planilla)) then
+	    v_resultado = 10;
+    	else
+	    for v_registros in (select *        
+				from plani.thoras_trabajadas ht
+				where ht.id_funcionario_planilla = p_id_funcionario_planilla)loop
+		if (extract(day from v_registros.fecha_fin) = 31 and extract(dow from v_registros.fecha_fin) in (0,6)) then
+
+			v_resultado = v_resultado - 1;
+		elsif (extract(day from v_registros.fecha_fin) = 29 and extract(month from v_registros.fecha_fin) = 2 and
+			pxp.isleapyear(extract(year from v_registros.fecha_fin)) = TRUE) then
+
+			v_resultado = v_resultado + 1;
+		elsif (extract(day from v_registros.fecha_fin) = 28 and extract(month from v_registros.fecha_fin) = 2 and
+			pxp.isleapyear(extract(year from v_registros.fecha_fin)) = FALSE) then
+
+			v_resultado = v_resultado + 2;
+		end if;
+		v_resultado = v_resultado + pxp.f_get_weekend_days(v_registros.fecha_ini, v_registros.fecha_fin);
+		
+	    end loop;
+    	end if;
     --Factor de Antiguedad
     ELSIF (p_codigo = 'FACTORANTI') THEN
     	select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
@@ -972,9 +994,8 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+  OWNER TO postgres;
