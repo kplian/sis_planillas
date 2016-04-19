@@ -183,7 +183,7 @@ BEGIN
                             (case when sum(ht.id_horas_trabajadas) is null then
                             	car.nombre
                             else
-                            	pxp.list(carht.nombre || '' --- '' ||round(ht.horas_normales/8,0) || '' dias'')
+                            	pxp.list(carht.nombre || ''  ('' ||round(ht.horas_normales/8,0) || '' dias)'')
                             end)::varchar as cargo,
                             (case when sum(ht.id_horas_trabajadas) is null then
                             	car.codigo

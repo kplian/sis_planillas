@@ -58,7 +58,8 @@ BEGIN
 			funcion_validacion_nuevo_empleado,
 			calculo_horas,
 			periodicidad,
-			funcion_calculo_horas
+			funcion_calculo_horas,
+			recalcular_desde
           	) values(
 			v_parametros.id_proceso_macro,
 			v_parametros.tipo_presu_cc,
@@ -73,7 +74,8 @@ BEGIN
 			v_parametros.funcion_validacion_nuevo_empleado,
 			v_parametros.calculo_horas,
 			v_parametros.periodicidad,
-			v_parametros.funcion_calculo_horas
+			v_parametros.funcion_calculo_horas,
+			v_parametros.recalcular_desde
 							
 			)RETURNING id_tipo_planilla into v_id_tipo_planilla;
 			
@@ -108,7 +110,8 @@ BEGIN
 			calculo_horas = v_parametros.calculo_horas,
 			periodicidad = v_parametros.periodicidad,
 			fecha_mod = now(),
-			funcion_calculo_horas = v_parametros.funcion_calculo_horas
+			funcion_calculo_horas = v_parametros.funcion_calculo_horas,
+			recalcular_desde = v_parametros.recalcular_desde
 			where id_tipo_planilla=v_parametros.id_tipo_planilla;
                
 			--Definicion de la respuesta

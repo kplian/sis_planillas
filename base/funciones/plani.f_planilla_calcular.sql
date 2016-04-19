@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION plani.f_planilla_calcular (
   p_id_planilla integer,
-  p_id_usuario integer
+  p_id_usuario integer,
+  p_recalcular_desde integer = 0
 )
 RETURNS varchar AS
 $body$
@@ -13,13 +14,22 @@ DECLARE
   v_columnas			record;
   v_valor_generado		numeric;
   v_valor				numeric;
+  v_res_text			varchar;
+  v_recalcular			varchar;
 BEGIN
 	v_nombre_funcion = 'plani.f_planilla_calcular';
-  	select pla.*,pe.fecha_ini, pe.fecha_fin
+  	select pla.*,pe.fecha_ini, pe.fecha_fin,tp.recalcular_desde
     into v_planilla
     from plani.tplanilla pla
     inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
+    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
     where id_planilla = p_id_planilla;
+    
+    if (p_recalcular_desde = 0) then
+    	v_recalcular = 'no';
+    else
+    	v_recalcular = 'si';
+    end if;
     --raise exception '%',p_id_planilla;
     for v_funcionarios in (	select fp.*,cv.*,tc.tipo_descuento_bono, tc.orden, tc.finiquito, 
         							tc.decimales_redondeo,tc.tipo_dato 
@@ -28,7 +38,7 @@ BEGIN
                             	on cv.id_funcionario_planilla = fp.id_funcionario_planilla
         					inner join plani.ttipo_columna tc 
                             	on tc.id_tipo_columna = cv.id_tipo_columna
-                            where fp.id_planilla = p_id_planilla
+                            where fp.id_planilla = p_id_planilla and tc.orden >= p_recalcular_desde
                             order by fp.id_funcionario,tc.orden asc
     						) loop    	
         	
@@ -61,7 +71,7 @@ BEGIN
                	if (v_funcionarios.valor_generado = v_funcionarios.valor) then
                 
                     v_valor_generado = plani.f_calcular_formula(v_funcionarios.id_funcionario_planilla, 
-                                                v_funcionarios.formula, v_planilla.fecha_ini, v_funcionarios.id_columna_valor);
+                                                v_funcionarios.formula, v_planilla.fecha_ini, v_funcionarios.id_columna_valor,v_recalcular);
                     v_valor = v_valor_generado;
                     
                 ELSE                	
@@ -81,7 +91,9 @@ BEGIN
             where id_columna_valor = v_funcionarios.id_columna_valor;             
     
     end loop;
-  
+    if (v_planilla.recalcular_desde is not null and p_recalcular_desde = 0) then
+    	v_res_text = plani.f_planilla_calcular(p_id_planilla,p_id_usuario,v_planilla.recalcular_desde);
+    end if;
   	return 'exito';
 EXCEPTION
 				

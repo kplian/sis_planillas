@@ -616,10 +616,10 @@ ALTER TABLE plani.treporte
   ADD COLUMN tipo_reporte VARCHAR(200) DEFAULT 'planilla' NOT NULL;
   
 ALTER TABLE plani.treporte_columna
-  ADD COLUMN tipo_columna VARCHAR(200);
+  ADD COLUMN tipo_columna VARCHAR(200) DEFAULT 'otro';
  
 ALTER TABLE plani.treporte_columna
-  ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (((((tipo_columna)::text = 'ingreso'::text) OR ((tipo_columna)::text = 'descuento_ley'::text)) OR ((tipo_columna)::text = 'otros_descuentos'::text)) OR ((tipo_columna)::text = 'iva'::text));
+  ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (tipo_columna::text = 'ingreso'::text OR tipo_columna::text = 'descuento_ley'::text OR tipo_columna::text = 'otros_descuentos'::text OR tipo_columna::text = 'iva'::text OR tipo_columna::text = 'otro'::text)
   
 /***********************************F-SCP-JRR-PLANI-0-28/02/2016****************************************/
 
@@ -630,4 +630,14 @@ ALTER TABLE plani.ttipo_planilla
   ADD COLUMN funcion_calculo_horas VARCHAR(200);  
 
 /***********************************F-SCP-JRR-PLANI-0-10/04/2016****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-13/04/2016****************************************/
+
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN recalcular_desde INTEGER;  
+  
+ALTER TABLE plani.ttipo_columna
+  ADD COLUMN recalcular varchar(2) DEFAULT 'no' NOT NULL; 
+
+/***********************************F-SCP-JRR-PLANI-0-13/04/2016****************************************/
 

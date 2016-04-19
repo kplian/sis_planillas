@@ -37,7 +37,7 @@ class ACTTipoColumna extends ACTbase{
 		}
 		
 		if ($this->objParam->getParametro('presupuesto_pago') == 'si') {
-			$this->objParam->addFiltro("(tipcol.compromete=''si'' or tipcol.compromete=''si_pago'')");
+			$this->objParam->addFiltro("(tipcol.compromete=''si'' or tipcol.compromete=''si_pago'' or tipcol.compromete=''si_contable'')");
 		}
 		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

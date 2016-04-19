@@ -38,6 +38,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->captura('calculo_horas','varchar');
 		$this->captura('periodicidad','varchar');
 		$this->captura('funcion_calculo_horas','varchar');
+		$this->captura('recalcular_desde','int4');
 		
 		
 		//Ejecuta la instruccion
@@ -65,6 +66,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
 		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
+		$this->setParametro('recalcular_desde','recalcular_desde','int4');
 		
 
 		//Ejecuta la instruccion
@@ -93,6 +95,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('calculo_horas','calculo_horas','varchar');
 		$this->setParametro('periodicidad','periodicidad','varchar');
 		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
+		$this->setParametro('recalcular_desde','recalcular_desde','int4');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
