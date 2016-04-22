@@ -1,10 +1,10 @@
 CREATE OR REPLACE FUNCTION plani.f_plasegagui_valid_empleado (
+  p_id_usuario integer,
   p_id_funcionario integer,
   p_id_planilla integer,
-  out o_id_uo_funcionario integer,
-  out o_id_lugar integer,
-  out o_id_afp integer,
-  out o_id_cuenta_bancaria integer,
+  p_forzar_cheque varchar,
+  p_finiquito	varchar,
+  out o_id_funcionario_planilla integer,
   out o_tipo_contrato varchar
 )
 RETURNS record AS
@@ -29,6 +29,9 @@ DECLARE
   v_dias				integer;
   v_max_sueldo_aguinaldo numeric;
   v_sueldo				numeric;
+  v_tipo_planilla		record;
+  v_id_columna_valor	integer;
+  v_detalle		record;
 BEGIN
 	
     v_nombre_funcion = 'plani.f_plasegagui_valid_empleado';
