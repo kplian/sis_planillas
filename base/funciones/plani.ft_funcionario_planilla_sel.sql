@@ -67,8 +67,13 @@ BEGIN
                         fafp.nro_afp,
                         ins.nombre,
                         fcb.nro_cuenta,
-                        funcio.ci
+                        funcio.ci,
+                        (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
+                        funplan.tipo_contrato
 						from plani.tfuncionario_planilla funplan
+						inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
+						inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+						inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
 						inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
@@ -102,6 +107,9 @@ BEGIN
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_funcionario_planilla)
 					    from plani.tfuncionario_planilla funplan
+					    inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
+						inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+						inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
 					    inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
 						inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario

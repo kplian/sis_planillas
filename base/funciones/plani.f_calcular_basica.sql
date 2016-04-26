@@ -1,13 +1,10 @@
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
-  p_id_funcionario_planilla integer,
-  p_fecha_ini date,
-  p_fecha_fin date,
-  p_id_tipo_columna integer,
-  p_codigo varchar,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
+-- Function: plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+
+-- DROP FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer);
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica(p_id_funcionario_planilla integer, p_fecha_ini date, p_fecha_fin date, p_id_tipo_columna integer, p_codigo character varying, p_id_columna_valor integer)
+  RETURNS numeric AS
+$BODY$
 /**************************************************************************
  PLANI
 ***************************************************************************
@@ -54,7 +51,7 @@ BEGIN
     
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
     uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
-    per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo
+    per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario
     into v_planilla 
     from plani.tplanilla p
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -70,6 +67,14 @@ BEGIN
         into v_resultado
         from plani.thoras_trabajadas ht
         where ht.id_funcionario_planilla = p_id_funcionario_planilla;
+
+    --Sueldo Básico para quincena
+    ELSIF (p_codigo = 'HABBAS') THEN
+       	v_resultado = orga.f_get_haber_basico_a_fecha(( select es.id_escala_salarial
+							from plani.tuo_funcionario uofun
+							inner join plani.tcargo car on uofun.id_cargo = car.id_cargo
+							inner join plani.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
+							where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario),p_fecha_fin);
     	
     --Horas Trabajadas
     ELSIF (p_codigo = 'HORNORM') THEN
@@ -77,7 +82,32 @@ BEGIN
         into v_resultado
         from plani.thoras_trabajadas ht
         where ht.id_funcionario_planilla = p_id_funcionario_planilla;
-    	
+
+    --Dias dados por ley
+    ELSIF (p_codigo = 'DIALEY') THEN
+	v_resultado = 0;
+    	if ( v_cantidad_horas_mes = plani.f_get_valor_columna_valor('HORNORM', p_id_funcionario_planilla)) then
+	    v_resultado = 10;
+    	else
+	    for v_registros in (select *        
+				from plani.thoras_trabajadas ht
+				where ht.id_funcionario_planilla = p_id_funcionario_planilla)loop
+		if (extract(day from v_registros.fecha_fin) = 31 and extract(dow from v_registros.fecha_fin) in (0,6)) then
+
+			v_resultado = v_resultado - 1;
+		elsif (extract(day from v_registros.fecha_fin) = 29 and extract(month from v_registros.fecha_fin) = 2 and
+			pxp.isleapyear(extract(year from v_registros.fecha_fin)::integer) = TRUE) then
+
+			v_resultado = v_resultado + 1;
+		elsif (extract(day from v_registros.fecha_fin) = 28 and extract(month from v_registros.fecha_fin) = 2 and
+			pxp.isleapyear(extract(year from v_registros.fecha_fin)::integer) = FALSE) then
+
+			v_resultado = v_resultado + 2;
+		end if;
+		v_resultado = v_resultado + pxp.f_get_weekend_days(v_registros.fecha_ini, v_registros.fecha_fin);
+		
+	    end loop;
+    	end if;
     --Factor de Antiguedad
     ELSIF (p_codigo = 'FACTORANTI') THEN
     	select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
@@ -99,7 +129,28 @@ BEGIN
     	from plani.tantiguedad
     	where v_gestion + v_periodo BETWEEN valor_min and valor_max;
         
-       
+    --Factor de Antiguedad
+    ELSIF (p_codigo = 'FACTORANTICOMI') THEN
+    	select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
+        into v_id_uo_funcionario, v_id_funcionario,v_fecha_ini
+        from plani.tfuncionario_planilla fp
+        inner join orga.tuo_funcionario uf on uf.id_uo_funcionario = fp.id_uo_funcionario
+        where fp.id_funcionario_planilla = p_id_funcionario_planilla; 
+    	
+        
+   
+    	v_periodo:= (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
+
+	v_periodo:=(select floor(v_periodo/12));
+        
+        select porcentaje
+    	into v_resultado
+    	from plani.tantiguedad
+    	where v_periodo BETWEEN valor_min and valor_max;   
+    --Quincena
+    
+    ELSIF (p_codigo = 'QUINCE') THEN
+    	v_resultado = 0;  
     --Jubilado de 55
     ELSIF (p_codigo = 'JUB55') THEN
     	
@@ -972,9 +1023,8 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+  OWNER TO postgres;

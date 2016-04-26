@@ -141,6 +141,40 @@ BEGIN
 			return v_consulta;
 
 		end;
+        
+        /*********************************    
+ 	#TRANSACCION:  'PLA_REPMINCABE_SEL'
+ 	#DESCRIPCION:	Listado de datos para cabecera de reporte de ministerio de trabajo
+ 	#AUTOR:		admin	
+ 	#FECHA:		22-01-2014 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_REPMINCABE_SEL')then
+
+		begin
+			--Sentencia de la consulta de conteo de registros
+			
+            if (exists (	select 1 
+            				from param.tdepto d 
+            				where id_depto = v_parametros.id_depto and 
+                            	d.id_entidad is null)) then
+            	raise exception 'El Departamento de RRHH seleccionado no esta relacionado con una entidad para la obtencion de los datos de la empresa';
+            end if;   
+            
+			    		
+    		
+			v_consulta:='select en.nombre,en.nit,en.identificador_min_trabajo,identificador_caja_salud
+					    from param.tdepto dep
+                        inner join param.tentidad en on en.id_entidad = dep.id_entidad
+					    
+					    where dep.id_depto =  ' || v_parametros.id_depto;			
+			
+
+			--Devuelve la respuesta
+			return v_consulta;
+
+		end;
+        
         /*********************************    
         #TRANSACCION:  'PLA_PLANI_CONT'
         #DESCRIPCION:	Conteo de registros

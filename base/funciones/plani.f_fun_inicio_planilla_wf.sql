@@ -34,6 +34,7 @@ DECLARE
     v_config			record;
     v_registros			record;
     v_id_gestion		integer;
+    v_id_int_comprobante integer;
    
 	
     
@@ -43,7 +44,8 @@ BEGIN
     
      select (case when pla.fecha_planilla is not null then
     							pla.fecha_planilla ELSE
-                                pe.fecha_fin end) as fecha_planilla, pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas
+                                pe.fecha_fin end) as fecha_planilla, pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas,
+                                tp.funcion_calculo_horas
       into v_planilla
       from plani.tplanilla pla
       inner join plani.ttipo_planilla tp
@@ -55,12 +57,10 @@ BEGIN
     -- validacion del prorrateo--  (con el codigo actual de estado antes de cambiarlo)   
     -----------------------------------------------------------------------------------
           
-     IF p_codigo_estado  in ('registro_horas')  THEN   
-     	if (pxp.f_get_variable_global('plani_calculo_horas_sigma') = 'true') then           
-            v_resp = (select plani.f_plasue_generar_horas_sigma(v_planilla.id_planilla,p_id_usuario));
-        else
-        	v_resp = (select plani.f_plasue_generar_horas(v_planilla.id_planilla,p_id_usuario));
-        end if;
+     IF p_codigo_estado  in ('registro_horas') THEN   
+     	execute 'select * from ' || v_planilla.funcion_calculo_horas || '(' ||
+        						 v_planilla.id_planilla || ', '||p_id_usuario ||')'
+        	into v_resp;
             
      elsif (p_codigo_estado  in ('calculo_columnas')) then
      	update plani.tplanilla set requiere_calculo = 'no'
@@ -135,6 +135,15 @@ BEGIN
      	v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));            
         v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario)); 
      
+     elsif (p_codigo_estado  in ('obligaciones_validado')) then  
+        --si el estado anterior es calculo validado quiere decir q necesitamos generar presupuestos y obligaciones
+        if (v_planilla.estado = 'calculo_validado') then      
+        	v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));            
+        	v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario));
+     		v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario)); 
+        	 
+     	end if;
+          
      elsif (p_codigo_estado  in ('obligaciones')) then  
               
      	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));        	 
@@ -145,40 +154,18 @@ BEGIN
         v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario)); 
      	--Calculamos obligaciones Obligaciones
      	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
-     	select po_id_gestion into  v_id_gestion from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
-    
-        --Generamos  obligaciones     
-     	for v_registros in (select o.*,tipo.nombre as tipo_obligacion
-        					from plani.tobligacion o
-                            inner join plani.ttipo_obligacion tipo on tipo.id_tipo_obligacion = o.id_tipo_obligacion
-                            where id_planilla = v_planilla.id_planilla and o.estado_reg = 'activo')loop
-        
-        	 SELECT 
-              ps_id_partida,ps_id_cuenta,ps_id_auxiliar 
-            into 
-              v_config 
-          	FROM conta.f_get_config_relacion_contable('CUEOBLI', v_id_gestion, v_registros.id_tipo_obligacion,
-             NULL, 'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion ||'. <br> Mensaje: ');
-             
-             update plani.tobligacion SET
-               id_cuenta=v_config.ps_id_cuenta,
-               id_auxiliar=v_config.ps_id_auxiliar,
-               id_partida=v_config.ps_id_partida
-             where id_obligacion = v_registros.id_obligacion;
-             
-             if (v_registros.id_afp is not null) THEN
-             	SELECT 
-                  ps_id_cuenta,ps_id_auxiliar 
-                into 
-                  v_config 
-                FROM conta.f_get_config_relacion_contable('CUEAFP', v_planilla.id_gestion, v_registros.id_afp,
-                 NULL, 'No se encontro relación contable para la afp: '||v_registros.id_afp ||'. <br> Mensaje: ');
-                 
-                 update plani.tobligacion SET                   
-                   id_auxiliar=v_config.ps_id_auxiliar
-                 where id_obligacion = v_registros.id_obligacion;
-             end if;
-        end loop;        
+     	v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
+     elsif (p_codigo_estado  in ('comprobante_generado')) then  
+          --Generamos Presupuestos
+          v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));            
+          v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario)); 
+          --Calculamos obligaciones Obligaciones
+          v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
+          select po_id_gestion into  v_id_gestion from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
+      	  --se relaciona cuentas contables a obligaciones y consolidado_columna
+          v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
+          
+          v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);                  
         	        
      END IF;
           

@@ -150,12 +150,12 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['ingreso','descuento_ley','otros_descuentos','iva'],	
+				store:['ingreso','descuento_ley','otros_descuentos','iva','otro'],	
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['ingreso','descuento_ley','otros_descuentos','iva'],	
+	       				 options: ['ingreso','descuento_ley','otros_descuentos','iva','otro'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -315,6 +315,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 	},
 	loadValoresIniciales:function()
     {
+    	this.Cmp.tipo_columna.setValue('otro');  
     	this.Cmp.id_reporte.setValue(this.maestro.id_reporte);       
         Phx.vista.ReporteColumna.superclass.loadValoresIniciales.call(this);        
     },

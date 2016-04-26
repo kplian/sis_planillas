@@ -40,6 +40,7 @@ class MODTipoColumna extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('finiquito','varchar');
 		$this->captura('tiene_detalle','varchar');
+		$this->captura('recalcular','varchar');
 		
 		
 		//Ejecuta la instruccion
@@ -70,6 +71,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('formula','formula','varchar');
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
+		$this->setParametro('recalcular','recalcular','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -89,7 +91,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('id_tipo_columna','id_tipo_columna','int4');
 		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
 		$this->setParametro('compromete','compromete','varchar');
-		$this->setParametro('tipo_descuentommit_bono','tipo_descuento_bono','varchar');
+		$this->setParametro('tipo_descuento_bono','tipo_descuento_bono','varchar');
 		$this->setParametro('tipo_dato','tipo_dato','varchar');
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('decimales_redondeo','decimales_redondeo','int4');
@@ -100,6 +102,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('formula','formula','varchar');
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
+		$this->setParametro('recalcular','recalcular','varchar');
 		
 
 		//Ejecuta la instruccion

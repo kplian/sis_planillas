@@ -63,6 +63,7 @@ class RAguinaldoXLS
 	function imprimeDatosSueldo(){
 		$this->docexcel->getActiveSheet()->setTitle('Planilla Aguinaldo');
 		$datos = $this->objParam->getParametro('datos');
+		$datos_cabecera = $this->objParam->getParametro('datos_cabecera');
 			
 		$columnas = 0;
 		$this->docexcel->setActiveSheetIndex(0);
@@ -130,10 +131,10 @@ class RAguinaldoXLS
 		$this->docexcel->getActiveSheet()->getStyle('A1:L2')->applyFromArray($styleTitulos2);
 		
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A1','NOMBRE O RAZÓN SOCIAL  :  BOLIVIANA DE AVIACIÓN – BoA');
-		$this->docexcel->getActiveSheet()->setCellValue('A2','Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO  :  154422029-03');
-		$this->docexcel->getActiveSheet()->setCellValue('L1','Nº DE NIT  :  154422029');
-		$this->docexcel->getActiveSheet()->setCellValue('L2','Nº DE EMPLEADOR (Caja de Salud)  :  020-621-271');
+		$this->docexcel->getActiveSheet()->setCellValue('A1','NOMBRE O RAZÓN SOCIAL  :  ' . $datos_cabecera[0]['nombre_entidad']);
+		$this->docexcel->getActiveSheet()->setCellValue('A2','Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO  :  ' . $datos_cabecera[0]['identificador_min_trabajo']);
+		$this->docexcel->getActiveSheet()->setCellValue('L1','Nº DE NIT  :  ' . $datos_cabecera[0]['nit']);
+		$this->docexcel->getActiveSheet()->setCellValue('L2','Nº DE EMPLEADOR (Caja de Salud)  :  ' . $datos_cabecera[0]['identificador_caja_salud']);
 		
 		$styleTitulos2 = array(
 		    'font'  => array(

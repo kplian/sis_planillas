@@ -127,7 +127,30 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},						
+		},	
+		{
+			config:{
+				name: 'recalcular',
+				fieldLabel: 'Ejecutar solo en recalculo?',
+				allowBlank:false,
+				emptyText:'Detalle...',
+				qtip:'Permite definir si la columna se calcula solo en recalculo(Solo aplica a formulas)',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},					
 		{
 			config:{
 				name: 'formula',
@@ -350,6 +373,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_tipo_planilla', type: 'numeric'},
 		{name:'compromete', type: 'string'},
 		{name:'tipo_descuento_bono', type: 'string'},
+		{name:'recalcular', type: 'string'},
 		{name:'tipo_dato', type: 'string'},
 		{name:'codigo', type: 'string'},
 		{name:'finiquito', type: 'string'},

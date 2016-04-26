@@ -83,7 +83,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     tooltip: 'Detalle de Presupuestos por Empleado',
                     scope: this
                 }, {
-                    text: 'Subir Columnas desde CSV',
+                    text: 'Presupuestos Consolidados',
                     id: 'btnPresupuestosCons-' + this.idContenedor,
                     handler: this.onButtonPresupuestosConsolidado,
                     tooltip: 'Presupuestos Consolidados por Columnas' ,
@@ -273,6 +273,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				name: 'fecha_planilla',
 				fieldLabel: 'Fecha Planilla',
 				allowBlank: false,
+				qtip: 'Esta fecha se tomara como base para afectaciones contables y presupuestarias de esta planilla',
 				anchor: '80%',
 				gwidth: 100,
 							format: 'd/m/Y', 
@@ -453,14 +454,10 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 			if (r.data.periodicidad == 'anual') {
 				this.ocultarComponente(this.Cmp.id_periodo);
 				this.Cmp.id_periodo.allowBlank = true;
-				this.Cmp.id_periodo.reset();
-				this.mostrarComponente(this.Cmp.fecha_planilla);
-				this.Cmp.fecha_planilla.allowBlank = false;
+				this.Cmp.id_periodo.reset();				
 			} else {
 				this.mostrarComponente(this.Cmp.id_periodo);
-				this.Cmp.id_periodo.allowBlank = false;
-				this.ocultarComponente(this.Cmp.fecha_planilla);
-				this.Cmp.fecha_planilla.allowBlank = true;
+				this.Cmp.id_periodo.allowBlank = false;				
 
 			}
 		},this);
@@ -600,7 +597,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	},
     preparaMenu:function()
     {	var rec = this.sm.getSelected();
-        this.desactivarMenu();         
+        this.desactivarMenu();  
+        Phx.vista.Planilla.superclass.preparaMenu.call(this);       
         //MANEJO DEL BOTON DE GESTION DE HORAS      
         if (rec.data.calculo_horas == 'si') {
         	this.getBoton('btnHoras').enable();
@@ -620,17 +618,24 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 	          this.getBoton('ant_estado').disable();
 	          this.getBoton('sig_estado').enable();
                           
+        } else if (rec.data.estado == 'comprobante_generado' ||
+        	 rec.data.estado == 'planilla_finalizada') {
+        	 this.getBoton('ant_estado').disable();
+             this.getBoton('sig_estado').disable();
+             this.getBoton('del').disable();
+             
         } else if (rec.data.estado == 'obligaciones_generadas' ||
         	 rec.data.estado == 'comprobante_presupuestario_validado' ||
-        	 rec.data.estado == 'comprobante_obligaciones'||
-        	 rec.data.estado == 'planilla_finalizada') {
+        	 rec.data.estado == 'comprobante_obligaciones') {
         	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').disable();
-	
+			 this.getBoton('del').disable(); 
         } else {
         	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').enable();
         }
+        
+        
         this.getBoton('btnChequeoDocumentosWf').enable();       
          
         //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
@@ -638,10 +643,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	
     	this.getBoton('btnPresupuestos').enable();           
         this.getBoton('btnObligaciones').enable();         
-        this.getBoton('diagrama_gantt').enable();         
-               
-    	        
-        Phx.vista.Planilla.superclass.preparaMenu.call(this);
+        this.getBoton('diagrama_gantt').enable();    	        
+        
     },
     liberaMenu:function()
     {	

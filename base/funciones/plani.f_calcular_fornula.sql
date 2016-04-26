@@ -1,11 +1,10 @@
-CREATE OR REPLACE FUNCTION plani.f_calcular_formula (
-  p_id_funcionario_planilla integer,
-  p_formula varchar,
-  p_fecha_ini date,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
+-- Function: plani.f_calcular_formula(integer, character varying, date, integer, character varying)
+
+-- DROP FUNCTION plani.f_calcular_formula(integer, character varying, date, integer, character varying);
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_formula(p_id_funcionario_planilla integer, p_formula character varying, p_fecha_ini date, p_id_columna_valor integer, p_recalcular character varying DEFAULT 'no'::character varying)
+  RETURNS numeric AS
+$BODY$
 /**************************************************************************
  PLANI
 ***************************************************************************
@@ -156,12 +155,13 @@ BEGIN
         END LOOP;
     	
         -- evaluar formula si la cantidad de variables es > 0
-        IF v_cantidad_variables > 0 THEN  
+        IF v_cantidad_variables > 0 and (v_tipo_columna.recalcular = 'no' or (v_tipo_columna.recalcular = 'si' and p_recalcular = 'si')) THEN  
       		
             FOR v_registros in EXECUTE('SELECT ('|| v_formula||') as res') LOOP
                 v_resultado = coalesce(v_registros.res,0);          
             END LOOP;
-        	
+        ELSIF (v_tipo_columna.recalcular = 'si' and p_recalcular = 'no') then
+        	v_resultado = 0;        	
         ELSE
             RAISE EXCEPTION  'La formula % no contiene variables',v_formula;
         END IF;
@@ -179,9 +179,8 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION plani.f_calcular_formula(integer, character varying, date, integer, character varying)
+  OWNER TO postgres;

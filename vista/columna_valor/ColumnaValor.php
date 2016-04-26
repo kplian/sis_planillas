@@ -225,7 +225,7 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 		
 	],
 	sortInfo:{
-		field: 'id_columna_valor',
+		field: 'tipcol.orden',
 		direction: 'ASC'
 	},
 	east:{

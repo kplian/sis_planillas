@@ -180,9 +180,19 @@ BEGIN
                             emp.nit,
                             ''''::varchar as numero_patronal,
                             fun.desc_funcionario1::varchar as nombre,
-                            car.nombre as cargo,
+                            (case when sum(ht.id_horas_trabajadas) is null then
+                            	car.nombre
+                            else
+                            	pxp.list(carht.nombre || ''  ('' ||round(ht.horas_normales/8,0) || '' dias)'')
+                            end)::varchar as cargo,
+                            (case when sum(ht.id_horas_trabajadas) is null then
+                            	car.codigo
+                            else
+                            	pxp.list(carht.codigo)
+                            end)::varchar as item,
                             fun.codigo as codigo_empleado,
-                            sum(ht.horas_normales)::integer
+                            sum(ht.horas_normales)::integer,
+                            fun.ci
                             
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
@@ -194,6 +204,8 @@ BEGIN
 				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = planifun.id_uo_funcionario
 				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
 				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
+				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
+				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
 				        where repo.tipo_reporte = ''boleta'' and ';
 			
 			--Definicion de la respuesta
@@ -206,7 +218,9 @@ BEGIN
                             emp.nit,                            
                             fun.desc_funcionario1,
                             car.nombre,
-                            fun.codigo
+                            car.codigo,
+                            fun.codigo,
+                            fun.ci
 			';
 			
 			return v_consulta;

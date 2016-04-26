@@ -160,7 +160,21 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
+		{
+			config:{
+				name: 'funcion_calculo_horas',
+				fieldLabel: 'Funcion Calculo Horas',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 200,
+				maxLength:200
+			},
+				type:'TextField',
+				filters:{pfiltro:'tippla.funcion_calculo_horas',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
 		{
 			config:{
 				name: 'tipo_presu_cc',
@@ -228,7 +242,23 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
-		},				
+		},	
+		{
+			config:{
+				name: 'recalcular_desde',
+				fieldLabel: 'Recalcular Desde',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 150,
+				maxLength:100,
+				allowDecimals:false,
+				allowNegative:false
+			},
+				type:'NumberField',				
+				id_grupo:1,
+				grid:true,
+				form:true
+		},			
 		
 		
 		{
@@ -328,11 +358,13 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'codigo', type: 'string'},
 		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'id_usuario_reg', type: 'numeric'},
+		{name:'recalcular_desde', type: 'numeric'},
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'funcion_validacion_nuevo_empleado', type: 'string'},
+		{name:'funcion_calculo_horas', type: 'string'},		
 		{name:'calculo_horas', type: 'string'},
 		{name:'periodicidad', type: 'string'}
 		
