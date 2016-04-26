@@ -641,3 +641,12 @@ ALTER TABLE plani.ttipo_columna
 
 /***********************************F-SCP-JRR-PLANI-0-13/04/2016****************************************/
 
+/***********************************I-SCP-JRR-PLANI-0-25/04/2016****************************************/
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN id_int_comprobante INTEGER; 
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD COLUMN id_int_transaccion INTEGER; 
+
+/***********************************F-SCP-JRR-PLANI-0-25/04/2016****************************************/

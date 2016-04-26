@@ -54,7 +54,7 @@ BEGIN
           	''' || v_fecha_fin_planilla || ''' 
           else 
           	uofun.fecha_finalizacion 
-          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real,car.id_escala_salarial 
+          end) as fecha_fin,uofun.fecha_finalizacion as fecha_fin_real,car.id_escala_salarial,tc.codigo as tipo_contrato  
           from orga.tuo_funcionario uofun
           inner join orga.tcargo car
               on car.id_cargo = uofun.id_cargo
@@ -85,12 +85,105 @@ BEGIN
     	end if;*/
         
         if (v_dias >= 90) then
-        	v_existe = 'si'; 
-            o_id_lugar = v_registros.id_lugar;
-            o_id_uo_funcionario = v_registros.id_uo_funcionario;    
-            o_id_afp = plani.f_get_afp(p_id_funcionario, v_registros.fecha_fin);       
-            o_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_registros.fecha_fin);
-            o_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
+        	select tp.*,p.id_gestion,p.estado into v_tipo_planilla
+        	from plani.tplanilla p
+        	inner join plani.ttipo_planilla tp
+        		on tp.id_tipo_planilla = p.id_tipo_planilla
+        	where p.id_planilla = p_id_planilla;
+        	
+        	--Sentencia de la insercion
+        	insert into plani.tfuncionario_planilla(
+			finiquito,
+			forzar_cheque,
+			id_funcionario,
+			id_planilla,
+			id_lugar,
+			id_uo_funcionario,
+			estado_reg,
+			id_usuario_reg,
+			fecha_reg,
+			id_usuario_mod,
+			fecha_mod,
+            id_afp,
+            id_cuenta_bancaria,
+            tipo_contrato
+          	) values(
+			p_finiquito,
+			p_forzar_cheque,
+			p_id_funcionario,
+			p_id_planilla,
+			v_registros.id_lugar,
+			v_registros.id_uo_funcionario,
+			'activo',
+			p_id_usuario,
+			now(),
+			null,
+			null,
+            plani.f_get_afp(p_id_funcionario, v_planilla.fecha_fin),
+            plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_fin),
+            v_registros.tipo_contrato
+							
+			)RETURNING id_funcionario_planilla into o_id_funcionario_planilla;
+			
+			for v_columnas in (	select * 
+	        					from plani.ttipo_columna 
+	                            where id_tipo_planilla = v_tipo_planilla.id_tipo_planilla and estado_reg = 'activo'  order by orden) loop
+			        	INSERT INTO 
+			                plani.tcolumna_valor
+			              (
+			                id_usuario_reg,
+			                estado_reg,
+			                id_tipo_columna,
+			                id_funcionario_planilla,
+			                codigo_columna,
+			                formula,
+			                valor,
+			                valor_generado
+			              ) 
+			              VALUES (
+			                p_id_usuario,
+			                'activo',
+			                v_columnas.id_tipo_columna,
+			                o_id_funcionario_planilla,
+			                v_columnas.codigo,
+			                v_columnas.formula,
+			                0,
+			                0
+			              )returning id_columna_valor into v_id_columna_valor;
+	                      
+	                      --registrando el detalle en caso de ser necesario  
+	                if (v_columnas.tiene_detalle = 'si')then
+	                	for v_detalle in (	
+	                    	select ht.id_horas_trabajadas
+	                    	from plani.tplanilla p
+	                    	inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+	                    	inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+	                    	inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+	                    	where fp.id_funcionario = p_id_funcionario and  tp.codigo = 'PLASUE' and
+	                    	ht.estado_reg = 'activo' and p.id_gestion = v_tipo_planilla.id_gestion) loop
+	                        
+	                        INSERT INTO 
+	                            plani.tcolumna_detalle
+	                          (
+	                            id_usuario_reg,  
+	                            id_horas_trabajadas,
+	                            id_columna_valor,
+	                            valor,
+	                            valor_generado
+	                          ) 
+	                          VALUES (
+	                            p_id_usuario,  
+	                            v_detalle.id_horas_trabajadas,
+	                            v_id_columna_valor,
+	                            0,
+	                            0
+	                          );
+	                          
+	                    end loop;
+	                end if; 
+	        end loop;	        
+        	v_existe = 'si';            
+            o_tipo_contrato = v_registros.tipo_contrato;
         end if; 
   			  	
     end loop;

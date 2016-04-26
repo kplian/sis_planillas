@@ -138,6 +138,9 @@ BEGIN
         delete from plani.tconsolidado
         where id_planilla = v_planilla.id_planilla;
         
+        update plani.tplanilla set id_int_comprobante = NULL
+        where id_planilla = v_planilla.id_planilla;
+        
         
      
      elsif (p_codigo_estado  in ('presupuestos_validado')) then    

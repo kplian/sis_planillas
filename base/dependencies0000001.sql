@@ -3047,3 +3047,124 @@ AS
          pla.id_tipo_planilla;
          
 /***********************************F-DEP-JRR-PLANI-0-28/04/2016****************************************/
+
+/***********************************I-DEP-JRR-PLANI-0-25/04/2016****************************************/
+DROP VIEW IF EXISTS plani.vcomp_planilla;
+CREATE OR REPLACE VIEW plani.vcomp_planilla(
+    id_planilla,
+    id_depto_conta,
+    nro_tramite,
+    desc_planilla,
+    obs,
+    id_moneda,
+    fecha_planilla,
+    id_gestion_contable,
+    id_gestion,
+    monto,
+    id_centro_costo_depto,
+    nombre_pago)
+AS
+  SELECT pla.id_planilla,
+         dcon.id_depto AS id_depto_conta,
+         pw.nro_tramite,
+         ((tp.nombre::text || ' correspondiente a : '::text) || COALESCE(
+           per.periodo || '/'::text, ''::text)) || ges.gestion AS desc_planilla,
+         pla.nro_planilla AS obs,
+         param.f_get_moneda_base() AS id_moneda,
+         pla.fecha_planilla,
+         (
+           SELECT f_get_periodo_gestion.po_id_gestion
+           FROM param.f_get_periodo_gestion(pla.fecha_planilla)
+             f_get_periodo_gestion(po_id_periodo, po_id_gestion,
+             po_id_periodo_subsistema)
+         ) AS id_gestion_contable,
+         pla.id_gestion,
+         sum(concol.valor) AS monto,
+         (
+           SELECT f_get_config_relacion_contable.ps_id_centro_costo
+           FROM conta.f_get_config_relacion_contable('CCDEPCON'::character
+             varying, (
+                        SELECT f_get_periodo_gestion.po_id_gestion
+                        FROM param.f_get_periodo_gestion(pla.fecha_planilla)
+                          f_get_periodo_gestion(po_id_periodo, po_id_gestion,
+                          po_id_periodo_subsistema)
+                ), dcon.id_depto, NULL::integer,
+                  'No existe presupuesto administrativo relacionado al departamento de RRHH'
+                  ::character varying) f_get_config_relacion_contable(
+                  ps_id_cuenta, ps_id_auxiliar, ps_id_partida,
+                  ps_id_centro_costo, ps_nombre_tipo_relacion)
+         ) AS id_centro_costo_depto,
+         tp.nombre as nombre_pago
+  FROM plani.tplanilla pla
+       JOIN wf.tproceso_wf pw ON pw.id_proceso_wf = pla.id_proceso_wf
+       JOIN plani.tconsolidado con ON con.id_planilla = pla.id_planilla
+       JOIN plani.tconsolidado_columna concol ON concol.id_consolidado =
+         con.id_consolidado
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+       JOIN param.tdepto dep ON dep.id_depto = pla.id_depto
+       LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+       LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+       LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
+         AND sub.codigo::text = 'CONTA'::text
+  GROUP BY pla.id_planilla,
+           dcon.id_depto,
+           pw.nro_tramite,
+           tp.nombre,
+           per.periodo,
+           ges.gestion,
+           pla.nro_planilla,
+           pla.fecha_planilla,
+           pla.id_gestion;
+           
+
+DROP VIEW IF EXISTS plani.vcomp_planilla_det;
+CREATE OR REPLACE VIEW plani.vcomp_planilla_det(
+    id_consolidado_columna,
+    id_consolidado,
+    id_planilla,
+    monto,
+    monto_presupuestario,
+    id_cc,
+    id_presupuesto,
+    descripcion_columna,
+    id_cuenta,
+    id_partida,
+    id_auxiliar)
+AS
+  SELECT concol.id_consolidado_columna,
+         concol.id_consolidado,
+         con.id_planilla,
+         concol.valor AS monto,
+         concol.valor_ejecutado AS monto_presupuestario,
+         con.id_cc,
+         con.id_presupuesto,
+         ((tc.nombre::text || '. Personal '::text) || tipcon.nombre::text)::
+           character varying AS descripcion_columna,
+           concol.id_cuenta,
+           concol.id_partida,
+           concol.id_auxiliar
+  FROM plani.tconsolidado con
+       JOIN plani.tconsolidado_columna concol ON concol.id_consolidado =
+         con.id_consolidado
+       JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+         concol.id_tipo_columna
+       JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::text =
+         concol.tipo_contrato::text;
+         
+ALTER TABLE plani.tplanilla
+  ADD CONSTRAINT fk_tplanilla__id_int_comprobante FOREIGN KEY (id_int_comprobante) 
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk_tconsolidado_columna__id_int_transaccion FOREIGN KEY (id_int_transaccion) 
+    REFERENCES conta.tint_transaccion(id_int_transaccion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-DEP-JRR-PLANI-0-25/04/2016****************************************/

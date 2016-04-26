@@ -18,8 +18,8 @@ class ACTTipoColumna extends ACTbase{
 			$this->objParam->addFiltro("tipcol.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
 		}
 		
-		if ($this->objParam->getParametro('compromete') != '') {
-			$this->objParam->addFiltro("tipcol.compromete = ''". $this->objParam->getParametro('compromete')."''");
+		if ($this->objParam->getParametro('compromete') == 'si') {
+			$this->objParam->addFiltro("tipcol.compromete in (''si'',''si_contable'')");
 		}
 		
 		if ($this->objParam->getParametro('tipo_dato') != '') {
