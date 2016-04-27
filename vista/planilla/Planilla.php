@@ -18,8 +18,9 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		Phx.vista.Planilla.superclass.constructor.call(this,config);
 		this.init();
 		this.iniciarEventos();
+		this.store.baseParams.pes_estado = 'otro';  
 		this.load({params:{start:0, limit:this.tam_pag}});
-		this.store.baseParams.pes_estado = 'otro';   
+		 
 		this.finCons = true;
 		this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
