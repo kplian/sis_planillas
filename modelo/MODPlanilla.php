@@ -178,6 +178,41 @@ class MODPlanilla extends MODbase{
 		return $this->respuesta;
 	}
 
+
+	function listarReporteSegAguinaldoMinisterio(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_REPSEGAGUI_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		
+		$this->setParametro('id_gestion','id_gestion','int4');
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('fila','int4');		
+		$this->captura('ci','varchar');
+		$this->captura('apellido_paterno','varchar');
+		$this->captura('apellido_materno','varchar');		
+		$this->captura('nombre','varchar');		
+		$this->captura('nacionalidad','varchar');
+		$this->captura('fecha_nacimiento','text');
+		$this->captura('sexo','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('fecha_ingreso','text');
+		$this->captura('codigo_columna','varchar');
+		$this->captura('valor','numeric');
+		$this->captura('jubilado','integer');
+		$this->captura('discapacitado','varchar');
+		
+					
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+		
+
 	function listarReporteMinisterioCabecera(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_planilla_sel';
@@ -197,6 +232,7 @@ class MODPlanilla extends MODbase{
 		$this->armarConsulta();
 		
 		$this->ejecutarConsulta();
+
 		
 		
 		

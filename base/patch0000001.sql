@@ -650,3 +650,8 @@ ALTER TABLE plani.tconsolidado_columna
   ADD COLUMN id_int_transaccion INTEGER; 
 
 /***********************************F-SCP-JRR-PLANI-0-25/04/2016****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-26/04/2016****************************************/
+ALTER TABLE plani.tprorrateo_columna ALTER COLUMN compromete TYPE varchar(20);
+
+/***********************************F-SCP-JRR-PLANI-0-26/04/2016****************************************/
