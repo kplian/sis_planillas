@@ -1,11 +1,10 @@
-CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- Function: plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
+  RETURNS character varying AS
+$BODY$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_funcionario_planilla_sel
@@ -61,7 +60,7 @@ BEGIN
 						funplan.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,	
-						funcio.desc_funcionario1,
+						funcio.desc_funcionario2,
                         lug.nombre,
                         afp.nombre,
                         fafp.nro_afp,
@@ -336,9 +335,8 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
+  OWNER TO postgres;

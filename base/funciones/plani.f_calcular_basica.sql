@@ -71,9 +71,9 @@ BEGIN
     --Sueldo Básico para quincena
     ELSIF (p_codigo = 'HABBAS') THEN
        	v_resultado = orga.f_get_haber_basico_a_fecha(( select es.id_escala_salarial
-							from plani.tuo_funcionario uofun
-							inner join plani.tcargo car on uofun.id_cargo = car.id_cargo
-							inner join plani.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
+							from orga.tuo_funcionario uofun
+							inner join orga.tcargo car on uofun.id_cargo = car.id_cargo
+							inner join orga.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
 							where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario),p_fecha_fin);
     	
     --Horas Trabajadas
@@ -150,7 +150,18 @@ BEGIN
     --Quincena
     
     ELSIF (p_codigo = 'QUINCE') THEN
-    	v_resultado = 0;  
+    	
+    	select coalesce(cv.valor,0) into v_resultado
+    	from plani.tplanilla pla
+    	inner join plani.ttipo_planilla tp
+		on tp.id_tipo_planilla	= pla.id_tipo_planilla
+    	inner join plani.tfuncionario_planilla fp
+		on fp.id_planilla = pla.id_planilla
+    	inner join plani.tcolumna_valor cv 
+		on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+    	where tp.codigo = 'PLAQUIN' and pla.estado_reg = 'activo' 
+		and pla.id_periodo = v_planilla.id_periodo and pla.id_gestion = v_planilla.id_gestion  and cv.codigo_columna = 'LIQPAG' and	
+		fp.id_funcionario = v_planilla.id_funcionario; 
     --Jubilado de 55
     ELSIF (p_codigo = 'JUB55') THEN
     	

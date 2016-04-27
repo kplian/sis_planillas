@@ -70,8 +70,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
    				allowBlank:false,
    				  				
    				valueField: 'id_funcionario',
-   			    gdisplayField: 'desc_funcionario1',
-      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
+   			    gdisplayField: 'desc_funcionario2',
+      			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario2']);}
        	     },
    			type:'ComboRec',//ComboRec
    			id_grupo:0,
@@ -306,7 +306,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo_contrato', type: 'string'},
 		{name:'desc_cargo', type: 'string'},
 		{name:'id_funcionario', type: 'numeric'},
-		{name:'desc_funcionario1', type: 'string'},
+		{name:'desc_funcionario2', type: 'string'},
 		{name:'id_planilla', type: 'numeric'},
 		{name:'id_lugar', type: 'numeric'},
 		{name:'id_uo_funcionario', type: 'numeric'},
