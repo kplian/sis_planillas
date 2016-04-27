@@ -15,6 +15,16 @@ class ACTPlanilla extends ACTbase{
 		$this->objParam->defecto('ordenacion','id_planilla');
 
 		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('pes_estado') == 'otro') {
+			
+			$this->objParam->addFiltro("plani.estado not in (''comprobante_generado'',''planilla_finalizada'')");		
+			
+		} else if ($this->objParam->getParametro('pes_estado') == 'planilla_finalizada') {
+			$this->objParam->addFiltro("plani.estado  in (''planilla_finalizada'')");
+		} else if ($this->objParam->getParametro('pes_estado') == 'comprobante_generado') {
+			$this->objParam->addFiltro("plani.estado  in (''comprobante_generado'')");
+		}
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODPlanilla','listarPlanilla');

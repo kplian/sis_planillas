@@ -23,6 +23,7 @@ DECLARE
   v_valor_acumulado			numeric;
   v_valor_ejecutado			numeric;
   v_tipo_contrato			varchar;
+  v_id_pres_adm				integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_consolidar_pres_cos';
 	SELECT p.*,tp.tipo_presu_cc,tp.calculo_horas,id_gestion
@@ -35,7 +36,7 @@ BEGIN
         v_campo = 'pro.id_presupuesto';
     else
         v_campo = 'pro.id_cc';
-    end if;
+    end if;    
     
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
     	v_tipo_contrato = 'ht.tipo_contrato';
@@ -105,7 +106,7 @@ BEGIN
         
         for v_columnas in execute (v_consulta) loop
         	if (p_tipo_generacion = 'costos' or 
-            	(p_tipo_generacion = 'presupuestos' and v_columnas.compromete = 'si_contabilidad')) then
+            	(p_tipo_generacion = 'presupuestos' and v_columnas.compromete = 'si_contable')) then
             	v_valor_ejecutado = 0;
             else
             	v_valor_ejecutado = v_columnas.valor;
@@ -161,7 +162,8 @@ BEGIN
         
         end loop;
         
-    end loop; 
+    end loop;   
+    
     
     
     return 'exito';

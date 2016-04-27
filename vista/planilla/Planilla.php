@@ -19,12 +19,14 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		this.init();
 		this.iniciarEventos();
 		this.load({params:{start:0, limit:this.tam_pag}});
-		this.addButton('ant_estado',{argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
-        this.addButton('sig_estado',{text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
-		this.addButton('diagrama_gantt',{text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
+		this.store.baseParams.pes_estado = 'otro';   
+		this.finCons = true;
+		this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+        this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
+		this.addButton('diagrama_gantt',{grupo:[0,1,2],text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
   
 		this.addButton('btnChequeoDocumentosWf',
-            {
+            {	grupo:[0,1,2],
                 text: 'Documentos',
                 iconCls: 'bchecklist',
                 disabled: true,
@@ -34,7 +36,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         );
 			
 		this.addButton('btnHoras',
-            {
+            {	grupo:[0,1,2],
                 iconCls: 'bclock',
                 disabled: true,                               
                 handler: this.onButtonHorasDetalle,
@@ -43,7 +45,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         );
         
         this.addButton('btnColumnas',
-            {
+            {	grupo:[0,1,2],
                 iconCls: 'bcalculator',
                 disabled: false,
                 tooltip: 'Gestion de Columnas (solo es posible subir csv y editar columnas si el estado es calculo_columnas)',
@@ -71,7 +73,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         );
         
         this.addButton('btnPresupuestos',
-            {
+            {	grupo:[0,1,2],
                 iconCls: 'bstats',
                 disabled: false,  
                 tooltip: 'Gestion de Presupuestos',
@@ -92,7 +94,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             }
         );
         this.addButton('btnObligaciones',
-            {
+            {	grupo:[0,1,2],
                 iconCls: 'bmoney',
                 disabled: true,                
                 handler: this.onButtonObligacionesDetalle,
@@ -112,6 +114,24 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             });         
         } 
 	},
+	gruposBarraTareas:[{name:'otro',title:'<H1 align="center"><i class="fa fa-eye"></i> En Registro</h1>',grupo:0,height:0},
+						{name:'comprobante_generado',title:'<H1 align="center"><i class="fa fa-eye"></i> En Contabilidad</h1>',grupo:1,height:0},
+                       {name:'planilla_finalizada',title:'<H1 align="center"><i class="fa fa-eye"></i> Finalizadas</h1>',grupo:2,height:0}
+                       
+                       ],
+    
+    
+    actualizarSegunTab: function(name, indice){
+        if(this.finCons) {        	 
+             this.store.baseParams.pes_estado = name;                           
+             this.load({params:{start:0, limit:this.tam_pag}});
+        }
+    },
+    beditGroups: [0],
+    bdelGroups:  [0],
+    bactGroups:  [0,1,2],
+    btestGroups: [0],
+    bexcelGroups: [0,1,2],
 			
 	Atributos:[
 		{

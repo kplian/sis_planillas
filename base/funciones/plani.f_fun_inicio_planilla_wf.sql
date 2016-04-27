@@ -177,7 +177,8 @@ BEGIN
        id_usuario_mod=p_id_usuario,
        id_usuario_ai = p_id_usuario_ai,
        usuario_ai = p_usuario_ai,
-       fecha_mod=now()                   
+       fecha_mod=now(),
+       id_int_comprobante = v_id_int_comprobante                   
     where id_proceso_wf = p_id_proceso_wf;   
 
 	RETURN   TRUE;
