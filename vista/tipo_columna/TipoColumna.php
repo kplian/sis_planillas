@@ -223,7 +223,7 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['monto_fijo_indefinido','cantidad_cuotas','monto_fijo_por_fechas']
+				store:['monto_fijo_indefinido','monto_fijo_por_fechas']
 			},
 				type:'ComboBox',
 				filters:{	

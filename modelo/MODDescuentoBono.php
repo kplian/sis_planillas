@@ -39,6 +39,7 @@ class MODDescuentoBono extends MODbase{
 		$this->captura('desc_moneda','varchar');
 		$this->captura('codigo_columna','varchar');
 		$this->captura('tipo_descuento_bono','varchar');
+		$this->captura('tipo_dato','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

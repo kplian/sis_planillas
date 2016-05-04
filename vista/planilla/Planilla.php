@@ -39,6 +39,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		this.addButton('btnHoras',
             {	grupo:[0,1,2],
                 iconCls: 'bclock',
+                text:'Horas',
                 disabled: true,                               
                 handler: this.onButtonHorasDetalle,
                 tooltip: 'Detalle Horas Trabajadas'                
@@ -49,6 +50,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             {	grupo:[0,1,2],
                 iconCls: 'bcalculator',
                 disabled: false,
+                text:'Columnas',
                 tooltip: 'Gestion de Columnas (solo es posible subir csv y editar columnas si el estado es calculo_columnas)',
                 xtype: 'splitbutton',
                 menu: [{
@@ -77,6 +79,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             {	grupo:[0,1,2],
                 iconCls: 'bstats',
                 disabled: false,  
+                text:'Presupuestos',
                 tooltip: 'Gestion de Presupuestos',
                 xtype: 'splitbutton',  
                 menu: [{
@@ -97,6 +100,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.addButton('btnObligaciones',
             {	grupo:[0,1,2],
                 iconCls: 'bmoney',
+                text:'Obligaciones',
                 disabled: true,                
                 handler: this.onButtonObligacionesDetalle,
                 tooltip: 'Detalle de Obligaciones'                

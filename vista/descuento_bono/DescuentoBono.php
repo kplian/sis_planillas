@@ -79,7 +79,7 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_tipo_columna', 'nombre', 'codigo', 'tipo_descuento_bono'],
+					fields: ['id_tipo_columna', 'nombre', 'codigo', 'tipo_descuento_bono','tipo_dato'],
 					// turn on remote sorting
 					remoteSort: true,
 					baseParams: {par_filtro: 'tipcol.nombre#tipcol.codigo',tipo_descuento_bono:'si'}
@@ -268,6 +268,7 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_moneda', type: 'string'},
 		{name:'tipo_descuento_bono', type: 'string'},
 		{name:'codigo_columna', type: 'string'},
+		{name:'tipo_dato', type: 'string'},
 		{name:'fecha_fin', type: 'date',dateFormat:'Y-m-d'},
 		{name:'fecha_reg', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'id_usuario_reg', type: 'numeric'},
@@ -294,6 +295,22 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
     	this.Cmp.monto_total.allowBlank = true;  
     	this.ocultarComponente(this.Cmp.valor_por_cuota);
     	this.ocultarComponente(this.Cmp.id_tipo_columna);
+    	
+    	if (rec.data.tipo_dato == 'basica' || rec.data.tipo_dato == 'formula') {
+			this.ocultarComponente(this.Cmp.monto_total);
+			this.Cmp.monto_total.reset();
+			this.Cmp.monto_total.allowBlank = true;
+			
+			this.ocultarComponente(this.Cmp.valor_por_cuota);
+			this.Cmp.valor_por_cuota.allowBlank = true;
+			this.Cmp.valor_por_cuota.setValue(0);
+			
+		} else {
+			this.mostrarComponente(this.Cmp.monto_total);
+			this.Cmp.monto_total.allowBlank = true;
+			this.mostrarComponente(this.Cmp.valor_por_cuota);
+			this.Cmp.valor_por_cuota.allowBlank = false;
+		}
     },
     onButtonNew : function () {
     	//this.mostrarComponente(this.Cmp.fecha_ini); 
@@ -310,35 +327,34 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 				
 			if (r.data.tipo_descuento_bono == 'monto_fijo_indefinido') {				
 				this.mostrarComponente(this.Cmp.fecha_ini);
-				this.ocultarComponente(this.Cmp.fecha_fin);
-				this.ocultarComponente(this.Cmp.monto_total);
-				this.Cmp.monto_total.allowBlank = true;
+				this.ocultarComponente(this.Cmp.fecha_fin);			
 				this.Cmp.fecha_ini.allowBlank = false;
 				this.Cmp.fecha_fin.allowBlank = true;
 				this.Cmp.fecha_ini.reset();
-				this.Cmp.fecha_fin.reset();
-				this.Cmp.monto_total.reset();
-				
-				
-			} else if(r.data.tipo_descuento_bono == 'cantidad_cuotas') {
-				this.mostrarComponente(this.Cmp.fecha_ini);
-				this.ocultarComponente(this.Cmp.fecha_fin);
-				this.mostrarComponente(this.Cmp.monto_total);
-				this.Cmp.monto_total.allowBlank = false;
-				this.Cmp.fecha_ini.allowBlank = false;
-				this.Cmp.fecha_fin.allowBlank = true;
-				this.Cmp.fecha_ini.reset();
-				this.Cmp.fecha_fin.reset();
-				
+				this.Cmp.fecha_fin.reset();				
 			} else {
 				this.mostrarComponente(this.Cmp.fecha_ini);
-				this.mostrarComponente(this.Cmp.fecha_fin);
-				this.ocultarComponente(this.Cmp.monto_total);
-				this.Cmp.monto_total.allowBlank = true;
+				this.mostrarComponente(this.Cmp.fecha_fin);				
 				this.Cmp.fecha_ini.allowBlank = false;
-				this.Cmp.fecha_fin.allowBlank = false;
-				this.Cmp.monto_total.reset();
+				this.Cmp.fecha_fin.allowBlank = false;				
 			}
+			
+			if (r.data.tipo_dato == 'basica' || r.data.tipo_dato == 'formula') {
+				this.ocultarComponente(this.Cmp.monto_total);
+				this.Cmp.monto_total.reset();
+				this.Cmp.monto_total.allowBlank = true;
+				
+				this.ocultarComponente(this.Cmp.valor_por_cuota);
+				this.Cmp.valor_por_cuota.allowBlank = true;
+				this.Cmp.valor_por_cuota.setValue(0);
+			} else {
+				this.mostrarComponente(this.Cmp.monto_total);
+				this.Cmp.monto_total.allowBlank = true;
+				
+				this.mostrarComponente(this.Cmp.valor_por_cuota);
+				this.Cmp.valor_por_cuota.allowBlank = false;
+			}
+			
 		}, this);    	
     }
 }
