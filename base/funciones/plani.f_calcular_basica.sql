@@ -1,10 +1,13 @@
--- Function: plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
-
--- DROP FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer);
-
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica(p_id_funcionario_planilla integer, p_fecha_ini date, p_fecha_fin date, p_id_tipo_columna integer, p_codigo character varying, p_id_columna_valor integer)
-  RETURNS numeric AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
+  p_id_funcionario_planilla integer,
+  p_fecha_ini date,
+  p_fecha_fin date,
+  p_id_tipo_columna integer,
+  p_codigo varchar,
+  p_id_columna_valor integer
+)
+RETURNS numeric AS
+$body$
 /**************************************************************************
  PLANI
 ***************************************************************************
@@ -570,6 +573,51 @@ BEGIN
             end if;
             v_i = v_i + 1;
         end loop;
+        
+    ELSIF (p_codigo = 'REINBANTCOMI') THEN 
+    	
+        
+        select sum(((plani.f_get_valor_parametro_valor('SALMIN', v_planilla.fecha_planilla)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) 
+                    	- 
+                    ((plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) ),
+               array_agg(((plani.f_get_valor_parametro_valor('SALMIN', v_planilla.fecha_planilla)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) 
+                    	- 
+                    ((plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3)*
+        			(ht.horas_normales/v_cantidad_horas_mes)) order by ht.id_horas_trabajadas asc) into v_resultado,v_resultado_array
+        from plani.tplanilla p
+        inner join param.tperiodo per on per.id_periodo = p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla        
+        where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+        cv.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'FACTORANTICOMI';
+        v_tamano_array = array_length(v_resultado_array,1);
+        
+        v_resultado = 0;
+        v_i = 1;
+        FOR v_detalle in (	select cd.id_columna_detalle, cd.valor,cd.valor_generado
+        					from plani.tcolumna_detalle cd
+                            inner join plani.tcolumna_valor cv
+                            	on cv.id_columna_valor = cd.id_columna_valor
+                            inner join plani.thoras_trabajadas ht
+                                	on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                            where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                            order by ht.id_horas_trabajadas asc) loop
+        	if (v_detalle.valor = v_detalle.valor_generado) then
+            	update plani.tcolumna_detalle set 
+                	valor = v_resultado_array[v_i],
+                    valor_generado = v_resultado_array[v_i]
+                where id_columna_detalle = v_detalle.id_columna_detalle;
+                v_resultado = v_resultado + v_resultado_array[v_i];
+            else
+            	v_resultado = v_resultado + v_detalle.valor;
+            end if;
+            v_i = v_i + 1;
+        end loop;
                 
     ELSIF (p_codigo = 'BONFRONTERA') THEN 
     	
@@ -1034,8 +1082,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-ALTER FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
-  OWNER TO postgres;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

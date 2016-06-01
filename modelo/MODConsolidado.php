@@ -117,9 +117,79 @@ class MODConsolidado extends MODbase{
 		$this->captura('columna','varchar');
 		$this->captura('tipo_contrato','varchar');		
 		$this->captura('ejecutado','numeric');
+		$this->captura('codigo_columna','varchar');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	function listarDetalleEjecucionCategoria(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_consolidado_sel';
+		$this->transaccion='PLA_DETEJECATE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		
+		$this->captura('codigo_cc','text');		
+		$this->captura('columna','varchar');
+		$this->captura('tipo_contrato','varchar');	
+		$this->captura('codigo_columna','varchar');	
+		$this->captura('ejecutado','numeric');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+	function listarObligaciones(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_consolidado_sel';
+		$this->transaccion='PLA_DETOBLIREP_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		
+		$this->captura('tipo_obligacion','varchar');		
+		$this->captura('acreedor','varchar');
+		$this->captura('monto','numeric');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	function listarColumnasEjecucion(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_consolidado_sel';
+		$this->transaccion='PLA_COLEJE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setCount(false);//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		
+		$this->captura('codigo_columna','varchar');		
+		$this->captura('nombre_columna','varchar');
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		
 		
 		$this->ejecutarConsulta();
 		

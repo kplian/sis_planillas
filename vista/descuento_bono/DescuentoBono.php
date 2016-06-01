@@ -313,7 +313,7 @@ Phx.vista.DescuentoBono=Ext.extend(Phx.gridInterfaz,{
 		}
     },
     onButtonNew : function () {
-    	//this.mostrarComponente(this.Cmp.fecha_ini); 
+    	this.mostrarComponente(this.Cmp.id_tipo_columna);
     	Phx.vista.DescuentoBono.superclass.onButtonNew.call(this);
     },
     loadValoresIniciales:function()

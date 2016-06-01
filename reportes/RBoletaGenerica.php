@@ -8,19 +8,13 @@ class RBoletaGenerica extends  ReportePDF {
 	var $numeracion;
 	var $ancho_sin_totales;
 	var $cantidad_columnas_estaticas;
+	var $num_boleta=1;
 	function Header() {
-		//cabecera del reporte
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
-		$this->SetFont('','B',10);
 		
-		$this->Cell(0,5,'No Patronal : '.$this->datos_titulo['nro_patronal'],0,1,'R');
-		$this->Cell(0,5,'NIT : '.$this->datos_titulo['nit'],0,1,'R');
+
+	}
+	function Footer() {
 		
-		$this->SetFont('','B',12);
-		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] . ' : '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion'],0,0,'C');
-				
-		$this->Ln(2);
-		$this->SetFont('','B',8);		
 
 	}
 	function datosHeader ($titulo, $detalle) {
@@ -28,10 +22,36 @@ class RBoletaGenerica extends  ReportePDF {
 		$this->datos_detalle = $detalle;
 	}
 	function generarReporte() {
-		$this->setFontSubsetting(false);
-		$this->SetLeftMargin(5);
-		$this->SetRightMargin(5);
-		$this->AddPage();
+		if (($this->num_boleta%2) == 1) {
+			$this->setFontSubsetting(false);
+			$this->SetLeftMargin(5);
+			$this->SetRightMargin(5);
+			$this->AddPage();
+			//cabecera del reporte
+			$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
+			$this->setY(15);
+			
+		} else {
+			//cabecera del reporte
+			$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 140, 30, 10);
+			$this->setY(150);
+		}
+		
+		
+		
+		$this->SetFont('','B',12);
+		
+		
+		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] . ' : '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion'],0,1,'C');
+		
+		$this->SetFont('','B',10);
+		
+		$this->Cell(0,5,'No Patronal : '.$this->datos_titulo['nro_patronal'],0,1,'R');
+		$this->Cell(0,5,'NIT : '.$this->datos_titulo['nit'],0,1,'R');
+		
+				
+		$this->Ln(2);
+			
 		$this->SetFont('','B',10);
 		
 		$cargo = str_replace(',', "\n", $this->datos_titulo['cargo']);
@@ -86,6 +106,10 @@ class RBoletaGenerica extends  ReportePDF {
 							<td style="width:70px;text-align: right;">' . number_format ( $data['valor_columna'] ,  2 , "." , "," ) . '</td></tr>';
 				$total_descuentos += $data['valor_columna'];
 			} 
+
+			if ($data['tipo_columna'] == 'iva') {
+				$iva = $data['valor_columna'];
+			}
 		}
 		$ingresos .= '</table>';
 		$otros_descuentos .= '</table>';
@@ -113,7 +137,7 @@ class RBoletaGenerica extends  ReportePDF {
 		
 		$this->Cell(70,5,'HORAS TRABAJADAS','',0,'L');
 		$this->Cell(28,5,number_format ( $this->datos_titulo['horas_trabajadas'] ,  2 , "." , "," ),'',1,'R');
-			
+		$this->num_boleta++;	
 	}	
     
 }

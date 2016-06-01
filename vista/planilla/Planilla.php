@@ -321,7 +321,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
    				gwidth:200,
    				emptyText:'Dejar blanco para toda la empresa...',
    				anchor: '80%',
-   				baseParams: {planilla: 'si'},
+   				baseParams: {nivel: 'si'},
    				allowBlank:true,
    			     renderer:function (value, p, record){return String.format('{0}', record.data['desc_uo']);}
        	     },

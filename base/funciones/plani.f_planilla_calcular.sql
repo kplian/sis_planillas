@@ -21,7 +21,7 @@ BEGIN
   	select pla.*,pe.fecha_ini, pe.fecha_fin,tp.recalcular_desde
     into v_planilla
     from plani.tplanilla pla
-    inner join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
+    left join param.tperiodo pe on pe.id_periodo = pla.id_periodo 
     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
     where id_planilla = p_id_planilla;
     
@@ -91,7 +91,9 @@ BEGIN
             where id_columna_valor = v_funcionarios.id_columna_valor;             
     
     end loop;
+    
     if (v_planilla.recalcular_desde is not null and p_recalcular_desde = 0) then
+    	
     	v_res_text = plani.f_planilla_calcular(p_id_planilla,p_id_usuario,v_planilla.recalcular_desde);
     end if;
   	return 'exito';

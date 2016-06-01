@@ -192,7 +192,7 @@ BEGIN
                             end)::varchar as item,
                             fun.codigo as codigo_empleado,
                             sum(ht.horas_normales)::integer,
-                            fun.ci
+                            fun.ci,fun.id_funcionario
                             
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
@@ -220,7 +220,8 @@ BEGIN
                             car.nombre,
                             car.codigo,
                             fun.codigo,
-                            fun.ci
+                            fun.ci,
+                            fun.id_funcionario
 			';
 			
 			return v_consulta;

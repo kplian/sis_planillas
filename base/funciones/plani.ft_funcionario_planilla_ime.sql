@@ -35,6 +35,7 @@ DECLARE
 	v_columnas				record;
     v_id_columna_valor		integer;
     v_detalle				record;
+    v_estado_planilla		varchar;
 			    
 BEGIN
 
@@ -56,6 +57,10 @@ BEGIN
         	inner join plani.ttipo_planilla tp
         		on tp.id_tipo_planilla = p.id_tipo_planilla
         	where p.id_planilla = v_parametros.id_planilla;
+            
+            if (v_tipo_planilla.estado not in('registro_funcionarios','registro_horas','calculo_columnas'))then
+            	raise exception 'No es posible eliminar un funcionario con la planilla en este estado. Intentelo retrocediento la planilla a un estado anterior';
+            end if;
         	
         	execute 'select * from ' || v_tipo_planilla.funcion_validacion_nuevo_empleado || '(' ||
         						 p_id_usuario || ', '||v_parametros.id_funcionario  || ', '|| v_parametros.id_planilla
@@ -109,6 +114,14 @@ BEGIN
 	elsif(p_transaccion='PLA_FUNPLAN_ELI')then
 
 		begin
+        	select p.estado into v_estado_planilla
+            from plani.tfuncionario_planilla fp
+            inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
+            where fp.id_funcionario_planilla = v_parametros.id_funcionario_planilla;
+            
+            if (v_estado_planilla not in('registro_funcionarios','registro_horas','calculo_columnas'))then
+            	raise exception 'No es posible eliminar un funcionario con la planilla en este estado. Intentelo retrocediento la planilla a un estado anterior';
+            end if;
 			--Sentencia de la eliminacion
 			v_resp = plani.f_eliminar_funcionario_planilla(v_parametros.id_funcionario_planilla);
                
