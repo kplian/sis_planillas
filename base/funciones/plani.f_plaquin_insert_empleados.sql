@@ -121,5 +121,3 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION plani.f_plasue_insert_empleados(integer)
-  OWNER TO postgres;

@@ -466,9 +466,6 @@ ALTER TABLE plani.tobligacion
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_obligacion_pago INTEGER;
   
-ALTER TABLE plani.tobligacion
-  ADD COLUMN id_partida INTEGER;
-  
 
 /***********************************F-SCP-JRR-PLANI-0-02/12/2014****************************************/
 /***********************************I-SCP-JRR-PLANI-0-04/12/2014****************************************/
@@ -619,7 +616,7 @@ ALTER TABLE plani.treporte_columna
   ADD COLUMN tipo_columna VARCHAR(200) DEFAULT 'otro';
  
 ALTER TABLE plani.treporte_columna
-  ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (tipo_columna::text = 'ingreso'::text OR tipo_columna::text = 'descuento_ley'::text OR tipo_columna::text = 'otros_descuentos'::text OR tipo_columna::text = 'iva'::text OR tipo_columna::text = 'otro'::text)
+  ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (tipo_columna::text = 'ingreso'::text OR tipo_columna::text = 'descuento_ley'::text OR tipo_columna::text = 'otros_descuentos'::text OR tipo_columna::text = 'iva'::text OR tipo_columna::text = 'otro'::text);
   
 /***********************************F-SCP-JRR-PLANI-0-28/02/2016****************************************/
 
@@ -655,3 +652,8 @@ ALTER TABLE plani.tconsolidado_columna
 ALTER TABLE plani.tprorrateo_columna ALTER COLUMN compromete TYPE varchar(20);
 
 /***********************************F-SCP-JRR-PLANI-0-26/04/2016****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-04/05/2016****************************************/
+ALTER TABLE plani.tprorrateo
+  ADD CONSTRAINT tprorrateo_chk__id_presupuesto_id_cc CHECK (id_presupuesto is not null or id_cc is not null);
+/***********************************F-SCP-JRR-PLANI-0-04/05/2016****************************************/

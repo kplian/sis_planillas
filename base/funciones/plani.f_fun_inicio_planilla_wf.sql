@@ -166,7 +166,18 @@ BEGIN
           v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
           
           v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);                  
-        	        
+        
+     	  if (pxp.f_get_variable_global('sincronizar') = 'true') then
+            	
+                select * FROM dblink(migra.f_obtener_cadena_conexion(), 
+                'SELECT *
+                  FROM sci.f_tct_gestionar_comprobante_iud(' || v_id_usuario_reg || ',''172.17.45.229'',''00:0a:95:9d:68:16'',''CT_VALIDA_ACC'',NULL,
+                  (select id_comprobante from sci.tct_comprobante where id_int_comprobante=' || v_id_int_comprobante || ')
+                  ,NULL,NULL
+                  ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,''validacion_igualar_sin_documento''
+                  ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)',TRUE)AS t1(resp varchar)
+            	into v_resp; 
+             end if;	        
      END IF;
           
         
