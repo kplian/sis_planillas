@@ -170,6 +170,22 @@ BEGIN
         					r.tipo_reporte = 'boleta')) then
         		raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
         	end if;
+            
+            if (pxp.f_existe_parametro(p_tabla,'tipo_contrato')) then
+            	if (v_parametros.tipo_contrato is not null and v_parametros.tipo_contrato != '') then
+            		v_parametros.filtro = v_parametros.filtro || ' and planifun.tipo_contrato = ''' || v_parametros.tipo_contrato || '''';
+            	end if;
+            end if; 
+            
+            if (pxp.f_existe_parametro(p_tabla,'id_uo')) then
+           		if (v_parametros.id_uo is not null ) then
+            		v_parametros.filtro = v_parametros.filtro || ' and uo.id_uo = ' || v_parametros.id_uo || '';
+            	end if;
+            end if; 
+            
+            if (pxp.f_existe_parametro(p_tabla,'id_funcionario')) then
+            	v_parametros.filtro = v_parametros.filtro || ' and uofun.id_funcionario = ' || v_parametros.id_funcionario || '';
+            end if;
         	
             --Sentencia de la consulta
 			v_consulta:='select            				
@@ -179,7 +195,7 @@ BEGIN
                             ges.gestion,
                             emp.nit,
                             ''''::varchar as numero_patronal,
-                            fun.desc_funcionario1::varchar as nombre,
+                            fun.desc_funcionario2::varchar as nombre,
                             (case when sum(ht.id_horas_trabajadas) is null then
                             	car.nombre
                             else
@@ -192,7 +208,8 @@ BEGIN
                             end)::varchar as item,
                             fun.codigo as codigo_empleado,
                             sum(ht.horas_normales)::integer,
-                            fun.ci,fun.id_funcionario
+                            fun.ci,
+                            fun.id_funcionario
                             
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
@@ -202,7 +219,8 @@ BEGIN
                         inner join plani.tfuncionario_planilla planifun  on planifun.id_planilla = plani.id_planilla
                         inner join orga.vfuncionario fun on fun.id_funcionario = planifun.id_funcionario                                        
 				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = planifun.id_uo_funcionario
-				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+				        inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
+                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
 				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
 				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
 				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
@@ -216,7 +234,7 @@ BEGIN
                             per.id_periodo,
                             ges.gestion,
                             emp.nit,                            
-                            fun.desc_funcionario1,
+                            fun.desc_funcionario2,
                             car.nombre,
                             car.codigo,
                             fun.codigo,
@@ -238,6 +256,8 @@ BEGIN
      				
     	begin        	
             
+        	
+            v_parametros.filtro = v_parametros.filtro || ' and planifun.id_funcionario = ' || v_parametros.id_funcionario || '';
             
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -291,7 +311,19 @@ BEGIN
             	v_ordenar_por = 'car.codigo';
             else
             	v_ordenar_por = 'fun.codigo';
-            end if;       
+            end if;  
+            
+            if (pxp.f_existe_parametro(p_tabla,'tipo_contrato')) then
+            	if (v_parametros.tipo_contrato is not null and v_parametros.tipo_contrato != '') then
+            		v_parametros.filtro = v_parametros.filtro || ' and fp.tipo_contrato = ''' || v_parametros.tipo_contrato || '''';
+            	end if;
+            end if; 
+            
+            if (pxp.f_existe_parametro(p_tabla,'id_uo')) then
+            	if (v_parametros.id_uo is not null) then
+            		v_parametros.filtro = v_parametros.filtro || ' and uo.id_uo = ' || v_parametros.id_uo || '';
+            	end if;
+            end if;     
             
     		--Sentencia de la consulta
 			v_consulta:='select
