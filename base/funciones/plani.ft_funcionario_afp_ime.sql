@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_funcionario_afp_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_funcionario_afp_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_funcionario_afp_ime
@@ -44,7 +47,8 @@ BEGIN
 					
         begin
         	select max(fecha_ini) into v_max_fecha_ini
-        	from plani.tfuncionario_afp;
+        	from plani.tfuncionario_afp
+            where id_funcionario = v_parametros.id_funcionario;
         	
         	if (v_max_fecha_ini + interval '1 day' >= v_parametros.fecha_ini)then
         		raise exception 'Ya existe una Afp asignada para este empleado con fecha inicio: %',v_max_fecha_ini;
@@ -52,7 +56,7 @@ BEGIN
         	
         	update plani.tfuncionario_afp set
 				fecha_fin = v_parametros.fecha_ini - interval '1 day'
-			where fecha_fin is null;
+			where fecha_fin is null and id_funcionario = v_parametros.id_funcionario;
 			
         	--Sentencia de la insercion
         	insert into plani.tfuncionario_afp(
@@ -158,7 +162,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_funcionario_afp_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

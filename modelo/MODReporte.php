@@ -172,7 +172,10 @@ class MODReporte extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
 		
-		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');		
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
+		$this->setParametro('id_funcionario','id_funcionario','int4');	
+		$this->setParametro('id_uo','id_uo','int4');
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');		
 		//Datos del tipo de reporte
 		
 		$this->captura('titulo_reporte','varchar');
@@ -189,10 +192,12 @@ class MODReporte extends MODbase{
 		$this->captura('codigo_empleado','varchar');
 		$this->captura('horas_trabajadas','integer');
 		$this->captura('ci','varchar');
+		$this->captura('id_funcionario','integer');
 		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
+	
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -205,6 +210,9 @@ class MODReporte extends MODbase{
 		$this->transaccion='PLA_REPODET_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
+		
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
+		$this->setParametro('id_uo','id_uo','integer');	
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('nombre_empleado','text');
@@ -240,6 +248,7 @@ class MODReporte extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
 		
+		$this->setParametro('id_funcionario','id_funcionario','int4');	
 		
 		$this->captura('titulo_reporte_superior','varchar');	
 		$this->captura('titulo_reporte_inferior','varchar');	
@@ -251,6 +260,7 @@ class MODReporte extends MODbase{
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

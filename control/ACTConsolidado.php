@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RDetalleEjecucionXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RContabilizacionXLS.php');
 class ACTConsolidado extends ACTbase{    
 			
 	function listarConsolidado(){
@@ -81,6 +82,68 @@ class ACTConsolidado extends ACTbase{
 		
 		
 		$this->objReporteFormato->generarReporte();
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+	function reporteContabilizacion(){
+		
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+			$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+		}
+		
+		if ($this->objParam->getParametro('id_gestion') != '') {
+			$this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
+		}	
+		
+		if ($this->objParam->getParametro('id_periodo') != '') {
+			$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+		}
+		
+		if ($this->objParam->getParametro('tipo_contrato') != '') {
+			$this->objParam->addFiltro("concol.tipo_contrato = ''". $this->objParam->getParametro('tipo_contrato')."''");
+		}
+		
+		$this->objFunc=$this->create('MODConsolidado');					
+		$this->res=$this->objFunc->listarDetalleEjecucionPeriodo($this->objParam);	
+		$this->objParam->addParametro('datos_ejecucion',$this->res->datos);	
+		
+		
+		$this->objFunc=$this->create('MODConsolidado');					
+		$this->res=$this->objFunc->listarColumnasEjecucion($this->objParam);
+		$this->objParam->addParametro('columnas',$this->res->datos);
+		
+		$this->objFunc=$this->create('MODConsolidado');					
+		$this->res=$this->objFunc->listarObligaciones($this->objParam);
+		$this->objParam->addParametro('obligaciones',$this->res->datos);
+		
+		$this->objFunc=$this->create('MODConsolidado');					
+		$this->res=$this->objFunc->listarDetalleEjecucionCategoria($this->objParam);
+		$this->objParam->addParametro('ejecucion_categoria',$this->res->datos);
+			
+		
+		
+			
+		//obtener titulo del reporte
+		$titulo = 'RepDetalleEjecucion';
+		
+		//Genera el nombre del archivo (aleatorio + titulo)
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);
+		$nombreArchivo.='.xls';
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);		
+		
+		$this->objReporteFormato=new RContabilizacionXLS($this->objParam);
+			
+		$this->objReporteFormato->imprimeDatos();
+		$this->objReporteFormato->imprimeObligaciones();
+		$this->objReporteFormato->imprimeEjecucionCategoria();		
+		
+		
+		$this->objReporteFormato->generarReporte();
+		
 		$this->mensajeExito=new Mensaje();
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
 										'Se generó con éxito el reporte: '.$nombreArchivo,'control');

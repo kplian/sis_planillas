@@ -133,11 +133,12 @@ BEGIN
     	begin
     		--Sentencia de la consulta
 			v_consulta:='select
-						pre.codigo_cc,
+						(pre.codigo_cc || '' '' || pre.nombre_uo)::text,
                         tipcol.nombre,
 						concol.tipo_contrato,
                         
-						concol.valor_ejecutado
+						concol.valor_ejecutado,
+                        tipcol.codigo
 						from plani.tconsolidado_columna concol
 						inner join plani.ttipo_columna tipcol
 							on tipcol.id_tipo_columna = concol.id_tipo_columna
@@ -145,14 +146,85 @@ BEGIN
                         	on concol.id_consolidado = con.id_consolidado
                         inner join plani.tplanilla plani 
                         	on plani.id_planilla = con.id_planilla 
-                        inner join pre.vpresupuesto_cc pre 
+                        inner join param.vcentro_costo pre 
                         	on pre.id_centro_costo = con.id_presupuesto                      
 												
 				        where  ';
 			
 			--Definicion de la respuesta
 			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by pre.codigo_cc, tipcol.nombre, concol.tipo_contrato';
+			v_consulta:=v_consulta||' order by pre.codigo_cc, tipcol.descripcion, concol.tipo_contrato';
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
+
+	 /*********************************    
+ 	#TRANSACCION:  'PLA_DETOBLIREP_SEL'
+ 	#DESCRIPCION:	Listado de obligaciones por planilla y periodo
+ 	#AUTOR:		jrivera	
+ 	#FECHA:		14-07-2014 19:04:10
+	***********************************/
+
+	elsif(p_transaccion='PLA_DETOBLIREP_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						tob.nombre as tipo_obligacion,
+                        obli.acreedor,
+                        sum(concol.monto_detalle_obligacion) as monto
+						from plani.tobligacion obli
+						inner join plani.ttipo_obligacion tob
+							on tob.id_tipo_obligacion = obli.id_tipo_obligacion
+                        inner join plani.tobligacion_columna concol 
+                        	on concol.id_obligacion = obli.id_obligacion
+                        inner join plani.tplanilla plani 
+                        	on plani.id_planilla = obli.id_planilla 
+                        where concol.monto_detalle_obligacion > 0 and   ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' group by tob.nombre,
+                        obli.acreedor 
+                        
+                        order by tipo_obligacion, acreedor';
+
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;        
+    /*********************************    
+ 	#TRANSACCION:  'PLA_COLEJE_SEL'
+ 	#DESCRIPCION:	Listado de columnas de ejecucion presupuestaria
+ 	#AUTOR:		jrivera	
+ 	#FECHA:		14-07-2014 19:04:10
+	***********************************/
+
+	elsif(p_transaccion='PLA_COLEJE_SEL')then
+     				
+    	begin
+    		--Sentencia de la consulta
+			v_consulta:='select
+						tipcol.codigo,
+                        tipcol.descripcion::varchar
+						from plani.tconsolidado_columna concol
+						inner join plani.ttipo_columna tipcol
+							on tipcol.id_tipo_columna = concol.id_tipo_columna
+                        inner join plani.tconsolidado con 
+                        	on concol.id_consolidado = con.id_consolidado
+                        inner join plani.tplanilla plani 
+                        	on plani.id_planilla = con.id_planilla 
+                                        
+												
+				        where  ';
+			
+			--Definicion de la respuesta
+			v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' group by tipcol.codigo,
+                        tipcol.descripcion ';
+			v_consulta:=v_consulta||' order by tipcol.descripcion ';
 
 			--Devuelve la respuesta
 			return v_consulta;

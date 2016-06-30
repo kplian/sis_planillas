@@ -78,7 +78,7 @@ BEGIN
              
         
         if (exists (select 1 from orga.tuo_funcionario uofun 
-        			where uofun.id_funcionario =  uofun.estado_reg = 'activo' and uofun.id_funcionario = v_registros.id_funcionario and
+        			where uofun.id_funcionario = v_registros.id_funcionario and uofun.estado_reg = 'activo' and uofun.id_funcionario = v_registros.id_funcionario and
                     uofun.fecha_finalizacion BETWEEN ('01/04/' || v_planilla.gestion)::date and ('31/12/' || v_planilla.gestion)::date and
                     uofun.observaciones_finalizacion = 'retiro' )) then
         	raise exception 'El empleado ha sido retirado de la empresa, por lo que no corresponde el pago de prima';            

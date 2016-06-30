@@ -124,12 +124,13 @@ class ACTReporte extends ACTbase{
 
 	function reporteBoleta()	{
 		
-		if ($this->objParam->getParametro('id_funcionario') != '') {
-			$this->objParam->addFiltro("planifun.id_funcionario = ". $this->objParam->getParametro('id_funcionario'));
-		}
 		
 		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
 			$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+		}
+		
+		if ($this->objParam->getParametro('id_funcionario') != '') {
+			$this->objParam->addFiltro("planifun.id_funcionario = ". $this->objParam->getParametro('id_funcionario'));
 		}
 		
 		if ($this->objParam->getParametro('id_gestion') != '') {
@@ -142,27 +143,27 @@ class ACTReporte extends ACTbase{
 				
 		$this->objFunc=$this->create('MODReporte');	
 		
-		$this->res=$this->objFunc->listarReporteMaestroBoleta($this->objParam);
-		
-		
-		$this->objFunc=$this->create('MODReporte');	
-		$this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
-		
+		$this->res=$this->objFunc->listarReporteMaestroBoleta($this->objParam);		
 		
 		//obtener titulo del reporte
 		$titulo = $this->res->datos[0]['titulo_reporte'];
 		//Genera el nombre del archivo (aleatorio + titulo)
-		$nombreArchivo=uniqid(md5(session_id()).$titulo);
-				
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);			
 			
-		$this->objParam->addParametro('titulo_archivo',$titulo);
-		
+		$this->objParam->addParametro('titulo_archivo',$titulo);		
 		$nombreArchivo.='.pdf';
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 		//Instancia la clase de pdf
 		$this->objReporteFormato=new RBoletaGenerica($this->objParam);
-		$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);		
-		$this->objReporteFormato->generarReporte();
+		
+		for ($i = 0; $i < count($this->res->datos); $i++){
+			$this->objParam->addParametro('id_funcionario',$this->res->datos[$i]['id_funcionario']);
+			$this->objFunc=$this->create('MODReporte');				
+			$this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+			$this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);		
+			$this->objReporteFormato->generarReporte();
+		}		
+		
 		$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
 				
 		$this->mensajeExito=new Mensaje();
@@ -171,6 +172,32 @@ class ACTReporte extends ACTbase{
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 				
+	}
+	function generarReporteDesdeForm(){
+		if ($this->objParam->getParametro('id_depto') != '') {
+			$this->objParam->addFiltro("plani.id_depto = ". $this->objParam->getParametro('id_depto'));
+		}
+		
+			
+		
+		$this->objParam->addFiltro("plani.estado = ''planilla_finalizada''");
+		
+		if ($this->objParam->getParametro('tipo_reporte') == 'planilla') {
+			if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+				$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+			}
+			
+			if ($this->objParam->getParametro('id_gestion') != '') {
+				$this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
+			}
+			
+			if ($this->objParam->getParametro('id_periodo') != '') {
+				$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+			}
+			$this->reportePlanilla($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
+		} else {
+			$this->reporteBoleta();
+		}
 	}
 			
 }
