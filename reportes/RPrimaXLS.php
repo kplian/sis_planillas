@@ -61,42 +61,44 @@ class RPrimaXLS
 	}			
 	
 	function imprimeDatosSueldo(){
+		$this->docexcel->setActiveSheetIndex(0);
 		$this->docexcel->getActiveSheet()->setTitle('Planilla Prima');
 		$datos = $this->objParam->getParametro('datos');
 			
-		$columnas = 0;
-		$this->docexcel->setActiveSheetIndex(0);
-		$this->docexcel->getActiveSheet()->getRowDimension('1')->setRowHeight(60);
 		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(7);
-		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(11);
+		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(18);
 		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(18);
-		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(7);
-		
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(11);
 		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(18);
-		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(11);
-		
-		$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(11);
-		
-		$this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(18);
-		
-		$this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(11);
-		$this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(18);
-		$this->docexcel->getActiveSheet()->getColumnDimension('W')->setWidth(18);
-		$this->docexcel->getActiveSheet()->getColumnDimension('X')->setWidth(18);
-		
-		
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(10);
+		$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(18);
+		$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(6);
+		$this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('W')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('X')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('Y')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('Z')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AA')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AB')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AC')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AD')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AE')->setWidth(15);		
+		$this->docexcel->getActiveSheet()->getColumnDimension('AF')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AG')->setWidth(15);
+		$this->docexcel->getActiveSheet()->getColumnDimension('AH')->setWidth(15);		
 		
 		$styleTitulos = array(
 		    'font'  => array(
@@ -111,7 +113,7 @@ class RPrimaXLS
 			'fill' => array(
         		'type' => PHPExcel_Style_Fill::FILL_SOLID,
 				'color' => array(
-            		'rgb' => 'FFFFFF'
+            		'rgb' => 'c5d9f1'
             	)
         	),
 			'borders' => array(
@@ -119,42 +121,48 @@ class RPrimaXLS
 	            'style' => PHPExcel_Style_Border::BORDER_THIN
 	        )
 	    ));
-		$this->docexcel->getActiveSheet()->getStyle('A1:X1')->getAlignment()->setWrapText(true); 	
-		$this->docexcel->getActiveSheet()->getStyle('A1:Q1')->applyFromArray($styleTitulos);
-		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
-		$this->docexcel->getActiveSheet()->getStyle('R1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A1:AH1')->getAlignment()->setWrapText(true); 	
+		
+		$this->docexcel->getActiveSheet()->getStyle('A1:N1')->applyFromArray($styleTitulos);
+		$styleTitulos['fill']['color']['rgb'] = '8DB4E2';
+		$this->docexcel->getActiveSheet()->getStyle('O1')->applyFromArray($styleTitulos);
 		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
-		$this->docexcel->getActiveSheet()->getStyle('S1:U1')->applyFromArray($styleTitulos);
-		$styleTitulos['fill']['color']['rgb'] = 'D9D9D9';
-		$this->docexcel->getActiveSheet()->getStyle('V1:W1')->applyFromArray($styleTitulos);
-		$styleTitulos['fill']['color']['rgb'] = 'FFFFFF';
-		$this->docexcel->getActiveSheet()->getStyle('X1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('P1:AH1')->applyFromArray($styleTitulos);
 		//*************************************Cabecera*****************************************
 		$this->docexcel->getActiveSheet()->setCellValue('A1','Nº');
-		$this->docexcel->getActiveSheet()->setCellValue('B1','Documento de identidad');
-		$this->docexcel->getActiveSheet()->setCellValue('C1','Apellidos y nombres');
-		$this->docexcel->getActiveSheet()->setCellValue('D1','País de nacionalidad');
-		$this->docexcel->getActiveSheet()->setCellValue('E1','Fecha de nacimiento');
-		$this->docexcel->getActiveSheet()->setCellValue('F1','Sexo (V/M)');
-		$this->docexcel->getActiveSheet()->setCellValue('G1','Ocupación que desempeña');
-		$this->docexcel->getActiveSheet()->setCellValue('H1','Fecha de ingreso');
-		$this->docexcel->getActiveSheet()->setCellValue('I1','Horas pagadas (Día)');
-		$this->docexcel->getActiveSheet()->setCellValue('J1','Días pagados (Mes)');		
-		$this->docexcel->getActiveSheet()->setCellValue('K1','(1) Haber básico');
-		$this->docexcel->getActiveSheet()->setCellValue('L1','(2) Bono de Antigüedad');
-		$this->docexcel->getActiveSheet()->setCellValue('M1','(3) Bono de producción');
-		$this->docexcel->getActiveSheet()->setCellValue('N1','(4) Subsidio de frontera');
-		$this->docexcel->getActiveSheet()->setCellValue('O1','(5) Trabajo extraordinario y nocturno');
-		$this->docexcel->getActiveSheet()->setCellValue('P1','(6) Pago dominical y domingo trabajado');
-		$this->docexcel->getActiveSheet()->setCellValue('Q1','(7) Otros bonos');
-		$this->docexcel->getActiveSheet()->setCellValue('R1','(8) TOTAL GANADO Suma (1 a 7)');
-		$this->docexcel->getActiveSheet()->setCellValue('S1','(9) Aporte a las AFPs');
-		$this->docexcel->getActiveSheet()->setCellValue('T1','(10) RC-IVA');
-		$this->docexcel->getActiveSheet()->setCellValue('U1','(11) Otros descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('V1','(12) TOTAL DESCUENTOS Suma (9 a 11)');
-		$this->docexcel->getActiveSheet()->setCellValue('W1','(13) LIQUIDO PAGABLE (12-8)');
-		$this->docexcel->getActiveSheet()->setCellValue('X1','(14) Firma');
-				
+		$this->docexcel->getActiveSheet()->setCellValue('B1','Tipo de documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('C1','Número de documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('D1','Extensión del documento de identidad');
+		$this->docexcel->getActiveSheet()->setCellValue('E1','AFP a la que aporta');
+		$this->docexcel->getActiveSheet()->setCellValue('F1','NUA/CUA');
+		$this->docexcel->getActiveSheet()->setCellValue('G1','Apellido Paterno');
+		$this->docexcel->getActiveSheet()->setCellValue('H1','Apellido Materno');
+		$this->docexcel->getActiveSheet()->setCellValue('I1','Apellido de casada');
+		$this->docexcel->getActiveSheet()->setCellValue('J1','Primer nombre');		
+		$this->docexcel->getActiveSheet()->setCellValue('K1','Otros nombres');
+		$this->docexcel->getActiveSheet()->setCellValue('L1','País de nacionalidad');
+		$this->docexcel->getActiveSheet()->setCellValue('M1','Fecha de nacimiento');
+		$this->docexcel->getActiveSheet()->setCellValue('N1','Sexo');
+		$this->docexcel->getActiveSheet()->setCellValue('O1','Jubilado');
+		$this->docexcel->getActiveSheet()->setCellValue('P1','Clasificación laboral');
+		$this->docexcel->getActiveSheet()->setCellValue('Q1','Cargo');
+		$this->docexcel->getActiveSheet()->setCellValue('R1','Fecha de ingreso');
+		$this->docexcel->getActiveSheet()->setCellValue('S1','Modalidad de contrato');
+		$this->docexcel->getActiveSheet()->setCellValue('T1','Fecha de retiro');
+		$this->docexcel->getActiveSheet()->setCellValue('U1','Horas pagadas (día)');
+		$this->docexcel->getActiveSheet()->setCellValue('V1','Haber básico');		
+		$this->docexcel->getActiveSheet()->setCellValue('W1','Bono de antigüedad');		
+		$this->docexcel->getActiveSheet()->setCellValue('X1','Bono de producción');		
+		$this->docexcel->getActiveSheet()->setCellValue('Y1','Subsidio de frontera');		
+		$this->docexcel->getActiveSheet()->setCellValue('Z1','Monto pagado por trabajo extraordinario y nocturno');
+		$this->docexcel->getActiveSheet()->setCellValue('AA1','Otros bonos o pagos');
+		$this->docexcel->getActiveSheet()->setCellValue('AB1','Total ganado');
+		$this->docexcel->getActiveSheet()->setCellValue('AC1','Aporte a las AFPs');
+		$this->docexcel->getActiveSheet()->setCellValue('AD1','RC-IVA');
+		$this->docexcel->getActiveSheet()->setCellValue('AE1','Otros descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('AF1','Total descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('AG1','Líqido pagable');
+		$this->docexcel->getActiveSheet()->setCellValue('AH1','Sucursal o ubicación adicional');
 		
 		
 		//*************************************Detalle*****************************************
@@ -167,6 +175,9 @@ class RPrimaXLS
 		$this->resumen['frontera'] = 0;
 		$this->resumen['otros_bonos'] = 0;
 		$this->resumen['total_ganado'] = 0;
+		$this->resumen['afp'] = 0;
+		$this->resumen['afp_pre'] = 0;
+		$this->resumen['afp_fut'] = 0;
 		$this->resumen['afp'] = 0;
 		$this->resumen['iva'] = 0;
 		$this->resumen['otros_descuentos'] = 0;
@@ -187,26 +198,15 @@ class RPrimaXLS
 		foreach($datos as $value) {
 			
 			if ($numero != $value['fila']) {
-				$styleTotales = array(					    
-						'fill' => array(
-			        		'type' => PHPExcel_Style_Fill::FILL_SOLID,
-							'color' => array(
-			            		'rgb' => 'FFFFFF'
-			            	)			        	
-				    	),
-						'borders' => array(
-					        'allborders' => array(
-					            'style' => PHPExcel_Style_Border::BORDER_THIN
-					        )
-					    ));
-				$this->docexcel->getActiveSheet()->getStyle('A' . ($fila + 1) . ":X" . ($fila + 1))->applyFromArray($styleTotales);
-				$styleTotales['fill']['color']['rgb'] = 'D9D9D9';
-				$this->docexcel->getActiveSheet()->getStyle('R' . ($fila + 1))->applyFromArray($styleTotales);
-				$this->docexcel->getActiveSheet()->getStyle('V' . ($fila + 1))->applyFromArray($styleTotales);
-				$this->docexcel->getActiveSheet()->getStyle('W' . ($fila + 1))->applyFromArray($styleTotales);
-				$this->docexcel->getActiveSheet()->getRowDimension($fila+1)->setRowHeight(40);
+				
 				$fila++;
 				$columna = 0;
+				if ($value['afp']== 'PREVISION') {
+					$this->resumen['afp_pre'] ++;
+					
+				} else {
+					$this->resumen['afp_fut'] ++;
+				}
 				//$this->armaResumenRegional($value['lugar'], $value);
 				if ($value['sexo']== 'V') {
 					$this->resumen['trabajadores_varones']++;
@@ -280,39 +280,49 @@ class RPrimaXLS
 				$this->resumen['liquido_pagable'] = $this->resumen['liquido_pagable'] + $value['valor'];
 			}
 					
-			
-			if ($columna == 11) {
+			if ($columna == 21) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
-			if ($columna == 12) {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
-				$columna++;
-			}
-			if ($columna == 13) {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
-				$columna++;
-			}
-			if ($columna == 14) {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
-				$columna++;
-			}
-			if ($columna == 15) {
+			if ($columna == 22) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
 			
-			if ($columna == 16) {
+			if ($columna == 23) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
 			
-			if ($columna == 18) {
+			if ($columna == 24) {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
+				$columna++;
+			}
+			
+			if ($columna == 25) {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
+				$columna++;
+			}
+			if ($columna == 26) {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
+				$columna++;
+			}
+			
+			if ($columna == 28) {
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
 				$columna++;
 			}
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 			$columna++;
+			
+			if ($columna == 33) {
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['oficina']);
+				$columna++;
+			}
+			
+			
+			
+			
 			
 			
 		}
@@ -412,11 +422,11 @@ class RPrimaXLS
 		$this->docexcel->getActiveSheet()->setCellValue('S1','Modalidad de contrato');
 		$this->docexcel->getActiveSheet()->setCellValue('T1','Fecha de retiro');
 		$this->docexcel->getActiveSheet()->setCellValue('U1','Horas pagadas (día)');
-		$this->docexcel->getActiveSheet()->setCellValue('V1','Días pagados (mes)');		
-		$this->docexcel->getActiveSheet()->setCellValue('W1','Horas extra');		
-		$this->docexcel->getActiveSheet()->setCellValue('X1','Haber básico');		
-		$this->docexcel->getActiveSheet()->setCellValue('Y1','Monto pagado por horas extra');		
-		$this->docexcel->getActiveSheet()->setCellValue('Z1','Bono de antiguedad');
+		$this->docexcel->getActiveSheet()->setCellValue('V1','Haber básico');		
+		$this->docexcel->getActiveSheet()->setCellValue('W1','Bono de antigüedad');		
+		$this->docexcel->getActiveSheet()->setCellValue('X1','Bono de producción');		
+		$this->docexcel->getActiveSheet()->setCellValue('Y1','Subsidio de frontera');		
+		$this->docexcel->getActiveSheet()->setCellValue('Z1','Monto pagado por trabajo extraordinario y nocturno');
 		$this->docexcel->getActiveSheet()->setCellValue('AA1','Otros bonos o pagos');
 		$this->docexcel->getActiveSheet()->setCellValue('AB1','Total ganado');
 		$this->docexcel->getActiveSheet()->setCellValue('AC1','Aporte a las AFPs');
@@ -592,102 +602,126 @@ class RPrimaXLS
 	            'style' => PHPExcel_Style_Border::BORDER_THIN
 	        )
 	    ));
+		$this->docexcel->getActiveSheet()->getStyle('A1:F1')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A5:D5')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A9:C9')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A11:F11')->applyFromArray($styleTitulos);
 		
-		$this->docexcel->getActiveSheet()->getStyle('A1:B1')->applyFromArray($styleTitulos);
-		$this->docexcel->getActiveSheet()->getStyle('A4:C4')->applyFromArray($styleTitulos);
-		$this->docexcel->getActiveSheet()->getStyle('A6:F6')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->setCellValue('A1','Seguro social a corto plazo');
 		
-		
-		
-		$this->docexcel->getActiveSheet()->setCellValue('A1','Seguro social a largo plazo');
-				
-		$this->docexcel->getActiveSheet()->setCellValue('A2','4.4 Nº total de afiliados al seguro a largo plazo (AFP´s)');
+		$this->docexcel->getActiveSheet()->setCellValue('A2','4.1.1 N°asegurados al ente gestor');
 		$this->docexcel->getActiveSheet()->setCellValue('B2',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('C2','4.5 Monto aportado (Total aporte de los trabajadores Bs)');
+		$this->docexcel->getActiveSheet()->setCellValue('C2','4.2.1 monto aportado');
 		$this->docexcel->getActiveSheet()->setCellValue('D2',0);
+		$this->docexcel->getActiveSheet()->setCellValue('E2','4.3.1 ente gestor de salud corto plazo');
+		$this->docexcel->getActiveSheet()->setCellValue('F2','CORDES');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A4','5. COMPOSICIÓN SALARIAL');
-		$this->docexcel->getActiveSheet()->setCellValue('C4','6. TRABAJADORES');
+		$this->docexcel->getActiveSheet()->setCellValue('A3','4.1.1 N°asegurados al ente gestor');
+		$this->docexcel->getActiveSheet()->setCellValue('B3',0);
+		$this->docexcel->getActiveSheet()->setCellValue('C3','4.2.1 monto aportado');
+		$this->docexcel->getActiveSheet()->setCellValue('D3',0);
+		$this->docexcel->getActiveSheet()->setCellValue('E3','4.3.2 ente gestor de salud corto plazo');
+		$this->docexcel->getActiveSheet()->setCellValue('F3','SEGURO UNIVERSITARIO');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A6','Concepto');
-		$this->docexcel->getActiveSheet()->setCellValue('B6','Monto (Bs)');
-		$this->docexcel->getActiveSheet()->setCellValue('D6','Varones');
-		$this->docexcel->getActiveSheet()->setCellValue('E6','Mujeres');
-		$this->docexcel->getActiveSheet()->setCellValue('F6','Total');
+		$this->docexcel->getActiveSheet()->setCellValue('A5','Seguro social a largo plazo');
+				
+		$this->docexcel->getActiveSheet()->setCellValue('A6','4.4 Nº total de afiliados al seguro a largo plazo (AFP´s)');
+		$this->docexcel->getActiveSheet()->setCellValue('B6',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('C6','4.5 Monto aportado (Total aporte de los trabajadores Bs)');
+		$this->docexcel->getActiveSheet()->setCellValue('D6',0);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A7','5.1 Haber básico');
-		$this->docexcel->getActiveSheet()->setCellValue('B7',$this->resumen['basico']);
-		$this->docexcel->getActiveSheet()->setCellValue('C7','6.1 Total trabajadores');
-		$this->docexcel->getActiveSheet()->setCellValue('D7',$this->resumen['trabajadores_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E7',$this->resumen['trabajadores_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F7',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('A7','4.4.1 Nº total de afiliados al seguro a largo plazo (AFP´s PREVISION)');
+		$this->docexcel->getActiveSheet()->setCellValue('B7',$this->resumen['afp_pre']);
+		$this->docexcel->getActiveSheet()->setCellValue('C7','4.5.1 Monto aportado (Total aporte de los trabajadores PREVISION)');
+		$this->docexcel->getActiveSheet()->setCellValue('D7',0);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A8','5.2 Bono de antigüedad');
-		$this->docexcel->getActiveSheet()->setCellValue('B8',0);
-		$this->docexcel->getActiveSheet()->setCellValue('C8','6.2 Personas jubiladas');
-		$this->docexcel->getActiveSheet()->setCellValue('D8',$this->resumen['jubilados_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E8',$this->resumen['jubilados_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F8',$this->resumen['jubilados_mujeres'] + $this->resumen['jubilados_varones']);
+		$this->docexcel->getActiveSheet()->setCellValue('A8','4.4.2 Nº total de afiliados al seguro a largo plazo (AFP´s FUTURO)');
+		$this->docexcel->getActiveSheet()->setCellValue('B8',$this->resumen['afp_fut']);
+		$this->docexcel->getActiveSheet()->setCellValue('C8','4.5.2 Monto aportado (Total aporte de los trabajadores FUTURO)');
+		$this->docexcel->getActiveSheet()->setCellValue('D8',0);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A9','5.3 Bono de producción');
-		$this->docexcel->getActiveSheet()->setCellValue('B9',0);
-		$this->docexcel->getActiveSheet()->setCellValue('C9','6.3 Personas extranjeras');
-		$this->docexcel->getActiveSheet()->setCellValue('D9',$this->resumen['extranjeros_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E9',$this->resumen['extranjeros_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F9',$this->resumen['extranjeros_varones'] + $this->resumen['extranjeros_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('A9','5. COMPOSICIÓN SALARIAL');
+		$this->docexcel->getActiveSheet()->setCellValue('C9','6. TRABAJADORES');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A10','5.4 Subsidio de frontera');
-		$this->docexcel->getActiveSheet()->setCellValue('B10',0);
-		$this->docexcel->getActiveSheet()->setCellValue('C10','6.4 Personas con discapacidad');
-		$this->docexcel->getActiveSheet()->setCellValue('D10',$this->resumen['discapacitados_varones']);
-		$this->docexcel->getActiveSheet()->setCellValue('E10',$this->resumen['discapacitados_mujeres']);
-		$this->docexcel->getActiveSheet()->setCellValue('F10',$this->resumen['discapacitados_varones'] + $this->resumen['discapacitados_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('A11','Concepto');
+		$this->docexcel->getActiveSheet()->setCellValue('B11','Monto (Bs)');
+		$this->docexcel->getActiveSheet()->setCellValue('D11','Varones');
+		$this->docexcel->getActiveSheet()->setCellValue('E11','Mujeres');
+		$this->docexcel->getActiveSheet()->setCellValue('F11','Total');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A11','5.5 Trabajo extraordinario y nocturno');
-		$this->docexcel->getActiveSheet()->setCellValue('B11',0);
-		$this->docexcel->getActiveSheet()->setCellValue('C11','');
-		$this->docexcel->getActiveSheet()->setCellValue('D11','');
-		$this->docexcel->getActiveSheet()->setCellValue('E11','');
-		$this->docexcel->getActiveSheet()->setCellValue('F11','');
+		$this->docexcel->getActiveSheet()->setCellValue('A12','5.1 Haber básico');
+		$this->docexcel->getActiveSheet()->setCellValue('B12',$this->resumen['basico']);
+		$this->docexcel->getActiveSheet()->setCellValue('C12','6.1 Total trabajadores');
+		$this->docexcel->getActiveSheet()->setCellValue('D12',$this->resumen['trabajadores_varones']);
+		$this->docexcel->getActiveSheet()->setCellValue('E12',$this->resumen['trabajadores_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('F12',$this->resumen['trabajadores_varones'] + $this->resumen['trabajadores_mujeres']);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A12','5.6 Pago dominical y domingo trabajado');
-		$this->docexcel->getActiveSheet()->setCellValue('B12',0);
-		
-		
-		$this->docexcel->getActiveSheet()->setCellValue('A13','5.7 Otros bonos');
+		$this->docexcel->getActiveSheet()->setCellValue('A13','5.2 Bono de antigüedad');
 		$this->docexcel->getActiveSheet()->setCellValue('B13',0);
+		$this->docexcel->getActiveSheet()->setCellValue('C13','6.2 Personas jubiladas');
+		$this->docexcel->getActiveSheet()->setCellValue('D13',$this->resumen['jubilados_varones']);
+		$this->docexcel->getActiveSheet()->setCellValue('E13',$this->resumen['jubilados_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('F13',$this->resumen['jubilados_mujeres'] + $this->resumen['jubilados_varones']);
 		
+		$this->docexcel->getActiveSheet()->setCellValue('A14','5.3 Bono de producción');
+		$this->docexcel->getActiveSheet()->setCellValue('B14',0);
+		$this->docexcel->getActiveSheet()->setCellValue('C14','6.3 Personas extranjeras');
+		$this->docexcel->getActiveSheet()->setCellValue('D14',$this->resumen['extranjeros_varones']);
+		$this->docexcel->getActiveSheet()->setCellValue('E14',$this->resumen['extranjeros_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('F14',$this->resumen['extranjeros_varones'] + $this->resumen['extranjeros_mujeres']);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A14','5.8 Total ganado');
-		$this->docexcel->getActiveSheet()->setCellValue('B14',$this->resumen['basico']);
-		
-		
-		$this->docexcel->getActiveSheet()->setCellValue('A15','5.9 Aporte a las AFPs');
+		$this->docexcel->getActiveSheet()->setCellValue('A15','5.4 Subsidio de frontera');
 		$this->docexcel->getActiveSheet()->setCellValue('B15',0);
+		$this->docexcel->getActiveSheet()->setCellValue('C15','6.4 Personas con discapacidad');
+		$this->docexcel->getActiveSheet()->setCellValue('D15',$this->resumen['discapacitados_varones']);
+		$this->docexcel->getActiveSheet()->setCellValue('E15',$this->resumen['discapacitados_mujeres']);
+		$this->docexcel->getActiveSheet()->setCellValue('F15',$this->resumen['discapacitados_varones'] + $this->resumen['discapacitados_mujeres']);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A16','5.10 RC-IVA');
-		$this->docexcel->getActiveSheet()->setCellValue('B16',$this->resumen['iva']);
+		$this->docexcel->getActiveSheet()->setCellValue('A16','5.5 Trabajo extraordinario y nocturno');
+		$this->docexcel->getActiveSheet()->setCellValue('B16',0);
+		$this->docexcel->getActiveSheet()->setCellValue('C16','');
+		$this->docexcel->getActiveSheet()->setCellValue('D16','');
+		$this->docexcel->getActiveSheet()->setCellValue('E16','');
+		$this->docexcel->getActiveSheet()->setCellValue('F16','');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A17','5.11 Otros descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('B17',$this->resumen['otros_descuentos']);
-		$this->docexcel->getActiveSheet()->setCellValue('C17','');
-		$this->docexcel->getActiveSheet()->setCellValue('D17','');
-		$this->docexcel->getActiveSheet()->setCellValue('E17','');
-		$this->docexcel->getActiveSheet()->setCellValue('F17','');
+		$this->docexcel->getActiveSheet()->setCellValue('A17','5.6 Pago dominical y domingo trabajado');
+		$this->docexcel->getActiveSheet()->setCellValue('B17',0);
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A18','5.12 Total descuentos');
-		$this->docexcel->getActiveSheet()->setCellValue('B18',$this->resumen['total_descuentos']);
-		$this->docexcel->getActiveSheet()->setCellValue('C18','');
-		$this->docexcel->getActiveSheet()->setCellValue('D18','');
-		$this->docexcel->getActiveSheet()->setCellValue('E18','');
-		$this->docexcel->getActiveSheet()->setCellValue('F18','');
 		
-		$this->docexcel->getActiveSheet()->setCellValue('A19','5.13 Líquido pagable');
-		$this->docexcel->getActiveSheet()->setCellValue('B19',$this->resumen['liquido_pagable']);
-		$this->docexcel->getActiveSheet()->setCellValue('C19','');
-		$this->docexcel->getActiveSheet()->setCellValue('D19','');
-		$this->docexcel->getActiveSheet()->setCellValue('E19','');
-		$this->docexcel->getActiveSheet()->setCellValue('F19','');		
+		$this->docexcel->getActiveSheet()->setCellValue('A18','5.7 Otros bonos');
+		$this->docexcel->getActiveSheet()->setCellValue('B18',0);
+		
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A19','5.8 Total ganado');
+		$this->docexcel->getActiveSheet()->setCellValue('B19',$this->resumen['basico']);
+		
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A20','5.9 Aporte a las AFPs');
+		$this->docexcel->getActiveSheet()->setCellValue('B20',0);
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A21','5.10 RC-IVA');
+		$this->docexcel->getActiveSheet()->setCellValue('B21',$this->resumen['iva']);
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A22','5.11 Otros descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('B22',$this->resumen['otros_descuentos']);
+		$this->docexcel->getActiveSheet()->setCellValue('C22','');
+		$this->docexcel->getActiveSheet()->setCellValue('D22','');
+		$this->docexcel->getActiveSheet()->setCellValue('E22','');
+		$this->docexcel->getActiveSheet()->setCellValue('F22','');
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A23','5.12 Total descuentos');
+		$this->docexcel->getActiveSheet()->setCellValue('B23',$this->resumen['total_descuentos']);
+		$this->docexcel->getActiveSheet()->setCellValue('C23','');
+		$this->docexcel->getActiveSheet()->setCellValue('D23','');
+		$this->docexcel->getActiveSheet()->setCellValue('E23','');
+		$this->docexcel->getActiveSheet()->setCellValue('F23','');
+		
+		$this->docexcel->getActiveSheet()->setCellValue('A24','5.13 Líquido pagable');
+		$this->docexcel->getActiveSheet()->setCellValue('B24',$this->resumen['liquido_pagable']);
+		$this->docexcel->getActiveSheet()->setCellValue('C24','');
+		$this->docexcel->getActiveSheet()->setCellValue('D24','');
+		$this->docexcel->getActiveSheet()->setCellValue('E24','');
+		$this->docexcel->getActiveSheet()->setCellValue('F24','');		
 	}
 	function armaResumenRegional($lugar, $value){
 		if (!array_key_exists($lugar, $this->resumen_regional)) {
