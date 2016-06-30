@@ -421,6 +421,20 @@ BEGIN
             v_resultado = 1-(v_resultado/100);
         end if;
         
+     --Factor del zona franca para la planilla de prima   
+    ELSIF (p_codigo = 'FAC_FRONTERAPRI') THEN 
+    
+    	select (case when ofi.zona_franca = 'si' then
+        		0
+               else
+               1
+               end) into v_resultado
+        from orga.tuo_funcionario uofun
+        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+        inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
+        where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario;      
+       
+        
     ELSIF (p_codigo = 'REISUELDOBA') THEN 
     	v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
     

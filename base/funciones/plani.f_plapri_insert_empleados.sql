@@ -24,7 +24,7 @@ BEGIN
 	
     v_nombre_funcion = 'plani.f_plapri_insert_empleados';
     v_filtro_uo = '';
-	select id_tipo_planilla, per.id_periodo, fecha_ini, fecha_fin, id_uo, 
+	select id_tipo_planilla, per.id_periodo, ges.fecha_ini, ges.fecha_fin, id_uo, 
     		p.id_usuario_reg,p.fecha_planilla,ges.gestion,p.id_gestion
     into v_planilla 
     from plani.tplanilla p
@@ -81,7 +81,7 @@ BEGIN
         
         
         if (v_dias >= 90  and v_entra = 'si') then
-        	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_registros.fecha_fin_real);
+        	v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_registros.fecha_fin);
         	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, ('31/12/'||v_planilla.gestion)::date);
              v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             INSERT INTO plani.tfuncionario_planilla (
