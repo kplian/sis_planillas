@@ -197,7 +197,11 @@ BEGIN
                         ELSE
                         0
                         end)::integer as tipo_documento,
-                perso.ci,perso.expedicion,afp.nombre as afp,fafp.nro_afp,fun.desc_funcionario2,
+                perso.ci,perso.expedicion,afp.nombre as afp,fafp.nro_afp,perso.apellido_paterno,
+                perso.apellido_materno,''''::varchar as apellido_casada,
+                split_part(perso.nombre,'' '',1)::varchar as primer_nombre,
+
+                trim(both '' '' from replace(perso.nombre,split_part(perso.nombre,'' '',1), ''''))::varchar as otros_nombres,
                 (case when lower(perso.nacionalidad) like ''%bolivi%'' then
                 ''Bolivia''
                 ELSE
@@ -205,8 +209,8 @@ BEGIN
                 end)::varchar as nacionalidad,
                 perso.fecha_nacimiento,
                 (case when upper(genero)= ''VARON'' then
-                ''V'' else
-                ''M'' end)::varchar as sexo,
+                1 else
+                0 end)::integer as sexo,
                 (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
                 1
                 else
@@ -229,7 +233,8 @@ BEGIN
 				ofi.nombre as oficina,
                 (case when perso.discapacitado= ''no''  or perso.discapacitado is null then
                 ''no'' else
-                ''si'' end)::varchar as discapacitado,                
+                ''si'' end)::varchar as discapacitado, 
+                            
                 EXTRACT(year from age( (''31/12/''||ges.gestion)::date,perso.fecha_nacimiento ))::integer as edad,
                 lug.nombre as lugar
                 from plani.tplanilla p
@@ -251,9 +256,17 @@ BEGIN
                 )
 
                 select 
-                emp.fila,emp.ci,emp.desc_funcionario2,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.cargo,
-                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.horas_dia, emp.dias_mes,cv.codigo_columna,
-               	cv.valor,emp.jubilado,emp.discapacitado
+                emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
+                emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,
+                (case when cv.codigo_columna = ''HORNORM'' then
+                	cv.valor/emp.horas_dia
+                else
+                	cv.valor
+                end)::numeric as valor,           
+                emp.oficina,emp.discapacitado,
+                emp.edad,
+                emp.lugar
                 from empleados emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna

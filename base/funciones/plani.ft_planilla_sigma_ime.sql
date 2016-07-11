@@ -158,17 +158,27 @@ BEGIN
 		begin
 			--Sentencia de la eliminacion
              if (pxp.f_existe_parametro(p_tabla,'id_periodo') = FALSE) then
-            	v_id_periodo = NULL;
+            	delete from plani.tplanilla_sigma
+                where id_tipo_planilla=v_parametros.id_tipo_planilla and
+                id_periodo is null and 
+                id_gestion = v_parametros.id_gestion;
              else
-            	v_id_periodo = v_parametros.id_periodo;
+             	if (v_parametro.id_periodo is null) then
+                    delete from plani.tplanilla_sigma
+                    where id_tipo_planilla=v_parametros.id_tipo_planilla and
+                    id_periodo is null and 
+                    id_gestion = v_parametros.id_gestion;
+                else
+                	delete from plani.tplanilla_sigma
+                    where id_tipo_planilla=v_parametros.id_tipo_planilla and
+                    id_periodo = v_parametro.id_periodo and 
+                    id_gestion = v_parametros.id_gestion;
+                end if;
              end if;
              
              
              
-			delete from plani.tplanilla_sigma
-            where id_tipo_planilla=v_parametros.id_tipo_planilla and
-            id_periodo = v_id_periodo and 
-            id_gestion = v_parametros.id_gestion;
+			
                
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla Sigma eliminado(a)'); 

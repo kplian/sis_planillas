@@ -1,11 +1,9 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION plani.f_plaguin_valid_empleado (
   p_id_usuario integer,
   p_id_funcionario integer,
   p_id_planilla integer,
   p_forzar_cheque varchar,
-  p_finiquito	varchar,
+  p_finiquito varchar,
   out o_id_funcionario_planilla integer,
   out o_tipo_contrato varchar
 )
@@ -65,7 +63,7 @@ BEGIN
           inner join orga.toficina ofi
               on car.id_oficina = ofi.id_oficina 
           where tc.codigo in (''PLA'', ''EVE'') and UOFUN.tipo = ''oficial'' and  
-          coalesce(uofun.fecha_finalizacion,''' || v_fecha_fin_planilla || ''') >= (''01/04/' || v_planilla.gestion ||''')::date and 
+          coalesce(uofun.fecha_finalizacion,''' || v_fecha_fin_planilla || ''') >= (''31/03/' || v_planilla.gestion ||''')::date and 
             uofun.fecha_asignacion <=  '''|| '31/12/' || v_planilla.gestion || ''' and 
               uofun.estado_reg != ''inactivo'' and uofun.id_funcionario = ' || p_id_funcionario || '  
               and uofun.id_funcionario not in (
@@ -122,8 +120,8 @@ BEGIN
 			now(),
 			null,
 			null,
-            plani.f_get_afp(p_id_funcionario, v_planilla.fecha_fin),
-            plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_planilla.fecha_fin),
+            plani.f_get_afp(p_id_funcionario, v_registros.fecha_fin),
+            plani.f_get_cuenta_bancaria_empleado(p_id_funcionario, v_registros.fecha_fin),
             v_registros.tipo_contrato
 							
 			)RETURNING id_funcionario_planilla into o_id_funcionario_planilla;
