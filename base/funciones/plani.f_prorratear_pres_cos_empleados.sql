@@ -94,7 +94,7 @@ BEGIN
         	into v_presupuesto;
             
             if (v_presupuesto is null) then
-            	raise exception '%',v_consulta;
+            	
             	raise exception 'El cargo del funcionario % no tiene registrado un presupuesto',v_registros.desc_funcionario1;
             end if;
             
@@ -323,9 +323,17 @@ BEGIN
                           inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina';
                           
             if (p_tipo_generacion = 'presupuestos') then 
-            	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo''  ';
+            	v_consulta = v_consulta || ' inner join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' and
+                          											cp.fecha_ini = 	(select max(fecha_ini) 
+                                                                    				from orga.tcargo_presupuesto 
+                                                                                    where id_cargo = car.id_cargo and 
+                                                                                    	fecha_ini <= ht.fecha_ini)  ';
             else
-            	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' ';
+            	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' and
+                          											cp.fecha_ini = 	(select max(fecha_ini) 
+                                                                    				from orga.tcargo_presupuesto 
+                                                                                    where id_cargo = car.id_cargo and 
+                                                                                    	fecha_ini <= ht.fecha_ini) ';
             end if;
                           
             v_consulta = v_consulta || '   where cv.codigo_columna = ''COTIZABLE''  and cp.id_gestion = p.id_gestion
@@ -713,8 +721,7 @@ BEGIN
                     from pre.tpresupuesto_ids pids 
                     where pids.id_presupuesto_uno = id_presupuesto)
         from plani.tfuncionario_planilla fp
-        where fp.id_funcionario_planilla = plani.tprorrateo.id_funcionario_planilla and 
-        fp.id_planilla = p_id_planilla;
+        where fp.id_funcionario_planilla = plani.tprorrateo.id_funcionario_planilla;
     end if;
     --llenar tprorrateo_columna de acuerdo al prorrateo
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
@@ -836,13 +843,14 @@ BEGIN
                     )returning id_prorrateo into v_id_prorrateo;
                     
                     --por cada funcionario se inserta prorrateo columna
-                    v_consulta = '	select cv.id_tipo_columna,cv.codigo_columna,tc.compromete
+                    v_consulta = '	select fp.id_funcionario_planilla,cv.id_tipo_columna,cv.codigo_columna,tc.compromete
                             from plani.thoras_trabajadas ht
                             inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla 
                             inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
                             inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and 
                                                             tc.compromete = ''si_contable''
-                            where fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla;
+                            where fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla ||'
+                            group by fp.id_funcionario_planilla,cv.id_tipo_columna,cv.codigo_columna,tc.compromete';
                     
                     for v_columnas in execute (v_consulta) loop
                         INSERT INTO 

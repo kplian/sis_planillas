@@ -61,7 +61,7 @@ BEGIN
             from plani.ttipo_planilla tp
             where tp.id_tipo_planilla = v_parametros.id_tipo_planilla;
             
-            if (v_codigo_tipo_planilla in ('PLASUE','PLAREISU','PLAGUIN','PLAPRI','PLASEGAGUI')) then
+            if (v_codigo_tipo_planilla in ('PLASUE','PLAREISU','PLAGUIN','PLAPRI','PLASEGAGUI','PLAQUIN')) then
             	v_codigo_columna = 'LIQPAG';            
             --elsif () then
             
@@ -101,7 +101,7 @@ BEGIN
                               from detalle_sigma ds
                               inner join orga.vfuncionario fun on fun.id_funcionario = ds.id_funcionario
                               where ds.id_funcionario not in (select id_funcionario from detalle_erp)';
-			
+			raise notice '%',v_consulta;
 			
 			--Devuelve la respuesta
 			return v_consulta;
