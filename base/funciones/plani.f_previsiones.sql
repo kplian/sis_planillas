@@ -41,7 +41,7 @@ BEGIN
                               (case when uofun.id_funcionario = 10 then
                                    (''' || v_fecha ||'''::date - ''27/12/2013''::date) + 1
                               else            
-                                 (''' || v_fecha ||'''::date - plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)) + 1           
+                                 (''' || v_fecha ||'''::date - plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)) + 1 - plani.f_get_dias_licencia_funcionario(datos.id_funcionario)          
                               END)::integer  as diastrabajados, 
                               
                           (case when ' || gerencias ||' <>-1 then
@@ -57,10 +57,16 @@ BEGIN
                           ''' || v_fecha ||'''::Date as FechaPrev ,
                           orga.f_get_haber_basico_a_fecha(escala.id_escala_salarial,''' || v_fecha ||'''::date) as haberbasico,
                           fun.antiguedad_anterior,
-                          plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fechaAntiguedad
+                          plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fechaAntiguedad,
+                          (case when ofi.frontera =''si'' then
+                          	0.2
+                          else
+                          	0
+                          end) as frontera
                           from orga.tuo_funcionario uofun                            
                           INNER JOIN orga.vfuncionario datos ON datos.id_funcionario=uofun.id_funcionario
                           inner join orga.tcargo car ON car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi ON ofi.id_oficina = car.id_oficina
                           inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
                           inner join orga.tescala_salarial escala ON escala.id_escala_salarial=car.id_escala_salarial
                           inner join orga.tfuncionario fun on fun.id_funcionario = datos.id_funcionario
@@ -70,11 +76,11 @@ BEGIN
                           order by ger.prioridad::INTEGER,datos.desc_funcionario2)
 
                           select Gerencia::varchar,NombreCargo::varchar,NombreCompleto::text,
-                          round(haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior),2) as HaberBasico,
+                          round(haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior),2) as HaberBasico,
                           FechaIncorp::date,
                           diastrabajados::integer,
-                          round((haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior))/365,8) as indemdia,
-                          round((haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior))/365,8)*diastrabajados as Indem,
+                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior))/365,8) as indemdia,
+                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_fecha ||'''::date,antiguedad_anterior))/365,8)*diastrabajados as Indem,
                           NombreDepartamento::varchar,
                           NombreContrato::varchar,
                           FechaPrev::varchar

@@ -28,6 +28,7 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
     v_ordenar_por		varchar;
+    v_where				varchar;
 			    
 BEGIN
 
@@ -153,6 +154,94 @@ BEGIN
 			return v_consulta;
 						
 		end;
+    
+     /*********************************    
+ 	#TRANSACCION:  'PLA_REPOPREV_SEL'
+ 	#DESCRIPCION:	Reporte de previsiones
+ 	#AUTOR:		admin	
+ 	#FECHA:		17-01-2014 22:07:28
+	***********************************/
+
+	elsif(p_transaccion='PLA_REPOPREV_SEL')then
+     				
+    	begin
+        	v_where = '';
+        	if (v_parametros.id_tipo_contrato <> -1) then
+                v_where = v_where || ' and tc.id_tipo_contrato = ' || v_parametros.id_tipo_contrato;
+            end if;
+            
+            if (v_parametros.id_uo <> -1) then
+                v_where = v_where || ' and ger.id_uo = ' || v_parametros.id_uo;
+            end if;
+            
+            
+        	raise notice '%',v_where;
+            --Sentencia de la consulta
+			v_consulta:='with detalle as(
+
+              select
+                              ger.nombre_unidad as Gerencia, 
+                              car.nombre as NombreCargo, 
+                              datos.desc_funcionario2 as NombreCompleto, 
+              			    
+                              (case when uofun.id_funcionario = 10 then
+                                  ''27/12/2013''::date
+                              else            
+                                  plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)           
+                              END)  as FechaIncorp,
+                              
+                              (case when uofun.id_funcionario = 10 then
+                                   (''' || v_parametros.fecha ||'''::date - ''27/12/2013''::date) + 1
+                              else            
+                                 (''' || v_parametros.fecha ||'''::date - plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)) + 1 - plani.f_get_dias_licencia_funcionario(datos.id_funcionario)          
+                              END)::integer  as diastrabajados, 
+                              
+                          (case when ' || v_parametros.id_uo ||' <>-1 then
+                              ger.nombre_unidad	
+                          ELSE 
+                              ''Boliviana de Aviacion''::varchar
+                          END)  as NombreDepartamento,
+                          (case when ' || v_parametros.id_tipo_contrato ||'<>-1 then 
+                              tc.nombre
+                          ELSE 
+                              ''TODOS''::varchar
+                          END)  as NombreContrato,
+                          ''' || v_parametros.fecha ||'''::Date as FechaPrev ,
+                          orga.f_get_haber_basico_a_fecha(escala.id_escala_salarial,''' || v_parametros.fecha ||'''::date) as haberbasico,
+                          fun.antiguedad_anterior,
+                          plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fechaAntiguedad,
+                          (case when ofi.frontera =''si'' then
+                          	0.2
+                          else
+                          	0
+                          end) as frontera
+                          from orga.tuo_funcionario uofun                            
+                          INNER JOIN orga.vfuncionario datos ON datos.id_funcionario=uofun.id_funcionario
+                          inner join orga.tcargo car ON car.id_cargo = uofun.id_cargo
+                          inner join orga.toficina ofi ON ofi.id_oficina = car.id_oficina
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tescala_salarial escala ON escala.id_escala_salarial=car.id_escala_salarial
+                          inner join orga.tfuncionario fun on fun.id_funcionario = datos.id_funcionario
+                          inner join orga.tuo ger on ger.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,''' || v_parametros.fecha ||'''::date)
+                          where uofun.estado_reg != ''inactivo'' and uofun.fecha_asignacion <= ''' || v_parametros.fecha ||'''::date and 
+                          (uofun.fecha_finalizacion >= ''' || v_parametros.fecha ||'''::date or uofun.fecha_finalizacion is null) ' || v_where ||' 
+                          order by ger.prioridad::INTEGER,datos.desc_funcionario2)
+
+                          select Gerencia::varchar,NombreCargo::varchar,NombreCompleto::text,
+                          round(haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior),2) as HaberBasico,
+                          to_char(FechaIncorp::date,''DD/MM/YYYY'')::varchar,
+                          diastrabajados::integer,
+                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior))/365,8) as indemdia,
+                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior))/365,8)*diastrabajados as Indem
+                          
+                          from detalle
+                          where diastrabajados >= 90';
+			
+			
+			--Devuelve la respuesta
+			return v_consulta;
+						
+		end;
 		
 	/*********************************    
  	#TRANSACCION:  'PLA_REPOMAESBOL_SEL'
@@ -170,22 +259,6 @@ BEGIN
         					r.tipo_reporte = 'boleta')) then
         		raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
         	end if;
-            
-            if (pxp.f_existe_parametro(p_tabla,'tipo_contrato')) then
-            	if (v_parametros.tipo_contrato is not null and v_parametros.tipo_contrato != '') then
-            		v_parametros.filtro = v_parametros.filtro || ' and planifun.tipo_contrato = ''' || v_parametros.tipo_contrato || '''';
-            	end if;
-            end if; 
-            
-            if (pxp.f_existe_parametro(p_tabla,'id_uo')) then
-           		if (v_parametros.id_uo is not null ) then
-            		v_parametros.filtro = v_parametros.filtro || ' and uo.id_uo = ' || v_parametros.id_uo || '';
-            	end if;
-            end if; 
-            
-            if (pxp.f_existe_parametro(p_tabla,'id_funcionario')) then
-            	v_parametros.filtro = v_parametros.filtro || ' and uofun.id_funcionario = ' || v_parametros.id_funcionario || '';
-            end if;
         	
             --Sentencia de la consulta
 			v_consulta:='select            				
@@ -195,7 +268,7 @@ BEGIN
                             ges.gestion,
                             emp.nit,
                             ''''::varchar as numero_patronal,
-                            fun.desc_funcionario2::varchar as nombre,
+                            fun.desc_funcionario1::varchar as nombre,
                             (case when sum(ht.id_horas_trabajadas) is null then
                             	car.nombre
                             else
@@ -208,8 +281,7 @@ BEGIN
                             end)::varchar as item,
                             fun.codigo as codigo_empleado,
                             sum(ht.horas_normales)::integer,
-                            fun.ci,
-                            fun.id_funcionario
+                            fun.ci,fun.id_funcionario
                             
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
@@ -219,8 +291,7 @@ BEGIN
                         inner join plani.tfuncionario_planilla planifun  on planifun.id_planilla = plani.id_planilla
                         inner join orga.vfuncionario fun on fun.id_funcionario = planifun.id_funcionario                                        
 				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = planifun.id_uo_funcionario
-				        inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
-                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
 				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
 				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
 				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
@@ -234,7 +305,7 @@ BEGIN
                             per.id_periodo,
                             ges.gestion,
                             emp.nit,                            
-                            fun.desc_funcionario2,
+                            fun.desc_funcionario1,
                             car.nombre,
                             car.codigo,
                             fun.codigo,
@@ -256,8 +327,6 @@ BEGIN
      				
     	begin        	
             
-        	
-            v_parametros.filtro = v_parametros.filtro || ' and planifun.id_funcionario = ' || v_parametros.id_funcionario || '';
             
     		--Sentencia de la consulta
 			v_consulta:='select
@@ -311,19 +380,7 @@ BEGIN
             	v_ordenar_por = 'car.codigo';
             else
             	v_ordenar_por = 'fun.codigo';
-            end if;  
-            
-            if (pxp.f_existe_parametro(p_tabla,'tipo_contrato')) then
-            	if (v_parametros.tipo_contrato is not null and v_parametros.tipo_contrato != '') then
-            		v_parametros.filtro = v_parametros.filtro || ' and fp.tipo_contrato = ''' || v_parametros.tipo_contrato || '''';
-            	end if;
-            end if; 
-            
-            if (pxp.f_existe_parametro(p_tabla,'id_uo')) then
-            	if (v_parametros.id_uo is not null) then
-            		v_parametros.filtro = v_parametros.filtro || ' and uo.id_uo = ' || v_parametros.id_uo || '';
-            	end if;
-            end if;     
+            end if;       
             
     		--Sentencia de la consulta
 			v_consulta:='select

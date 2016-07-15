@@ -8,6 +8,8 @@
 */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
+require_once(dirname(__FILE__).'/../reportes/RPrevisionesPDF.php');
+require_once(dirname(__FILE__).'/../reportes/RPrevisionesXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RBoletaGenerica.php');
 
 class ACTReporte extends ACTbase{    
@@ -149,7 +151,7 @@ class ACTReporte extends ACTbase{
 		$titulo = $this->res->datos[0]['titulo_reporte'];
 		//Genera el nombre del archivo (aleatorio + titulo)
 		$nombreArchivo=uniqid(md5(session_id()).$titulo);			
-			
+		
 		$this->objParam->addParametro('titulo_archivo',$titulo);		
 		$nombreArchivo.='.pdf';
 		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
@@ -198,6 +200,64 @@ class ACTReporte extends ACTbase{
 		} else {
 			$this->reporteBoleta();
 		}
+	}
+	
+	function listarReportePrevisiones()	{		
+		if ($this->objParam->getParametro('id_uo') == '') {
+			$this->objParam->addParametro('id_uo','-1');
+			$this->objParam->addParametro('uo','TODOS');
+		}
+		
+		if ($this->objParam->getParametro('id_tipo_contrato') == '') {
+			$this->objParam->addParametro('id_tipo_contrato','-1');
+			$this->objParam->addParametro('tipo_contrato','TODOS');
+		}
+		$this->objFunc=$this->create('MODReporte');			
+		$this->res=$this->objFunc->listarReportePrevisiones($this->objParam);
+		
+		
+		//obtener titulo del reporte
+		$titulo = 'Previsiones';
+		//Genera el nombre del archivo (aleatorio + titulo)
+		$nombreArchivo=uniqid(md5(session_id()).$titulo);
+		
+		
+		
+		
+		if ($this->objParam->getParametro('tipo_reporte') == 'pdf') {
+			$nombreArchivo.='.pdf';
+			$this->objParam->addParametro('orientacion','L');
+			$this->objParam->addParametro('tamano','LETTER	');	
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			//Instancia la clase de pdf
+			$this->objReporteFormato=new RPrevisionesPDF($this->objParam);
+			$this->objReporteFormato->setDatos($this->res->datos);		
+			$this->objReporteFormato->generarReporte();
+			$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+			
+		} else {
+			
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
+			$this->objParam->addParametro('datos',$this->res->datos);
+			
+			//Instancia la clase de excel
+			$this->objReporteFormato=new RPrevisionesXLS($this->objParam);
+			$this->objReporteFormato->imprimeDatos();
+			$this->objReporteFormato->generarReporte();		
+		}
+		
+
+		
+		
+		
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+				
 	}
 			
 }

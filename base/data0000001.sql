@@ -261,3 +261,24 @@ select pxp.f_insert_tprocedimiento ('PLA_PLANIVALCOL_MOD', 'Validación del calc
 
 
 /***********************************F-DAT-JRR-PLANI-0-24/04/2014****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-14/07/2016****************************************/
+
+select pxp.f_insert_tgui ('Reportes', 'Reportes', 'REPPLA', 'si', 7, '', 2, '', '', 'PLANI');
+select pxp.f_insert_tgui ('Ministerio de Trabajo', 'Ministerio de Trabajo', 'REPPLAMINTRA', 'si', 1, 'sis_planillas/vista/reportes_ministerio/ReporteMinisterio.php', 3, '', 'ReporteMinisterio', 'PLANI');
+select pxp.f_insert_tgui ('Subir Planilla Sigma', 'Subir Planilla Sigma', 'PLASIGUPL', 'si', 3, 'sis_planillas/vista/sigma/SubirPlanillaSigma.php', 3, '', 'SubirPlanillaSigma', 'PLANI');
+select pxp.f_insert_tgui ('Comparación Sigma-ERP', 'Comparación Sigma-ERP', 'DIFSIGERP', 'si', 5, 'sis_planillas/vista/sigma/DiferenciasPlanillaSigma.php', 3, '', 'DiferenciasPlanillaSigma', 'PLANI');
+select pxp.f_insert_tgui ('Detalle Ejecucion', 'Detalle Ejecucion', 'DETEJEPLA', 'si', 6, 'sis_planillas/vista/reportes_presupuestos/DetalleEjecucionPlanilla.php', 3, '', 'DetalleEjecucionPlanilla', 'PLANI');
+select pxp.f_insert_tgui ('Movimientos por Periodo', 'Movimientos por Periodo', 'MOVPERPLA', 'si', 1, 'sis_planillas/vista/reporte_cambios_periodo/ReporteCambiosPeriodo.php', 3, '', 'ReporteCambiosPeriodo', 'PLANI');
+select pxp.f_insert_tgui ('Reporte Previsiones', 'Reporte Previsiones', 'REPREPLA', 'si', 8, 'sis_planillas/vista/reporte_previsiones/ReportePrevisiones.php', 3, '', 'ReportePrevisiones', 'PLANI');
+
+
+select pxp.f_insert_testructura_gui ('REPPLA', 'PLANI');
+select pxp.f_insert_testructura_gui ('REPPLAMINTRA', 'REPPLA');
+select pxp.f_insert_testructura_gui ('MOVPERPLA', 'REPPLA');
+select pxp.f_insert_testructura_gui ('PLASIGUPL', 'REPPLA');
+select pxp.f_insert_testructura_gui ('DIFSIGERP', 'REPPLA');
+select pxp.f_insert_testructura_gui ('DETEJEPLA', 'REPPLA');
+select pxp.f_insert_testructura_gui ('REPREPLA', 'REPPLA');
+
+/***********************************F-DAT-JRR-PLANI-0-14/07/2016****************************************/

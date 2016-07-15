@@ -165,6 +165,36 @@ class MODReporte extends MODbase{
 		return $this->respuesta;
 	}
 
+	function listarReportePrevisiones(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPOPREV_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);	
+		
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');
+		$this->setParametro('id_uo','id_uo','int4');
+		$this->setParametro('fecha','fecha','date');	
+						
+		//Datos del tipo de reporte
+		$this->captura('gerencia','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('nombre','text');
+		$this->captura('basico','numeric');
+		$this->captura('fecha_ingreso','varchar');
+		$this->captura('dias_trabajados','integer');
+		$this->captura('indem_dia','numeric');
+		$this->captura('indem','numeric');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 	function listarReporteMaestroBoleta(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_reporte_sel';
