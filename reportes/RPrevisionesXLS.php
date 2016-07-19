@@ -121,8 +121,8 @@ class RPrevisionesXLS
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$value['basico']);
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$value['fecha_ingreso']);
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['dias_trabajados']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,number_format ( $value['indem_dia'] , 2 , '.' , ',' ));
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,number_format ( $value['indem'] , 2 , '.' , ',' ));
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,number_format ( $value['indem_dia'] , 8 , ',' , ' ' ));
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,number_format ( $value['indem'] , 2 , ',' , ' ' ));
 			$fila++;
 		}
 		

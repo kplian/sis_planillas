@@ -44,7 +44,7 @@ class RPrevisionesPDF extends  ReportePDF {
 		$this->SetFont('','',8);
 		$this->tablewidths=array(40,50,55,15,35,15,25,20);
 		$this->tablealigns=array('L','L','L','R','L','L','R','R');	
-		$this->tablenumbers=array(0,0,0,2,0,0,2,2);		
+		$this->tablenumbers=array(0,0,0,2,0,0,8,2);		
 		foreach ($this->datos as $value) {
 			$this->MultiRow($value);
 			
