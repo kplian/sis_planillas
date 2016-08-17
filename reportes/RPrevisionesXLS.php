@@ -121,13 +121,13 @@ class RPrevisionesXLS
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$value['basico']);
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$value['fecha_ingreso']);
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['dias_trabajados']);
-            $this->getActiveSheet()
+            $this->docexcel->getActiveSheet()
                 ->getStyle('G'. $fila)
                 ->getNumberFormat()
                 ->setFormatCode(
                     PHPExcel_Style_NumberFormat::FORMAT_GENERAL
                 );
-            $this->getActiveSheet()
+            $this->docexcel->getActiveSheet()
                 ->getStyle('H'. $fila)
                 ->getNumberFormat()
                 ->setFormatCode(
