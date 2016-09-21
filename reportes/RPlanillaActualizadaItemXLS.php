@@ -202,10 +202,6 @@ class RPlanillaActualizadaItemXLS
                 'bold'  => true,
                 'size'  => 12,
                 'name'  => 'Arial'
-            ),
-            'alignment' => array(
-                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ));
 
         $this->docexcel->getActiveSheet()->getStyle("A$fila:A$fila")->applyFromArray($styleTitulos);
