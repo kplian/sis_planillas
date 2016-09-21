@@ -23,6 +23,21 @@ class ACTTipoPlanilla extends ACTbase{
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+
+    function listarTipoPlanilla2(){
+        $this->objParam->defecto('ordenacion','id_tipo_planilla');
+
+        $this->objParam->defecto('dir_ordenacion','asc');
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODTipoPlanilla','listarTipoPlanilla2');
+        } else{
+            $this->objFunc=$this->create('MODTipoPlanilla');
+
+            $this->res=$this->objFunc->listarTipoPlanilla2($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
 				
 	function insertarTipoPlanilla(){
 		$this->objFunc=$this->create('MODTipoPlanilla');	

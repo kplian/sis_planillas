@@ -207,7 +207,7 @@ BEGIN
                               ''TODOS''::varchar
                           END)  as NombreContrato,
                           ''' || v_parametros.fecha ||'''::Date as FechaPrev ,
-                          orga.f_get_haber_basico_a_fecha(escala.id_escala_salarial,''' || v_parametros.fecha ||'''::date) as haberbasico,
+                          orga.f_get_haber_basico_a_fecha(escala.id_escala_salarial,''' || (case when v_parametros.fecha > now()::date then now()::date else v_parametros.fecha end) ||'''::date) as haberbasico,
                           fun.antiguedad_anterior,
                           plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion) as fechaAntiguedad,
                           (case when ofi.frontera =''si'' then
@@ -237,7 +237,7 @@ BEGIN
                           from detalle
                           where diastrabajados >= 90';
 			
-			
+			--raise exception '%',v_consulta;
 			--Devuelve la respuesta
 			return v_consulta;
 						
@@ -416,6 +416,110 @@ BEGIN
 
 			--Devuelve la respuesta
 			return v_consulta;
+						
+		end;
+    
+    /*********************************    
+ 	#TRANSACCION:  'PLA_REPOACIT_SEL'
+ 	#DESCRIPCION:	Reporte Planilla actualizada Item
+ 	#AUTOR:		admin	
+ 	#FECHA:		13-09-2016 17:90:28
+	***********************************/
+    
+    elsif(p_transaccion='PLA_REPOACIT_SEL')then
+     				
+    	begin
+        	v_where = '';
+        	if (v_parametros.id_tipo_contrato <> -1) then
+                v_where = v_where || ' and tc.id_tipo_contrato = ' || v_parametros.id_tipo_contrato;
+            end if;
+            
+            if (v_parametros.id_uo <> -1) then
+                v_where = v_where || ' and ger.id_uo = ' || v_parametros.id_uo;
+            end if;
+            raise notice '%',v_where;
+           
+         --Sentencia de la consulta
+            v_consulta:='SELECT es.nombre AS escala,
+    					i.nombre AS cargo,
+    					i.codigo AS nro_item,
+    					COALESCE(e.desc_funcionario2, ''ACEFALO''::text) AS nombre_empleado,
+                        	CASE
+           			 			WHEN per.genero::text = ANY (ARRAY[''varon''::character varying,''VARON''::character varying, ''Varon''::character varying]::text[]) THEN ''M''::text
+            					WHEN per.genero::text = ANY (ARRAY[''mujer''::character varying,''MUJER''::character varying, ''Mujer''::character varying]::text[]) THEN ''F''::text
+           					ELSE ''''::text
+        					END::character varying AS genero,es.haber_basico,
+        					CASE
+            					WHEN e.id_funcionario IS NOT NULL THEN round(plani.f_evaluar_antiguedad(plani.f_get_fecha_primer_contrato_empleado(ha.id_uo_funcionario, ha.id_funcionario, ha.fecha_asignacion), ''' || v_parametros.fecha ||'''::date, f.antiguedad_anterior), 2)
+           		 			ELSE NULL::numeric
+        					END AS bono_antiguedad,
+        					CASE
+            					WHEN lu.codigo::text = ''CIJ''::text THEN es.haber_basico * 0.2
+            				ELSE NULL::numeric
+        					END AS bono_frontera,es.haber_basico +
+        					CASE
+            				WHEN lu.codigo::text = ''PDO''::text THEN es.haber_basico * 0.2
+            				ELSE 0::numeric
+        					END +
+        					CASE
+            					WHEN e.id_funcionario IS NOT NULL THEN round(plani.f_evaluar_antiguedad(plani.f_get_fecha_primer_contrato_empleado(ha.id_uo_funcionario, ha.id_funcionario, ha.fecha_asignacion), ''' || v_parametros.fecha ||'''::date, f.antiguedad_anterior), 2)
+            				ELSE NULL::numeric
+        					END AS sumatoria,
+        					CASE
+            					WHEN e.id_funcionario IS NOT NULL THEN orga.f_get_fechas_ini_historico(e.id_funcionario)
+            				ELSE NULL::text
+        					END AS "case",
+    						per.ci,
+    						per.expedicion,
+    						lu.codigo,
+   							ofi.nombre,
+    						((ger.codigo::text || '' - ''::text) || ger.nombre_unidad::text)::character
+        					varying AS "varchar",
+    						dep.nombre_unidad,
+    						i.id_tipo_contrato,
+                            ger.prioridad AS prioridad_gerencia,
+                            ger.nombre_unidad AS gerencia,
+                            dep.prioridad AS prioridad_depto,
+                            dep.nombre_unidad AS departamento,
+                            (case when ca.codigo = ''SUPER'' and es.nombre != ''GERENTE GENERAL'' then
+                            	''ESP''	
+                            when catp.desc_programa ilike ''%ADM%'' then
+                            	''ADM''
+                            when catp.desc_programa ilike ''%OPE%'' then
+                            	''OPE''
+                            when catp.desc_programa ilike ''%COM%'' then
+                            	''COM''
+                            else
+                            	''SINCAT''
+                            end
+                            )::varchar as categoria_programatica
+							FROM orga.tcargo i
+                            inner join param.tgestion ges on (''01/01/''||ges.gestion)::date <= ''' || v_parametros.fecha ||'''::date and
+                            						(''31/12/''||ges.gestion)::date >= ''' || v_parametros.fecha ||'''::date
+                            LEFT JOIN orga.tcargo_presupuesto cp on cp.id_cargo = i.id_cargo and cp.id_gestion = ges.id_gestion
+                            										and cp.estado_reg = ''activo''
+                            LEFT JOIN pre.tpresupuesto cc on cc.id_presupuesto = cp.id_centro_costo
+                            
+                            LEFT JOIN pre.vcategoria_programatica catp on catp.id_categoria_programatica = cc.id_categoria_prog
+                            JOIN orga.tescala_salarial es ON es.id_escala_salarial = i.id_escala_salarial                            
+                            JOIN orga.tcategoria_salarial ca ON ca.id_categoria_salarial = es.id_categoria_salarial
+   							LEFT JOIN orga.tuo_funcionario ha ON ha.id_cargo = i.id_cargo AND ha.estado_reg::text = ''activo''::text AND (ha.fecha_finalizacion IS NULL OR ha.fecha_finalizacion >= ''' || v_parametros.fecha ||'''::date) AND ha.fecha_asignacion <= ''' || v_parametros.fecha ||'''::date
+                            LEFT JOIN orga.vfuncionario e ON e.id_funcionario = ha.id_funcionario
+                            LEFT JOIN orga.tfuncionario f ON e.id_funcionario = f.id_funcionario
+                            LEFT JOIN segu.tpersona per ON per.id_persona = f.id_persona
+                            LEFT JOIN orga.toficina ofi ON i.id_oficina = ofi.id_oficina
+                            LEFT JOIN param.tlugar lu ON lu.id_lugar = ofi.id_lugar
+   							JOIN orga.f_get_uo_prioridades(9418) uo(out_id_uo, out_nombre_unidad, out_prioridad) ON uo.out_id_uo = i.id_uo
+   							JOIN orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uo.out_id_uo, NULL::integer, NULL::date)
+   							JOIN orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uo.out_id_uo, NULL::integer, NULL::date)
+							WHERE i.estado_reg::text = ''activo''::text AND (i.id_tipo_contrato = ANY (ARRAY[1, 4])) AND ';
+        
+						--Definicion de la respuesta
+                        v_consulta:=v_consulta||v_parametros.filtro;
+                        v_consulta:=v_consulta||'ORDER BY categoria_programatica, uo.out_prioridad, es.haber_basico DESC, e.desc_funcionario2';
+						--Devuelve la respuesta
+                        raise notice '%',v_consulta;
+                        return v_consulta;
 						
 		end;
 					

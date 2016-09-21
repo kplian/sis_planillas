@@ -296,6 +296,54 @@ class MODReporte extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	function ListarReportePlanillaActualizadaItem(){
+
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='plani.ft_reporte_sel';
+        $this->transaccion='PLA_REPOACIT_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+        $this->setCount(false);
+        //Datos de la planilla
+
+        $this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+        $this->setParametro('id_uo','id_uo','integer');
+        $this->setParametro('fecha','fecha','date');
+
+
+        $this->captura('escala','varchar');
+        $this->captura('cargo','varchar');
+        $this->captura('nro_item','varchar');
+        $this->captura('nombre_funcionario','text');
+        $this->captura('genero','varchar');
+        $this->captura('haber_basico','numeric');
+        $this->captura('bono_antiguedad','numeric');
+        $this->captura('bono_frontera','numeric');
+        $this->captura('sumatoria','numeric');
+        $this->captura('fecha_inicio','text');
+        $this->captura('ci','varchar');
+        $this->captura('expedicion','varchar');
+        $this->captura('codigo','varchar');
+        $this->captura('nombre','varchar');
+        $this->captura('codigo_nombre_gerencia','varchar');
+        $this->captura('nombre_unidad','varchar');
+        $this->captura('id_tipo_contrato','integer');
+        $this->captura('prioridad_gerencia','varchar');
+        $this->captura('gerencia','varchar');
+        $this->captura('prioridad_depto','varchar');
+        $this->captura('departamento','varchar');
+        $this->captura('categoria_programatica','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+        
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+
+
+
+    }
 			
 }
 ?>

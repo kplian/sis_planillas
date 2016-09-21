@@ -282,3 +282,8 @@ select pxp.f_insert_testructura_gui ('DETEJEPLA', 'REPPLA');
 select pxp.f_insert_testructura_gui ('REPREPLA', 'REPPLA');
 
 /***********************************F-DAT-JRR-PLANI-0-14/07/2016****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-21/09/2016****************************************/
+select pxp.f_insert_tgui ('Planilla Actualizada de Item', 'Planilla Actualizada de Item', 'RPAI', 'si', 9, 'sis_planillas/vista/reporte_planilla_actualizada_item/ReportePlanillaActualizadaItem.php', 3, '', 'PlanillaActualizadaItem', 'PLANI');
+select pxp.f_insert_testructura_gui ('RPAI', 'REPPLA');
+/***********************************F-DAT-JRR-PLANI-0-21/09/2016****************************************/

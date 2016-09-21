@@ -329,13 +329,13 @@ BEGIN
                           											cp.fecha_ini = 	(select max(fecha_ini) 
                                                                     				from orga.tcargo_presupuesto 
                                                                                     where id_cargo = car.id_cargo and 
-                                                                                    	fecha_ini <= ht.fecha_ini)  ';
+                                                                                    	fecha_ini <= ht.fecha_ini and id_gestion = p.id_gestion)  ';
             else
             	v_consulta = v_consulta || ' inner join orga.tcargo_centro_costo cp on cp.id_cargo = car.id_cargo and cp.estado_reg = ''activo'' and
                           											cp.fecha_ini = 	(select max(fecha_ini) 
                                                                     				from orga.tcargo_presupuesto 
                                                                                     where id_cargo = car.id_cargo and 
-                                                                                    	fecha_ini <= ht.fecha_ini) ';
+                                                                                    	fecha_ini <= ht.fecha_ini and id_gestion = p.id_gestion) ';
             end if;
                           
             v_consulta = v_consulta || '   where cv.codigo_columna = ''COTIZABLE''  and cp.id_gestion = p.id_gestion

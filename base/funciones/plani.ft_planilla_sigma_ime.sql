@@ -156,22 +156,27 @@ BEGIN
 	elsif(p_transaccion='PLA_PLASI_ELI')then
 
 		begin
+        	 
 			--Sentencia de la eliminacion
              if (pxp.f_existe_parametro(p_tabla,'id_periodo') = FALSE) then
+            
             	delete from plani.tplanilla_sigma
                 where id_tipo_planilla=v_parametros.id_tipo_planilla and
                 id_periodo is null and 
                 id_gestion = v_parametros.id_gestion;
              else
-             	if (v_parametro.id_periodo is null) then
+             
+             	if (v_parametros.id_periodo is null) then
+                
                     delete from plani.tplanilla_sigma
                     where id_tipo_planilla=v_parametros.id_tipo_planilla and
                     id_periodo is null and 
                     id_gestion = v_parametros.id_gestion;
                 else
+                	
                 	delete from plani.tplanilla_sigma
                     where id_tipo_planilla=v_parametros.id_tipo_planilla and
-                    id_periodo = v_parametro.id_periodo and 
+                    id_periodo = v_parametros.id_periodo and 
                     id_gestion = v_parametros.id_gestion;
                 end if;
              end if;
