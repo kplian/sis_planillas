@@ -282,6 +282,9 @@ class ACTReporte extends ACTbase{
             $this->objReporteFormato=new RPlanillaActualizadaItemXLS($this->objParam);
             $this->objReporteFormato->generarDatos();
             $this->objReporteFormato->generarReporte();
+        //$this->objReporteFormato->imprimeResumenGerencia(4);
+
+
 
 
         $this->mensajeExito=new Mensaje();

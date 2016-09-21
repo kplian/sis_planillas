@@ -9,6 +9,9 @@ class RPlanillaActualizadaItemXLS
     private $nombre_archivo;
     private $hoja;
     private $columnas=array();
+    private $gerencias=array();
+    private $genero=array();
+    private $gerencuaF=array();
     private $fila;
     private $equivalencias=array();
 
@@ -108,8 +111,8 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(35);
         $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(35);
         $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(35);
-        $this->docexcel->getActiveSheet()->getStyle('A5:Q5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:Q5')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->getStyle('A5:O5')->getAlignment()->setWrapText(true);
+        $this->docexcel->getActiveSheet()->getStyle('A5:O5')->applyFromArray($styleTitulos);
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A5','Nº');
@@ -131,10 +134,10 @@ class RPlanillaActualizadaItemXLS
     function generarDatos()
     {
 
-        $columnas = 0;
-
-        //ADMIN
         $this->imprimeCabecera(0,'ADM');
+
+
+
 
          //*************************************Detalle*****************************************
 
@@ -146,6 +149,7 @@ class RPlanillaActualizadaItemXLS
         $ger = '';
         $dep = '';
         $sheet = 0;
+
 
         foreach($datos as $value) {
 
@@ -167,6 +171,19 @@ class RPlanillaActualizadaItemXLS
                     $dep = $value['departamento'];
                     $fila++;
                 }
+
+                if (!array_key_exists('codigo_nombre_gerencia',$this->gerencias)) {
+                    $this->gerencias[$value['codigo_nombre_gerencia']] = 1;
+                } else {
+                    $this->gerencias[$value['codigo_nombre_gerencia']]++;
+                }
+            if (!array_key_exists('genero',$this->genero)) {
+
+                $this->gerencias[$value['genero']] = 1;
+            } else {
+                $this->gerencias[$value['genero']]++;
+            }
+
 
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $columna);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['escala']);
@@ -193,6 +210,9 @@ class RPlanillaActualizadaItemXLS
 
 
         }
+        $sheet++;
+        $this->imprimeResumenGerencia($sheet);
+        
 
     }
 
@@ -208,6 +228,106 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $valor);
 
     }
+    function imprimeResumenGerencia($sheet)
+    {
+        $this->docexcel->createSheet($sheet );
+        $this->docexcel->setActiveSheetIndex($sheet );
+        $this->docexcel->getActiveSheet()->setTitle('Resumen');
+
+
+        $styleTitulos = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 12,
+                'name'  => 'Arial'
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '#DC143C'
+                )
+            ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            ));
+        $styleTitulos2 = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 12,
+                'name'  => 'Arial'
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '#FFE4C4'
+                )
+            ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            ));
+
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'RESUMEN CANTIDAD DE PERSONAL');
+        $this->docexcel->getActiveSheet()->getStyle('A2:B2')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->mergeCells('A2:B2');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,2,'MASCULINO');
+        $this->docexcel->getActiveSheet()->getStyle('C2:D2')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->mergeCells('C2:D2');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,2,'FEMENINO');
+        $this->docexcel->getActiveSheet()->getStyle('E2:F2')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->mergeCells('E2:F2');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6,2,'GLOBALES');
+        $this->docexcel->getActiveSheet()->getStyle('G2:H2')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->mergeCells('G2:H2');
+        $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
+        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);
+        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
+
+        //*************************************Cabecera*****************************************
+        $this->docexcel->getActiveSheet()->setCellValue('A3','Nº');
+        $this->docexcel->getActiveSheet()->setCellValue('B3','GERENCIA');
+        $this->docexcel->getActiveSheet()->setCellValue('C3','Q');
+        $this->docexcel->getActiveSheet()->setCellValue('D3','%');
+        $this->docexcel->getActiveSheet()->setCellValue('E3','Q');
+        $this->docexcel->getActiveSheet()->setCellValue('F3','%');
+        $this->docexcel->getActiveSheet()->setCellValue('G3','Q');
+        $this->docexcel->getActiveSheet()->setCellValue('H3','%');
+        $this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($styleTitulos2);
+
+        //*************************************Detalle*****************************************
+
+
+        $columna = 1;
+        $fila = 4;
+        $datos = $this->objParam->getParametro('datos');
+
+        foreach ($this->gerencias as $key => $value){
+
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $columna);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$key);
+            $fila++;
+            $columna++;
+
+
+        }
+
+
+    }
 
 
     function generarReporte(){
@@ -216,6 +336,8 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);
+
+
 
     }
 }
