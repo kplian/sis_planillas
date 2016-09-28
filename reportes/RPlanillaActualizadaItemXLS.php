@@ -14,9 +14,10 @@ class RPlanillaActualizadaItemXLS
     private $total;
     private $gerenciaMas=array();
     private $gerenciaFem=array();
+    private $empleadosOficina=array();
+    private $ciudadesOfi=array();
     private $fila;
     private $equivalencias=array();
-
     private $indice, $m_fila, $titulo;
     private $swEncabezado=0; //variable que define si ya se imprimió el encabezado
     private $objParam;
@@ -138,10 +139,7 @@ class RPlanillaActualizadaItemXLS
 
         $this->imprimeCabecera(0,'ADM');
 
-
-
-
-         //*************************************Detalle*****************************************
+        //*************************************Detalle*****************************************
 
         $this->numero = 1;
 
@@ -151,8 +149,6 @@ class RPlanillaActualizadaItemXLS
         $ger = '';
         $dep = '';
         $sheet = 0;
-
-
         foreach($datos as $value) {
 
                 if($value['categoria_programatica'] != $cat ) {
@@ -178,6 +174,7 @@ class RPlanillaActualizadaItemXLS
 
 
                     if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerencias)) {
+
                         $this->gerencias[$value['codigo_nombre_gerencia']] = 1;
                     } else {
 
@@ -204,8 +201,21 @@ class RPlanillaActualizadaItemXLS
                     }
                 }
 
-
-
+                if($value['nombre_funcionario'] != 'ACEFALO') {
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->empleadosOficina) ||
+                        !array_key_exists($value['codigo'], $this->empleadosOficina[$value['codigo_nombre_gerencia']]) ||
+                        !array_key_exists($value['nombre'], $this->empleadosOficina[$value['codigo_nombre_gerencia']][$value['codigo']])
+                    ) {
+                        $this->empleadosOficina[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']] = 1;
+                    } else {
+                        $this->empleadosOficina[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
+                    }
+                }
+                if (!array_key_exists($value['codigo'], $this->ciudadesOfi) ||
+                    !array_key_exists($value['nombre'], $this->ciudadesOfi[$value['codigo']]))
+                {
+                    $this->ciudadesOfi[$value['codigo']][$value['nombre']] = 1;
+                }
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['escala']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['cargo']);
@@ -222,16 +232,18 @@ class RPlanillaActualizadaItemXLS
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['codigo']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['nombre']);
 
-
                 $fila++;
                 $this->numero++;
-
-
             //*************************************Fin-Detalle*****************************************
         }
+
+
+
+
         $sheet++;
         $this->imprimeResumenGerencia($sheet);
     }
+
 
     function imprimeSubtitulo($fila, $valor) {
         $styleTitulos = array(
@@ -404,7 +416,8 @@ class RPlanillaActualizadaItemXLS
                     'rgb' => 'CCFFCC'
                 )
             )
-        );$styleTitulos11 = array(
+        );
+        $styleTitulos11 = array(
         'font'  => array(
             'bold'  => true,
             'size'  => 10,
@@ -457,10 +470,6 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,15,'RESUMEN CANTIDAD DE PERSONAL');
-        $this->docexcel->getActiveSheet()->getStyle('A15:B15')->applyFromArray($styleTitulos);
-        $this->docexcel->getActiveSheet()->mergeCells('A15:B15');
-
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A3','Nº');
         $this->docexcel->getActiveSheet()->setCellValue('B3','GERENCIA');
@@ -477,29 +486,14 @@ class RPlanillaActualizadaItemXLS
         $nro = 1;
         $fila = 4;
         $columna=0;
+        $cantidad_ger = count($this->gerencias);
         foreach ($this->gerencias as $key => $value){
-
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $nro);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$key);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila,$value);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,round($value/$this->numero*100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,round($this->gerenciaMas[$key]/$value*100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila,round($this->gerenciaFem[$key]/$value*100,2));
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, 15, "=SUM(C4:C".($fila-0).")");
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, 15, "=SUM(E4:E".($fila-0).")");
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, 15, "=SUM(G4:G".($fila-0).")");
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, 15,round($value/$value*100,2));
-
-            if($columna == 3 )
-            {
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,15,round($this->gerenciaMas[$key]/$value*100,2));
-                $columna++;
-            }
-            if($columna == 5 )
-            {
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,15,round($this->gerenciaFem[$key]/$value*100,2));
-                $columna++;
-            }
 
             if (array_key_exists($key,$this->gerenciaMas)) {
                 $masculino = $this->gerenciaMas[$key];
@@ -521,8 +515,20 @@ class RPlanillaActualizadaItemXLS
             $nro++;
             $columna++;
 
-
         }
+
+
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila,'=SUM(C4:C' .($fila-1).')');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,$fila,'=SUM(E4:E' .($fila-1).')');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6,$fila,'=SUM(G4:G' .($fila-1).')');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7,$fila,round($fila/$fila*100));
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila, '=C'.$fila.'/G'.$fila.'*100');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,$fila, '=E'.$fila.'/G'.$fila.'*100');
+        $this->docexcel->getActiveSheet()->mergeCells("A$fila:B$fila");
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,$fila,'RESUMEN CANTIDAD DE PERSONAL');
+        $this->docexcel->getActiveSheet()->getStyle("A$fila:B$fila")->applyFromArray($styleTitulos);
+
+
         //*************************************Fin-Detalle*****************************************
         $sheet++;
         $this->imprimeResumenOficionas($sheet);
@@ -561,34 +567,188 @@ class RPlanillaActualizadaItemXLS
                 )
             )
         );
+        $styleTitulos6 = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '00CCFF'
+                )
+            )
+        );
+        $styleTitulos7 = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => 'CCFFFF'
+                )
+            )
+        );
+        $styleTitulos9 = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => '99CC00'
+                )
+            )
+        );
+        $styleTitulos10 = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => 'CCFFCC'
+                )
+            )
+        );
 
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'RESUMEN CANTIDAD DE PERSONAL');
         $this->docexcel->getActiveSheet()->getStyle('A2:B2')->applyFromArray($styleTitulos);
         $this->docexcel->getActiveSheet()->getStyle('A4:A14')->applyFromArray($styleTitulos2);
         $this->docexcel->getActiveSheet()->mergeCells('A2:B2');
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
-        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);
-        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,15,'RESUMEN CANTIDAD DE PERSONAL');
-        $this->docexcel->getActiveSheet()->getStyle('A15:B15')->applyFromArray($styleTitulos);
-        $this->docexcel->getActiveSheet()->mergeCells('A15:B15');
+        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('W')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('X')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('Y')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('Z')->setWidth(25);
+        $this->docexcel->getActiveSheet()->getColumnDimension('AA')->setWidth(25);
+
+
+
+
+
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A3','Nº');
         $this->docexcel->getActiveSheet()->setCellValue('B3','GERENCIA');
-        $this->docexcel->getActiveSheet()->setCellValue('C3','Q');
-        $this->docexcel->getActiveSheet()->setCellValue('D3','%');
-        $this->docexcel->getActiveSheet()->setCellValue('E3','Q');
-        $this->docexcel->getActiveSheet()->setCellValue('F3','%');
-        $this->docexcel->getActiveSheet()->setCellValue('G3','Q');
-        $this->docexcel->getActiveSheet()->setCellValue('H3','%');
         $this->docexcel->getActiveSheet()->getStyle('A3:B3')->applyFromArray($styleTitulos2);
 
+        $columna = 2;
+        foreach ($this->ciudadesOfi as $key=>$value){
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna, 2, $key);
+            $columnaInicial = $columna;
+
+            foreach ($value as $nombreOfi=>$valorOfi) {
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna, 3, $nombreOfi);
+                $columna++;
+            }
+
+            $this->docexcel->getActiveSheet()->mergeCells($this->equivalencias[$columnaInicial] . "2:" . $this->equivalencias[$columna - 1] . "2");
+            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columnaInicial] . "2:" . $this->equivalencias[$columna - 1] . "2")->applyFromArray($styleTitulos);
+
+
+        }
+
         //*************************************Detalle*****************************************
+        $nro = 1;
+        $fila = 4;
+        $columna=2;
+        $par_impar = 1;
+        $cantidad_ger = count($this->empleadosOficina);
+
+
+        foreach ($this->empleadosOficina as $key => $gerencia) {
+
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $nro);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $key);
+
+
+            $columna=2;
+            foreach ($this->ciudadesOfi as $ciudad=>$value2){
+
+                foreach ($value2 as $oficina=>$value3){
+
+
+                    if ($par_impar == 1) {
+                        $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . $fila . ":" . $this->equivalencias[$columna] . $fila)->applyFromArray($styleTitulos7);
+                        if ($fila == 4) {
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila-1) . ":" . $this->equivalencias[$columna] . ($fila-1))->applyFromArray($styleTitulos6);
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila-2) . ":" . $this->equivalencias[$columna] . ($fila-2))->applyFromArray($styleTitulos6);
+                        }
+                        if ($fila == ($cantidad_ger + 3)) {
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila+1) . ":" . $this->equivalencias[$columna] . ($fila+1))->applyFromArray($styleTitulos6);
+                        }
+                    } else {
+                        $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . $fila . ":" . $this->equivalencias[$columna] . $fila)->applyFromArray($styleTitulos10);
+                        if ($fila == 4) {
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila-1) . ":" . $this->equivalencias[$columna] . ($fila-1))->applyFromArray($styleTitulos9);
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila-2) . ":" . $this->equivalencias[$columna] . ($fila-2))->applyFromArray($styleTitulos9);
+                        }
+                        if ($fila == ($cantidad_ger + 3)) {
+                            $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna] . ($fila+1) . ":" . $this->equivalencias[$columna] . ($fila+1))->applyFromArray($styleTitulos9);
+                        }
+                    }
+
+                    if (array_key_exists($ciudad,$gerencia) && array_key_exists($oficina,$gerencia[$ciudad])) {
+                        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,$gerencia[$ciudad][$oficina]);
+
+                        $columna++;
+                    } else {
+                        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna,$fila,'0');
+                        $columna++;
+                    }
+                }
+                $par_impar = $par_impar * -1;
+
+            }
+            $nro++;
+            $fila++;
+            $par_impar = 1;
+
+
+        }
+        $this->docexcel->getActiveSheet()->mergeCells("A$fila:B$fila");
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,$fila,'TOTALES');
+        $this->docexcel->getActiveSheet()->getStyle("A$fila:B$fila")->applyFromArray($styleTitulos);
+        for ($i=2;$i<$columna;$i++){
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($i,$fila,'=SUM(' . $this->equivalencias[$i].'4:' . $this->equivalencias[$i].($fila-1).')');
+        }
+
+
+        //*************************************Fin-Detalle*****************************************
 
 
     }
