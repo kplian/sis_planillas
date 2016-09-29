@@ -83,7 +83,7 @@ BEGIN
             order by fecha_asignacion asc) LOOP
             
         	v_dia_fin = extract(day from v_asignacion.fecha_fin_mes)::integer;
-            
+            v_horas_licencia_para_30 = 0;
             if (v_dia_fin = 31) then
             	v_horas_licencia_para_30 = -8;
             elsif (v_dia_fin = 29) then
