@@ -210,12 +210,13 @@ class RPlanillaActualizadaItemXLS
                     } else {
                         $this->empleadosOficina[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
                     }
+                    if (!array_key_exists($value['codigo'], $this->ciudadesOfi) ||
+                        !array_key_exists($value['nombre'], $this->ciudadesOfi[$value['codigo']]))
+                    {
+                        $this->ciudadesOfi[$value['codigo']][$value['nombre']] = 1;
+                    }
                 }
-                if (!array_key_exists($value['codigo'], $this->ciudadesOfi) ||
-                    !array_key_exists($value['nombre'], $this->ciudadesOfi[$value['codigo']]))
-                {
-                    $this->ciudadesOfi[$value['codigo']][$value['nombre']] = 1;
-                }
+
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['escala']);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['cargo']);
@@ -522,8 +523,8 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4,$fila,'=SUM(E4:E' .($fila-1).')');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6,$fila,'=SUM(G4:G' .($fila-1).')');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7,$fila,round($fila/$fila*100));
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila, '=C'.$fila.'/G'.$fila.'*100');
-        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,$fila, '=E'.$fila.'/G'.$fila.'*100');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3,$fila, '=ROUND(C'.$fila.'/G'.$fila.'*100,2)');
+        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5,$fila, '=ROUND(E'.$fila.'/G'.$fila.'*100,2)');
         $this->docexcel->getActiveSheet()->mergeCells("A$fila:B$fila");
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,$fila,'RESUMEN CANTIDAD DE PERSONAL');
         $this->docexcel->getActiveSheet()->getStyle("A$fila:B$fila")->applyFromArray($styleTitulos);
@@ -631,32 +632,6 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->getStyle('A4:A14')->applyFromArray($styleTitulos2);
         $this->docexcel->getActiveSheet()->mergeCells('A2:B2');
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
-        $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('U')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('V')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('W')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('X')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('Y')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('Z')->setWidth(25);
-        $this->docexcel->getActiveSheet()->getColumnDimension('AA')->setWidth(25);
-
-
 
 
 
@@ -672,6 +647,8 @@ class RPlanillaActualizadaItemXLS
             $columnaInicial = $columna;
 
             foreach ($value as $nombreOfi=>$valorOfi) {
+                $this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columna])->setWidth(20);
+                $this->docexcel->getActiveSheet()->getStyle($this->equivalencias[$columna].'3')->getAlignment()->setWrapText(true);
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columna, 3, $nombreOfi);
                 $columna++;
             }

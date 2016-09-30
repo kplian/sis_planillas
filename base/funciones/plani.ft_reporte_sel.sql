@@ -503,7 +503,9 @@ BEGIN
                             LEFT JOIN pre.vcategoria_programatica catp on catp.id_categoria_programatica = cc.id_categoria_prog
                             JOIN orga.tescala_salarial es ON es.id_escala_salarial = i.id_escala_salarial                            
                             JOIN orga.tcategoria_salarial ca ON ca.id_categoria_salarial = es.id_categoria_salarial
-   							LEFT JOIN orga.tuo_funcionario ha ON ha.id_cargo = i.id_cargo AND ha.estado_reg::text = ''activo''::text AND (ha.fecha_finalizacion IS NULL OR ha.fecha_finalizacion >= ''' || v_parametros.fecha ||'''::date) AND ha.fecha_asignacion <= ''' || v_parametros.fecha ||'''::date
+   							LEFT JOIN orga.tuo_funcionario ha ON ha.id_cargo = i.id_cargo AND ha.estado_reg::text = ''activo''::text AND 
+                            		(ha.fecha_finalizacion IS NULL OR ha.fecha_finalizacion >= ''' || v_parametros.fecha ||'''::date) AND ha.fecha_asignacion <= ''' || v_parametros.fecha ||'''::date AND 
+                                    ha.tipo=''oficial''
                             LEFT JOIN orga.vfuncionario e ON e.id_funcionario = ha.id_funcionario
                             LEFT JOIN orga.tfuncionario f ON e.id_funcionario = f.id_funcionario
                             LEFT JOIN segu.tpersona per ON per.id_persona = f.id_persona
