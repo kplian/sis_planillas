@@ -35,6 +35,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:true,
                 form:true
             },
+            /*
             {
                 config: {
                     name: 'id_tipo_contrato',
@@ -72,7 +73,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 id_grupo: 1,
                 form: true
             },
-
+            */
             {
                 config:{
                     name: 'fecha',
@@ -105,7 +106,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         agregarArgsExtraSubmit: function() {
             this.argumentExtraSubmit.uo = this.Cmp.id_uo.getRawValue();
-            this.argumentExtraSubmit.tipo_contrato = this.Cmp.id_tipo_contrato.getRawValue();
+           // this.argumentExtraSubmit.tipo_contrato = this.Cmp.id_tipo_contrato.getRawValue();
 
         }
     })

@@ -481,14 +481,16 @@ BEGIN
                             ger.nombre_unidad AS gerencia,
                             dep.prioridad AS prioridad_depto,
                             dep.nombre_unidad AS departamento,
-                            (case when ca.codigo = ''SUPER'' and es.nombre != ''GERENTE GENERAL'' then
-                            	''ESP''	
+                            (case when i.codigo = ''0'' then
+                            	''5.EVE'' 
+                            when ca.codigo = ''SUPER'' and es.nombre != ''GERENTE GENERAL'' then
+                            	''3.ESP''	
                             when catp.desc_programa ilike ''%ADM%'' then
-                            	''ADM''
+                            	''1.ADM''
                             when catp.desc_programa ilike ''%OPE%'' then
-                            	''OPE''
+                            	''2.OPE''
                             when catp.desc_programa ilike ''%COM%'' then
-                            	''COM''
+                            	''4.COM''
                             else
                             	''SINCAT''
                             end
@@ -514,7 +516,8 @@ BEGIN
    							JOIN orga.f_get_uo_prioridades(9418) uo(out_id_uo, out_nombre_unidad, out_prioridad) ON uo.out_id_uo = i.id_uo
    							JOIN orga.tuo ger ON ger.id_uo = orga.f_get_uo_gerencia(uo.out_id_uo, NULL::integer, NULL::date)
    							JOIN orga.tuo dep ON dep.id_uo = orga.f_get_uo_departamento(uo.out_id_uo, NULL::integer, NULL::date)
-							WHERE i.estado_reg::text = ''activo''::text AND (i.id_tipo_contrato = ANY (ARRAY[1, 4])) AND ';
+							WHERE i.estado_reg::text = ''activo''::text AND (i.id_tipo_contrato = 1 OR 
+                            	(i.id_tipo_contrato = 4 and e.id_funcionario is not null)) AND  ';
         
 						--Definicion de la respuesta
                         v_consulta:=v_consulta||v_parametros.filtro;
