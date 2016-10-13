@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION plani.f_get_dias_licencia_funcionario (
-  p_id_funcionario integer
+  p_id_funcionario integer,
+  p_fecha date
 )
 RETURNS integer AS
 $body$
@@ -23,10 +24,11 @@ BEGIN
         
     for v_registros in (select * 
     					from plani.tlicencia l 
-                        where l.id_funcionario = p_id_funcionario and l.estado = 'finalizado') loop
+                        where l.id_funcionario = p_id_funcionario and l.estado = 'finalizado' 
+			and l.desde <= p_fecha) loop
     	v_dias = 0;
     	v_fecha_ini_lic = v_registros.desde;                       
-    	v_fecha_fin_lic = v_registros.hasta;
+    	v_fecha_fin_lic = (case when v_registros.hasta > p_fecha then p_fecha else v_registros.hasta end);
     	if ((extract(month from v_fecha_fin_lic)::integer - extract(month from v_fecha_ini_lic)::integer) = 0) then                  
     		if ((v_fecha_fin_lic - v_fecha_ini_lic) = 30) then
             	return 30;
