@@ -193,7 +193,7 @@ BEGIN
                               (case when uofun.id_funcionario = 10 then
                                    (''' || v_parametros.fecha ||'''::date - ''27/12/2013''::date) + 1
                               else            
-                                 (''' || v_parametros.fecha ||'''::date - plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)) + 1 - plani.f_get_dias_licencia_funcionario(datos.id_funcionario)          
+                                 (''' || v_parametros.fecha ||'''::date - plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,uofun.id_funcionario,uofun.fecha_asignacion)) + 1 - plani.f_get_dias_licencia_funcionario(datos.id_funcionario,''' || v_parametros.fecha ||'''::Date)          
                               END)::integer  as diastrabajados, 
                               
                           (case when ' || v_parametros.id_uo ||' <>-1 then
