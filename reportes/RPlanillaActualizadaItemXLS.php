@@ -185,9 +185,6 @@ class RPlanillaActualizadaItemXLS
         $reg= '';
         $ofi= '';
         $sheet = 0;
-
-
-
         $this->imprimeCabecera(0, $cat);
         foreach($datos as $value) {
 
@@ -209,7 +206,7 @@ class RPlanillaActualizadaItemXLS
                         $this->imprimeSubtitulo($fila,$value['departamento']);
                         $dep = $value['departamento'];
                         $fila++;
-                    }
+                   }
 
                 } elseif ($agrupar == 'Regional'){
                 if ($value['codigo'] != $reg) {
