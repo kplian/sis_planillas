@@ -287,3 +287,18 @@ select pxp.f_insert_testructura_gui ('REPREPLA', 'REPPLA');
 select pxp.f_insert_tgui ('Planilla Actualizada de Item', 'Planilla Actualizada de Item', 'RPAI', 'si', 9, 'sis_planillas/vista/reporte_planilla_actualizada_item/ReportePlanillaActualizadaItem.php', 3, '', 'PlanillaActualizadaItem', 'PLANI');
 select pxp.f_insert_testructura_gui ('RPAI', 'REPPLA');
 /***********************************F-DAT-JRR-PLANI-0-21/09/2016****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-21/09/2016****************************************/
+select pxp.f_insert_tgui ('Planilla Actualizada de Item', 'Planilla Actualizada de Item', 'RPAI', 'si', 9, 'sis_planillas/vista/reporte_planilla_actualizada_item/ReportePlanillaActualizadaItem.php', 3, '', 'PlanillaActualizadaItem', 'PLANI');
+select pxp.f_insert_testructura_gui ('RPAI', 'REPPLA');
+/***********************************F-DAT-JRR-PLANI-0-21/09/2016****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-17/10/2016****************************************/
+
+select pxp.f_insert_tgui ('Reporte Contabilizacion', 'Reporte Contabilizacion', 'PLANRCONTA', 'si', 4, 'sis_planillas/vista/reportes_presupuestos/ReporteContabilizacion.php', 3, '', 'ReporteContabilizacion', 'PLANI');
+
+select pxp.f_insert_tgui ('Generar Reportes de Planillas', 'Genera Reportes Configurados de Planillas', 'GERREPPLA', 'si', 1, 'sis_planillas/vista/reporte/GenerarReporte.php', 3, '', 'GenerarReporte', 'PLANI');
+select pxp.f_insert_testructura_gui ('PLANRCONTA', 'REPPLA');
+select pxp.f_insert_testructura_gui ('GERREPPLA', 'REPPLA');
+
+/***********************************F-DAT-JRR-PLANI-0-17/10/2016****************************************/
