@@ -165,7 +165,7 @@ BEGIN
       	  --se relaciona cuentas contables a obligaciones y consolidado_columna
           v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
           
-          v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);                  
+          v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);                  
         
      	  if (pxp.f_get_variable_global('sincronizar') = 'true') then
             	

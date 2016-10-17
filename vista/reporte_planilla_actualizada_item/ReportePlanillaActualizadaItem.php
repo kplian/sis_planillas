@@ -35,45 +35,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid:true,
                 form:true
             },
-            /*
             {
-                config: {
-                    name: 'id_tipo_contrato',
-                    fieldLabel: 'Tipo Contrato',
-                    allowBlank: true,
-                    emptyText: 'Dejar en blanco para todos los tipos...',
-                    store: new Ext.data.JsonStore({
-                        url: '../../sis_organigrama/control/TipoContrato/listarTipoContrato',
-                        id: 'id_tipo_contrato',
-                        root: 'datos',
-                        sortInfo: {
-                            field: 'nombre',
-                            direction: 'ASC'
-                        },
-                        totalProperty: 'total',
-                        fields: ['id_tipo_contrato', 'nombre', 'codigo'],
-                        remoteSort: true,
-                        baseParams: {par_filtro: 'tipcon.nombre#tipcon.codigo'}
-                    }),
-                    valueField: 'id_tipo_contrato',
-                    displayField: 'nombre',
-                    hiddenName: 'id_tipo_contrato',
-                    forceSelection: true,
-                    typeAhead: false,
+                config:{
+                    name:'agrupar_por',
+                    fieldLabel:'Agrupar Por',
+                    allowBlank:false,
+                    emptyText:'Tipo...',
+
+                    typeAhead: true,
                     triggerAction: 'all',
-                    lazyRender: true,
-                    mode: 'remote',
-                    pageSize: 15,
-                    queryDelay: 1000,
-                    anchor: '50%',
-                    minChars: 2
+                    lazyRender:true,
+                    mode: 'local',
+                    anchor: '30%',
+                    store:['Organigrama','Regional','Regional oficina']
 
                 },
-                type: 'ComboBox',
-                id_grupo: 1,
-                form: true
+                type:'ComboBox',
+                id_grupo:1,
+                form:true
             },
-            */
             {
                 config:{
                     name: 'fecha',

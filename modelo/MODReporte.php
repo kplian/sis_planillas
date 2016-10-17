@@ -308,6 +308,8 @@ class MODReporte extends MODbase{
         $this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
         $this->setParametro('id_uo','id_uo','integer');
         $this->setParametro('fecha','fecha','date');
+        $this->setParametro('agrupar_por','agrupar_por','varchar');
+
 
 
         $this->captura('escala','varchar');
@@ -341,7 +343,6 @@ class MODReporte extends MODbase{
 
         //Devuelve la respuesta
         return $this->respuesta;
-
 
 
     }
