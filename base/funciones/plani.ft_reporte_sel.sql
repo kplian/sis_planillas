@@ -267,7 +267,7 @@ BEGIN
                             param.f_literal_periodo(per.id_periodo),
                             ges.gestion,
                             emp.nit,
-                            ent.identificador_min_trabajo::varchar as numero_patronal,
+                            ent.identificador_caja_salud::varchar as numero_patronal,
                             fun.desc_funcionario1::varchar as nombre,
                             (case when sum(ht.id_horas_trabajadas) is null then
                             	car.nombre
@@ -312,7 +312,8 @@ BEGIN
                             car.codigo,
                             fun.codigo,
                             fun.ci,
-                            fun.id_funcionario
+                            fun.id_funcionario,
+                            ent.identificador_min_trabajo
 			';
 			
             
