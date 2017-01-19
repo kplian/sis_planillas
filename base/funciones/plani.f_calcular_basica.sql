@@ -1097,8 +1097,14 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
       from plani.tcolumna_valor cv
       where id_funcionario_planilla = v_id_funcionario_planilla_mes and
             cv.codigo_columna IN ('BONANT') and cv.estado_reg = 'activo';
+            
+      select sum(ht.sueldo * ht.porcentaje_sueldo/100) into v_aux
+      from plani.thoras_trabajadas ht
+      where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
 
-      if (v_resultado = 0 or v_resultado is null) then
+      
+
+      if ((v_aux + v_resultado) = 0 or (v_aux + v_resultado) is null) then
         select cv.valor into v_resultado
         from plani.tcolumna_valor cv
         where cv.id_funcionario_planilla = p_id_funcionario_planilla and
@@ -1176,8 +1182,13 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
       from plani.tcolumna_valor cv
       where id_funcionario_planilla = v_id_funcionario_planilla_mes and
             cv.codigo_columna IN ('BONFRONTERA') and cv.estado_reg = 'activo';
+            
+      select sum(ht.sueldo * ht.porcentaje_sueldo/100) into v_aux
+      from plani.thoras_trabajadas ht
+      where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
 
-      if (v_resultado = 0 or v_resultado is null) then
+
+      if ((v_aux + v_resultado) = 0 or (v_aux + v_resultado) is null) then
         select cv.valor into v_resultado
         from plani.tcolumna_valor cv
         where cv.id_funcionario_planilla = p_id_funcionario_planilla and
@@ -1255,7 +1266,7 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
       raise exception '%',v_resp;
 
   END;
-  $body$
+$body$
 LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
