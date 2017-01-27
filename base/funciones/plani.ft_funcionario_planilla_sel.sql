@@ -1,10 +1,11 @@
--- Function: plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
-
--- DROP FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying);
-
-CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-  RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+  RETURNS varchar AS
+  $body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_funcionario_planilla_sel
@@ -313,7 +314,86 @@ BEGIN
                           where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
 						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
                           and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''5 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
-                          order by fecha_cinco_anos)';
+                          order by fecha_cinco_anos)
+                          
+                          union all
+
+                          (select  ''8 AÑOS''::varchar as antiguedad,uo.nombre_unidad ,car.nombre as cargo,tc.nombre as tipo_contrato,vcc.codigo_cc,fun.desc_funcionario1 as funcionario,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso, (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''8 year'')::date as fecha_ocho_anos
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                          left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,NULL)
+                          where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
+						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
+                          and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''8 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
+                          order by fecha_ocho_anos)
+                          
+                          union all
+
+                          (select  ''11 AÑOS''::varchar as antiguedad,uo.nombre_unidad ,car.nombre as cargo,tc.nombre as tipo_contrato,vcc.codigo_cc,fun.desc_funcionario1 as funcionario,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso, (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''11 year'')::date as fecha_once_anos
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                          left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,NULL)
+                          where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
+						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
+                          and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''11 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
+                          order by fecha_once_anos)
+                          
+                          union all
+
+                          (select  ''15 AÑOS''::varchar as antiguedad,uo.nombre_unidad ,car.nombre as cargo,tc.nombre as tipo_contrato,vcc.codigo_cc,fun.desc_funcionario1 as funcionario,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso, (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''15 year'')::date as fecha_quince_anos
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                          left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,NULL)
+                          where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
+						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
+                          and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''15 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
+                          order by fecha_quince_anos)
+                          
+                          union all
+
+                          (select  ''20 AÑOS''::varchar as antiguedad,uo.nombre_unidad ,car.nombre as cargo,tc.nombre as tipo_contrato,vcc.codigo_cc,fun.desc_funcionario1 as funcionario,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso, (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''20 year'')::date as fecha_veinte_anos
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                          left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,NULL)
+                          where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
+						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
+                          and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''20 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
+                          order by fecha_veinte_anos)
+                          
+							union all
+
+                          (select  ''25 AÑOS''::varchar as antiguedad,uo.nombre_unidad ,car.nombre as cargo,tc.nombre as tipo_contrato,vcc.codigo_cc,fun.desc_funcionario1 as funcionario,plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso, (plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''25 year'')::date as fecha_veinticinco_anos
+                          from orga.tuo_funcionario uofun
+                          inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto carcc on car.id_cargo = carcc.id_cargo and carcc.id_gestion = 13 and carcc.estado_reg = ''activo''
+                          left join pre.vpresupuesto_cc vcc on vcc.id_centro_costo=carcc.id_centro_costo
+                          inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                          inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
+                          inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo,NULL,NULL)
+                          where uofun.fecha_asignacion <= ''' || v_fecha_fin || '''::date and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion>= ''' || v_fecha_fin || '''::date)
+						  and uofun.tipo = ''oficial'' and tc.codigo in (''PLA'', ''EVE'')  and uofun.estado_reg = ''activo''
+                          and ((plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, uofun.id_funcionario, uofun.fecha_asignacion) + interval ''25 year'')::date between ''' || v_fecha_ini || ''' and ''' || v_fecha_fin || ''')
+                          order by fecha_veinticinco_anos)
+
+
+                          
+                          ';
 			
 			--Devuelve la respuesta
 			return v_consulta;
@@ -335,8 +415,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-ALTER FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
-  OWNER TO postgres;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
