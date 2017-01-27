@@ -302,3 +302,10 @@ select pxp.f_insert_testructura_gui ('PLANRCONTA', 'REPPLA');
 select pxp.f_insert_testructura_gui ('GERREPPLA', 'REPPLA');
 
 /***********************************F-DAT-JRR-PLANI-0-17/10/2016****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-25/01/2017****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'plani_carga_presupuesto_from_uo', E'no', E'Carga el presupuesto automaticamente de la primera uo con presupuesto que encuentre para el cargo');
+
+/***********************************F-DAT-JRR-PLANI-0-25/01/2017****************************************/

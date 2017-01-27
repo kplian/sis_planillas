@@ -281,7 +281,7 @@ class RPrimaXLS
 			}
 					
 			if ($columna == 21) {
-				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,0);
+				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columna,$fila,$value['valor']);
 				$columna++;
 			}
 			if ($columna == 22) {
