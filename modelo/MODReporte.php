@@ -334,10 +334,11 @@ class MODReporte extends MODbase{
         $this->captura('prioridad_depto','varchar');
         $this->captura('departamento','varchar');
         $this->captura('categoria_programatica','varchar');
+        $this->captura('fecha_finalizacion','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
-
+       
         $this->ejecutarConsulta();
         
 
