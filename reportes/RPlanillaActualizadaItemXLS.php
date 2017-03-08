@@ -11,6 +11,8 @@ class RPlanillaActualizadaItemXLS
     private $gerenciasPLA=array();
     private $gerenciasEVE=array();
     private $numero;
+    private $empleadosPLA = 0;
+    private $empleadosEVE = 0;
     private $gerenciaMasPLA=array();
     private $gerenciaMasEVE=array();
     private $gerenciaFemPLA=array();
@@ -39,24 +41,24 @@ class RPlanillaActualizadaItemXLS
 
         $this->docexcel = new PHPExcel();
         $this->docexcel->getProperties()->setCreator("PXP")
-                                ->setLastModifiedBy("PXP")
-                                ->setTitle($this->objParam->getParametro('titulo_archivo'))
-                                ->setSubject($this->objParam->getParametro('titulo_archivo'))
-                                ->setDescription('Reporte "'.$this->objParam->getParametro('titulo_archivo').'", generado por el framework PXP')
-                                ->setKeywords("office 2007 openxml php")
-                                ->setCategory("Report File");
+            ->setLastModifiedBy("PXP")
+            ->setTitle($this->objParam->getParametro('titulo_archivo'))
+            ->setSubject($this->objParam->getParametro('titulo_archivo'))
+            ->setDescription('Reporte "'.$this->objParam->getParametro('titulo_archivo').'", generado por el framework PXP')
+            ->setKeywords("office 2007 openxml php")
+            ->setCategory("Report File");
 
         $this->equivalencias=array( 0=>'A',1=>'B',2=>'C',3=>'D',4=>'E',5=>'F',6=>'G',7=>'H',8=>'I',
-                                    9=>'J',10=>'K',11=>'L',12=>'M',13=>'N',14=>'O',15=>'P',16=>'Q',17=>'R',
-                                    18=>'S',19=>'T',20=>'U',21=>'V',22=>'W',23=>'X',24=>'Y',25=>'Z',
-                                    26=>'AA',27=>'AB',28=>'AC',29=>'AD',30=>'AE',31=>'AF',32=>'AG',33=>'AH',
-                                    34=>'AI',35=>'AJ',36=>'AK',37=>'AL',38=>'AM',39=>'AN',40=>'AO',41=>'AP',
-                                    42=>'AQ',43=>'AR',44=>'AS',45=>'AT',46=>'AU',47=>'AV',48=>'AW',49=>'AX',
-                                    50=>'AY',51=>'AZ',
-                                    52=>'BA',53=>'BB',54=>'BC',55=>'BD',56=>'BE',57=>'BF',58=>'BG',59=>'BH',
-                                    60=>'BI',61=>'BJ',62=>'BK',63=>'BL',64=>'BM',65=>'BN',66=>'BO',67=>'BP',
-                                    68=>'BQ',69=>'BR',70=>'BS',71=>'BT',72=>'BU',73=>'BV',74=>'BW',75=>'BX',
-                                    76=>'BY',77=>'BZ');
+            9=>'J',10=>'K',11=>'L',12=>'M',13=>'N',14=>'O',15=>'P',16=>'Q',17=>'R',
+            18=>'S',19=>'T',20=>'U',21=>'V',22=>'W',23=>'X',24=>'Y',25=>'Z',
+            26=>'AA',27=>'AB',28=>'AC',29=>'AD',30=>'AE',31=>'AF',32=>'AG',33=>'AH',
+            34=>'AI',35=>'AJ',36=>'AK',37=>'AL',38=>'AM',39=>'AN',40=>'AO',41=>'AP',
+            42=>'AQ',43=>'AR',44=>'AS',45=>'AT',46=>'AU',47=>'AV',48=>'AW',49=>'AX',
+            50=>'AY',51=>'AZ',
+            52=>'BA',53=>'BB',54=>'BC',55=>'BD',56=>'BE',57=>'BF',58=>'BG',59=>'BH',
+            60=>'BI',61=>'BJ',62=>'BK',63=>'BL',64=>'BM',65=>'BN',66=>'BO',67=>'BP',
+            68=>'BQ',69=>'BR',70=>'BS',71=>'BT',72=>'BU',73=>'BV',74=>'BW',75=>'BX',
+            76=>'BY',77=>'BZ');
 
     }
 
@@ -96,25 +98,25 @@ class RPlanillaActualizadaItemXLS
                 'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
                 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ),
-             $styleTitulos8 = array(
-                 'font'  => array(
-                     'bold'  => true,
-                     'size'  => 11,
-                     'name'  => 'Arial',
-                     'color' => array('rgb' => 'FFFFFF')
+            $styleTitulos8 = array(
+                'font'  => array(
+                    'bold'  => true,
+                    'size'  => 11,
+                    'name'  => 'Arial',
+                    'color' => array('rgb' => 'FFFFFF')
 
-                 ),
-                 'alignment' => array(
-                     'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-                     'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
-                 ),
-                 'fill' => array(
-                     'type' => PHPExcel_Style_Fill::FILL_SOLID,
-                     'color' => array(
-                         'rgb' => '003366'
-                     )
-                 )
-             ),
+                ),
+                'alignment' => array(
+                    'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                    'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                ),
+                'fill' => array(
+                    'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                    'color' => array(
+                        'rgb' => '003366'
+                    )
+                )
+            ),
             $styleTitulos3 = array(
                 'font'  => array(
                     'size'  => 11,
@@ -189,159 +191,162 @@ class RPlanillaActualizadaItemXLS
         $this->imprimeCabecera(0, $cat);
         foreach($datos as $value) {
 
-                if($value['categoria_programatica'] != $cat ) {
-                    $cat = $value['categoria_programatica'];
-                    $sheet++;
-                    $this->imprimeCabecera($sheet, $cat);
-                    $fila = 6;
+            if($value['categoria_programatica'] != $cat ) {
+                $cat = $value['categoria_programatica'];
+                $sheet++;
+                $this->imprimeCabecera($sheet, $cat);
+                $fila = 6;
 
+            }
+            if ($agrupar == 'Organigrama'){
+                if ($value['gerencia'] != $ger) {
+                    $this->imprimeSubtitulo($fila,$value['gerencia']);
+                    $ger = $value['gerencia'];
+                    $fila++;
                 }
-                if ($agrupar == 'Organigrama'){
-                    if ($value['gerencia'] != $ger) {
-                        $this->imprimeSubtitulo($fila,$value['gerencia']);
-                        $ger = $value['gerencia'];
-                        $fila++;
-                    }
 
-                    if ($value['departamento'] != $dep && $value['departamento'] != $value['gerencia']){
-                        $this->imprimeSubtitulo($fila,$value['departamento']);
-                        $dep = $value['departamento'];
-                        $fila++;
-                   }
+                if ($value['departamento'] != $dep && $value['departamento'] != $value['gerencia']){
+                    $this->imprimeSubtitulo($fila,$value['departamento']);
+                    $dep = $value['departamento'];
+                    $fila++;
+                }
 
-                } elseif ($agrupar == 'Regional'){
+            } elseif ($agrupar == 'Regional'){
                 if ($value['codigo'] != $reg) {
                     $this->imprimeSubtitulo($fila,$value['codigo']);
                     $reg = $value['codigo'];
                     $fila++;
-                   }
+                }
 
-                 } elseif ($agrupar == 'Regional oficina'){
-                        if ($value['codigo'] != $reg) {
-                        $this->imprimeSubtitulo($fila,$value['codigo']);
-                        $reg = $value['codigo'];
-                        $fila++;}
+            } elseif ($agrupar == 'Regional oficina'){
+                if ($value['codigo'] != $reg) {
+                    $this->imprimeSubtitulo($fila,$value['codigo']);
+                    $reg = $value['codigo'];
+                    $fila++;}
 
-                        if ($value['nombre'] != $ofi && $value['nombre'] != $value['codigo']){
-                            $this->imprimeSubtitulo($fila,$value['nombre']);
-                            $ofi = $value['nombre'];
-                            $fila++;
-                        }
-                 }
+                if ($value['nombre'] != $ofi && $value['nombre'] != $value['codigo']){
+                    $this->imprimeSubtitulo($fila,$value['nombre']);
+                    $ofi = $value['nombre'];
+                    $fila++;
+                }
+            }
 
-                 if($value['nombre_funcionario'] != 'ACEFALO') {
+            if($value['nombre_funcionario'] != 'ACEFALO') {
 
-                    if($value['nro_item'] == '0' ){
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciasEVE)) {
+                if($value['nro_item'] == '0' ){
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciasEVE)) {
 
-                            $this->gerenciasEVE[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
-
-                            $this->gerenciasEVE[$value['codigo_nombre_gerencia']]++;
-                        }
+                        $this->gerenciasEVE[$value['codigo_nombre_gerencia']] = 1;
                     } else {
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciasPLA)) {
 
-                            $this->gerenciasPLA[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
-
-                            $this->gerenciasPLA[$value['codigo_nombre_gerencia']]++;
-                        }
+                        $this->gerenciasEVE[$value['codigo_nombre_gerencia']]++;
                     }
-                }
-                if ($value['genero']=='M') {
-                    if($value['nro_item'] == '0' ){
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaMasEVE)) {
+                    $this->empleadosEVE++;
+                } else {
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciasPLA)) {
 
-                            $this->gerenciaMasEVE[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
-
-                            $this->gerenciaMasEVE[$value['codigo_nombre_gerencia']]++;
-                        }
-
+                        $this->gerenciasPLA[$value['codigo_nombre_gerencia']] = 1;
                     } else {
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaMasPLA)) {
 
-                            $this->gerenciaMasPLA[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
+                        $this->gerenciasPLA[$value['codigo_nombre_gerencia']]++;
+                    }
+                    $this->empleadosPLA++;
+                }
+            }
+            if ($value['genero']=='M') {
+                if($value['nro_item'] == '0' ){
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaMasEVE)) {
 
-                            $this->gerenciaMasPLA[$value['codigo_nombre_gerencia']]++;
-                        }
+                        $this->gerenciaMasEVE[$value['codigo_nombre_gerencia']] = 1;
+                    } else {
+
+                        $this->gerenciaMasEVE[$value['codigo_nombre_gerencia']]++;
+                    }
+
+
+                } else {
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaMasPLA)) {
+
+                        $this->gerenciaMasPLA[$value['codigo_nombre_gerencia']] = 1;
+                    } else {
+
+                        $this->gerenciaMasPLA[$value['codigo_nombre_gerencia']]++;
                     }
                 }
-                if ($value['genero']=='F') {
-                    if($value['nro_item'] == '0' ){
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaFemEVE)) {
-                            $this->gerenciaFemEVE[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
+            }
+            if ($value['genero']=='F') {
+                if($value['nro_item'] == '0' ){
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaFemEVE)) {
+                        $this->gerenciaFemEVE[$value['codigo_nombre_gerencia']] = 1;
+                    } else {
 
-                            $this->gerenciaFemEVE[$value['codigo_nombre_gerencia']]++;
-                        }
+                        $this->gerenciaFemEVE[$value['codigo_nombre_gerencia']]++;
+                    }
 
-                    }else{
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaFemPLA)) {
-                            $this->gerenciaFemPLA[$value['codigo_nombre_gerencia']] = 1;
-                        } else {
+                }else{
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->gerenciaFemPLA)) {
+                        $this->gerenciaFemPLA[$value['codigo_nombre_gerencia']] = 1;
+                    } else {
 
-                            $this->gerenciaFemPLA[$value['codigo_nombre_gerencia']]++;
-                        }
+                        $this->gerenciaFemPLA[$value['codigo_nombre_gerencia']]++;
+                    }
+                }
+            }
+
+            if($value['nombre_funcionario'] != 'ACEFALO') {
+                if($value['nro_item'] == '0' ){
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->empleadosOficinaEVE) ||
+                        !array_key_exists($value['codigo'], $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']]) ||
+                        !array_key_exists($value['nombre'], $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']])
+                    ) {
+                        $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']] = 1;
+                    } else {
+                        $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
+                    }
+                    if (!array_key_exists($value['codigo'], $this->ciudadesOfiEVE) ||
+                        !array_key_exists($value['nombre'], $this->ciudadesOfiEVE[$value['codigo']]))
+                    {
+                        $this->ciudadesOfiEVE[$value['codigo']][$value['nombre']] = 1;
+                    }
+                }
+                else{
+                    if (!array_key_exists($value['codigo_nombre_gerencia'], $this->empleadosOficinaPLA) ||
+                        !array_key_exists($value['codigo'], $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']]) ||
+                        !array_key_exists($value['nombre'], $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']])
+                    ) {
+                        $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']] = 1;
+                    } else {
+                        $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
+                    }
+                    if (!array_key_exists($value['codigo'], $this->ciudadesOfiPLA) ||
+                        !array_key_exists($value['nombre'], $this->ciudadesOfiPLA[$value['codigo']]))
+                    {
+                        $this->ciudadesOfiPLA[$value['codigo']][$value['nombre']] = 1;
                     }
                 }
 
-                if($value['nombre_funcionario'] != 'ACEFALO') {
-                    if($value['nro_item'] == '0' ){
-                        if (!array_key_exists($value['codigo_nombre_gerencia'], $this->empleadosOficinaEVE) ||
-                            !array_key_exists($value['codigo'], $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']]) ||
-                            !array_key_exists($value['nombre'], $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']])
-                        ) {
-                            $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']] = 1;
-                        } else {
-                            $this->empleadosOficinaEVE[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
-                        }
-                        if (!array_key_exists($value['codigo'], $this->ciudadesOfiEVE) ||
-                            !array_key_exists($value['nombre'], $this->ciudadesOfiEVE[$value['codigo']]))
-                        {
-                            $this->ciudadesOfiEVE[$value['codigo']][$value['nombre']] = 1;
-                        }
-                    }
-                        else{
-                            if (!array_key_exists($value['codigo_nombre_gerencia'], $this->empleadosOficinaPLA) ||
-                                !array_key_exists($value['codigo'], $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']]) ||
-                                !array_key_exists($value['nombre'], $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']])
-                            ) {
-                                $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']] = 1;
-                            } else {
-                                $this->empleadosOficinaPLA[$value['codigo_nombre_gerencia']][$value['codigo']][$value['nombre']]++;
-                            }
-                            if (!array_key_exists($value['codigo'], $this->ciudadesOfiPLA) ||
-                                !array_key_exists($value['nombre'], $this->ciudadesOfiPLA[$value['codigo']]))
-                            {
-                                $this->ciudadesOfiPLA[$value['codigo']][$value['nombre']] = 1;
-                            }
-                        }
-
-                }
+            }
             if($value['nombre_funcionario'] == 'ACEFALO') {
                 $this->docexcel->getActiveSheet()->getStyle("E$fila:E$fila")->applyFromArray($styleTitulos10);
             }
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['escala']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['cargo']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nro_item']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nombre_funcionario']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['genero']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['haber_basico']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['bono_antiguedad']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['bono_frontera']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['sumatoria']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['fecha_inicio']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, $value['ci']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['expedicion']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['codigo']);
-                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['nombre']);
-                if($value['nro_item'] == '0' ) {
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['fecha_finalizacion']);
-                }
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $this->numero);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['escala']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['cargo']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nro_item']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nombre_funcionario']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['genero']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['haber_basico']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['bono_antiguedad']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['bono_frontera']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['sumatoria']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['fecha_inicio']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, $value['ci']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['expedicion']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['codigo']);
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['nombre']);
+            if($value['nro_item'] == '0' ) {
+                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['fecha_finalizacion']);
+            }
 
             $fila++;
             $this->numero++;
@@ -525,22 +530,22 @@ class RPlanillaActualizadaItemXLS
             )
         );
         $styleTitulos11 = array(
-        'font'  => array(
-            'bold'  => true,
-            'size'  => 10,
-            'name'  => 'Arial'
-        ),
-        'alignment' => array(
-            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
-        ),
-        'fill' => array(
-            'type' => PHPExcel_Style_Fill::FILL_SOLID,
-            'color' => array(
-                'rgb' => 'FFFF00'
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 10,
+                'name'  => 'Arial'
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'fill' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
+                    'rgb' => 'FFFF00'
+                )
             )
-        )
-    );
+        );
         //*************************************Cabecera Planta *****************************************
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,2,'RESUMEN CANTIDAD DE PERSONAL DE PLANTA ');
         $this->docexcel->getActiveSheet()->getStyle('A2:B2')->applyFromArray($styleTitulos);
@@ -611,7 +616,7 @@ class RPlanillaActualizadaItemXLS
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $nro);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$key);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila,$value);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,round($value/$this->numero*100,2));
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,round($value/$this->empleadosPLA *100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,round($this->gerenciaMasPLA[$key]/$value*100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila,round($this->gerenciaFemPLA[$key]/$value*100,2));
 
@@ -709,7 +714,7 @@ class RPlanillaActualizadaItemXLS
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $nro);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila,$key);
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila,$value);
-            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,round($value/$this->numero*100,2));
+            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila,round($value/$this->empleadosEVE*100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,round($this->gerenciaMasEVE[$key]/$value*100,2));
             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila,round($this->gerenciaFemEVE[$key]/$value*100,2));
 

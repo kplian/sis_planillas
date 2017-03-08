@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION plani.ft_reporte_sel (
   p_tabla varchar,
   p_transaccion varchar
 )
-  RETURNS varchar AS
-  $body$
+RETURNS varchar AS
+$body$
   /**************************************************************************
    SISTEMA:		Sistema de Planillas
    FUNCION: 		plani.ft_reporte_sel
@@ -470,7 +470,7 @@ CREATE OR REPLACE FUNCTION plani.ft_reporte_sel (
             				ELSE NULL::numeric
         					END AS sumatoria,
         					CASE
-            					WHEN e.id_funcionario IS NOT NULL THEN orga.f_get_fechas_ini_historico(e.id_funcionario)
+            					WHEN e.id_funcionario IS NOT NULL THEN orga.f_get_fechas_ini_historico(e.id_funcionario, ''' || v_parametros.fecha ||'''::date)
             				ELSE NULL::text
         					END AS "case",
     						per.ci,
@@ -485,7 +485,10 @@ CREATE OR REPLACE FUNCTION plani.ft_reporte_sel (
                             ger.nombre_unidad AS gerencia,
                             dep.prioridad AS prioridad_depto,
                             dep.nombre_unidad AS departamento,
-                            (case when i.codigo = ''0'' then
+                            (case 
+                            when lower(ger.nombre_unidad) like ''%cobija%'' then
+                            	''6.CIJ''                            
+                            when i.codigo = ''0'' then
                             	''5.EVE'' 
                             when ca.codigo = ''SUPER'' and es.nombre != ''GERENTE GENERAL'' then
                             	''3.ESP''	
@@ -556,7 +559,7 @@ CREATE OR REPLACE FUNCTION plani.ft_reporte_sel (
       v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
       raise exception '%',v_resp;
   END;
-  $body$
+$body$
 LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
