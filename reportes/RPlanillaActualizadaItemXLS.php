@@ -136,17 +136,18 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->getStyle('A3:P3')->applyFromArray($styleTitulos3);
         $this->docexcel->getActiveSheet()->mergeCells('A3:P3');
         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0,4,'Gerencia : ' . $this->objParam->getParametro('uo'));
-        $this->docexcel->getActiveSheet()->getStyle('A4:P4')->applyFromArray($styleTitulos8);
-        $this->docexcel->getActiveSheet()->mergeCells('A4:P4');
+        $this->docexcel->getActiveSheet()->getStyle('A4:O4')->applyFromArray($styleTitulos8);
+        $this->docexcel->getActiveSheet()->mergeCells('A4:O4');
         $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);
         $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(55);
         $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(8);
         $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(47);
         $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);
         $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(8);
+        $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(20);
         $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(25);
         $this->docexcel->getActiveSheet()->getStyle('A5:P5')->getAlignment()->setWrapText(true);
-        $this->docexcel->getActiveSheet()->getStyle('A5:P5')->applyFromArray($styleTitulos);
+        $this->docexcel->getActiveSheet()->getStyle('A5:O5')->applyFromArray($styleTitulos);
 
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A5','Nº');
@@ -164,7 +165,13 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->setCellValue('M5','EXP');
         $this->docexcel->getActiveSheet()->setCellValue('N5','CIUDAD');
         $this->docexcel->getActiveSheet()->setCellValue('O5','OFICINA');
-        $this->docexcel->getActiveSheet()->setCellValue('P5','FECHA FIN');
+
+
+        if ($tipo == '5.EVE') {
+            $this->docexcel->getActiveSheet()->setCellValue('P5','FECHA FIN');
+            $this->docexcel->getActiveSheet()->getStyle('P5:P5')->applyFromArray($styleTitulos);
+            $this->docexcel->getActiveSheet()->getStyle('P4:P4')->applyFromArray($styleTitulos8);
+        }
     }
 
     function generarDatos($agrupar)
