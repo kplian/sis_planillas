@@ -3215,3 +3215,56 @@ FROM plani.tobligacion o
          AND sub.codigo::text = 'CONTA'::text;
 
 /***********************************F-DEP-JRR-PLANI-0-10/03/2017****************************************/
+
+/***********************************I-DEP-JRR-PLANI-1-10/03/2017****************************************/
+
+
+create OR REPLACE VIEW  plani.vobligacion_presu as
+select oc.id_obligacion_columna, o.id_planilla,oc.id_obligacion,oc.id_presupuesto as id_centro_costo,cc.id_int_transaccion,oc.monto_detalle_obligacion
+from plani.tobligacion_columna oc
+inner join plani.tobligacion o on oc.id_obligacion = o.id_obligacion
+inner join plani.tconsolidado c on oc.id_presupuesto =  c.id_presupuesto
+left join plani.tconsolidado_columna cc on cc.id_tipo_columna = oc.id_tipo_columna and c.id_consolidado =
+cc.id_consolidado and cc.tipo_contrato = oc.tipo_contrato
+where oc.monto_detalle_obligacion != 0;
+
+
+CREATE OR REPLACE VIEW plani.vobligacion_haber(
+    id_obligacion,
+    id_plan_pago,
+    id_planilla,
+    acreedor,
+    descripcion,
+    id_cuenta,
+    id_auxiliar,
+    id_partida,
+    tipo_obligacion,
+    desc_planilla,
+    periodo,
+    gestion,
+    monto_obligacion)
+AS
+  SELECT ob.id_obligacion,
+         ob.id_plan_pago,
+         ob.id_planilla,
+         ob.acreedor,
+         ob.descripcion,
+         ob.id_cuenta,
+         ob.id_auxiliar,
+         ob.id_partida,
+         tob.tipo_obligacion,
+         ((tp.nombre::text || ' correspondiente a : '::text) || COALESCE(
+           per.periodo || '/'::text, ''::text)) || ges.gestion AS desc_planilla,
+         per.periodo,
+         ges.gestion,
+         ob.monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla;
+
+  /***********************************F-DEP-JRR-PLANI-1-10/03/2017****************************************/

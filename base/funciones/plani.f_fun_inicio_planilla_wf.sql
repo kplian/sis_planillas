@@ -36,6 +36,7 @@ DECLARE
     v_id_gestion		integer;
     v_id_int_comprobante integer;
     v_id_int_comprobante_obli	 integer;
+    v_resbool			boolean;
    
 	
     
@@ -177,11 +178,13 @@ BEGIN
                usuario_ai = p_usuario_ai,
                fecha_mod=now(),
                id_int_comprobante = (case when id_int_comprobante is not null then id_int_comprobante else  v_id_int_comprobante  end)                 
-            where id_proceso_wf = p_id_proceso_wf; 
-     	  v_resp =  conta.f_validar_cbte(v_id_usuario_reg,p_id_usuario_ai,p_usuario_ai,v_id_int_comprobante);       
+            where id_proceso_wf = p_id_proceso_wf;
+          v_resbool = conta.f_igualar_cbte(v_id_int_comprobante,p_id_usuario,false);  
+     	  v_resp =  conta.f_validar_cbte(p_id_usuario,p_id_usuario_ai,p_usuario_ai,v_id_int_comprobante);       
      	  return true;
      	  
      elsif (p_codigo_estado  in ('planilla_finalizada')) then 
+     
      	if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
      		for v_registros in (	select * 
           						from plani.tobligacion o
