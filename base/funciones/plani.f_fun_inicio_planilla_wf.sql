@@ -35,6 +35,7 @@ DECLARE
     v_registros			record;
     v_id_gestion		integer;
     v_id_int_comprobante integer;
+    v_id_int_comprobante_obli	 integer;
    
 	
     
@@ -166,18 +167,29 @@ BEGIN
           v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
           
           v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);                  
-        
-     	  if (pxp.f_get_variable_global('sincronizar') = 'true') then
-            	
-                select * FROM dblink(migra.f_obtener_cadena_conexion(), 
-                'SELECT *
-                  FROM sci.f_tct_gestionar_comprobante_iud(' || p_id_usuario  || ',''172.17.45.229'',''00:0a:95:9d:68:16'',''CT_VALIDA_ACC'',NULL,
-                  (select id_comprobante from sci.tct_comprobante where id_int_comprobante=' || v_id_int_comprobante || ')
-                  ,NULL,NULL
-                  ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,''validacion_igualar_sin_documento''
-                  ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)',TRUE)AS t1(resp varchar)
-            	into v_resp; 
-             end if;	        
+        	
+          -- actualiza estado en la solicitud
+            update plani.tplanilla  t set 
+               id_estado_wf =  p_id_estado_wf,
+               estado = p_codigo_estado,
+               id_usuario_mod=p_id_usuario,
+               id_usuario_ai = p_id_usuario_ai,
+               usuario_ai = p_usuario_ai,
+               fecha_mod=now(),
+               id_int_comprobante = (case when id_int_comprobante is not null then id_int_comprobante else  v_id_int_comprobante  end)                 
+            where id_proceso_wf = p_id_proceso_wf; 
+     	  v_resp =  conta.f_validar_cbte(v_id_usuario_reg,p_id_usuario_ai,p_usuario_ai,v_id_int_comprobante);       
+     	  return true;
+     	  
+     elsif (p_codigo_estado  in ('planilla_finalizada')) then 
+     	if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
+     		for v_registros in (	select * 
+          						from plani.tobligacion o
+                                inner join plani.ttipo_obligacion tipo on o.id_tipo_obligacion = tipo.id_tipo_obligacion
+                                where tipo.es_pagable = 'si' ) loop
+          		v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion,'PAGOPLA',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
+          	end loop;
+        end if;
      END IF;
           
         
@@ -189,7 +201,7 @@ BEGIN
        id_usuario_ai = p_id_usuario_ai,
        usuario_ai = p_usuario_ai,
        fecha_mod=now(),
-       id_int_comprobante = v_id_int_comprobante                   
+       id_int_comprobante = (case when id_int_comprobante is not null then id_int_comprobante else  v_id_int_comprobante  end)                 
     where id_proceso_wf = p_id_proceso_wf;   
 
 	RETURN   TRUE;

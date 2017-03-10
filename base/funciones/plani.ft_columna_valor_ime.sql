@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION plani.ft_columna_valor_ime (
   p_tabla varchar,
   p_transaccion varchar
 )
-RETURNS varchar AS
-$body$
+  RETURNS varchar AS
+  $body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_columna_valor_ime

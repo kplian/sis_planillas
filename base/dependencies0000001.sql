@@ -3168,3 +3168,50 @@ ALTER TABLE plani.tconsolidado_columna
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-DEP-JRR-PLANI-0-25/04/2016****************************************/
+/***********************************I-DEP-JRR-PLANI-0-10/03/2017****************************************/
+CREATE VIEW plani.vcomp_planilla_obli (
+    id_obligacion,
+    id_depto_conta,
+    nro_tramite,
+    acreedor,
+    descripcion,
+    id_cuenta_bancaria,
+    id_int_comprobante,
+    id_moneda,
+    fecha_actual,
+    id_gestion,
+    forma_pago,
+    id_centro_costo_depto,
+    monto_obligacion)
+AS
+SELECT o.id_obligacion,
+    dcon.id_depto AS id_depto_conta,
+    pro.nro_tramite,
+    o.acreedor,
+    o.descripcion,
+    pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character
+        varying)::integer AS id_cuenta_bancaria,
+    p.id_int_comprobante,
+    param.f_get_moneda_base() AS id_moneda,
+    now()::date AS fecha_actual,
+    p.id_gestion,
+        CASE
+            WHEN o.tipo_pago::text = 'cheque'::text THEN 'cheque'::text
+            ELSE 'transferencia'::text
+        END AS forma_pago,
+    (
+    SELECT f_get_config_relacion_contable.ps_id_centro_costo
+    FROM conta.f_get_config_relacion_contable('CCDEPCON'::character varying,
+        p.id_gestion, dcon.id_depto, NULL::integer, 'No existe presupuesto administrativo relacionado al departamento de RRHH'::character varying) f_get_config_relacion_contable(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+    ) AS id_centro_costo_depto,
+    o.monto_obligacion
+FROM plani.tobligacion o
+     JOIN plani.tplanilla p ON p.id_planilla = o.id_planilla
+     JOIN wf.tproceso_wf pro ON pro.id_proceso_wf = p.id_proceso_wf
+     JOIN param.tdepto dep ON dep.id_depto = p.id_depto
+     LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+     LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+     LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
+         AND sub.codigo::text = 'CONTA'::text;
+
+/***********************************F-DEP-JRR-PLANI-0-10/03/2017****************************************/

@@ -4,57 +4,57 @@ CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
   p_tabla varchar,
   p_transaccion varchar
 )
-RETURNS varchar AS
-$body$
-/**************************************************************************
- SISTEMA:		Sistema de Planillas
- FUNCION: 		plani.ft_planilla_sel
- DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'plani.tplanilla'
- AUTOR: 		 (admin)
- FECHA:	        22-01-2014 16:11:04
- COMENTARIOS:	
-***************************************************************************
- HISTORIAL DE MODIFICACIONES:
+  RETURNS varchar AS
+  $body$
+  /**************************************************************************
+   SISTEMA:		Sistema de Planillas
+   FUNCION: 		plani.ft_planilla_sel
+   DESCRIPCION:   Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'plani.tplanilla'
+   AUTOR: 		 (admin)
+   FECHA:	        22-01-2014 16:11:04
+   COMENTARIOS:
+  ***************************************************************************
+   HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
-***************************************************************************/
+   DESCRIPCION:
+   AUTOR:
+   FECHA:
+  ***************************************************************************/
 
-DECLARE
+  DECLARE
 
-	v_consulta    		varchar;
-	v_parametros  		record;
-	v_nombre_funcion   	text;
-	v_resp				varchar;
-	v_filtro			varchar;
-			    
-BEGIN
+    v_consulta    		varchar;
+    v_parametros  		record;
+    v_nombre_funcion   	text;
+    v_resp				varchar;
+    v_filtro			varchar;
 
-	v_nombre_funcion = 'plani.ft_planilla_sel';
+  BEGIN
+
+    v_nombre_funcion = 'plani.ft_planilla_sel';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANI_SEL'
- 	#DESCRIPCION:	Consulta de datos
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
+    /*********************************
+     #TRANSACCION:  'PLA_PLANI_SEL'
+     #DESCRIPCION:	Consulta de datos
+     #AUTOR:		admin
+     #FECHA:		22-01-2014 16:11:04
+    ***********************************/
 
-	if(p_transaccion='PLA_PLANI_SEL')then
-     				
-    	begin
-    		IF p_administrador !=1 THEN
-    			v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '') 
-                									then  '-1'
-                                                    else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
-                                                    end) || ') and ';
-    		else
-    			v_filtro = '';
-    		END IF;
-            
-    		--Sentencia de la consulta
-			v_consulta:='select
+    if(p_transaccion='PLA_PLANI_SEL')then
+
+      begin
+        IF p_administrador !=1 THEN
+          v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
+            then  '-1'
+                                               else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
+                                               end) || ') and ';
+        else
+          v_filtro = '';
+        END IF;
+
+        --Sentencia de la consulta
+        v_consulta:='select
 						plani.id_planilla,
 						plani.id_periodo,
 						plani.id_gestion,
@@ -92,39 +92,39 @@ BEGIN
 						left join orga.tuo uo on uo.id_uo = plani.id_uo
 						inner join param.tdepto depto on depto.id_depto = plani.id_depto
 				        where  ' || v_filtro;
-			
-			--Definicion de la respuesta
-			v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
-			--Devuelve la respuesta
-			return v_consulta;
-						
-		end;
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
 
-	/*********************************    
- 	#TRANSACCION:  'PLA_PLANI_CONT'
- 	#DESCRIPCION:	Conteo de registros
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
+        --Devuelve la respuesta
+        return v_consulta;
 
-	elsif(p_transaccion='PLA_PLANI_CONT')then
+      end;
 
-		begin
-			--Sentencia de la consulta de conteo de registros
-			
-			IF p_administrador !=1 THEN
-    			v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '') 
-                									then  '-1'
-                                                    else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
-                                                    end) || ') and ';
-    		else
-    			v_filtro = '';
-    		END IF;
-    		
-    		
-			v_consulta:='select count(id_planilla)
+    /*********************************
+     #TRANSACCION:  'PLA_PLANI_CONT'
+     #DESCRIPCION:	Conteo de registros
+     #AUTOR:		admin
+     #FECHA:		22-01-2014 16:11:04
+    ***********************************/
+
+    elsif(p_transaccion='PLA_PLANI_CONT')then
+
+      begin
+        --Sentencia de la consulta de conteo de registros
+
+        IF p_administrador !=1 THEN
+          v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
+            then  '-1'
+                                               else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
+                                               end) || ') and ';
+        else
+          v_filtro = '';
+        END IF;
+
+
+        v_consulta:='select count(id_planilla)
 					    from plani.tplanilla plani
 					    inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
@@ -133,59 +133,59 @@ BEGIN
 						inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
 						left join orga.tuo uo on uo.id_uo = plani.id_uo
 					    where ' || v_filtro;
-			
-			--Definicion de la respuesta		    
-			v_consulta:=v_consulta||v_parametros.filtro;
 
-			--Devuelve la respuesta
-			return v_consulta;
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
 
-		end;
-        
-        /*********************************    
- 	#TRANSACCION:  'PLA_REPMINCABE_SEL'
- 	#DESCRIPCION:	Listado de datos para cabecera de reporte de ministerio de trabajo
- 	#AUTOR:		admin	
- 	#FECHA:		22-01-2014 16:11:04
-	***********************************/
+        --Devuelve la respuesta
+        return v_consulta;
 
-	elsif(p_transaccion='PLA_REPMINCABE_SEL')then
+      end;
 
-		begin
-			--Sentencia de la consulta de conteo de registros
-			
-            if (exists (	select 1 
-            				from param.tdepto d 
-            				where id_depto = v_parametros.id_depto and 
-                            	d.id_entidad is null)) then
-            	raise exception 'El Departamento de RRHH seleccionado no esta relacionado con una entidad para la obtencion de los datos de la empresa';
-            end if;   
-            
-			    		
-    		
-			v_consulta:='select en.nombre,en.nit,en.identificador_min_trabajo,identificador_caja_salud
+    /*********************************
+#TRANSACCION:  'PLA_REPMINCABE_SEL'
+#DESCRIPCION:	Listado de datos para cabecera de reporte de ministerio de trabajo
+#AUTOR:		admin
+#FECHA:		22-01-2014 16:11:04
+***********************************/
+
+    elsif(p_transaccion='PLA_REPMINCABE_SEL')then
+
+      begin
+        --Sentencia de la consulta de conteo de registros
+
+        if (exists (	select 1
+                      from param.tdepto d
+                      where id_depto = v_parametros.id_depto and
+                            d.id_entidad is null)) then
+          raise exception 'El Departamento de RRHH seleccionado no esta relacionado con una entidad para la obtencion de los datos de la empresa';
+        end if;
+
+
+
+        v_consulta:='select en.nombre,en.nit,en.identificador_min_trabajo,identificador_caja_salud
 					    from param.tdepto dep
                         inner join param.tentidad en on en.id_entidad = dep.id_entidad
 					    
-					    where dep.id_depto =  ' || v_parametros.id_depto;			
-			
+					    where dep.id_depto =  ' || v_parametros.id_depto;
 
-			--Devuelve la respuesta
-			return v_consulta;
 
-		end;
-        
-        /*********************************    
-        #TRANSACCION:  'PLA_PLANI_CONT'
-        #DESCRIPCION:	Conteo de registros
-        #AUTOR:		admin	
-        #FECHA:		22-01-2014 16:11:04
-        ***********************************/
+        --Devuelve la respuesta
+        return v_consulta;
 
-	elsif(p_transaccion='PLA_REPMINPRIMA_SEL')then
+      end;
 
-		begin
-            v_consulta = 'with empleados as (
+    /*********************************
+    #TRANSACCION:  'PLA_PLANI_CONT'
+    #DESCRIPCION:	Conteo de registros
+    #AUTOR:		admin
+    #FECHA:		22-01-2014 16:11:04
+    ***********************************/
+
+    elsif(p_transaccion='PLA_REPMINPRIMA_SEL')then
+
+      begin
+        v_consulta = 'with empleados as (
                 select
                 uo.prioridad,
                 uo.id_uo,
@@ -272,10 +272,10 @@ BEGIN
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
                 where cv.codigo_columna in (''PRIMA'',''IMPDET'',''OTDESC'',''TOTDESC'',''LIQPAG'')
                 order by emp.fila,tc.orden';
-                raise notice '%',v_consulta;
-            --Devuelve la respuesta
-			return v_consulta;
-        end;
+        raise notice '%',v_consulta;
+        --Devuelve la respuesta
+        return v_consulta;
+      end;
     /*********************************    
         #TRANSACCION:  'PLA_REPMINAGUI_SEL'
         #DESCRIPCION:	Reporte para ministerio de trabajo Aguinaldo
@@ -283,14 +283,14 @@ BEGIN
         #FECHA:		22-01-2014 16:11:04
         ***********************************/
 
-	elsif(p_transaccion='PLA_REPMINAGUI_SEL')then
+    elsif(p_transaccion='PLA_REPMINAGUI_SEL')then
 
-		begin
-            v_consulta = 'with empleados as (
+      begin
+        v_consulta = 'with empleados as (
                 select
                 uo.prioridad,
                 uo.id_uo,
-               
+                (row_number() over (ORDER BY fun.desc_funcionario2 ASC))::integer as fila,
                 fp.id_funcionario_planilla,
                 (case when perso.id_tipo_doc_identificacion = 1 then 1 
                         when perso.id_tipo_doc_identificacion = 5 then
@@ -298,7 +298,11 @@ BEGIN
                         ELSE
                         0
                         end)::integer as tipo_documento,
-                perso.ci,perso.expedicion,afp.nombre as afp,fafp.nro_afp,fun.desc_funcionario2,
+                perso.ci,perso.expedicion,(case when afp.nombre = ''PREVISION'' then ''1'' else ''2'' end)::varchar as afp,fafp.nro_afp,perso.apellido_paterno,
+                perso.apellido_materno,''''::varchar as apellido_casada,
+                split_part(perso.nombre,'' '',1)::varchar as primer_nombre,
+
+                trim(both '' '' from replace(perso.nombre,split_part(perso.nombre,'' '',1), ''''))::varchar as otros_nombres,
                 (case when lower(perso.nacionalidad) like ''%bolivi%'' then
                 ''Bolivia''
                 ELSE
@@ -306,8 +310,8 @@ BEGIN
                 end)::varchar as nacionalidad,
                 perso.fecha_nacimiento,
                 (case when upper(genero)= ''VARON'' then
-                ''V'' else
-                ''M'' end)::varchar as sexo,
+                1 else
+                0 end)::integer as sexo,
                 (case when fafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
                 1
                 else
@@ -330,7 +334,8 @@ BEGIN
 				ofi.nombre as oficina,
                 (case when perso.discapacitado= ''no''  or perso.discapacitado is null then
                 ''no'' else
-                ''si'' end)::varchar as discapacitado,                
+                ''si'' end)::varchar as discapacitado, 
+                            
                 EXTRACT(year from age( (''31/12/''||ges.gestion)::date,perso.fecha_nacimiento ))::integer as edad,
                 lug.nombre as lugar
                 from plani.tplanilla p
@@ -342,35 +347,36 @@ BEGIN
                 inner join segu.tpersona perso on perso.id_persona = f1.id_persona
                 inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                 inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-                 inner join orga.ttipo_contrato tc on car.id_tipo_contrato = tc.id_tipo_contrato
                 left join orga.toficina ofi on ofi.id_oficina = car.id_oficina
                 left join param.tlugar lug on lug.id_lugar = ofi.id_lugar
                 inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL, NULL)
                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = fp.id_afp
                 inner join plani.tafp afp on afp.id_afp = fafp.id_afp
-                where tp.codigo = ''PLAGUIN'' and p.fecha_planilla >= (''20/12/''||ges.gestion)::date and tc.codigo in (''PLA'',''EVE'') and ges.id_gestion = ' || v_parametros.id_gestion || '
-                
-                ),
-                empleados2 as (
-                	select e.*,(row_number() over (ORDER BY e.desc_funcionario2 ASC))::integer as fila
-                    from empleados e
-                    where (e.fecha_finalizacion is null or e.ci = ''2620244'')
-                    order by e.desc_funcionario2 ASC
+                where tp.codigo = ''PLAGUIN'' and ges.id_gestion = ' || v_parametros.id_gestion || '
+                order by fun.desc_funcionario2 ASC
                 )
 
                 select 
-                emp.fila,emp.ci,emp.desc_funcionario2,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.cargo,
-                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.horas_dia, emp.dias_mes,cv.codigo_columna,
-               	cv.valor,emp.jubilado,emp.discapacitado
-                from empleados2 emp
+                emp.fila,emp.tipo_documento,emp.ci,emp.expedicion, emp.afp,emp.nro_afp,emp.apellido_paterno,emp.apellido_materno,emp.apellido_casada,
+                emp.primer_nombre,emp.otros_nombres,emp.nacionalidad,to_char(emp.fecha_nacimiento,''DD/MM/YYYY''),emp.sexo,emp.jubilado,emp.clasificacion_laboral,emp.cargo,
+                to_char(emp.fecha_ingreso,''DD/MM/YYYY''),emp.modalidad_contrato,to_char(emp.fecha_finalizacion,''DD/MM/YYYY''),emp.horas_dia,cv.codigo_columna,
+                (case when cv.codigo_columna = ''HORNORM'' then
+                	cv.valor/emp.horas_dia
+                else
+                	cv.valor
+                end)::numeric as valor,           
+                emp.oficina,emp.discapacitado,
+                emp.edad,
+                emp.lugar
+                from empleados emp
                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = emp.id_funcionario_planilla
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
-                where cv.codigo_columna in (''AGUINA'',''DESCCHEQ'',''LIQPAG'')
+                where cv.codigo_columna in (''PROMHAB'',''PROMANT'',''PROMFRO'',''PROME'',''DIASAGUI'',''LIQPAG'')
                 order by emp.fila,tc.orden';
-                raise notice '%',v_consulta;
-            --Devuelve la respuesta
-			return v_consulta;
-        end;
+        raise notice '%',v_consulta;
+        --Devuelve la respuesta
+        return v_consulta;
+      end;
     /*********************************    
         #TRANSACCION:  'PLA_REPSEGAGUI_SEL'
         #DESCRIPCION:	Reporte para ministerio de trabajo Segundo Aguinaldo
@@ -378,10 +384,10 @@ BEGIN
         #FECHA:		22-01-2014 16:11:04
         ***********************************/
 
-	elsif(p_transaccion='PLA_REPSEGAGUI_SEL')then
+    elsif(p_transaccion='PLA_REPSEGAGUI_SEL')then
 
-		begin
-            v_consulta = 'with empleados as (
+      begin
+        v_consulta = 'with empleados as (
                 select
                 (row_number() over (ORDER BY fun.desc_funcionario2 ASC))::integer as fila,
                 uo.prioridad,
@@ -459,15 +465,15 @@ BEGIN
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
                 where cv.codigo_columna in (''PROME'',''DIASAGUI'',''AGUINA'')
                 order by emp.fila,tc.orden';
-                raise notice '%',v_consulta;
-            --Devuelve la respuesta
-			return v_consulta;
-        end;
-        
+        raise notice '%',v_consulta;
+        --Devuelve la respuesta
+        return v_consulta;
+      end;
+
     elsif(p_transaccion='PLA_REPMINTRASUE_SEL')then
 
-		begin
-            v_consulta = 'with empleados as (
+      begin
+        v_consulta = 'with empleados as (
                 select
                 uo.prioridad,
                 uo.id_uo,
@@ -563,27 +569,27 @@ BEGIN
                 inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna
                 where cv.codigo_columna in (''HORNORM'',''SUELDOBA'',''BONANT'',''BONFRONTERA'',''REINBANT'',''COTIZABLE'',''AFP_LAB'',''IMPURET'',''OTRO_DESC'',''TOT_DESC'',''LIQPAG'',''CAJSAL'')
                 order by emp.fila,tc.orden';
-                
-            --Devuelve la respuesta
-			return v_consulta;
-        end;
-					
-	else
-					     
-		raise exception 'Transaccion inexistente';
-					         
-	end if;
-					
-EXCEPTION
-					
-	WHEN OTHERS THEN
-			v_resp='';
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-			v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-			raise exception '%',v_resp;
-END;
-$body$
+
+        --Devuelve la respuesta
+        return v_consulta;
+      end;
+
+    else
+
+      raise exception 'Transaccion inexistente';
+
+    end if;
+
+    EXCEPTION
+
+    WHEN OTHERS THEN
+      v_resp='';
+      v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+      v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+      v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+      raise exception '%',v_resp;
+  END;
+  $body$
 LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
