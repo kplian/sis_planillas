@@ -3219,14 +3219,66 @@ FROM plani.tobligacion o
 /***********************************I-DEP-JRR-PLANI-1-10/03/2017****************************************/
 
 
-create OR REPLACE VIEW  plani.vobligacion_presu as
-select oc.id_obligacion_columna, o.id_planilla,oc.id_obligacion,oc.id_presupuesto as id_centro_costo,cc.id_int_transaccion,oc.monto_detalle_obligacion
-from plani.tobligacion_columna oc
-inner join plani.tobligacion o on oc.id_obligacion = o.id_obligacion
-inner join plani.tconsolidado c on oc.id_presupuesto =  c.id_presupuesto
-left join plani.tconsolidado_columna cc on cc.id_tipo_columna = oc.id_tipo_columna and c.id_consolidado =
-cc.id_consolidado and cc.tipo_contrato = oc.tipo_contrato
-where oc.monto_detalle_obligacion != 0;
+CREATE OR REPLACE VIEW plani.vobligacion_presu(
+    id_obligacion_columna,
+    id_planilla,
+    id_obligacion,
+    id_centro_costo,
+    id_int_transaccion,
+    monto_detalle_obligacion)
+AS
+  SELECT oc.id_obligacion_columna,
+         o.id_planilla,
+         oc.id_obligacion,
+         oc.id_presupuesto AS id_centro_costo,
+         cc.id_int_transaccion,
+         oc.monto_detalle_obligacion
+  FROM plani.tobligacion_columna oc
+       JOIN plani.tobligacion o ON oc.id_obligacion = o.id_obligacion
+       JOIN plani.tconsolidado c ON oc.id_presupuesto = c.id_presupuesto AND
+         c.id_planilla = o.id_planilla
+       LEFT JOIN plani.tconsolidado_columna cc ON cc.id_tipo_columna =
+         oc.id_tipo_columna AND c.id_consolidado = cc.id_consolidado AND
+         cc.tipo_contrato::text = oc.tipo_contrato::text
+  WHERE oc.monto_detalle_obligacion <> 0::numeric;
+  
+CREATE OR REPLACE VIEW plani.vobligacion_pago(
+    id_obligacion,
+    id_planilla,
+    id_cuenta,
+    id_auxiliar,
+    id_partida,
+    nombre,
+    periodo,
+    gestion,
+    monto_obligacion)
+AS
+  SELECT ob.id_obligacion,
+         ob.id_planilla,
+         ob.id_cuenta,
+         ob.id_auxiliar,
+         ob.id_partida,
+         tob.nombre,
+         per.periodo,
+         ges.gestion,
+         sum(ob.monto_obligacion) AS monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+  GROUP BY ob.id_obligacion,
+           ob.id_plan_pago,
+           ob.id_planilla,
+           ob.id_cuenta,
+           ob.id_auxiliar,
+           ob.id_partida,
+           tob.nombre,
+           per.periodo,
+           ges.gestion;
 
 
 CREATE OR REPLACE VIEW plani.vobligacion_haber(
