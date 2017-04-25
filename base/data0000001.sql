@@ -309,3 +309,13 @@ INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_carga_presupuesto_from_uo', E'no', E'Carga el presupuesto automaticamente de la primera uo con presupuesto que encuentre para el cargo');
 
 /***********************************F-DAT-JRR-PLANI-0-25/01/2017****************************************/
+
+/***********************************I-DAT-JRR-PLANI-0-10/03/2017****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'plani_cuenta_bancaria_defecto', E'1', E'Cuenta bancaria por defecto para pagos generados por planillas');
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES (E'plani_generar_comprobante_obligaciones', E'no', E'bandera para generar comprobante de obligaciones');
+
+/***********************************F-DAT-JRR-PLANI-0-10/03/2017****************************************/

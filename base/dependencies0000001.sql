@@ -3168,3 +3168,155 @@ ALTER TABLE plani.tconsolidado_columna
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-DEP-JRR-PLANI-0-25/04/2016****************************************/
+/***********************************I-DEP-JRR-PLANI-0-10/03/2017****************************************/
+CREATE VIEW plani.vcomp_planilla_obli (
+    id_obligacion,
+    id_depto_conta,
+    nro_tramite,
+    acreedor,
+    descripcion,
+    id_cuenta_bancaria,
+    id_int_comprobante,
+    id_moneda,
+    fecha_actual,
+    id_gestion,
+    forma_pago,
+    id_centro_costo_depto,
+    monto_obligacion)
+AS
+SELECT o.id_obligacion,
+    dcon.id_depto AS id_depto_conta,
+    pro.nro_tramite,
+    o.acreedor,
+    o.descripcion,
+    pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character
+        varying)::integer AS id_cuenta_bancaria,
+    p.id_int_comprobante,
+    param.f_get_moneda_base() AS id_moneda,
+    now()::date AS fecha_actual,
+    p.id_gestion,
+        CASE
+            WHEN o.tipo_pago::text = 'cheque'::text THEN 'cheque'::text
+            ELSE 'transferencia'::text
+        END AS forma_pago,
+    (
+    SELECT f_get_config_relacion_contable.ps_id_centro_costo
+    FROM conta.f_get_config_relacion_contable('CCDEPCON'::character varying,
+        p.id_gestion, dcon.id_depto, NULL::integer, 'No existe presupuesto administrativo relacionado al departamento de RRHH'::character varying) f_get_config_relacion_contable(ps_id_cuenta, ps_id_auxiliar, ps_id_partida, ps_id_centro_costo, ps_nombre_tipo_relacion)
+    ) AS id_centro_costo_depto,
+    o.monto_obligacion
+FROM plani.tobligacion o
+     JOIN plani.tplanilla p ON p.id_planilla = o.id_planilla
+     JOIN wf.tproceso_wf pro ON pro.id_proceso_wf = p.id_proceso_wf
+     JOIN param.tdepto dep ON dep.id_depto = p.id_depto
+     LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+     LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+     LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
+         AND sub.codigo::text = 'CONTA'::text;
+
+/***********************************F-DEP-JRR-PLANI-0-10/03/2017****************************************/
+
+/***********************************I-DEP-JRR-PLANI-1-10/03/2017****************************************/
+
+
+CREATE OR REPLACE VIEW plani.vobligacion_presu(
+    id_obligacion_columna,
+    id_planilla,
+    id_obligacion,
+    id_centro_costo,
+    id_int_transaccion,
+    monto_detalle_obligacion)
+AS
+  SELECT oc.id_obligacion_columna,
+         o.id_planilla,
+         oc.id_obligacion,
+         oc.id_presupuesto AS id_centro_costo,
+         cc.id_int_transaccion,
+         oc.monto_detalle_obligacion
+  FROM plani.tobligacion_columna oc
+       JOIN plani.tobligacion o ON oc.id_obligacion = o.id_obligacion
+       JOIN plani.tconsolidado c ON oc.id_presupuesto = c.id_presupuesto AND
+         c.id_planilla = o.id_planilla
+       LEFT JOIN plani.tconsolidado_columna cc ON cc.id_tipo_columna =
+         oc.id_tipo_columna AND c.id_consolidado = cc.id_consolidado AND
+         cc.tipo_contrato::text = oc.tipo_contrato::text
+  WHERE oc.monto_detalle_obligacion <> 0::numeric;
+  
+CREATE OR REPLACE VIEW plani.vobligacion_pago(
+    id_obligacion,
+    id_planilla,
+    id_cuenta,
+    id_auxiliar,
+    id_partida,
+    nombre,
+    periodo,
+    gestion,
+    monto_obligacion)
+AS
+  SELECT ob.id_obligacion,
+         ob.id_planilla,
+         ob.id_cuenta,
+         ob.id_auxiliar,
+         ob.id_partida,
+         tob.nombre,
+         per.periodo,
+         ges.gestion,
+         sum(ob.monto_obligacion) AS monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+  GROUP BY ob.id_obligacion,
+           ob.id_plan_pago,
+           ob.id_planilla,
+           ob.id_cuenta,
+           ob.id_auxiliar,
+           ob.id_partida,
+           tob.nombre,
+           per.periodo,
+           ges.gestion;
+
+
+CREATE OR REPLACE VIEW plani.vobligacion_haber(
+    id_obligacion,
+    id_plan_pago,
+    id_planilla,
+    acreedor,
+    descripcion,
+    id_cuenta,
+    id_auxiliar,
+    id_partida,
+    tipo_obligacion,
+    desc_planilla,
+    periodo,
+    gestion,
+    monto_obligacion)
+AS
+  SELECT ob.id_obligacion,
+         ob.id_plan_pago,
+         ob.id_planilla,
+         ob.acreedor,
+         ob.descripcion,
+         ob.id_cuenta,
+         ob.id_auxiliar,
+         ob.id_partida,
+         tob.tipo_obligacion,
+         ((tp.nombre::text || ' correspondiente a : '::text) || COALESCE(
+           per.periodo || '/'::text, ''::text)) || ges.gestion AS desc_planilla,
+         per.periodo,
+         ges.gestion,
+         ob.monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla;
+
+  /***********************************F-DEP-JRR-PLANI-1-10/03/2017****************************************/

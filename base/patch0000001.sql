@@ -657,3 +657,9 @@ ALTER TABLE plani.tprorrateo_columna ALTER COLUMN compromete TYPE varchar(20);
 ALTER TABLE plani.tprorrateo
   ADD CONSTRAINT tprorrateo_chk__id_presupuesto_id_cc CHECK (id_presupuesto is not null or id_cc is not null);
 /***********************************F-SCP-JRR-PLANI-0-04/05/2016****************************************/
+
+/***********************************I-SCP-JRR-PLANI-0-10/03/2017****************************************/
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_int_comprobante INTEGER;
+
+/***********************************F-SCP-JRR-PLANI-0-04/03/2017****************************************/
