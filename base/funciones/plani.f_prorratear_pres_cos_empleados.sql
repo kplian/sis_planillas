@@ -718,12 +718,15 @@ BEGIN
     end if;
     --si la gestion de la planilla es distinta a la gestion de la fecha en la que se generara el prorrateo
     if (v_planilla.id_gestion != v_id_gestion_contable)then
+    	      
     	update plani.tprorrateo
         set id_presupuesto = (select pids.id_presupuesto_dos
                     from pre.tpresupuesto_ids pids 
-                    where pids.id_presupuesto_uno = id_presupuesto)
+                    where pids.id_presupuesto_uno = id_presupuesto and sw_cambio_gestion = 'gestione')
         from plani.tfuncionario_planilla fp
-        where fp.id_funcionario_planilla = plani.tprorrateo.id_funcionario_planilla;
+        where fp.id_funcionario_planilla = plani.tprorrateo.id_funcionario_planilla 
+        and fp.id_planilla = p_id_planilla;
+        
     end if;
     --llenar tprorrateo_columna de acuerdo al prorrateo
     if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
