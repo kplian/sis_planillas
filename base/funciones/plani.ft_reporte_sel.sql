@@ -215,10 +215,14 @@ $body$
                           	0.2
                           else
                           	0
-                          end) as frontera
+                          end) as frontera,
+                          pre.descripcion as presupuesto
                           from orga.tuo_funcionario uofun                            
                           INNER JOIN orga.vfuncionario datos ON datos.id_funcionario=uofun.id_funcionario
                           inner join orga.tcargo car ON car.id_cargo = uofun.id_cargo
+                          left join orga.tcargo_presupuesto cp on cp.id_cargo = car.id_cargo and 
+                          	cp.fecha_ini <= ''' || v_parametros.fecha ||'''::date and cp.id_gestion = (select po_id_gestion from param.f_get_periodo_gestion(''' || v_parametros.fecha ||'''::date))
+                          left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
                           inner join orga.toficina ofi ON ofi.id_oficina = car.id_oficina
                           inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
                           inner join orga.tescala_salarial escala ON escala.id_escala_salarial=car.id_escala_salarial
@@ -233,8 +237,8 @@ $body$
                           to_char(FechaIncorp::date,''DD/MM/YYYY'')::varchar,
                           diastrabajados::integer,
                           round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior))/365,8) as indemdia,
-                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior))/365,8)*diastrabajados as Indem
-                          
+                          round((haberBasico*frontera + haberBasico + plani.f_evaluar_antiguedad (fechaAntiguedad,''' || v_parametros.fecha ||'''::date,antiguedad_anterior))/365,8)*diastrabajados as Indem,
+                          presupuesto
                           from detalle
                           where diastrabajados >= 90';
 

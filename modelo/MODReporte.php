@@ -185,6 +185,7 @@ class MODReporte extends MODbase{
 		$this->captura('dias_trabajados','integer');
 		$this->captura('indem_dia','numeric');
 		$this->captura('indem','numeric');
+        $this->captura('presupuesto','varchar');
 		
 		
 		//Ejecuta la instruccion
