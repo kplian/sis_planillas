@@ -56,7 +56,58 @@ class MODPlanilla extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+    function listarReportePlanillaMinisterioNuevo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='plani.ft_planilla_sel';
+        $this->transaccion='PLA_REPMINTRASUE_NEW_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
 
+        $this->setParametro('id_periodo','id_periodo','int4');
+        $this->setParametro('id_gestion','id_gestion','int4');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('fila','int4');
+        $this->captura('tipo_documento','varchar');
+        $this->captura('ci','varchar');
+        $this->captura('expedicion','varchar');
+        $this->captura('fecha_nacimiento','text');
+
+        $this->captura('apellido_paterno','varchar');
+        $this->captura('apellido_materno','varchar');
+        $this->captura('nombres','varchar');
+        $this->captura('nacionalidad','varchar');
+        $this->captura('sexo','varchar');
+        $this->captura('jubilado','int4');
+        $this->captura('aporta_afp','integer');
+        $this->captura('discapacitado','integer');
+        $this->captura('tutor_discapacidad','integer');
+        $this->captura('fecha_ingreso','text');
+        $this->captura('fecha_finalizacion','text');
+        $this->captura('motivo_retiro','varchar');
+        $this->captura('caja_salud','varchar');
+        $this->captura('afp','integer');
+        $this->captura('nro_afp','varchar');
+        $this->captura('oficina','varchar');
+        $this->captura('clasificacion_laboral','varchar');
+        $this->captura('cargo','varchar');
+        $this->captura('modalidad_contrato','int4');
+        $this->captura('tipo_contrato','int4');
+        $this->captura('valor','numeric');
+        $this->captura('horas_dia','int4');
+
+        $this->captura('codigo_columna','varchar');
+        $this->captura('contrato_periodo','varchar');
+        $this->captura('retiro_periodo','varchar');
+        $this->captura('edad','integer');
+        $this->captura('lugar','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo $this->consulta;exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 	function listarReportePlanillaMinisterio(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_planilla_sel';

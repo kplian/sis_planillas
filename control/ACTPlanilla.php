@@ -7,10 +7,11 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RPrimaXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RSegAguinaldoXLS.php');
-class ACTPlanilla extends ACTbase{    
+class ACTPlanilla extends ACTbase{
 			
 	function listarPlanilla(){
 		$this->objParam->defecto('ordenacion','id_planilla');
@@ -40,8 +41,11 @@ class ACTPlanilla extends ACTbase{
 	function listarReportePlanillaMinisterio(){
 		$this->objFunc=$this->create('MODPlanilla');	
 		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {
-			
-			$this->res=$this->objFunc->listarReportePlanillaMinisterio($this->objParam);		
+            if($this->objParam->getParametro('formato')=='antiguo') {
+                $this->res = $this->objFunc->listarReportePlanillaMinisterio($this->objParam);
+            }else if($this->objParam->getParametro('formato')=='nuevo'){
+                $this->res = $this->objFunc->listarReportePlanillaMinisterioNuevo($this->objParam);
+            }
 			
 		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7) {
 			$this->res=$this->objFunc->listarReportePrimaMinisterio($this->objParam);
@@ -63,13 +67,21 @@ class ACTPlanilla extends ACTbase{
 		$this->res=$this->objFunc->listarReporteMinisterioCabecera($this->objParam);
 		$this->objParam->addParametro('datos_cabecera',$this->res->datos);
 		
-		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {	
-			//Instancia la clase de excel
-			$this->objReporteFormato=new RMinisterioTrabajoXLS($this->objParam);			
-			$this->objReporteFormato->imprimeDatosSueldo();
-			$this->objReporteFormato->imprimeDatosSueldoReducido();
-			$this->objReporteFormato->imprimeResumen();
-			$this->objReporteFormato->imprimeResumenRegional();		
+		if ($this->objParam->getParametro('id_tipo_planilla') == 1) {
+            //Instancia la clase de excel
+		    if($this->objParam->getParametro('formato')=='antiguo'){
+                $this->objReporteFormato = new RMinisterioTrabajoXLS($this->objParam);
+                $this->objReporteFormato->imprimeDatosSueldo();
+                $this->objReporteFormato->imprimeDatosSueldoReducido();
+                $this->objReporteFormato->imprimeResumen();
+                $this->objReporteFormato->imprimeResumenRegional();
+            }else if($this->objParam->getParametro('formato')=='nuevo'){
+                $this->objReporteFormato = new RMinisterioTrabajoUpdateXLS($this->objParam);
+                $this->objReporteFormato->imprimeDatosSueldo();
+                $this->objReporteFormato->imprimeResumen();
+                $this->objReporteFormato->imprimeResumenRegional();
+            }
+
 		} else if ($this->objParam->getParametro('id_tipo_planilla') == 7 ) {
 			
 			$this->objReporteFormato=new RPrimaXLS($this->objParam);
