@@ -466,7 +466,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+
 	],
 	sortInfo:{
 		field: 'id_planilla',
@@ -655,7 +655,10 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').disable();
 			 this.getBoton('del').disable(); 
-        } else {
+        } else if(rec.data.estado == 'vbpoa' || rec.data.estado == 'suppresu' || rec.data.estado == 'vbpresupuestos'){
+			this.getBoton('ant_estado').disable();
+			this.getBoton('sig_estado').disable();
+		} else {
         	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').enable();
         }

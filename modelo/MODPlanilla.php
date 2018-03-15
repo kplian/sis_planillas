@@ -18,7 +18,9 @@ class MODPlanilla extends MODbase{
 		$this->procedimiento='plani.ft_planilla_sel';
 		$this->transaccion='PLA_PLANI_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
-				
+
+		$this->setParametro('tipo_interfaz','tipo_interfaz','varchar');
+
 		//Definicion de la lista del resultado del query
 		$this->captura('id_planilla','int4');
 		$this->captura('id_periodo','int4');
@@ -48,6 +50,8 @@ class MODPlanilla extends MODbase{
 		$this->captura('plani_tiene_presupuestos','varchar');
 		$this->captura('plani_tiene_costos','varchar');	
 		$this->captura('fecha_planilla','date');		
+		$this->captura('codigo_poa','varchar');
+		$this->captura('obs_poa','text');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -59,7 +63,7 @@ class MODPlanilla extends MODbase{
     function listarReportePlanillaMinisterioNuevo(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='plani.ft_planilla_sel';
-        $this->transaccion='PLA_REPMINTRASUE_NEW_SEL';
+        $this->transaccion='PLA_R_MINTRASUE_SEL';
         $this->tipo_procedimiento='SEL';//tipo de transaccion
 
         $this->setParametro('id_periodo','id_periodo','int4');
@@ -78,16 +82,16 @@ class MODPlanilla extends MODbase{
         $this->captura('nacionalidad','varchar');
         $this->captura('sexo','varchar');
         $this->captura('jubilado','int4');
-        $this->captura('aporta_afp','integer');
-        $this->captura('discapacitado','integer');
-        $this->captura('tutor_discapacidad','integer');
+        $this->captura('aporta_afp','int4');
+        $this->captura('discapacitado','int4');
+        $this->captura('tutor_discapacidad','int4');
         $this->captura('fecha_ingreso','text');
         $this->captura('fecha_finalizacion','text');
         $this->captura('motivo_retiro','varchar');
         $this->captura('caja_salud','varchar');
         $this->captura('afp','integer');
         $this->captura('nro_afp','varchar');
-        $this->captura('oficina','varchar');
+        $this->captura('oficina','int4');
         $this->captura('clasificacion_laboral','varchar');
         $this->captura('cargo','varchar');
         $this->captura('modalidad_contrato','int4');
@@ -490,6 +494,97 @@ class MODPlanilla extends MODbase{
         $this->setParametro('id_estado_wf','id_estado_wf','int4');
         $this->setParametro('obs','obs','text');
 		
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+	//Reporte Certificaciòn Presupuestaria Planilla(F.E.A) 28/02/2018
+	function reporteCertificacionP(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_REPCERPRE_SEL';
+		$this->tipo_procedimiento='SEL';
+
+		//Define los parametros para la funcion
+		$this->setParametro('id_proceso_wf','id_proceso_wf','int4');
+
+
+		$this->captura('id_cp', 'int4');
+		$this->captura('centro_costo', 'varchar');
+		$this->captura('codigo_programa', 'varchar');
+		$this->captura('codigo_proyecto', 'varchar');
+		$this->captura('codigo_actividad', 'varchar');
+		$this->captura('codigo_fuente_fin', 'varchar');
+		$this->captura('codigo_origen_fin', 'varchar');
+
+		$this->captura('codigo_partida', 'varchar');
+		$this->captura('nombre_partida', 'varchar');
+		$this->captura('codigo_cg', 'varchar');
+		$this->captura('nombre_cg', 'varchar');
+		$this->captura('precio_total', 'numeric');
+		$this->captura('codigo_moneda', 'varchar');
+		$this->captura('num_tramite', 'varchar');
+		$this->captura('nombre_entidad', 'varchar');
+		$this->captura('direccion_admin', 'varchar');
+		$this->captura('unidad_ejecutora', 'varchar');
+		$this->captura('firmas', 'varchar');
+		$this->captura('justificacion', 'varchar');
+		$this->captura('codigo_transf', 'varchar');
+		$this->captura('unidad_solicitante', 'varchar');
+		$this->captura('funcionario_solicitante', 'varchar');
+		$this->captura('codigo_proceso', 'varchar');
+
+		$this->captura('fecha_soli', 'date');
+		$this->captura('gestion', 'integer');
+		$this->captura('codigo_poa', 'varchar');
+		$this->captura('codigo_descripcion', 'varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo($this->consulta);exit;
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+    //(f.e.a)13/3/2017 modificar datos poa de planilla
+    function modificarObsPoa(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='plani.ft_planilla_ime';
+        $this->transaccion='PLA_MODOBSPOA_MOD';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_planilla','id_planilla','int4');
+        $this->setParametro('obs_poa','obs_poa','varchar');
+        $this->setParametro('codigo_poa','codigo_poa','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function listarPartidaObjetivo(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='plani.ft_planilla_ime';
+        $this->transaccion='PLA_PAR_OBJ_IME';
+        $this->tipo_procedimiento='IME';//tipo de transaccion
+
+        //Definicion de la lista del resultado del query
+		$this->setParametro('id_planilla','id_planilla','int4');
+		$this->setParametro('obs_poa','obs_poa','varchar');
+
+
+
+        $this->captura('detalle_descripcion','varchar');
+
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
