@@ -40,7 +40,7 @@ class RCertificacionPresupuestaria extends  ReportePDF{
 
         if(count($firmas)>1) {
             foreach ($firmas as $fir){
-                if(strpos($fir, 'registrado')!==false){
+                if(strpos($fir, 'comprobante_generado')!==false){
                     $firma_fecha = explode(',',$fir);
                 }
             }
@@ -214,7 +214,7 @@ class RCertificacionPresupuestaria extends  ReportePDF{
             $this->SetY(250);
 
         //var_dump($this->getPageDimensions());exit;
-        if($firma_fecha[0]=='registrado') {
+        if($firma_fecha[0]=='comprobante_generado') {
             $tbl = '<table>
                     <tr>
                     <td style="width: 15%"></td>

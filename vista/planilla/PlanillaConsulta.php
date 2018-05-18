@@ -10,7 +10,7 @@
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.PlanillaVb=Ext.extend(Phx.gridInterfaz,{
+    Phx.vista.PlanillaConsulta=Ext.extend(Phx.gridInterfaz,{
 
         bnew: false,
         bedit: false,
@@ -19,29 +19,43 @@ header("content-type: text/javascript; charset=UTF-8");
         bsave: false,
 
         constructor:function(config){
+            this.tbarItems = ['-',
+                this.cmbGestion,'-'
 
+            ];
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
-            Phx.vista.PlanillaVb.superclass.constructor.call(this,config);
+            Phx.vista.PlanillaConsulta.superclass.constructor.call(this,config);
             this.init();
 
-            if(this.nombreVista == 'planillavbpoa') {
-                this.store.baseParams.pes_estado = 'vbpoa';
+            this.store.baseParams.pes_estado = 'consultas';
 
-            }else if(this.nombreVista == 'planillavbsuppre'){
-                this.store.baseParams.pes_estado = 'suppresu';
-            }else if(this.nombreVista == 'planillavbpresupuesto'){
-                this.store.baseParams.pes_estado = 'vbpresupuestos';
-            }else if(this.nombreVista == 'planillavbrh'){
-                this.store.baseParams.pes_estado = 'vbrh';
-            }
+            var fecha = new Date();
+
+            Ext.Ajax.request({
+                url:'../../sis_parametros/control/Gestion/obtenerGestionByFecha',
+                params:{fecha:fecha.getDate()+'/'+(fecha.getMonth()+1)+'/'+fecha.getFullYear()},
+                success:function(resp){
+                    var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
+                    console.log('respuesta',reg.ROOT.datos);
+                    this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
+                    this.cmbGestion.setRawValue(reg.ROOT.datos.anho);
+                    this.store.baseParams.id_gestion=reg.ROOT.datos.id_gestion;
+                    this.load({params:{start:0, limit:this.tam_pag}});
+                },
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+
+            this.cmbGestion.on('select',this.capturarEventos, this);
             this.store.baseParams.tipo_interfaz =  this.nombreVista;
 
             this.iniciarEventos();
 
-
-            this.load({params: {start: 0, limit: this.tam_pag}});
-
+            /*if(this.nombreVista != 'consultas') {
+                this.load({params: {start: 0, limit: this.tam_pag}});
+            }*/
 
             this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
             this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
@@ -56,17 +70,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
                 }
             );
-            if(this.nombreVista == 'planillavbpoa') {
-                this.addButton('obs_poa', {
-                    grupo: [0, 1],
-                    text: 'Datos POA',
-                    iconCls: 'bdocuments',
-                    disabled: true,
-                    handler: this.initObs,
-                    tooltip: '<b>Código de actividad POA</b>'
-                });
-                this.crearFormObs();
-            }
+
 
             this.addButton('btnObs',{
                 grupo:[0,1,2,3,4,5],
@@ -91,6 +95,44 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         },
 
+        cmbGestion : new Ext.form.ComboBox({
+            name: 'gestion',
+            id: 'gestion_reg',
+            fieldLabel: 'Gestion',
+            allowBlank: true,
+            emptyText:'Gestion...',
+            blankText: 'Año',
+            store:new Ext.data.JsonStore(
+                {
+                    url: '../../sis_parametros/control/Gestion/listarGestion',
+                    id: 'id_gestion',
+                    root: 'datos',
+                    sortInfo:{
+                        field: 'gestion',
+                        direction: 'DESC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_gestion','gestion'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams:{par_filtro:'gestion'}
+                }),
+            valueField: 'id_gestion',
+            triggerAction: 'all',
+            displayField: 'gestion',
+            hiddenName: 'id_gestion',
+            mode:'remote',
+            pageSize:50,
+            queryDelay:500,
+            listWidth:'280',
+            hidden:false,
+            width:80
+        }),
+
+        capturarEventos: function () {
+            this.store.baseParams.id_gestion=this.cmbGestion.getValue();
+            this.load({params:{start:0, limit:this.tam_pag}});
+        },
 
         onOpenObs:function() {
             var rec=this.sm.getSelected();
@@ -469,15 +511,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
 
         },
-        onButtonEdit : function () {
-            this.ocultarComponente(this.Cmp.id_depto);
-            this.ocultarComponente(this.Cmp.id_tipo_planilla);
-            this.ocultarComponente(this.Cmp.id_uo);
-            this.ocultarComponente(this.Cmp.id_periodo);
-            this.ocultarComponente(this.Cmp.id_gestion);
-            Phx.vista.PlanillaVb.superclass.onButtonEdit.call(this);
 
-        },
         onButtonAjax : function (params){
             var rec = this.sm.getSelected();
             Phx.CP.loadingShow();
@@ -493,15 +527,6 @@ header("content-type: text/javascript; charset=UTF-8");
         },
 
 
-        onButtonNew : function () {
-            this.mostrarComponente(this.Cmp.id_depto);
-            this.mostrarComponente(this.Cmp.id_tipo_planilla);
-            this.mostrarComponente(this.Cmp.id_uo);
-            this.mostrarComponente(this.Cmp.id_periodo);
-            this.mostrarComponente(this.Cmp.id_gestion);
-            Phx.vista.Planilla.superclass.onButtonNew.call(this);
-
-        },
         onButtonColumnasCsv : function() {
             var rec=this.sm.getSelected();
             Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/ColumnaCsv.php',
@@ -531,7 +556,7 @@ header("content-type: text/javascript; charset=UTF-8");
         preparaMenu:function()
         {	var rec = this.sm.getSelected();
             this.desactivarMenu();
-            Phx.vista.PlanillaVb.superclass.preparaMenu.call(this);
+            Phx.vista.PlanillaConsulta.superclass.preparaMenu.call(this);
 
 
 
@@ -570,7 +595,7 @@ header("content-type: text/javascript; charset=UTF-8");
         liberaMenu:function()
         {
             this.desactivarMenu();
-            Phx.vista.PlanillaVb.superclass.liberaMenu.call(this);
+            Phx.vista.PlanillaConsulta.superclass.liberaMenu.call(this);
 
         },
         desactivarMenu:function() {
@@ -598,279 +623,10 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.idContenedor,
                 'DocumentoWf'
             )
-        },
-        sigEstado:function(){
-            var rec=this.sm.getSelected();
-            this.objWizard = Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/FormEstadoWf.php',
-                'Estado de Wf',
-                {
-                    modal:true,
-                    width:700,
-                    height:450
-                }, {data:{
-                    id_estado_wf:rec.data.id_estado_wf,
-                    id_proceso_wf:rec.data.id_proceso_wf,
-                    fecha_ini:rec.data.fecha_tentativa,
-                    //url_verificacion:'../../sis_tesoreria/control/PlanPago/siguienteEstadoPlanPago'
-
-
-
-                }}, this.idContenedor,'FormEstadoWf',
-                {
-                    config:[{
-                        event:'beforesave',
-                        delegate: this.onSaveWizard,
-
-                    }],
-
-                    scope:this
-                });
-
-        },
-
-
-
-        onSaveWizard:function(wizard,resp){
-            Phx.CP.loadingShow();
-
-            Ext.Ajax.request({
-                url:'../../sis_planillas/control/Planilla/siguienteEstadoPlanilla',
-                params:{
-
-                    id_proceso_wf_act:  resp.id_proceso_wf_act,
-                    id_estado_wf_act:   resp.id_estado_wf_act,
-                    id_tipo_estado:     resp.id_tipo_estado,
-                    id_funcionario_wf:  resp.id_funcionario_wf,
-                    id_depto_wf:        resp.id_depto_wf,
-                    obs:                resp.obs,
-                    json_procesos:      Ext.util.JSON.encode(resp.procesos)
-                },
-                success:this.successWizard,
-                failure: this.conexionFailure,
-                argument:{wizard:wizard},
-                timeout:this.timeout,
-                scope:this
-            });
-        },
-
-        successWizard:function(resp){
-            Phx.CP.loadingHide();
-            resp.argument.wizard.panel.destroy()
-            this.reload();
-        },
-
-        antEstado:function(){
-            var rec=this.sm.getSelected();
-            Phx.CP.loadWindows('../../../sis_workflow/vista/estado_wf/AntFormEstadoWf.php',
-                'Estado de Wf',
-                {
-                    modal:true,
-                    width:450,
-                    height:250
-                }, {data:rec.data}, this.idContenedor,'AntFormEstadoWf',
-                {
-                    config:[{
-                        event:'beforesave',
-                        delegate: this.onAntEstado,
-                    }
-                    ],
-                    scope:this
-                })
-        },
-
-        onAntEstado:function(wizard,resp){
-            Phx.CP.loadingShow();
-            Ext.Ajax.request({
-                // form:this.form.getForm().getEl(),
-                url:'../../sis_planillas/control/Planilla/anteriorEstadoPlanilla',
-                params:{
-                    id_proceso_wf:resp.id_proceso_wf,
-                    id_estado_wf:resp.id_estado_wf,
-                    obs:resp.obs
-                },
-                argument:{wizard:wizard},
-                success:this.successEstadoSinc,
-                failure: this.conexionFailure,
-                timeout:this.timeout,
-                scope:this
-            });
-
-        },
-
-        successEstadoSinc:function(resp){
-            Phx.CP.loadingHide();
-            resp.argument.wizard.panel.destroy()
-            this.reload();
-        },
-
-        crearFormObs:function(){
-
-            var titulo;
-            if(this.nombreVista == 'planillavbpoa') {
-                titulo = 'Datos POA';
-                this.formObs = new Ext.form.FormPanel({
-                    baseCls: 'x-plain',
-                    autoDestroy: true,
-                    border: false,
-                    layout: 'form',
-                    autoHeight: true,
-                    items: [
-                        {
-                            name: 'codigo_poa',
-                            xtype: 'awesomecombo',
-                            fieldLabel: 'Código POA',
-                            allowBlank: false,
-                            emptyText : 'Actividad...',
-                            store : new Ext.data.JsonStore({
-                                url : '../../sis_presupuestos/control/Objetivo/listarObjetivo',
-                                id : 'codigo',
-                                root : 'datos',
-                                sortInfo : {
-                                    field : 'codigo',
-                                    direction : 'ASC'
-                                },
-                                totalProperty : 'total',
-                                fields : ['codigo', 'descripcion','sw_transaccional','detalle_descripcion'],
-                                remoteSort : true,
-                                baseParams : {
-                                    par_filtro : 'obj.codigo#obj.descripcion'
-                                }
-                            }),
-                            valueField : 'codigo',
-                            displayField : 'detalle_descripcion',
-                            forceSelection : true,
-                            typeAhead : false,
-                            triggerAction : 'all',
-                            lazyRender : true,
-                            mode : 'remote',
-                            pageSize : 10,
-                            queryDelay : 1000,
-                            gwidth : 150,
-                            minChars : 2,
-                            anchor: '100%',
-                            enableMultiSelect:true
-                        },
-
-                        {
-                            name: 'obs_poa',
-                            xtype: 'textarea',
-                            fieldLabel: 'Obs POA',
-                            allowBlank: true,
-                            grow: true,
-                            growMin : '80%',
-                            value:'',
-                            anchor: '100%',
-                            maxLength:500
-                        }]
-                });
-            }
-
-            this.wObs = new Ext.Window({
-                title: titulo,
-                collapsible: true,
-                maximizable: true,
-                autoDestroy: true,
-                width: 400,
-                height: 290,
-                layout: 'fit',
-                plain: true,
-                bodyStyle: 'padding:5px;',
-                buttonAlign: 'center',
-                items: this.formObs,
-                modal:true,
-                closeAction: 'hide',
-                buttons: [{
-                    text: 'Guardar',
-                    handler: this.submitObs,
-                    scope: this
-
-                },
-                    {
-                        text: 'Cancelar',
-                        handler:function(){this.wObs.hide()},
-                        scope:this
-                    }]
-            });
-
-            if(this.nombreVista == 'planillavbpoa') {
-                this.cmbObsPoa = this.formObs.getForm().findField('obs_poa');
-                this.cmbCodigoPoa = this.formObs.getForm().findField('codigo_poa');
-            }
-        },
-
-        initObs:function(){
-            var d= this.sm.getSelected().data;
-            console.log('initObs', d);
-            if(this.nombreVista == 'planillavbpoa') {
-                this.cmbObsPoa.setValue(d.obs_poa);
-                this.cmbCodigoPoa.store.baseParams.id_gestion = d.id_gestion;
-                this.cmbCodigoPoa.store.baseParams.sw_transaccional = 'movimiento';
-
-                /*if(d.codigo_poa == '' || d.codigo_poa == undefined){
-
-
-                    Ext.Ajax.request({
-                        url:'../../sis_planillas/control/Planilla/listarPartidaObjetivo',
-                        params:{
-                            id_proceso_wf : d.id_proceso_wf,
-                            id_planilla : d.id_planilla
-                        },
-                        success:function(resp){
-                            var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
-                            this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
-                            this.cmbGestion.setRawValue(reg.ROOT.datos.gestion);
-                            this.store.baseParams.id_gestion=this.cmbGestion.getValue();
-                        },
-                        failure: this.conexionFailure,
-                        timeout:this.timeout,
-                        scope:this
-                    });
-                }else{*/
-                    this.cmbCodigoPoa.setValue(d.codigo_poa);
-                //}
-
-
-            } /*else {
-                this.cmbObsPres.setValue(d.obs_presupuestos);
-            }*/
-            this.wObs.show()
-        },
-
-        submitObs:function(){
-            Phx.CP.loadingShow();
-            var data = this.getSelectedData(), url, params;
-
-            if(this.nombreVista == 'planillavbpoa') {
-                url = '../../sis_planillas/control/Planilla/modificarObsPoa';
-                params = {
-                    id_planilla:data.id_planilla,
-                    obs_poa: this.cmbObsPoa.getValue(),
-                    codigo_poa: this.cmbCodigoPoa.getValue()
-                };
-            }
-            Ext.Ajax.request({
-                url: url,
-                params: params,
-                success: function(resp){
-                    Phx.CP.loadingHide();
-                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-                    if(!reg.ROOT.error){
-                        this.reload();
-                        this.wObs.hide();
-                    }
-                },
-                failure: function(resp1,resp2,resp3){
-
-                    this.conexionFailure(resp1,resp2,resp3);
-                    var d = this.sm.getSelected().data;
-
-
-                },
-                timeout:this.timeout,
-                scope:this
-            });
-
         }
+
+
+
 
     })
 </script>

@@ -263,7 +263,8 @@ class MODReporte extends MODbase{
 		//Datos de la columna
 		$this->captura('codigo_columna','varchar');	
 		$this->captura('valor_columna','numeric');			
-		
+		$this->captura('nombre','varchar');
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
