@@ -189,6 +189,7 @@ class RMinisterioTrabajoUpdateXLS
         $this->docexcel->getActiveSheet()->getStyle('P1:AT1')->applyFromArray($styleTitulos);
 
         //$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,0);
+        $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,2);
         //*************************************Cabecera*****************************************
         $this->docexcel->getActiveSheet()->setCellValue('A1','Nro');
         $this->docexcel->getActiveSheet()->setCellValue('B1','Tipo de documento de identidad');

@@ -22,6 +22,7 @@ Phx.vista.FuncionarioPlanilla = {
         this.addButton('btnAfp',
         {
             text: 'AFP',
+            //grupo: [0,1],
             iconCls: 'blist',
             disabled: true,
             handler: this.onBtnAfp,
@@ -65,8 +66,8 @@ Phx.vista.FuncionarioPlanilla = {
 	},
 	preparaMenu:function()
     {	
-        this.getBoton('btnAfp').enable();  
-        this.getBoton('btnBonoDesc').enable();    
+        this.getBoton('btnAfp').enable();
+        this.getBoton('btnBonoDesc').enable();
         Phx.vista.FuncionarioPlanilla.superclass.preparaMenu.call(this);
     },
     liberaMenu:function()
@@ -74,6 +75,23 @@ Phx.vista.FuncionarioPlanilla = {
         this.getBoton('btnAfp').disable();
         this.getBoton('btnBonoDesc').disable();       
         Phx.vista.FuncionarioPlanilla.superclass.liberaMenu.call(this);
-    }
+    },
+
+    tabsouth:[
+        {
+            url:'../../../sis_planillas/vista/funcionario/HistoricoAsignacion.php',
+            title:'Historico Asignación',
+            height:'50%',
+            cls:'HistoricoAsignacion'
+        }/*,
+        {
+            url:'../../../sis_organigrama/vista/uo_funcionario_ope/UoFuncionarioOpe.php',
+            title:'Asignaciones Operativas',
+            qtip: 'Cuando el funcionario funcionalmente tiene otra dependencia diferente a la jerárquica',
+            height:'50%',
+            cls:'UoFuncionarioOpe'
+        }*/
+
+    ]
 };
 </script>

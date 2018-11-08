@@ -629,7 +629,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('btnHoras').enable();
         }
         this.getBoton('btnColumnas').enable();
-        if (rec.data.estado== 'calculo_columnas') { 
+        if (rec.data.estado== 'calculo_columnas') {
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
         	this.getBoton('btnColumnas').menu.items.items[1].enable(); 
         	this.getBoton('btnColumnas').menu.items.items[2].enable();       	

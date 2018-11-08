@@ -337,10 +337,13 @@ class MODReporte extends MODbase{
         $this->captura('departamento','varchar');
         $this->captura('categoria_programatica','varchar');
         $this->captura('fecha_finalizacion','varchar');
+        //$this->captura('nivel','integer');
+        //$this->captura('centro_costo','varchar');
+        //$this->captura('categoria_codigo','varchar');
 
         //Ejecuta la instruccion
         $this->armarConsulta();
-       
+        //echo $this->consulta;exit;
         $this->ejecutarConsulta();
         
 
@@ -348,6 +351,82 @@ class MODReporte extends MODbase{
         return $this->respuesta;
 
 
+    }
+
+    function reporteGeneralPlanilla(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='plani.ft_reporte_sel';
+        $this->transaccion='PLA_REP_CONTACT_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+        $this->setParametro('oficina','oficina','varchar');
+
+        //Definicion de la lista del resultado del query
+        $this->captura('gerencia','varchar');
+        $this->captura('contrato','varchar');
+        $this->captura('desc_funcionario','varchar');
+        $this->captura('cargo','varchar');
+        $this->captura('lugar','varchar');
+        $this->captura('codigo','varchar');
+        $this->captura('email_empresa','varchar');
+        $this->captura('correo','varchar');
+        $this->captura('telefonos','varchar');
+        $this->captura('celulares','varchar');
+        $this->captura('documento','varchar');
+        $this->captura('lugar_trabajo','varchar');
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    function reportePresupuestoCatProg(){
+        //Definicion de variables para ejecucion del procedimientp
+        $this->procedimiento='plani.ft_reporte_sel';
+        $this->transaccion='PLA_REP_PRE_CP_SEL';
+        $this->tipo_procedimiento='SEL';//tipo de transaccion
+
+        $this->setCount(false);
+        $this->setParametro('oficina','oficina','varchar');
+
+        //Definicion de la lista del resultado del query
+        /*$this->captura('desc_fun','varchar');
+        $this->captura('nombre_cargo','varchar');
+        $this->captura('tipo_contrato','varchar');
+        $this->captura('categoria_prog','varchar');
+        $this->captura('codigo_pres','varchar');
+        $this->captura('presupuesto','varchar');*/
+
+        $this->captura('tipo_contrato','varchar');
+        $this->captura('categoria_prog','varchar');
+        $this->captura('codigo_pres','varchar');
+        $this->captura('presupuesto','varchar');
+        $this->captura('desc_func','varchar');
+        $this->captura('ci','varchar');
+        $this->captura('nombre_cargo','varchar');
+        $this->captura('fecha_ini','date');
+        $this->captura('fecha_fin','date');
+
+        $this->captura('periodo','varchar');
+        $this->captura('codigo_columna','varchar');
+        $this->captura('valor','numeric');
+
+
+
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        //echo($this->consulta);exit;
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
     }
 			
 }

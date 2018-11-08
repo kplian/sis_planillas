@@ -57,8 +57,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.load({params: {start: 0, limit: this.tam_pag}});
             }*/
 
-            this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
-            this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
+            /*this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+            this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});*/
             this.addButton('diagrama_gantt',{grupo:[0,1,2],text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
 
             this.addButton('btnChequeoDocumentosWf',
@@ -555,35 +555,9 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         preparaMenu:function()
         {	var rec = this.sm.getSelected();
-            this.desactivarMenu();
+            //this.desactivarMenu();
             Phx.vista.PlanillaConsulta.superclass.preparaMenu.call(this);
 
-
-
-            if (rec.data.estado == 'registro_funcionarios') {
-                this.getBoton('ant_estado').disable();
-                this.getBoton('sig_estado').enable();
-
-            } else if (rec.data.estado == 'comprobante_generado' ||
-                rec.data.estado == 'planilla_finalizada') {
-                this.getBoton('ant_estado').disable();
-                this.getBoton('sig_estado').disable();
-
-
-            } else if (rec.data.estado == 'obligaciones_generadas' ||
-                rec.data.estado == 'comprobante_presupuestario_validado' ||
-                rec.data.estado == 'comprobante_obligaciones') {
-                this.getBoton('ant_estado').enable();
-                this.getBoton('sig_estado').disable();
-
-            } else {
-                this.getBoton('ant_estado').enable();
-                this.getBoton('sig_estado').enable();
-            }
-
-            if(this.nombreVista == 'planillavbpoa') {
-                this.getBoton('obs_poa').enable();
-            }
 
             this.getBoton('btnObs').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
@@ -604,8 +578,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('obs_poa').disable();
             }
             this.getBoton('diagrama_gantt').disable();
-            this.getBoton('ant_estado').disable();
-            this.getBoton('sig_estado').disable();
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('btnObs').disable();
         },

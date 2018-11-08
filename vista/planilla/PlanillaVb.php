@@ -77,6 +77,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip : '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
             });
 
+
+
             function diagramGantt(){
                 var data=this.sm.getSelected().data.id_proceso_wf;
                 Phx.CP.loadingShow();
@@ -89,8 +91,60 @@ header("content-type: text/javascript; charset=UTF-8");
                     scope:this
                 });
             }
-        },
 
+            this.addButton('btnHoras',
+                {	grupo:[0,1,2],
+                    iconCls: 'bclock',
+                    text:'Horas',
+                    disabled: true,
+                    handler: this.onButtonHorasDetalle,
+                    tooltip: 'Detalle Horas Trabajadas'
+                }
+            );
+
+            this.addButton('btnColumnas',
+                {	grupo:[0,1,2],
+                    iconCls: 'bcalculator',
+                    disabled: false,
+                    text:'Columnas',
+                    tooltip: 'Gestion de Columnas (solo es posible subir csv y editar columnas si el estado es calculo_columnas)',
+                    xtype: 'splitbutton',
+                    menu: [{
+                        text: 'Detalle Columnas',
+                        id: 'btnColumnasDetalle-' + this.idContenedor,
+                        handler: this.onButtonColumnasDetalle,
+                        tooltip: 'Detalle de Columnas por Empleado',
+                        scope: this
+                    }, {
+                        text: 'Subir Columnas desde CSV',
+                        id: 'btnColumnasCsv-' + this.idContenedor,
+                        handler: this.onButtonColumnasCsv,
+                        tooltip: 'Subir Columnas desde archivo Csv',
+                        scope: this
+                    }, {
+                        text: 'Generar descuento cheque',
+                        id: 'btnGenerarCheque-' + this.idContenedor,
+                        handler: this.onButtonGenerarCheque,
+                        tooltip: 'Generar descuento de cheque a partir de la diferencia entre la planilla Sigma y ERP',
+                        scope: this
+                    }]
+                }
+            );
+        },
+        
+        onButtonHorasDetalle : function() {
+            var rec = {maestro: this.sm.getSelected().data};
+
+            Phx.CP.loadWindows('../../../sis_planillas/vista/horas_trabajadas/HorasTrabajadas.php',
+                'Horas Trabajadas por Empleado',
+                {
+                    width:800,
+                    height:'90%'
+                },
+                rec,
+                this.idContenedor,
+                'HorasTrabajadas');
+        },
 
         onOpenObs:function() {
             var rec=this.sm.getSelected();
@@ -111,6 +165,19 @@ header("content-type: text/javascript; charset=UTF-8");
             )
         },
 
+        onButtonColumnasDetalle : function() {
+            var rec = {maestro: this.sm.getSelected().data};
+
+            Phx.CP.loadWindows('../../../sis_planillas/vista/funcionario_planilla/FuncionarioPlanillaColumna.php',
+                'Detalle de Columnas por Empleado',
+                {
+                    width:800,
+                    height:'90%'
+                },
+                rec,
+                this.idContenedor,
+                'FuncionarioPlanillaColumna');
+        },
 
         Atributos:[
             {
@@ -533,7 +600,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.desactivarMenu();
             Phx.vista.PlanillaVb.superclass.preparaMenu.call(this);
 
-
+            this.getBoton('btnHoras').enable();
 
             if (rec.data.estado == 'registro_funcionarios') {
                 this.getBoton('ant_estado').disable();

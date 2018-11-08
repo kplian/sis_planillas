@@ -12,6 +12,8 @@ require_once(dirname(__FILE__).'/../reportes/RPrevisionesPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RPrevisionesXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RBoletaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaActualizadaItemXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RGeneralPlanillaXLS.php');
+require_once(dirname(__FILE__).'/../reportes/RPresupuestoRetroactivoXls.php');
 
 class ACTReporte extends ACTbase{
 
@@ -310,6 +312,41 @@ class ACTReporte extends ACTbase{
         $this->mensajeExito->setArchivoGenerado($nombreArchivo);
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
+    }
+
+    function reporteGeneralPlanilla(){
+
+        $this->objFunc=$this->create('MODReporte');
+        if($this->objParam->getParametro('configuracion_reporte') == 'contacto'){
+            $this->res=$this->objFunc->reporteGeneralPlanilla($this->objParam);
+            $titulo_archivo = 'Empleados con Datos de Contato';
+        }else if($this->objParam->getParametro('configuracion_reporte') == 'programatica'){
+            $this->res=$this->objFunc->reportePresupuestoCatProg($this->objParam);
+            $titulo_archivo = 'Prespuesto Retroactivo';
+        }
+
+
+        $this->datos=$this->res->getDatos();
+
+        $nombreArchivo = uniqid(md5(session_id()).$titulo_archivo).'.xls';
+        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        $this->objParam->addParametro('titulo_archivo',$titulo_archivo);
+        $this->objParam->addParametro('datos',$this->datos);
+
+        if($this->objParam->getParametro('configuracion_reporte') == 'contacto'){
+            $this->objReporte = new RGeneralPlanillaXls($this->objParam);
+        }else if($this->objParam->getParametro('configuracion_reporte') == 'programatica'){
+            $this->objReporte = new RPresupuestoRetroactivoXls($this->objParam);
+        }
+
+        $this->objReporte->generarReporte();
+
+
+        $mensajeExito = new Mensaje();
+        $mensajeExito->setMensaje('EXITO', 'Reporte.php', 'Reporte generado', 'Se generó con éxito el reporte: ' . $nombreArchivo, 'control');
+        $mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->res = $mensajeExito;
+        $this->res->imprimirRespuesta($this->res->generarJson());
     }
 }
 

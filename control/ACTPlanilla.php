@@ -55,8 +55,9 @@ class ACTPlanilla extends ACTbase{
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 
-    function listarReportePlanillaMinisterio(){
+    function listarReportePlanillaMinisterio(){ //var_dump($this->objParam->getParametro('id_tipo_planilla'));exit;
         $this->objFunc=$this->create('MODPlanilla');
+
         if ($this->objParam->getParametro('id_tipo_planilla') == 1) {
             if($this->objParam->getParametro('formato')=='antiguo') {
                 $this->res = $this->objFunc->listarReportePlanillaMinisterio($this->objParam);
