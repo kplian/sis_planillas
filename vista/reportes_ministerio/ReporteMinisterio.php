@@ -11,7 +11,29 @@ header("content-type: text/javascript; charset=UTF-8");
 <script>
 	Phx.vista.ReporteMinisterio = Ext.extend(Phx.frmInterfaz, {
 		Atributos : [
-		{
+            {
+                config : {
+                    name : 'formato',
+                    fieldLabel : 'Formato',
+                    allowBlank : false,
+                    triggerAction : 'all',
+                    lazyRender : true,
+                    mode : 'local',
+                    store : new Ext.data.ArrayStore({
+                        fields : ['tipo', 'valor'],
+                        data : [['antiguo', 'Antiguo Formato'], ['nuevo', 'Nuevo Formato']]
+                    }),
+                    //anchor : '30%',
+                    valueField : 'tipo',
+                    displayField : 'valor',
+                    listWidth:183,
+                    resizable: true
+                },
+                type : 'ComboBox',
+                id_grupo : 0,
+                form : true
+            },
+        {
    			config:{
    				name:'id_depto',
    				 hiddenName: 'id_depto',

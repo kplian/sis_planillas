@@ -12,13 +12,13 @@ $body$
  DESCRIPCION:   Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'plani.tplanilla'
  AUTOR: 		 (admin)
  FECHA:	        22-01-2014 16:11:04
- COMENTARIOS:	
+ COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ DESCRIPCION:
+ AUTOR:
+ FECHA:
 ***************************************************************************/
 
 DECLARE
@@ -69,41 +69,44 @@ DECLARE
     v_codigo_llave		varchar;
     v_liquido_erp	numeric;
     v_liquido_sigma		numeric;
-    v_columna_cheque	varchar;    
-    
-			    
+    v_columna_cheque	varchar;
+
+    v_index				integer;
+    v_items				varchar;
+
+
 BEGIN
 
     v_nombre_funcion = 'plani.ft_planilla_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PLA_PLANI_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		22-01-2014 16:11:04
 	***********************************/
 
 	if(p_transaccion='PLA_PLANI_INS')then
-					
-        begin
+
+        begin --raise exception 'temporalmente inactivo: %', v_parametros;
         	select pxp.list(id_uo::text) into v_id_uos
         	from param.tdepto_uo
         	where id_depto = v_parametros.id_depto and estado_reg = 'activo';
-        	
+
             select * into v_tipo_planilla
             from plani.ttipo_planilla
             where id_tipo_planilla = v_parametros.id_tipo_planilla;
-            
+
         	if (v_id_uos is not null) then
         		if (v_parametros.id_uo is null) then
-        			raise exception 'El departamento de RRHH seleccionado no tiene permisos para 
+        			raise exception 'El departamento de RRHH seleccionado no tiene permisos para
         					generar una planilla con todos los empleados de la empresa';
         		end if;
-        		
+
         		execute 'select id_uo from orga.tuo where id_uo in (' || v_id_uos || ') and id_uo = ' || v_parametros.id_uo
         		into v_id_uo;
-        		
+
         		if (v_id_uo is null) then
         			raise exception 'El departamento de RRHH seleccionado no tiene permisos para procesar una planilla de esta UO';
         		end if;
@@ -111,35 +114,35 @@ BEGIN
         	--para tipos de planilla por periodo
         	if (v_parametros.id_periodo is not null) then
 	        	 v_num_plani =   param.f_obtener_correlativo(
-	                  v_tipo_planilla.codigo, 
-	                   v_parametros.id_periodo,-- par_id, 
-	                   NULL, --id_uo 
+	                  v_tipo_planilla.codigo,
+	                   v_parametros.id_periodo,-- par_id,
+	                   NULL, --id_uo
 	                   v_parametros.id_depto,    -- id_depto
-	                   p_id_usuario, 
-	                   'PLANI', 
+	                   p_id_usuario,
+	                   'PLANI',
 	                   NULL);
 	        --para tipos de planilla por gestion
 	        else
 	        	 v_num_plani =   param.f_obtener_correlativo(
-	                  v_tipo_planilla.codigo, 
-	                   v_parametros.id_gestion,-- par_id, 
-	                   NULL, --id_uo 
+	                  v_tipo_planilla.codigo,
+	                   v_parametros.id_gestion,-- par_id,
+	                   NULL, --id_uo
 	                   v_parametros.id_depto,    -- id_depto
-	                   p_id_usuario, 
-	                   'PLANI', 
+	                   p_id_usuario,
+	                   'PLANI',
 	                   NULL);
 	        end if;
-      
-        
+
+
         IF (v_num_plani is NULL or v_num_plani ='') THEN
-        
+
           raise exception 'No se pudo obtener un numero correlativo para la planilla consulte con el administrador';
-        
+
         END IF;
-        
+
         -- obtener el codigo del tipo_proceso
-       
-        select   tp.codigo, pm.id_proceso_macro 
+
+        select   tp.codigo, pm.id_proceso_macro
             into v_codigo_tipo_proceso, v_id_proceso_macro
         from  plani.ttipo_planilla tippla
         inner join wf.tproceso_macro pm
@@ -148,38 +151,38 @@ BEGIN
         	on tp.id_proceso_macro = pm.id_proceso_macro
         where   tippla.id_tipo_planilla = v_parametros.id_tipo_planilla
                 and tp.estado_reg = 'activo' and tp.inicio = 'si';
-            
-         
+
+
         IF v_codigo_tipo_proceso is NULL THEN
-        
+
            raise exception 'No existe un proceso inicial para el proceso macro indicado (Revise la configuración)';
-        
+
         END IF;
-        
+
         -- inciiar el tramite en el sistema de WF
-       SELECT 
+       SELECT
              ps_num_tramite ,
              ps_id_proceso_wf ,
              ps_id_estado_wf ,
-             ps_codigo_estado 
+             ps_codigo_estado
           into
              v_num_tramite,
              v_id_proceso_wf,
              v_id_estado_wf,
-             v_codigo_estado   
-              
+             v_codigo_estado
+
         FROM wf.f_inicia_tramite(
-             p_id_usuario, 
+             p_id_usuario,
              v_parametros._id_usuario_ai,
              v_parametros._nombre_usuario_ai,
-             v_parametros.id_gestion, 
-             v_codigo_tipo_proceso, 
+             v_parametros.id_gestion,
+             v_codigo_tipo_proceso,
              NULL,
              NULL,
              'Planilla '||v_num_plani,
              v_num_plani);
-             
-             
+
+
         	--Sentencia de la insercion
         	insert into plani.tplanilla(
 			id_periodo,
@@ -216,14 +219,14 @@ BEGIN
 			v_id_proceso_wf,
 			v_codigo_estado,
 			v_parametros.id_depto,
-			v_parametros.fecha_planilla				
+			v_parametros.fecha_planilla
 			)RETURNING id_planilla into v_id_planilla;
-           
+
             execute 'select ' || v_tipo_planilla.funcion_obtener_empleados || '(' || v_id_planilla || ')'
         	into v_resp;
-			
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla almacenado(a) con exito (id_planilla'||v_id_planilla||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla almacenado(a) con exito (id_planilla'||v_id_planilla||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_id_planilla::varchar);
 
             --Devuelve la respuesta
@@ -231,10 +234,10 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PLA_PLANI_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		22-01-2014 16:11:04
 	***********************************/
 
@@ -248,20 +251,20 @@ BEGIN
 			fecha_planilla = v_parametros.fecha_planilla,
 			fecha_mod = now()
 			where id_planilla=v_parametros.id_planilla;
-               
+
 			--Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla modificado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla modificado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-               
+
             --Devuelve la respuesta
             return v_resp;
-            
+
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PLA_PLANI_ELI'
  	#DESCRIPCION:	Eliminacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		22-01-2014 16:11:04
 	***********************************/
 
@@ -273,73 +276,73 @@ BEGIN
                                 where id_planilla = v_parametros.id_planilla) loop
             	v_resp = plani.f_eliminar_funcionario_planilla(v_registros.id_funcionario_planilla);
             end loop;
-            
+
             --eliminacion de obligacion_columna
             delete from plani.tobligacion_columna using plani.tobligacion
-            where plani.tobligacion_columna.id_obligacion = plani.tobligacion.id_obligacion and 
+            where plani.tobligacion_columna.id_obligacion = plani.tobligacion.id_obligacion and
             plani.tobligacion.id_planilla = v_parametros.id_planilla;
-            
+
             --eliminacion de detalle_transferencia
             delete from plani.tdetalle_transferencia using plani.tobligacion
-            where plani.tdetalle_transferencia.id_obligacion = plani.tobligacion.id_obligacion and 
+            where plani.tdetalle_transferencia.id_obligacion = plani.tobligacion.id_obligacion and
             plani.tobligacion.id_planilla = v_parametros.id_planilla;
-            
+
             --eliminacion de consolidacion_columna
             delete from plani.tconsolidado_columna using plani.tconsolidado
-            where plani.tconsolidado_columna.id_consolidado = plani.tconsolidado.id_consolidado and 
+            where plani.tconsolidado_columna.id_consolidado = plani.tconsolidado.id_consolidado and
             plani.tconsolidado.id_planilla = v_parametros.id_planilla;
-            
+
             --eliminacion de las consolidaciones
             delete from plani.tconsolidado
             where id_planilla = v_parametros.id_planilla;
-            
+
             --eliminacion de las obligaciones
             delete from plani.tobligacion
             where id_planilla = v_parametros.id_planilla;
-              
+
 			--Sentencia de la eliminacion
 			delete from plani.tplanilla
             where id_planilla=v_parametros.id_planilla;
-               
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla eliminado(a)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla eliminado(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-    
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'PLA_GENDESCHE_PRO'
  	#DESCRIPCION:	Genera descuentos por cheque para la planilla en base a la diferencia entre planillas del erp y sigma
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		22-01-2014 16:11:04
 	***********************************/
 
 	elsif(p_transaccion='PLA_GENDESCHE_PRO')then
 
 		begin
-        
+
         	select pla.*, tp.codigo as tipo_planilla,tp.periodicidad into v_planilla
             from plani.tplanilla pla
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = pla.id_tipo_planilla
             where pla.id_planilla = v_parametros.id_planilla;
-            
+
             if (v_planilla.estado != 'calculo_columnas') then
             	raise exception 'La planilla debe estar en estado calculo_columnas para generar los descuentos por cheque';
             end if;
-            
+
             --verificar que la planilla del sigma haya sido subida
-            if (not exists(select 1 
+            if (not exists(select 1
                           from plani.tplanilla_sigma ps
-                          where (ps.id_periodo = v_planilla.id_periodo or 
+                          where (ps.id_periodo = v_planilla.id_periodo or
                           		(v_planilla.periodicidad = 'anual' and ps.id_periodo is null)) and ps.id_gestion = v_planilla.id_gestion and
                           ps.id_tipo_planilla = v_planilla.id_tipo_planilla)) then
             	raise exception 'No se ha subido la planilla del sigma para poder calcular el descuento por cheques';
-            
+
             end if;
-            
+
             if (v_planilla.tipo_planilla IN('PLASUE','PLAGUIN','PLASEGAGUI','PLAREISU'))then
             	v_columna_cheque = 'DESCCHEQ';
             elsif (v_planilla.tipo_planilla = 'PLAPRI') then
@@ -347,63 +350,63 @@ BEGIN
             else
             	raise exception 'El tipo de planilla no tiene descuento por cheque';
             end if;
-        	
+
         	for v_registros in (select fp.id_funcionario, fp.id_funcionario_planilla
-            					from plani.tfuncionario_planilla fp                                
+            					from plani.tfuncionario_planilla fp
                                 where fp.id_planilla =  v_parametros.id_planilla) loop
-            	
+
                 select cv.valor into v_liquido_erp
                 from plani.tcolumna_valor cv
                 where cv.id_funcionario_planilla = v_registros.id_funcionario_planilla and
                 cv.codigo_columna = 'LIQPAG' and cv.estado_reg = 'activo';
-                
+
                 select sum(ps.sueldo_liquido) into v_liquido_sigma
                 from plani.tplanilla_sigma ps
                 where ps.id_funcionario = v_registros.id_funcionario and
-                (ps.id_periodo = v_planilla.id_periodo or 
+                (ps.id_periodo = v_planilla.id_periodo or
                 (v_planilla.periodicidad = 'anual' and ps.id_periodo is null))
-                
+
                 and ps.id_gestion = v_planilla.id_gestion and
                 ps.id_tipo_planilla = v_planilla.id_tipo_planilla;
-                
-                if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and 
-                	trunc(v_liquido_sigma) = v_liquido_sigma) then                    
-                	
-                    update plani.tcolumna_valor 
+
+                if (v_liquido_sigma is not null and v_liquido_erp > v_liquido_sigma  and (v_liquido_erp - v_liquido_sigma) < 1 and
+                	trunc(v_liquido_sigma) = v_liquido_sigma) then
+
+                    update plani.tcolumna_valor
                     set valor = v_liquido_erp - v_liquido_sigma
                     where id_funcionario_planilla = v_registros.id_funcionario_planilla and
                     codigo_columna = v_columna_cheque and estado_reg = 'activo';
-                end if;   
-                
-                
+                end if;
+
+
             end loop;
-             
+
             --Definicion de la respuesta
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Descuento por cheque generado'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Descuento por cheque generado');
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
-              
+
             --Devuelve la respuesta
             return v_resp;
 
 		end;
-    
-    /*********************************    
+
+    /*********************************
  	#TRANSACCION:  'PLA_ANTEPLA_IME'
  	#DESCRIPCION:	Transaccion utilizada  pasar a  estados anterior en la planilla
                     segun la operacion definida
- 	#AUTOR:		JRR	
+ 	#AUTOR:		JRR
  	#FECHA:		17-10-2014 12:12:51
 	***********************************/
 
-	elseif(p_transaccion='PLA_ANTEPLA_IME')then   
+	elseif(p_transaccion='PLA_ANTEPLA_IME')then
         begin
-        
+
         --------------------------------------------------
         --Retrocede al estado inmediatamente anterior
         -------------------------------------------------
        --recuperaq estado anterior segun Log del WF
-          SELECT  
-         
+          SELECT
+
              ps_id_tipo_estado,
              ps_id_funcionario,
              ps_id_usuario_reg,
@@ -416,43 +419,43 @@ BEGIN
              v_id_usuario_reg,
              v_id_depto,
              v_codigo_estado,
-             v_id_estado_wf_ant 
+             v_id_estado_wf_ant
           FROM wf.f_obtener_estado_ant_log_wf(v_parametros.id_estado_wf);
-                        
-                        
+
+
            --
-          select 
-               ew.id_proceso_wf 
-            into 
+          select
+               ew.id_proceso_wf
+            into
                v_id_proceso_wf
           from wf.testado_wf ew
           where ew.id_estado_wf= v_id_estado_wf_ant;
-          
-          
-         --configurar acceso directo para la alarma   
+
+
+         --configurar acceso directo para la alarma
              v_acceso_directo = '';
              v_clase = '';
              v_parametros_ad = '';
              v_tipo_noti = 'notificacion';
              v_titulo  = 'Notificacion';
-             
-           
+
+
             IF   v_codigo_estado_siguiente not in('registro_funcionarios','obligaciones_generadas','comprobante_presupuestario_validado','comprobante_obligaciones','planilla_finalizada')   THEN
                   v_acceso_directo = '../../../sis_planillas/vista/planilla/Planilla.php';
                   v_clase = 'Planilla';
                   v_parametros_ad = '{filtro_directo:{campo:"plani.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
                   v_tipo_noti = 'notificacion';
-                  v_titulo  = 'Notificacion';             
+                  v_titulo  = 'Notificacion';
              END IF;
-             
-          
+
+
           -- registra nuevo estado
-                      
+
           v_id_estado_actual = wf.f_registra_estado_wf(
-              v_id_tipo_estado, 
-              v_id_funcionario, 
-              v_parametros.id_estado_wf, 
-              v_id_proceso_wf, 
+              v_id_tipo_estado,
+              v_id_funcionario,
+              v_parametros.id_estado_wf,
+              v_id_proceso_wf,
               p_id_usuario,
               v_parametros._id_usuario_ai,
               v_parametros._nombre_usuario_ai,
@@ -463,119 +466,119 @@ BEGIN
               v_parametros_ad,
               v_tipo_noti,
               v_titulo);
-                      
-         
-          
-                         
-            IF  not plani.f_fun_regreso_planilla_wf(p_id_usuario, 
-                                                   v_parametros._id_usuario_ai, 
-                                                   v_parametros._nombre_usuario_ai, 
-                                                   v_id_estado_actual, 
-                                                   v_parametros.id_proceso_wf, 
+
+
+
+
+            IF  not plani.f_fun_regreso_planilla_wf(p_id_usuario,
+                                                   v_parametros._id_usuario_ai,
+                                                   v_parametros._nombre_usuario_ai,
+                                                   v_id_estado_actual,
+                                                   v_parametros.id_proceso_wf,
                                                    v_codigo_estado) THEN
-            
+
                raise exception 'Error al retroceder estado';
-            
-            END IF;              
-                         
-                         
+
+            END IF;
+
+
          -- si hay mas de un estado disponible  preguntamos al usuario
-            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado)'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado)');
             v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
-                        
-                              
+
+
           --Devuelve la respuesta
             return v_resp;
-                        
-           
-        
-        
-        
-        end;	
-    
-     /*********************************    
+
+
+
+
+
+        end;
+
+     /*********************************
  	#TRANSACCION:  'PLA_SIGEPLA_IME'
  	#DESCRIPCION:	funcion que controla el cambio al Siguiente estado de las planillas, integrado  con el WF
- 	#AUTOR:		JRR	
+ 	#AUTOR:		JRR
  	#FECHA:		17-10-2014 12:12:51
 	***********************************/
 
-	elseif(p_transaccion='PLA_SIGEPLA_IME')then   
+	elseif(p_transaccion='PLA_SIGEPLA_IME')then
         begin
-        	
+
          /*   PARAMETROS
-         
+
         $this->setParametro('id_proceso_wf_act','id_proceso_wf_act','int4');
         $this->setParametro('id_tipo_estado','id_tipo_estado','int4');
         $this->setParametro('id_funcionario_wf','id_funcionario_wf','int4');
         $this->setParametro('id_depto_wf','id_depto_wf','int4');
         $this->setParametro('obs','obs','text');
         $this->setParametro('json_procesos','json_procesos','text');
-        */        
+        */
       select pla.*
       into v_planilla
-      from plani.tplanilla pla     
+      from plani.tplanilla pla
       where id_proceso_wf = v_parametros.id_proceso_wf_act;
-      
-          select 
+
+          select
             ew.id_tipo_estado ,
             te.pedir_obs,
             ew.id_estado_wf
-           into 
+           into
             v_id_tipo_estado,
             v_pedir_obs,
             v_id_estado_wf
-            
+
           from wf.testado_wf ew
           inner join wf.ttipo_estado te on te.id_tipo_estado = ew.id_tipo_estado
           where ew.id_estado_wf =  v_parametros.id_estado_wf_act;
-          
-         
+
+
            -- obtener datos tipo estado
-                
+
                 select
                  te.codigo
                 into
                  v_codigo_estado_siguiente
                 from wf.ttipo_estado te
                 where te.id_tipo_estado = v_parametros.id_tipo_estado;
-                
+
              IF  pxp.f_existe_parametro(p_tabla,'id_depto_wf') THEN
-                 
+
                v_id_depto = v_parametros.id_depto_wf;
-                
+
              END IF;
-                
-                
-                
+
+
+
              IF  pxp.f_existe_parametro(p_tabla,'obs') THEN
                   v_obs=v_parametros.obs;
              ELSE
                    v_obs='---';
-                
+
              END IF;
-               
-             --configurar acceso directo para la alarma   
+
+             --configurar acceso directo para la alarma
              v_acceso_directo = '';
              v_clase = '';
              v_parametros_ad = '';
              v_tipo_noti = 'notificacion';
              v_titulo  = 'Visto Bueno';
-             
-           
+
+
              IF   v_codigo_estado_siguiente not in('registro_funcionarios','obligaciones_generadas','comprobante_presupuestario_validado','comprobante_obligaciones','planilla_finalizada')   THEN
                   v_acceso_directo = '../../../sis_planillas/vista/planilla/Planilla.php';
                   v_clase = 'Planilla';
                   v_parametros_ad = '{filtro_directo:{campo:"plani.id_proceso_wf",valor:"'||v_parametros.id_proceso_wf_act::varchar||'"}}';
                   v_tipo_noti = 'notificacion';
-                  v_titulo  = 'Notificacion';             
+                  v_titulo  = 'Notificacion';
              END IF;
-             
-             
+
+
              -- hay que recuperar el supervidor que seria el estado inmediato,...
-             v_id_estado_actual =  wf.f_registra_estado_wf(v_parametros.id_tipo_estado, 
-                                                             v_parametros.id_funcionario_wf, 
-                                                             v_parametros.id_estado_wf_act, 
+             v_id_estado_actual =  wf.f_registra_estado_wf(v_parametros.id_tipo_estado,
+                                                             v_parametros.id_funcionario_wf,
+                                                             v_parametros.id_estado_wf_act,
                                                              v_parametros.id_proceso_wf_act,
                                                              p_id_usuario,
                                                              v_parametros._id_usuario_ai,
@@ -587,35 +590,35 @@ BEGIN
                                                              v_parametros_ad,
                                                              v_tipo_noti,
                                                              v_titulo);
-          
-          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario, 
-           									v_parametros._id_usuario_ai, 
-                                            v_parametros._nombre_usuario_ai, 
-                                            v_id_estado_actual, 
-                                            v_parametros.id_proceso_wf_act, 
+
+          IF  plani.f_fun_inicio_planilla_wf(p_id_usuario,
+           									v_parametros._id_usuario_ai,
+                                            v_parametros._nombre_usuario_ai,
+                                            v_id_estado_actual,
+                                            v_parametros.id_proceso_wf_act,
                                             v_codigo_estado_siguiente) THEN
-                                            
+
           END IF;
-                
+
           --------------------------------------
           -- registra los procesos disparados
           --------------------------------------
-         
+
           FOR v_registros_proc in ( select * from json_populate_recordset(null::wf.proceso_disparado_wf, v_parametros.json_procesos::json)) LOOP
-    
+
                --get cdigo tipo proceso
-               select   
+               select
                   tp.codigo,
-                  tp.codigo_llave  
-               into 
-                  v_codigo_tipo_pro, 
-                  v_codigo_llave  
-               from wf.ttipo_proceso tp 
+                  tp.codigo_llave
+               into
+                  v_codigo_tipo_pro,
+                  v_codigo_llave
+               from wf.ttipo_proceso tp
                 where  tp.id_tipo_proceso =  v_registros_proc.id_tipo_proceso_pro;
-          
-          
+
+
                -- disparar creacion de procesos seleccionados
-              
+
               SELECT
                        ps_id_proceso_wf,
                        ps_id_estado_wf,
@@ -628,22 +631,22 @@ BEGIN
                        p_id_usuario,
                        v_parametros._id_usuario_ai,
                        v_parametros._nombre_usuario_ai,
-                       v_id_estado_actual, 
-                       v_registros_proc.id_funcionario_wf_pro, 
+                       v_id_estado_actual,
+                       v_registros_proc.id_funcionario_wf_pro,
                        v_registros_proc.id_depto_wf_pro,
                        v_registros_proc.obs_pro,
-                       v_codigo_tipo_pro,    
+                       v_codigo_tipo_pro,
                        v_codigo_tipo_pro);
-              
+
               /*Generar una olbigacion de pago en caso de ser necesario*/
               IF v_codigo_llave = 'obligacion_pago' THEN
-                     
+
                   IF  v_registros_proc.id_depto_wf_pro::integer  is NULL  THEN
-                          
+
                      raise exception 'Para obligaciones de pago el depto es indispensable';
-                          
+
                   END IF;
-                  
+
                   IF NOT plani.f_generar_obligaciones_tesoreria(
                   								p_administrador,
                   								v_planilla.id_planilla,
@@ -652,56 +655,118 @@ BEGIN
                                                 v_parametros._nombre_usuario_ai,
                                                 v_id_proceso_wf,
                                                 v_id_estado_wf,
-                                                v_registros_proc.id_depto_wf_pro 
+                                                v_registros_proc.id_depto_wf_pro
                                                 ) THEN
-                                                         
+
                      raise exception 'Error al generar el contrato';
-                          
+
                   END IF;
-                     
-                   
-                    
+
+
+
               ELSE
               	 raise exception 'Codigo llave no reconocido  verifique el WF (%)', v_codigo_llave;
               END IF;
-                       
-                       
-           END LOOP; 
-           
+
+
+           END LOOP;
+
            -- actualiza estado en la solicitud
-           -- funcion para cambio de estado     
-           
-          
-          
-          
+           -- funcion para cambio de estado
+
+
+
+
           -- si hay mas de un estado disponible  preguntamos al usuario
-          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado de la planilla)'); 
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Se realizo el cambio de estado de la planilla)');
           v_resp = pxp.f_agrega_clave(v_resp,'operacion','cambio_exitoso');
-          
-          
+
+
           -- Devuelve la respuesta
           return v_resp;
-        
-     end;        
-        
-        
-        
-         
+
+     end;
+
+    /*********************************
+ 	#TRANSACCION:  'PLA_MODOBSPOA_MOD'
+ 	#DESCRIPCION:	datos POA
+ 	#AUTOR:		FEA
+ 	#FECHA:		13-02-2018 16:11:04
+	***********************************/
+
+	elsif(p_transaccion='PLA_MODOBSPOA_MOD')then
+
+		begin
+        	--Sentencia de la modificacion
+			update plani.tplanilla set
+			obs_poa = v_parametros.obs_poa,
+            codigo_poa = v_parametros.codigo_poa
+			where id_planilla = v_parametros.id_planilla;
+
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','datos POA modificados');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+
+    /*********************************
+ 	#TRANSACCION:  'PLA_PAR_OBJ_IME'
+ 	#DESCRIPCION:	Listar Partidas Objetivo
+ 	#AUTOR:		FEA
+ 	#FECHA:		13-03-2018 15:00
+	***********************************/
+
+	elsif(p_transaccion='PLA_PAR_OBJ_IME')then
+
+		begin
+        	v_index = '';
+        	for v_index in select tobj.id_objetivo
+
+                          from plani.tplanilla tpla
+                          inner join plani.tfuncionario_planilla tfp on tfp.id_planilla = tpla.id_planilla
+
+                          INNER JOIN orga.tuo_funcionario tuof on tuof.id_uo_funcionario = tfp.id_uo_funcionario
+                          inner join orga.tcargo_presupuesto tcp on tcp.id_cargo = tuof.id_cargo
+
+                          inner JOIN plani.tcolumna_valor tcv on tcv.id_funcionario_planilla = tfp.id_funcionario_planilla
+                          inner JOIN conta.trelacion_contable trc on trc.id_tabla = tcv.id_tipo_columna and trc.id_centro_costo = tcp.id_centro_costo and
+                          case when tfp.tipo_contrato = 'PLA' then trc.id_tipo_relacion_contable = 27 when tfp.tipo_contrato = 'EVE' then trc.id_tipo_relacion_contable = 28 else false end
+                          inner join pre.tobjetivo_partida top on top.id_partida = trc.id_partida
+                          inner join pre.tobjetivo tobj on tobj.id_objetivo = top.id_objetivo
+                          where tpla.estado_reg = 'activo' AND tpla.id_proceso_wf = v_parametros.id_proceso_wf and tpla.id_planilla =  v_parametros.id_planilla
+                          GROUP by tobj.id_objetivo
+                          order by tobj.id_objetivo loop
+
+                v_items = v_items || v_index || ','	;
+
+          	end loop;
+
+
+        --Definicion de la respuesta
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Lista de Objetivos');
+        v_resp = pxp.f_agrega_clave(v_resp,'items',v_parametros.id_planilla::varchar);
+
+        --Devuelve la respuesta
+        return v_resp;
+        end;
 	else
-     
+
     	raise exception 'Transaccion inexistente: %',p_transaccion;
 
 	end if;
 
 EXCEPTION
-				
+
 	WHEN OTHERS THEN
 		v_resp='';
 		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
 		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
 		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 		raise exception '%',v_resp;
-				        
+
 END;
 $body$
 LANGUAGE 'plpgsql'

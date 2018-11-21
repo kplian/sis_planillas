@@ -83,10 +83,12 @@ BEGIN
                     uofun.observaciones_finalizacion = 'retiro' )) then
         	raise exception 'El empleado ha sido retirado de la empresa, por lo que no corresponde el pago de prima';            
     	end if;
-        v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
-        
-        
-        if (v_dias >= 90) then
+        --v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
+        --(F.E.A)
+        v_dias = plani.f_get_dias_aguinaldo_v2(p_id_funcionario, v_planilla.id_gestion);
+
+
+        if (v_dias > 90) then
         	select tp.*,p.id_gestion,p.estado into v_tipo_planilla
         	from plani.tplanilla p
         	inner join plani.ttipo_planilla tp

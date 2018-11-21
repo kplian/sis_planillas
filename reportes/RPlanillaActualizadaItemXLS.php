@@ -154,20 +154,20 @@ class RPlanillaActualizadaItemXLS
         $this->docexcel->getActiveSheet()->setCellValue('B5','DESCRIPCION DEL NIVEL SALARIAL');
         $this->docexcel->getActiveSheet()->setCellValue('C5','DESCRIPCION DEL CARGO O PUESTO');
         $this->docexcel->getActiveSheet()->setCellValue('D5','ITEM');
-        $this->docexcel->getActiveSheet()->setCellValue('E5','NOMBRES Y APELLIDOS');
+        $this->docexcel->getActiveSheet()->setCellValue('E5','APELLIDOS Y NOMBRES');
         $this->docexcel->getActiveSheet()->setCellValue('F5','SEXO');
-        $this->docexcel->getActiveSheet()->setCellValue('G5','SALARIO');
-        $this->docexcel->getActiveSheet()->setCellValue('H5','BONO');
+        $this->docexcel->getActiveSheet()->setCellValue('G5','HABER BASICO');
+        $this->docexcel->getActiveSheet()->setCellValue('H5','BONO DE ANTIGUEDAD');
         $this->docexcel->getActiveSheet()->setCellValue('I5','B. FRONTERA');
-        $this->docexcel->getActiveSheet()->setCellValue('J5','TOTAL');
-        $this->docexcel->getActiveSheet()->setCellValue('K5','FECHA ');
+        $this->docexcel->getActiveSheet()->setCellValue('J5','TOTAL GANADO');
+        $this->docexcel->getActiveSheet()->setCellValue('K5','FECHA INGRESO');
         $this->docexcel->getActiveSheet()->setCellValue('L5','C.I.');
         $this->docexcel->getActiveSheet()->setCellValue('M5','EXP');
         $this->docexcel->getActiveSheet()->setCellValue('N5','CIUDAD');
         $this->docexcel->getActiveSheet()->setCellValue('O5','OFICINA');
 
 
-        if ($tipo == '5.EVE') {
+        if ($tipo == '6.EVE') {
             $this->docexcel->getActiveSheet()->setCellValue('P5','FECHA FIN');
             $this->docexcel->getActiveSheet()->getStyle('P5:P5')->applyFromArray($styleTitulos);
             $this->docexcel->getActiveSheet()->getStyle('P4:P4')->applyFromArray($styleTitulos8);

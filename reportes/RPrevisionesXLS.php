@@ -73,9 +73,9 @@ class RPrevisionesXLS
 		
 		$columnas = 0;
 		
-		$this->docexcel->getActiveSheet()->getStyle('A4:H4')->getAlignment()->setWrapText(true); 	
+		$this->docexcel->getActiveSheet()->getStyle('A4:I4')->getAlignment()->setWrapText(true);
 		
-		$this->docexcel->getActiveSheet()->getStyle('A4:H4')->applyFromArray($styleTitulos);
+		$this->docexcel->getActiveSheet()->getStyle('A4:I4')->applyFromArray($styleTitulos);
 		$this->docexcel->getActiveSheet()->mergeCells("C1:E1");
 		$styleTitulos['font']['size'] = 12;
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,1,'REPORTE DE PREVISIONES AL : ' . $this->objParam->getParametro('fecha'));
@@ -91,50 +91,53 @@ class RPrevisionesXLS
 		//*************************************Cabecera*****************************************
 		
 		$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(20);
-		$this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(23);
-		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(25);
-		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
-		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(12);
-		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(8);
-		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);
-		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(12);
+        $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+		$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(23);
+		$this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);
+		$this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);
+		$this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(12);
+		$this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(8);
+		$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
+		$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(12);
 		
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,4,'Gerencia');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,4,'Cargo');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,4,'Nombre Completo');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,4,'Salario');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,4,'Fecha Incorp');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,4,'Dias');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,4,'Indem Dia');
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,4,'Indem');	
+        $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,4,'Presupuesto');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,4,'Cargo');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,4,'Nombre Completo');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,4,'Salario');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,4,'Fecha Incorp');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,4,'Dias');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,4,'Indem Dia');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,4,'Indem');
 		
 		$fila = 5;
 		$styleTitulos['font']['bold'] = false;
 		foreach($datos as $value) {
-			$this->docexcel->getActiveSheet()->getStyle("A$fila:H$fila")->getAlignment()->setWrapText(true); 	
+			$this->docexcel->getActiveSheet()->getStyle("A$fila:I$fila")->getAlignment()->setWrapText(true);
 		
-			$this->docexcel->getActiveSheet()->getStyle("A$fila:H$fila")->applyFromArray($styleTitulos);
+			$this->docexcel->getActiveSheet()->getStyle("A$fila:I$fila")->applyFromArray($styleTitulos);
 				
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,$fila,$value['gerencia']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$fila,$value['cargo']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$fila,$value['nombre']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$value['basico']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$value['fecha_ingreso']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['dias_trabajados']);
-            $this->docexcel->getActiveSheet()
-                ->getStyle('G'. $fila)
-                ->getNumberFormat()
-                ->setFormatCode(
-                    PHPExcel_Style_NumberFormat::FORMAT_GENERAL
-                );
+            $this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1,$fila,$value['presupuesto']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(2,$fila,$value['cargo']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(3,$fila,$value['nombre']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(4,$fila,$value['basico']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(5,$fila,$value['fecha_ingreso']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,$value['dias_trabajados']);
             $this->docexcel->getActiveSheet()
                 ->getStyle('H'. $fila)
                 ->getNumberFormat()
                 ->setFormatCode(
                     PHPExcel_Style_NumberFormat::FORMAT_GENERAL
                 );
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(6,$fila,$value['indem_dia']);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$value['indem']);
+            $this->docexcel->getActiveSheet()
+                ->getStyle('I'. $fila)
+                ->getNumberFormat()
+                ->setFormatCode(
+                    PHPExcel_Style_NumberFormat::FORMAT_GENERAL
+                );
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(7,$fila,$value['indem_dia']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(8,$fila,$value['indem']);
 			$fila++;
 		}
 		

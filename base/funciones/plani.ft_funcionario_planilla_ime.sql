@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_ime (
   p_tabla varchar,
   p_transaccion varchar
 )
-  RETURNS varchar AS
-  $body$
+RETURNS varchar AS
+$body$
   /**************************************************************************
    SISTEMA:		Sistema de Planillas
    FUNCION: 		plani.ft_funcionario_planilla_ime
@@ -54,12 +54,11 @@ CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_ime (
       begin
         select tp.*,p.id_gestion,p.estado into v_tipo_planilla
         from plani.tplanilla p
-          inner join plani.ttipo_planilla tp
-            on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         where p.id_planilla = v_parametros.id_planilla;
 
 
-        if (v_tipo_planilla.estado not in('registro_funcionarios','registro_horas','calculo_columnas'))then
+        if (v_tipo_planilla.estado not in('registro_funcionarios','registro_horas','calculo_columnas', 'vbpoa', 'suppresu', 'vbpresupuestos'))then
           raise exception 'No es posible ingresar un funcionario con la planilla en este estado. Intentelo retrocediento la planilla a un estado anterior';
         end if;
 
@@ -151,7 +150,7 @@ CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_ime (
       raise exception '%',v_resp;
 
   END;
-  $body$
+$body$
 LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT

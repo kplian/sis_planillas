@@ -208,7 +208,7 @@ class RPrimaXLS
 					$this->resumen['afp_fut'] ++;
 				}
 				//$this->armaResumenRegional($value['lugar'], $value);
-				if ($value['sexo']== 'V') {
+				if ($value['sexo']== '1') {
 					$this->resumen['trabajadores_varones']++;
 					if ($value['jubilado']== 1) {
 						$this->resumen['jubilados_varones']++;
@@ -231,6 +231,7 @@ class RPrimaXLS
 					}*/
 				}//varon			
 				else {
+                    
 					$this->resumen['trabajadores_mujeres']++;
 					if ($value['jubilado']== 1) {
 						$this->resumen['jubilados_mujeres']++;

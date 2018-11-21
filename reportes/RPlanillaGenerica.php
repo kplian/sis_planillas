@@ -15,7 +15,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->Cell(30,3,$this->datos_titulo['depto'],0,1);
 		$this->Cell(30,3,$this->datos_titulo['uo'],0,1);
 		$this->SetFont('','BU',12);
-		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] . ' AL MES DE  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion'],0,1,'C');
+		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] . ' ('.$this->datos_detalle[0]['nombre'].') Al Mes De  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion'],0,1,'C');
 		
 		$this->SetFont('','B',10);
 		$this->Cell(0,5,'No ' . $this->datos_titulo['nro_planilla'],0,1,'C');
