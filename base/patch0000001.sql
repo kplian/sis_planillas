@@ -663,3 +663,9 @@ ALTER TABLE plani.tobligacion
   ADD COLUMN id_int_comprobante INTEGER;
 
 /***********************************F-SCP-JRR-PLANI-0-04/03/2017****************************************/
+
+/***********************************I-SCP-FEA-PLANI-0-07/11/2018****************************************/
+ALTER TABLE plani.tplanilla
+  ADD COLUMN codigo_poa VARCHAR(25),
+  ADD COLUMN obs_poa TEXT;
+/***********************************F-SCP-FEA-PLANI-0-07/11/2018****************************************/
