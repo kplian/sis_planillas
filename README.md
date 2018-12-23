@@ -1,5 +1,8 @@
-# sis_planillas
-Sistema de planillas del ERP kerp
+=================
+Sistema de Presupuestos
+
+Requiere Framework PXP https://github.com/kplian/pxp
+
 
 ## LICENSE
 
