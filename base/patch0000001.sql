@@ -669,3 +669,27 @@ ALTER TABLE plani.tplanilla
   ADD COLUMN codigo_poa VARCHAR(25),
   ADD COLUMN obs_poa TEXT;
 /***********************************F-SCP-FEA-PLANI-0-07/11/2018****************************************/
+/***********************************I-SCP-EGS-PLANI-0-05/02/2019****************************************/
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN id_tipo_obligacion_agrupador INTEGER;
+  
+CREATE TABLE plani.ttipo_obligacion_agrupador (
+  id_tipo_obligacion_agrupador SERIAL,
+  codigo_plantilla_comprobante VARCHAR,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  CONSTRAINT ttipo_obligacion_agrupador_pkey PRIMARY KEY(id_tipo_obligacion_agrupador),
+  CONSTRAINT ttipo_obligacion_agrupador_fk FOREIGN KEY (codigo_plantilla_comprobante)
+    REFERENCES conta.tplantilla_comprobante(codigo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN plani.ttipo_obligacion_agrupador.codigo_plantilla_comprobante
+IS 'Codigo de la plantilla del comprobante';
+/***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
+

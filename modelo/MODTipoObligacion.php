@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 17-01-2014 19:43:19
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
+ * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador 
+ * */
 
 class MODTipoObligacion extends MODbase{
 	
@@ -34,6 +36,8 @@ class MODTipoObligacion extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('es_pagable','varchar');
+		$this->captura('id_tipo_obligacion_agrupador','int4');//#3 EGS
+		$this->captura('codigo_agrupador','varchar'); //#3 EGS
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -57,6 +61,8 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('es_pagable','es_pagable','varchar');
+		$this->setParametro('id_tipo_obligacion_agrupador','id_tipo_obligacion_agrupador','int4');//#3 EGS
+
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -80,6 +86,7 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('codigo','codigo','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('es_pagable','es_pagable','varchar');
+		$this->setParametro('id_tipo_obligacion_agrupador','id_tipo_obligacion_agrupador','int4');//#3 EGS
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
