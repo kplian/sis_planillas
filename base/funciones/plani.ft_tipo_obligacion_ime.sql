@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
  * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador 
+   #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
 ***************************************************************************/
 
 DECLARE
@@ -57,7 +58,8 @@ BEGIN
 			id_usuario_mod,
 			fecha_mod,
             es_pagable,
-            id_tipo_obligacion_agrupador --#3 EGS
+            id_tipo_obligacion_agrupador, --#3 EGS
+            descripcion
           	) values(
 			v_parametros.tipo_obligacion,
 			v_parametros.dividir_por_lugar,
@@ -70,7 +72,8 @@ BEGIN
 			null,
 			null,
             v_parametros.es_pagable,
-            v_parametros.id_tipo_obligacion_agrupador --#3 EGS
+            v_parametros.id_tipo_obligacion_agrupador, --#3 EGS
+            v_parametros.descripcion --#1 EGS
 							
 			)RETURNING id_tipo_obligacion into v_id_tipo_obligacion;
 			
@@ -103,7 +106,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
             es_pagable = v_parametros.es_pagable,
-            id_tipo_obligacion_agrupador = v_parametros.id_tipo_obligacion_agrupador --#3 EGS
+            id_tipo_obligacion_agrupador = v_parametros.id_tipo_obligacion_agrupador, --#3 EGS
+            descripcion = v_parametros.descripcion --#1 EGS
 			where id_tipo_obligacion=v_parametros.id_tipo_obligacion;
                
 			--Definicion de la respuesta

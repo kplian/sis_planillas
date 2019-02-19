@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 	 ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  	#3		EndeEtr		05/02/2019		EGS				creacion
+ * 	#1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
 */
 
 class MODTipoObligacionAgrupador extends MODbase{
@@ -35,6 +36,7 @@ class MODTipoObligacionAgrupador extends MODbase{
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
+		$this->captura('descripcion','varchar');// #1	EGS
 		
 		
 		//Ejecuta la instruccion
@@ -56,7 +58,8 @@ class MODTipoObligacionAgrupador extends MODbase{
 		$this->setParametro('codigo_plantilla_comprobante','codigo_plantilla_comprobante','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
-
+		$this->setParametro('descripcion','descripcion','varchar');// #1	EGS
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -77,6 +80,7 @@ class MODTipoObligacionAgrupador extends MODbase{
 		$this->setParametro('codigo_plantilla_comprobante','codigo_plantilla_comprobante','varchar');
 		$this->setParametro('nombre','nombre','varchar');
 		$this->setParametro('estado_reg','estado_reg','varchar');
+		$this->setParametro('descripcion','descripcion','varchar');// #1	EGS
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE                FECHA                AUTOR                DESCRIPCION
  #0                05-02-2019 20:20:47                                Funcion que devuelve conjuntos de registros de las consultas relacionadas con la tabla 'plani.ttipo_obligacion_agrupador'    
- #
+ #1		EndeEtr		19/02/2019		        EGS				Se agrego el campo descripcion
  ***************************************************************************/
 
 DECLARE
@@ -56,7 +56,8 @@ BEGIN
                         tiobag.fecha_mod,
                         tiobag.id_usuario_mod,
                         usu1.cuenta as usr_reg,
-                        usu2.cuenta as usr_mod
+                        usu2.cuenta as usr_mod,
+                        tiobag.descripcion --#1 EGS
                         from plani.ttipo_obligacion_agrupador tiobag
                         inner join segu.tusuario usu1 on usu1.id_usuario = tiobag.id_usuario_reg
                         left join segu.tusuario usu2 on usu2.id_usuario = tiobag.id_usuario_mod

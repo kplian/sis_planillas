@@ -6,7 +6,8 @@
 *@date 17-01-2014 19:43:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
- * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador 	
+ * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador
+ * #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion	 	
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -195,8 +196,23 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 			form: true
 		},
 		 //#3	EGS
-						
-		
+		 //#1 EGS
+		{
+                    config: {
+                        name: 'descripcion',
+                        fieldLabel: 'Descripcion',
+                        allowBlank: true,
+                        anchor: '80%',
+                        gwidth: 100,
+                        maxLength: 1000
+                    },
+                    type: 'TextArea',
+                    filters: {pfiltro: 'tiobag.descripcion', type: 'string'},
+                    id_grupo: 1,
+                    grid: true,
+                    form: true
+         },		
+		//#1 EGS
 		{
 			config:{
 				name: 'estado_reg',
@@ -300,6 +316,7 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
      	{name:'id_tipo_obligacion_agrupador', type: 'numeric'}, //#3	EGS
 		{name:'codigo_agrupador', type: 'string'}, //#3	EGS
+		{name:'descripcion', type: 'string'}, //#1	EGS
 
 		
 	],

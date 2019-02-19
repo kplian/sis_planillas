@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
  * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  * #3		EndeEtr		05/02/2019		EGS				Se agrego a la consulta campo id_tipo_obligacion_agrupador y codigo_agrupador
+   #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
 ***************************************************************************/
 
 DECLARE
@@ -58,7 +59,8 @@ BEGIN
 						usu2.cuenta as usr_mod,
                         tipobli.es_pagable,
                         tipobli.id_tipo_obligacion_agrupador,  --#3 EGS
-                        toag.codigo as codigo_agrupador	  --#3 EGS
+                        toag.codigo as codigo_agrupador,	  --#3 EGS
+                        tipobli.descripcion         --#1 EGS
 						from plani.ttipo_obligacion tipobli
 						inner join segu.tusuario usu1 on usu1.id_usuario = tipobli.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tipobli.id_usuario_mod

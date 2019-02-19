@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
   ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  * #3		EndeEtr		05/02/2019		EGS				creacion
+ 	#1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -112,7 +113,22 @@ Phx.vista.TipoObligacionAgrupador=Ext.extend(Phx.gridInterfaz,{
 			grid: true,
 			form: true
 		},
-
+		//#1
+		{
+			config:{
+				name: 'descripcion',
+				fieldLabel: 'Descripcion',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+			},
+				type:'TextField',
+				filters:{pfiltro:'tiobag.descripcion',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		//#1
 		{
 			config:{
 				name: 'estado_reg',
@@ -242,7 +258,8 @@ Phx.vista.TipoObligacionAgrupador=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'codigo_tipo_obli', type: 'string'},
-		
+		{name:'descripcion', type: 'string'},
+
 	],
 	sortInfo:{
 		field: 'id_tipo_obligacion_agrupador',

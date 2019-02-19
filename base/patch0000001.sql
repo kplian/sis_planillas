@@ -691,5 +691,75 @@ WITH (oids = false);
 
 COMMENT ON COLUMN plani.ttipo_obligacion_agrupador.codigo_plantilla_comprobante
 IS 'Codigo de la plantilla del comprobante';
+
+--------------- SQL ---------------
+
+CREATE TABLE plani.tobligacion_agrupador (
+  id_ogligacion_agrupador SERIAL,
+  id_tipo_obligacion_agrupador INTEGER,
+  id_planilla INTEGER,
+  monto_agrupador NUMERIC DEFAULT 0 NOT NULL,
+  acreedor VARCHAR,
+  descripcion VARCHAR,
+  PRIMARY KEY(id_ogligacion_agrupador)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion_agrupador
+  ADD COLUMN descripcion VARCHAR;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES plani.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__it_tipo_ob_agr FOREIGN KEY (id_tipo_obligacion_agrupador)
+    REFERENCES plani.ttipo_obligacion_agrupador(id_tipo_obligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_obligacion_agrupador INTEGER;
+  
+     
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_ogligacion_agrupador_fk FOREIGN KEY (id_obligacion_agrupador)
+    REFERENCES plani.tobligacion_agrupador(id_ogligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN tipo_pago VARCHAR(50);  
+  
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN descripcion VARCHAR; 
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN id_int_comprobante INTEGER;
+    
+    
 /***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
 

@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
  #3				05-02-2019 20:20:47								Funcion que gestiona las operaciones basicas (inserciones, modificaciones, eliminaciones de la tabla 'plani.ttipo_obligacion_agrupador'	
- #
+ #1		EndeEtr		19/02/2019		     EGS				    Se agrego el campo descripcion
  ***************************************************************************/
 
 DECLARE
@@ -71,7 +71,8 @@ BEGIN
             fecha_reg,
             usuario_ai,
             fecha_mod,
-            id_usuario_mod
+            id_usuario_mod,
+            descripcion --#1 EGS
               ) values(
             v_parametros.codigo,
             v_parametros.codigo_plantilla_comprobante,
@@ -82,7 +83,8 @@ BEGIN
             now(),
             v_parametros._nombre_usuario_ai,
             null,
-            null
+            null,
+            v_parametros.descripcion --#1 EGS
                             
             
             
@@ -128,7 +130,8 @@ BEGIN
             fecha_mod = now(),
             id_usuario_mod = p_id_usuario,
             id_usuario_ai = v_parametros._id_usuario_ai,
-            usuario_ai = v_parametros._nombre_usuario_ai
+            usuario_ai = v_parametros._nombre_usuario_ai,
+            descripcion = v_parametros.descripcion  --#1 EGS
             where id_tipo_obligacion_agrupador=v_parametros.id_tipo_obligacion_agrupador;
                
             --Definicion de la respuesta
