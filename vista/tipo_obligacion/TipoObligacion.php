@@ -7,7 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador
- * #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion	 	
+ * #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion	
+ * #1		EndeEtr		20/02/2019		EGS				se agrego los campos codigo_tipo_relacion_debe,codigo_tipo_relacion_haber	 	
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -213,6 +214,100 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
                     form: true
          },		
 		//#1 EGS
+		{ //#1
+			config: {
+				name: 'codigo_tipo_relacion_debe',
+				fieldLabel: 'Codigo relacion Contable Debe',
+				allowBlank: true,
+				emptyText: 'Elija una opción...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_contabilidad/control/TipoRelacionContable/listarTipoRelacionContable',
+					id: 'id_tipo_relacion_contable',
+					root: 'datos',
+					sortInfo: {
+						field: 'id_tipo_relacion_contable',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_tipo_relacion_contable', 'nombre_tipo_relacion', 'codigo_tipo_relacion'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'tiprelco.id_tipo_relacion_contable#tiprelco.nombre_tipo_relacion#tiprelco.codigo_tipo_relacion'}
+				}),
+				tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo: </b>{codigo_tipo_relacion}</p>\
+		                       <p><b>Nombre : </b>{nombre_tipo_relacion}</p>\
+		                       </div></tpl>',
+				valueField: 'codigo_tipo_relacion',
+				displayField: 'codigo_tipo_relacion',
+				gdisplayField: 'codigo_tipo_relacion',
+				hiddenName: 'codigo_tipo_relacion',
+				forceSelection: true,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				anchor: '100%',
+				gwidth: 150,
+				minChars: 2,
+				renderer : function(value, p, record) {
+					return String.format('{0}', record.data['codigo_tipo_relacion_debe']);
+				}
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {pfiltro: 'tiobag.codigo',type: 'string'},
+			grid: true,
+			form: true
+		},
+		{//#1
+			config: {
+				name: 'codigo_tipo_relacion_haber',
+				fieldLabel: 'Codigo relacion Contable Haber',
+				allowBlank: true,
+				emptyText: 'Elija una opción...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_contabilidad/control/TipoRelacionContable/listarTipoRelacionContable',
+					id: 'id_tipo_relacion_contable',
+					root: 'datos',
+					sortInfo: {
+						field: 'id_tipo_relacion_contable',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_tipo_relacion_contable', 'nombre_tipo_relacion', 'codigo_tipo_relacion'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'tiprelco.id_tipo_relacion_contable#tiprelco.nombre_tipo_relacion#tiprelco.codigo_tipo_relacion'}
+				}),
+				tpl:'<tpl for=".">\
+		                       <div class="x-combo-list-item"><p><b>Codigo: </b>{codigo_tipo_relacion}</p>\
+		                       <p><b>Nombre : </b>{nombre_tipo_relacion}</p>\
+		                       </div></tpl>',
+				valueField: 'codigo_tipo_relacion',
+				displayField: 'codigo_tipo_relacion',
+				gdisplayField: 'codigo_tipo_relacion',
+				hiddenName: 'codigo_tipo_relacion',
+				forceSelection: true,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				anchor: '100%',
+				gwidth: 150,
+				minChars: 2,
+				renderer : function(value, p, record) {
+					return String.format('{0}', record.data['codigo_tipo_relacion_haber']);
+				}
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {pfiltro: 'tiobag.codigo',type: 'string'},
+			grid: true,
+			form: true
+		},
 		{
 			config:{
 				name: 'estado_reg',
@@ -317,8 +412,8 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
      	{name:'id_tipo_obligacion_agrupador', type: 'numeric'}, //#3	EGS
 		{name:'codigo_agrupador', type: 'string'}, //#3	EGS
 		{name:'descripcion', type: 'string'}, //#1	EGS
-
-		
+		{name:'codigo_tipo_relacion_debe', type: 'string'},//#1	EGS
+		{name:'codigo_tipo_relacion_haber', type: 'string'},//#1	EGS		
 	],
 	sortInfo:{
 		field: 'id_tipo_obligacion',

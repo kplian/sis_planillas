@@ -18,6 +18,7 @@ $body$
  * ISSUE 	FORK		FECHA			AUTHOR			DESCRIPCION
  * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador 
    #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
+   #1		EndeEtr		20/02/2019		EGS				se agrego los campos codigo_tipo_relacion_debe,codigo_tipo_relacion_haber	 	
 ***************************************************************************/
 
 DECLARE
@@ -59,7 +60,9 @@ BEGIN
 			fecha_mod,
             es_pagable,
             id_tipo_obligacion_agrupador, --#3 EGS
-            descripcion
+            descripcion,
+            codigo_tipo_relacion_debe,
+            codigo_tipo_relacion_haber
           	) values(
 			v_parametros.tipo_obligacion,
 			v_parametros.dividir_por_lugar,
@@ -73,7 +76,9 @@ BEGIN
 			null,
             v_parametros.es_pagable,
             v_parametros.id_tipo_obligacion_agrupador, --#3 EGS
-            v_parametros.descripcion --#1 EGS
+            v_parametros.descripcion, --#1 EGS
+            v_parametros.codigo_tipo_relacion_debe,--#1 EGS
+            v_parametros.codigo_tipo_relacion_haber--#1 EGS
 							
 			)RETURNING id_tipo_obligacion into v_id_tipo_obligacion;
 			
@@ -107,7 +112,9 @@ BEGIN
 			fecha_mod = now(),
             es_pagable = v_parametros.es_pagable,
             id_tipo_obligacion_agrupador = v_parametros.id_tipo_obligacion_agrupador, --#3 EGS
-            descripcion = v_parametros.descripcion --#1 EGS
+            descripcion = v_parametros.descripcion, --#1 EGS
+            codigo_tipo_relacion_debe = v_parametros.codigo_tipo_relacion_debe,--#1 EGS
+            codigo_tipo_relacion_haber = v_parametros.codigo_tipo_relacion_haber--#1 EGS
 			where id_tipo_obligacion=v_parametros.id_tipo_obligacion;
                
 			--Definicion de la respuesta

@@ -759,7 +759,89 @@ ALTER TABLE plani.ttipo_obligacion
 
 ALTER TABLE plani.tobligacion_agrupador
   ADD COLUMN id_int_comprobante INTEGER;
-    
+  
+  --------------- SQL ---------------
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN cotigo_tipo_relacion_debe VARCHAR DEFAULT 'CUEOBLI' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.cotigo_tipo_relacion_debe
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al debe';
+
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN cotigo_tipo_relacion_haber VARCHAR DEFAULT 'CUEOBLI' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.cotigo_tipo_relacion_haber
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_funcionario INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_funcionario
+IS 'para identificar obligaciones por funcionario';  
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_cuenta
+IS 'cuenta para el debe';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_auxiliar
+IS 'auxiliar para el debe';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_planilla
+IS 'partida para el debe';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_cuenta_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_cuenta_haber
+IS 'cuenta pra el haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_partida_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_partida_haber
+IS 'partida para el haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_auxiliar_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_auxiliar_haber
+IS 'auxiliar para el haber';
+--------------- SQL ---------------
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN codigo_tipo_relacion_debe VARCHAR DEFAULT 'CUEOBLI'::character varying NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.codigo_tipo_relacion_debe
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al debe';
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN codigo_tipo_relacion_haber VARCHAR DEFAULT 'CUEOBLI'::character varying NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.codigo_tipo_relacion_haber
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al haber';
+  
     
 /***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
 
