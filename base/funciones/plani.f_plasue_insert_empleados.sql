@@ -15,6 +15,7 @@ DECLARE
   v_id_afp				integer;
   v_id_cuenta_bancaria	integer;
   v_licencia			boolean;
+  v_aux varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.f_plasue_insert_empleados';
@@ -29,8 +30,8 @@ BEGIN
     if (v_planilla.id_uo is not null) then
     	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
     end if;
-
-
+    
+  
     for v_registros in execute('
           select distinct on (uofun.id_funcionario) uofun.id_funcionario , uofun.id_uo_funcionario,ofi.id_lugar,car.id_cargo,tc.codigo as tipo_contrato
           from orga.tuo_funcionario uofun
@@ -99,9 +100,13 @@ BEGIN
                   0,
                   0
                 );
+              
+                
           end loop;
         --end if;
       end loop;
+      
+     
     return 'exito';
 EXCEPTION
 

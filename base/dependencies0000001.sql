@@ -1323,6 +1323,9 @@ AS
          cc.tipo_contrato::text = oc.tipo_contrato::text
   WHERE oc.monto_detalle_obligacion <> 0::numeric;
  DROP VIEW plani.vobligacion_pago;
+ 
+ 
+ 
 CREATE OR REPLACE VIEW plani.vobligacion_pago(
     id_obligacion,
     id_planilla,
@@ -1435,3 +1438,7 @@ AS
   GROUP BY ob.id_plan_pago, ob.id_planilla, ob.id_cuenta, ob.id_auxiliar, ob.id_partida, tob.nombre, per.periodo, ges.gestion;
 
 /***********************************F-DEP-CAP-PLANI-0-04/12/2018****************************************/
+
+/***********************************I-DEP-EGS-PLANI-0-05/02/2019****************************************/
+select pxp.f_insert_testructura_gui ('AGRTO', 'DEFPLA');
+/***********************************F-DEP-EGS-PLANI-0-05/02/2019****************************************/

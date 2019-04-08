@@ -669,3 +669,222 @@ ALTER TABLE plani.tplanilla
   ADD COLUMN codigo_poa VARCHAR(25),
   ADD COLUMN obs_poa TEXT;
 /***********************************F-SCP-FEA-PLANI-0-07/11/2018****************************************/
+/***********************************I-SCP-EGS-PLANI-0-05/02/2019****************************************/
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN id_tipo_obligacion_agrupador INTEGER;
+  
+CREATE TABLE plani.ttipo_obligacion_agrupador (
+  id_tipo_obligacion_agrupador SERIAL,
+  codigo_plantilla_comprobante VARCHAR,
+  codigo VARCHAR,
+  nombre VARCHAR,
+  CONSTRAINT ttipo_obligacion_agrupador_pkey PRIMARY KEY(id_tipo_obligacion_agrupador),
+  CONSTRAINT ttipo_obligacion_agrupador_fk FOREIGN KEY (codigo_plantilla_comprobante)
+    REFERENCES conta.tplantilla_comprobante(codigo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN plani.ttipo_obligacion_agrupador.codigo_plantilla_comprobante
+IS 'Codigo de la plantilla del comprobante';
+
+--------------- SQL ---------------
+
+CREATE TABLE plani.tobligacion_agrupador (
+  id_ogligacion_agrupador SERIAL,
+  id_tipo_obligacion_agrupador INTEGER,
+  id_planilla INTEGER,
+  monto_agrupador NUMERIC DEFAULT 0 NOT NULL,
+  acreedor VARCHAR,
+  descripcion VARCHAR,
+  PRIMARY KEY(id_ogligacion_agrupador)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion_agrupador
+  ADD COLUMN descripcion VARCHAR;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES plani.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__it_tipo_ob_agr FOREIGN KEY (id_tipo_obligacion_agrupador)
+    REFERENCES plani.ttipo_obligacion_agrupador(id_tipo_obligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_obligacion_agrupador INTEGER;
+  
+     
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_ogligacion_agrupador_fk FOREIGN KEY (id_obligacion_agrupador)
+    REFERENCES plani.tobligacion_agrupador(id_ogligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN tipo_pago VARCHAR(50);  
+  
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN descripcion VARCHAR; 
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN id_int_comprobante INTEGER;
+  
+  --------------- SQL ---------------
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN cotigo_tipo_relacion_debe VARCHAR DEFAULT 'CUEOBLI' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.cotigo_tipo_relacion_debe
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al debe';
+
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN cotigo_tipo_relacion_haber VARCHAR DEFAULT 'CUEOBLI' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.cotigo_tipo_relacion_haber
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_funcionario INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_funcionario
+IS 'para identificar obligaciones por funcionario';  
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_cuenta
+IS 'cuenta para el debe';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_auxiliar
+IS 'auxiliar para el debe';
+
+
+--------------- SQL ---------------
+
+COMMENT ON COLUMN plani.tobligacion.id_planilla
+IS 'partida para el debe';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_cuenta_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_cuenta_haber
+IS 'cuenta pra el haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_partida_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_partida_haber
+IS 'partida para el haber';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN id_auxiliar_haber INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion.id_auxiliar_haber
+IS 'auxiliar para el haber';
+--------------- SQL ---------------
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN codigo_tipo_relacion_debe VARCHAR DEFAULT 'CUEOBLI'::character varying NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.codigo_tipo_relacion_debe
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al debe';
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN codigo_tipo_relacion_haber VARCHAR DEFAULT 'CUEOBLI'::character varying NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_obligacion.codigo_tipo_relacion_haber
+IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al haber';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_funcionario_fk FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    
+--------------- SQL ---------------
+
+ -- object recreation
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text)  OR ((tipo_presu_cc)::text = 'hoja_calculo'::text) ); 
+    
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN tipo_horario VARCHAR(15) DEFAULT 'normal' NOT NULL;
+
+COMMENT ON COLUMN plani.tprorrateo.tipo_horario
+IS 'normal,  extra o  nocturno,  tipo de horario prorrateado';  
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN calculado_resta VARCHAR DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tprorrateo.calculado_resta
+IS 'indica se se calculo por resta';
+ 
+    
+/***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
+/***********************************I-SCP-EGS-PLANI-1-07/03/2019****************************************/
+ALTER TABLE plani.tlicencia
+  ADD COLUMN id_estado_wf INTEGER;
+ALTER TABLE plani.tlicencia
+  ADD COLUMN id_proceso_wf INTEGER;
+ALTER TABLE plani.tlicencia
+  ADD COLUMN nro_tramite VARCHAR;
+/***********************************F-SCP-EGS-PLANI-1-07/03/2019****************************************/

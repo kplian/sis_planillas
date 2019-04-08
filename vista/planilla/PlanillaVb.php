@@ -56,6 +56,40 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: '<b>Documentos de la Solicitud</b><br/>Subir los documetos requeridos en la solicitud seleccionada.'
                 }
             );
+            
+            this.addButton('btnPresupuestos',
+            {	grupo:[0,1,2],
+                iconCls: 'bstats',
+                disabled: false,  
+                text:'Presupuestos',
+                tooltip: 'Gestion de Presupuestos',
+                xtype: 'splitbutton',  
+                menu: [{
+                    text: 'Presupuesto por Empleado',
+                    id: 'btnPresupuestoEmpleado-' + this.idContenedor,
+                    handler: this.onButtonPresupuestoEmpleado,
+                    tooltip: 'Detalle de Presupuestos por Empleado',
+                    scope: this
+                }, {
+                    text: 'Presupuestos Consolidados',
+                    id: 'btnPresupuestosCons-' + this.idContenedor,
+                    handler: this.onButtonPresupuestosConsolidado,
+                    tooltip: 'Presupuestos Consolidados por Columnas' ,
+                    scope: this
+                }]                              
+            }
+        );
+        this.addButton('btnObligaciones',
+            {	grupo:[0,1,2],
+                iconCls: 'bmoney',
+                text:'Obligaciones',
+                disabled: true,                
+                handler: this.onButtonObligacionesDetalle,
+                tooltip: 'Detalle de Obligaciones'                
+            }
+        );
+        
+        
             if(this.nombreVista == 'planillavbpoa') {
                 this.addButton('obs_poa', {
                     grupo: [0, 1],
@@ -616,7 +650,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 rec.data.estado == 'comprobante_presupuestario_validado' ||
                 rec.data.estado == 'comprobante_obligaciones') {
                 this.getBoton('ant_estado').enable();
-                this.getBoton('sig_estado').disable();
+                this.getBoton('sig_estado').enable();
 
             } else {
                 this.getBoton('ant_estado').enable();
@@ -632,6 +666,9 @@ header("content-type: text/javascript; charset=UTF-8");
 
             //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
             this.getBoton('diagrama_gantt').enable();
+            
+            this.getBoton('btnPresupuestos').enable();           
+            this.getBoton('btnObligaciones').enable(); 
 
         },
         liberaMenu:function()
@@ -902,6 +939,48 @@ header("content-type: text/javascript; charset=UTF-8");
             }*/
             this.wObs.show()
         },
+        
+         onButtonPresupuestoEmpleado : function() {
+	    	var rec = {maestro: this.sm.getSelected().data};
+							      
+	            Phx.CP.loadWindows('../../../sis_planillas/vista/presupuesto_empleado/PresupuestoEmpleado.php',
+	                    'Apropiacion Presupuestaria por Empleado',
+	                    {
+	                        width:800,
+	                        height:'90%'
+	                    },
+	                    rec,
+	                    this.idContenedor,
+	                    'PresupuestoEmpleado');
+	    },
+    
+	    onButtonPresupuestosConsolidado : function () {
+	    		var rec = {maestro: this.sm.getSelected().data};
+							      
+	            Phx.CP.loadWindows('../../../sis_planillas/vista/consolidado/Consolidado.php',
+	                    'Consolidado Presupuestario',
+	                    {
+	                        width:800,
+	                        height:'90%'
+	                    },
+	                    rec,
+	                    this.idContenedor,
+	                    'Consolidado');
+	    },
+	        
+         onButtonObligacionesDetalle : function () {
+    		var rec = {maestro: this.sm.getSelected().data};
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
+                    'Obligaciones',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'Obligacion');
+    },
 
         submitObs:function(){
             Phx.CP.loadingShow();

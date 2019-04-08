@@ -4,6 +4,24 @@ CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
 )
 RETURNS varchar AS
 $body$
+/*
+*
+*  Autor:   JRR
+*  DESC:    funcion que actualiza los estados despues del registro de un siguiente en planilla
+*  Fecha:   17/10/2014
+*
+ ***************************************************************************************************   
+    
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17/10/2014        JRR KPLIAN       creacion
+ #1 ETR           07/02/2019        RAC KPLIAN       Genera agrupadores de obligacion para todas las obligaciones segun configuracion 
+                                                     Agergar id_funcionario  en obligaciones por funcionario    
+*/
+
 DECLARE
 	v_planilla			  record;
     v_sql_tabla			  text;
@@ -21,8 +39,12 @@ DECLARE
     v_detalles			  record;
     v_id_obligacion		  integer;
     v_lugar				  varchar;
+    v_registros_ob        record;
+    v_id_obligacion_agrupador   integer;
 BEGIN
 	v_nombre_funcion = 'plani.f_generar_obligaciones';
+    
+   
     --obtener datos de planilla
     select * into v_planilla
     from plani.tplanilla
@@ -40,7 +62,7 @@ BEGIN
                 tipo_contrato VARCHAR(10),
                 id_tipo_columna INTEGER,
                 codigo_columna VARCHAR(30),
-                porcentaje NUMERIC(5,2),
+                porcentaje NUMERIC,
                 valor NUMERIC,
                 es_ultimo VARCHAR(2),
                 id_lugar INTEGER,
@@ -282,10 +304,8 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'cheque',
-                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre || ' ' ||
-                    v_lugar,
-                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre ||  ' ' ||
-                    v_lugar,
+                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre || ' ' ||  v_lugar,
+                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre ||  ' ' || v_lugar,
                     v_obligaciones.valor,
                     v_obligaciones.id_afp
                   ) returning id_obligacion into v_id_obligacion;
@@ -426,7 +446,8 @@ BEGIN
                     tipo_pago,
                     acreedor,
                     descripcion,
-                    monto_obligacion
+                    monto_obligacion,
+                    id_funcionario   --#1
                   )
                   VALUES (
                     p_id_usuario,
@@ -436,7 +457,8 @@ BEGIN
                     'cheque',
                     v_obligaciones.nombre_funcionario,
                     v_registros.nombre || ' ' || v_obligaciones.nombre_funcionario,
-                    v_obligaciones.valor
+                    v_obligaciones.valor,
+                    v_obligaciones.id_funcionario  --#1
                   ) returning id_obligacion into v_id_obligacion;
 
                 --inserta el detalle de obligaciones
@@ -474,10 +496,79 @@ BEGIN
 
         	end loop;
         end if;
+       
 
         --truncar tabla temporal
         execute('truncate ' || v_nombre_tabla);
     end loop;
+    
+    --------------------------------------------
+    -- #1 generar agruapdores de ogligaciones
+    --------------------------------------------
+    FOR v_registros_ob in(
+                select 
+                  tob.id_tipo_obligacion,
+                  tob.id_tipo_obligacion_agrupador,
+                  ob.id_obligacion,
+                  ob.acreedor,
+                  ob.id_planilla,
+                  ob.descripcion,
+                  ob.tipo_pago
+                from plani.tobligacion ob
+                inner join plani.ttipo_obligacion tob on tob.id_tipo_obligacion = ob.id_tipo_obligacion
+                where ob.id_planilla = p_id_planilla and ob.estado_reg = 'activo'  and tob.id_tipo_obligacion_agrupador is not null )LOOP
+         
+         --check if exists  only one group for id_tipo_agrupador 
+         v_id_obligacion_agrupador = NULL;
+         
+         select 
+           oa.id_obligacion_agrupador 
+         into 
+           v_id_obligacion_agrupador
+         from plani.tobligacion_agrupador oa 
+         where     oa.id_tipo_obligacion_agrupador =  v_registros_ob.id_tipo_obligacion_agrupador
+              and  oa.id_planilla = v_registros_ob.id_planilla
+              and  oa.acreedor = v_registros_ob.acreedor;
+         
+        IF v_id_obligacion_agrupador is null  THEN
+         -- if not exits create a new record for obligacion_agrupador
+          
+         INSERT INTO 
+                    plani.tobligacion_agrupador
+                  (
+                    id_usuario_reg,                  
+                    fecha_reg,
+                    estado_reg,
+                    id_tipo_obligacion_agrupador,
+                    id_planilla,
+                    monto_agrupador,
+                    acreedor,
+                    descripcion,
+                    tipo_pago
+                  )
+                  VALUES (
+                    p_id_usuario,
+                    now(),
+                    'activo',                    
+                     v_registros_ob.id_tipo_obligacion_agrupador,
+                    v_registros_ob.id_planilla,
+                    0,
+                    v_registros_ob.acreedor,
+                    v_registros_ob.descripcion,
+                    v_registros_ob.tipo_pago
+                  ) returning id_obligacion_agrupador into v_id_obligacion_agrupador;
+         
+        END IF;
+        
+        -- actualizar el agrupador en la obligacion de pago         
+        update plani.tobligacion o set
+        id_obligacion_agrupador = v_id_obligacion_agrupador
+        where o.id_obligacion = v_registros_ob.id_obligacion;
+           
+    
+    END LOOP;
+    
+    
   	return 'exito';
 EXCEPTION
 

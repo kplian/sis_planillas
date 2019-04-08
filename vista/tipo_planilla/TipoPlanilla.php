@@ -5,6 +5,17 @@
 *@author  (admin)
 *@date 17-01-2014 15:36:53
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * 
+ * 
+ * 
+ *     
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0              17-01-2014        GUY BOA             Creacion 
+ #1              22-02-2019        Rarteaga           agregaga  hoja_calculo
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -186,12 +197,12 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['parametrizacion','ultimo_activo_periodo','ultimo_activo_gestion','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones','ultimo_activo_gestion_anterior']
+				store:['hoja_calculo','parametrizacion','ultimo_activo_periodo','ultimo_activo_gestion','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones','ultimo_activo_gestion_anterior'] //#1 agrega hoja calculo
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['parametrizacion','ultimo_activo_periodo','ultimo_activo_gestion','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones','ultimo_activo_gestion_anterior'],	
+	       				 options: ['hoja_calculo','parametrizacion','ultimo_activo_periodo','ultimo_activo_gestion','prorrateo_aguinaldo','retroactivo_sueldo','retroactivo_asignaciones','ultimo_activo_gestion_anterior'],	//#1 agrega hoja calculo
 	       		 	},
 				id_grupo:1,
 				grid:true,

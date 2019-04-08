@@ -319,3 +319,23 @@ INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_generar_comprobante_obligaciones', E'no', E'bandera para generar comprobante de obligaciones');
 
 /***********************************F-DAT-JRR-PLANI-0-10/03/2017****************************************/
+
+
+/***********************************I-DAT-RAC-PLANI-1-24/01/2019****************************************/
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'plani_generar_comprobante_obligaciones', E'si', E'genera cbte de obligaciones al validar cbte de planilla');
+  
+  
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'plani_cuenta_bancaria_defecto', E'1', E'Cuenta bancaria por defecto para pagos generados por planillas');
+  
+/***********************************F-DAT-RAC-PLANI-1-24/01/2019****************************************/
+/***********************************I-DAT-EGS-PLANI-0-05/02/2019****************************************/
+select pxp.f_insert_tgui ('Agrupador de Obligaciones', 'Agrupa el tipo de Obligacion ', 'AGRTO', 'si', 3, 'sis_planillas/vista/tipo_obligacion_agrupador/TipoObligacionAgrupador.php', 3, '', 'TipoObligacionAgrupador', 'PLANI');
+/***********************************F-DAT-EGS-PLANI-0-05/02/2019****************************************/
+
+  

@@ -5,6 +5,22 @@ CREATE OR REPLACE FUNCTION plani.f_consolidar_pres_cos (
 )
 RETURNS varchar AS
 $body$
+/*
+    Autor: Guy Ribera Rojas
+    Fecha: 28-09-2013
+    Descripción:  calculo de prorrateo por centro de costo apra determinar el gasto de las planillas
+ 
+  ***************************************************************************************************   
+    
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               28-09-2013        GUY BOA             Creacion 
+ #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias , hoja_calculo
+
+*/
 DECLARE
   v_registros		record;
   v_resp	            	varchar;
@@ -24,6 +40,7 @@ DECLARE
   v_valor_ejecutado			numeric;
   v_tipo_contrato			varchar;
   v_id_pres_adm				integer;
+  v_suma_parcial           numeric;  --#1
 BEGIN
 	v_nombre_funcion = 'plani.f_consolidar_pres_cos';
 	SELECT p.*,tp.tipo_presu_cc,tp.calculo_horas,id_gestion
@@ -46,14 +63,15 @@ BEGIN
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
-    elsif (v_planilla.tipo_presu_cc IN('ultimo_activo_gestion_anterior','ultimo_activo_gestion','ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones') ) then
-    	v_tipo_contrato = 'pro.tipo_contrato';
-    	v_consulta = 'select ' || v_campo || ' as id_campo 
+    --#1 adiciona hoja de calculo                    
+    elsif (v_planilla.tipo_presu_cc IN('hoja_calculo','ultimo_activo_gestion_anterior','ultimo_activo_gestion','ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones') ) then
+    	
+        v_tipo_contrato = 'pro.tipo_contrato';    	
+        v_consulta = 'select ' || v_campo || ' as id_campo 
     					from plani.tprorrateo pro
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla
                         where id_planilla = ' || p_id_planilla || '
                         group by ' || v_campo ;
-    
     end if;
     --recorrer todos los presupuestos que hay en la planilla
     for v_registros in execute(v_consulta) loop
@@ -87,13 +105,20 @@ BEGIN
           p_tipo_generacion
         )RETURNING id_consolidado into v_id_consolidado;
         
-        v_consulta = 'select ' || v_tipo_contrato || ',cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor,procol.compromete
+        --#1  apra cacula el total de centro de costo o presupesuto
+        
+        v_consulta = 'select ' || v_tipo_contrato || ',cv.id_tipo_columna,cv.codigo_columna,sum(cv.valor*procol.porcentaje/100) as valor,procol.compromete, sum(cv.valor) as total_valor_cv
     					from plani.tprorrateo pro ';
+                        
+                        
     	if (v_planilla.tipo_presu_cc = 'parametrizacion' and v_planilla.calculo_horas = 'si') then
-        	v_consulta = v_consulta || 'inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
+        	
+            v_consulta = v_consulta || 'inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = pro.id_horas_trabajadas
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = ht.id_funcionario_planilla
-                        ';
-        elsif (v_planilla.tipo_presu_cc IN('ultimo_activo_gestion','ultimo_activo_gestion_anterior','ultimo_activo_periodo','prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
+                        ';     
+                        
+        --#1 adiciona hoja de calculo                
+        elsif (v_planilla.tipo_presu_cc IN  ('hoja_calculo','ultimo_activo_gestion','ultimo_activo_gestion_anterior','ultimo_activo_periodo','prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
         	v_consulta = v_consulta || ' inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla = pro.id_funcionario_planilla
                         ';
         end if;
@@ -103,6 +128,8 @@ BEGIN
                         											and procol.id_tipo_columna = cv.id_tipo_columna
                         where cv.valor > 0 and id_planilla = ' || p_id_planilla || ' and ' || v_campo || ' = ' || v_registros.id_campo || '
                         group by ' || v_tipo_contrato || ',cv.id_tipo_columna,cv.codigo_columna,procol.compromete';
+                        
+        v_suma_parcial = 0;                
         
         for v_columnas in execute (v_consulta) loop
         	if (p_tipo_generacion = 'costos' or 
@@ -136,6 +163,10 @@ BEGIN
               v_columnas.tipo_contrato,
               v_valor_ejecutado
             )RETURNING id_consolidado_columna into v_id_consolidado_columna;
+            
+            v_suma_parcial =  v_suma_parcial + v_columnas.valor; 
+            
+            
             --calcular el ejecutado de las planillas que tienen la misma columna y q esten en estado finalizado
             if (v_planilla.tipo_presu_cc = 'ultimo_activo_aguinaldo') then
             	if (p_tipo_generacion = 'presupuestos') then            
@@ -161,6 +192,11 @@ BEGIN
             end if;
         
         end loop;
+        
+        --#1 el ultimo lo calcula por resta
+       --  update plani.tconsolidado_columna
+       --   set valor = v_columnas.total_valor_cv  - (v_suma_parcial - v_columnas.valor)
+      --   where id_consolidado_columna = v_id_consolidado_columna; 
         
     end loop;   
     

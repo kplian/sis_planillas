@@ -13,7 +13,13 @@ Autor: RAC KPLIANF
 Fecha:   6 junio de 2013
 Descripcion  Esta funcion retrocede el estado de los planes de pago cuando los comprobantes son eliminados
 
-  
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               6 junio de 2013       RAC KPLIANF        Función que se encarga de verificar la integridad del comprobante para posteriormente validarlo
+ #1 ETR           24/01/2019        RAC KPLIAN        quita la validacion automatiza del cbte de devengado     
 
 */
 
@@ -98,7 +104,15 @@ BEGIN
         
         
         
-         --
+         -- #1 ETR anularelacion foranea
+         
+           update plani.tconsolidado_columna c set
+           id_int_transaccion  = NULL           
+           where c.id_int_transaccion in (select id_int_transaccion from conta.tint_transaccion where id_int_comprobante = p_id_int_comprobante );
+         
+           update plani.tplanilla p set
+            id_int_comprobante = NULL
+           where p.id_int_comprobante = p_id_int_comprobante;
          
           select 
                ew.id_proceso_wf 
