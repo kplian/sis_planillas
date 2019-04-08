@@ -11,9 +11,18 @@ $body$
 /*
 *
 *  Autor:   JRR
-*  DESC:    funcion que actualiza los estados despues del registro de un anterior en planilla
+*  DESC:    actulizada datos al retroceder estado de planilla
 *  Fecha:   17/10/2014
 *
+
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17/10/2014        JRR KPLIAN       creacion
+ #1 ETR           19/02/2019        RAC KPLIAN       elimina agrupadores de obligaciones
+
 */
 
 DECLARE
@@ -113,11 +122,19 @@ BEGIN
         --eliminacion de detalle_transferencia
         delete from plani.tdetalle_transferencia using plani.tobligacion
         where plani.tdetalle_transferencia.id_obligacion = plani.tobligacion.id_obligacion and 
-        plani.tobligacion.id_planilla = v_planilla.id_planilla;   
+        plani.tobligacion.id_planilla = v_planilla.id_planilla; 
+        
+        
             
          --eliminacion de las obligaciones
         delete from plani.tobligacion
         where id_planilla = v_planilla.id_planilla;
+        
+        
+        --#1  eliminacion de los agrupadores de  obligaciones
+        delete from plani.tobligacion_agrupador
+        where id_planilla = v_planilla.id_planilla;
+          
          
      	--eliminar prorrateo asociado al funcionario
         delete from plani.tprorrateo_columna using plani.tprorrateo,plani.tfuncionario_planilla

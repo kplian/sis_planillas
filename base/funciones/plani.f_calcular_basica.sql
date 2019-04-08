@@ -17,6 +17,13 @@ $body$
    DESCRIP: Calcula columnas básicas que necesitan estar definidas en esta funcion
    Fecha: 27/01/2014
 
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               27/01/2014        GUY BOA             Creacion 
+ #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias
   */
   DECLARE
     v_resp	            	varchar;
@@ -71,7 +78,8 @@ $body$
 
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
       uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
-      per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario
+      per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario,
+      p.id_periodo
     into v_planilla
     from plani.tplanilla p
       inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -84,6 +92,13 @@ $body$
     --Sueldo Básico
     IF (p_codigo = 'SUELDOBA') THEN
       select sum(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+      into v_resultado
+      from plani.thoras_trabajadas ht
+      where ht.id_funcionario_planilla = p_id_funcionario_planilla;
+    
+    --#1  caculo de sueldo por hora 
+    ELSIF (p_codigo = 'SUHORA') THEN
+      select sum(ht.sueldo / v_cantidad_horas_mes)
       into v_resultado
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
@@ -102,8 +117,30 @@ $body$
       into v_resultado
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
-
+      
+    --#1  calculo de horas extra   
+    ELSIF (p_codigo = 'HOREXT') THEN
+    
+      select sum(th.extra_autorizada)
+      into v_resultado
+      from asis.vtotales_horas th
+      
+      where     th.id_funcionario = v_planilla.id_funcionario 
+            and th.id_periodo = v_planilla.id_periodo
+            and th.estado = 'aprobado';
+            
+    --#1 calculode horas nocturnas 
+    ELSIF (p_codigo = 'HORNOC') THEN
+      
+      select sum(th.total_nocturna)
+      into v_resultado
+      from asis.vtotales_horas th
+      where     th.id_funcionario = v_planilla.id_funcionario 
+            and th.id_periodo = v_planilla.id_periodo
+            and th.estado = 'aprobado';
+    
     --Dias dados por ley
+    
     ELSIF (p_codigo = 'DIALEY') THEN
       v_resultado = 0;
       if ( v_cantidad_horas_mes = plani.f_get_valor_columna_valor('HORNORM', p_id_funcionario_planilla)) then
@@ -171,6 +208,7 @@ $body$
       v_fecha_ini = plani.f_get_fecha_primer_contrato_empleado(v_id_uo_funcionario, v_id_funcionario, v_fecha_ini);
 
       v_fecha_ini_actual = date(date_part('day', v_fecha_ini)||'/'||date_part('month', v_fecha_ini)||'/'||date_part('year', p_fecha_ini));
+      --raise exception 'fi % ff %', p_fecha_ini, p_fecha_fin;
       if v_fecha_ini_actual between p_fecha_ini and p_fecha_fin then
         v_gestion:= (select (date_part('year', age(v_fecha_ini_actual, v_fecha_ini))));
         v_periodo:= (select (date_part('month',age(v_fecha_ini_actual, v_fecha_ini))));

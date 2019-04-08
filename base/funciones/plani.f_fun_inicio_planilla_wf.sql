@@ -14,6 +14,16 @@ $body$
 *  DESC:    funcion que actualiza los estados despues del registro de un siguiente en planilla
 *  Fecha:   17/10/2014
 *
+ ***************************************************************************************************   
+    
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17/10/2014        JRR KPLIAN        Función que se encarga de verificar la integridad del comprobante para posteriormente validarlo
+ #1 ETR           24/01/2019        RAC KPLIAN        quita la validacion automatiza del cbte de devengado     
+
 */
 
 DECLARE
@@ -37,6 +47,8 @@ DECLARE
     v_id_int_comprobante integer;
     v_id_int_comprobante_obli	 integer;
     v_resbool			boolean;
+    v_mensaje_error     varchar; --#1
+    v_registros_aux     record; --#1
 
 
 
@@ -47,7 +59,7 @@ BEGIN
      select (case when pla.fecha_planilla is not null then
     							pla.fecha_planilla ELSE
                                 pe.fecha_fin end) as fecha_planilla, pla.*, pe.fecha_ini, pe.fecha_fin,tp.calculo_horas,
-                                tp.funcion_calculo_horas, tp.codigo
+                                tp.funcion_calculo_horas, tp.codigo, tp.tipo_presu_cc 
       into v_planilla
       from plani.tplanilla pla
       inner join plani.ttipo_planilla tp
@@ -72,6 +84,31 @@ BEGIN
         inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
         where id_planilla = v_planilla.id_planilla;*/
 --        raise exception 'v_planilla.calculo_horas: %,v_planilla.fecha_ini: %', v_planilla.calculo_horas,v_planilla.fecha_ini;
+        
+        --#1 verificacion de hojas de trabajo segun configuracion de planilla 
+        IF ( v_planilla.tipo_presu_cc = 'hoja_calculo') THEN
+        
+           --verificar si algun empleado no tiene hoja de trabajo aprobada
+           v_mensaje_error = '';
+           FOR v_registros_aux in (
+                                    SELECT  fun.desc_funcionario1
+                                    FROM plani.tfuncionario_planilla fp
+                                    INNER JOIN orga.vfuncionario fun ON fun.id_funcionario = fp.id_funcionario
+                                    where fp.id_planilla = v_planilla.id_planilla
+                                          AND fp.id_funcionario not in (select id_funcionario 
+                                                                        from asis.vtotales_horas_centro_costo  toc
+                                                                        where toc.id_periodo = v_planilla.id_periodo                                                                        
+                                                                        and toc.estado = 'aprobado')) LOOP
+                                                                        
+                v_mensaje_error = v_mensaje_error|| v_registros_aux.desc_funcionario1||', ';
+            END LOOP;
+            
+            IF v_mensaje_error != '' THEN
+               raise exception ' Los siguientes  empleados no tienen hoja de trabajo aprobada en sistema de asistencia: <BR> %',v_mensaje_error;
+            END IF;
+           
+        END IF;
+
      	update plani.tplanilla set
         	requiere_calculo = 'no'
         where id_planilla =  v_planilla.id_planilla;
@@ -181,18 +218,28 @@ BEGIN
      	--Calculamos obligaciones Obligaciones
      	v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
      	v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
+     
+     
      elsif (p_codigo_estado  in ('comprobante_generado')) then
+     
+        
+     
      	--if(v_planilla.codigo != 'PLAREISU')then
           --Generamos Presupuestos
-          v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));
-          v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario));
+       --   v_resp = (select plani.f_prorratear_pres_cos_empleados(v_planilla.id_planilla, 'presupuestos', p_id_usuario));
+           
+         
+     --     v_resp = (select plani.f_consolidar_pres_cos(v_planilla.id_planilla, 'presupuestos',p_id_usuario));
+          
+           
         --end if;
           --Calculamos obligaciones Obligaciones
-          v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
+    --      v_resp = (select plani.f_generar_obligaciones(v_planilla.id_planilla, p_id_usuario));
           select po_id_gestion into  v_id_gestion from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
       	  --se relaciona cuentas contables a obligaciones y consolidado_columna
-          v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
+     --     v_resp = (select plani.f_conta_relacionar_cuentas(v_planilla.id_planilla, p_id_usuario));
 
+          
           v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
 
           -- actualiza estado en la solicitud
@@ -205,20 +252,59 @@ BEGIN
                fecha_mod=now(),
                id_int_comprobante = (case when id_int_comprobante is not null then id_int_comprobante else  v_id_int_comprobante  end)
             where id_proceso_wf = p_id_proceso_wf;
-          v_resbool = conta.f_igualar_cbte(v_id_int_comprobante,p_id_usuario,false);
-     	  v_resp =  conta.f_validar_cbte(p_id_usuario,p_id_usuario_ai,p_usuario_ai,v_id_int_comprobante);
+            
+          --v_resbool = conta.f_igualar_cbte(v_id_int_comprobante,p_id_usuario,false);
+     	 -- v_resp =  conta.f_validar_cbte(p_id_usuario,p_id_usuario_ai,p_usuario_ai,v_id_int_comprobante);
      	  return true;
 
      elsif (p_codigo_estado  in ('planilla_finalizada')) then
+     
+     
 
      	if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
-     		for v_registros in (	select *
+            --generar obligacion de apgo sin agrupador
+     		for v_registros in (	
+                                select *
           						from plani.tobligacion o
                                 inner join plani.ttipo_obligacion tipo on o.id_tipo_obligacion = tipo.id_tipo_obligacion
-                                where tipo.es_pagable = 'si' ) loop
+                                where tipo.es_pagable = 'si'
+                                    and o.id_planilla = v_planilla.id_planilla --#1
+                                    and o.id_obligacion_agrupador is null
+                                 ) loop
+                                
+                --raise exception 'pasa...%', p_id_estado_wf;                
+                                
           		v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion,'PAGOPLA',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
+                
+               update  plani.tobligacion set
+                 id_int_comprobante =  v_id_int_comprobante_obli
+               where  id_obligacion =  v_registros.id_obligacion;
+                
+               
+                
           	end loop;
+            
+            --#1 generar obligacion de pago con agrupadores  (si no es pagable no tiene sentido que tenga agrupador)
+            
+            for v_registros in (	
+                                select *
+          						from plani.tobligacion_agrupador oa
+                                where oa.id_planilla = v_planilla.id_planilla --#1                                    
+                            ) loop
+                                
+                --raise exception 'pasa...%', p_id_estado_wf;                
+                                
+          		v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion_agrupador,'PAGOPLAAG',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
+                
+               update  plani.tobligacion_agrupador set
+                 id_int_comprobante =  v_id_int_comprobante_obli
+               where  id_obligacion_agrupador =  v_registros.id_obligacion_agrupador;
+                
+          	end loop;
+            
+            
         end if;
+        
      END IF;
 
 

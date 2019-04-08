@@ -650,7 +650,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 rec.data.estado == 'comprobante_presupuestario_validado' ||
                 rec.data.estado == 'comprobante_obligaciones') {
                 this.getBoton('ant_estado').enable();
-                this.getBoton('sig_estado').disable();
+                this.getBoton('sig_estado').enable();
 
             } else {
                 this.getBoton('ant_estado').enable();

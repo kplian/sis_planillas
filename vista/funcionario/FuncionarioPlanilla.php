@@ -5,7 +5,9 @@
 *@author  (fprudencio)
 *@date 20-09-2011 10:22:05
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+	ISSUE		FECHA			AUTHOR				DESCRIPCION
+				07/02/2019		EGS					Se agrego boton y funciones para Licencias
+ * */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -37,6 +39,14 @@ Phx.vista.FuncionarioPlanilla = {
             handler: this.onBtnBonoDesc,
             tooltip: 'Asignación de Bonos o Descuentos por Empleado'
         });
+         this.addButton('btnLicencia',
+        {
+            text: 'Licencias',
+            iconCls: 'blist',
+            disabled: true,
+            handler: this.onBtnLicencia,
+            tooltip: 'Asignación de Bonos o Descuentos por Empleado'
+        });
    },
    onBtnAfp: function(){
 			var rec = {maestro: this.sm.getSelected().data};
@@ -64,16 +74,31 @@ Phx.vista.FuncionarioPlanilla = {
                     this.idContenedor,
                     'DescuentoBono');
 	},
+	onBtnLicencia: function(){
+			var rec = {maestro: this.sm.getSelected().data}; 
+						      
+            Phx.CP.loadWindows('../../../sis_planillas/vista/licencia/Licencia.php',
+                    'Licencias',
+                    {
+                        width:700,
+                        height:450
+                    },
+                    rec,
+                    this.idContenedor,
+                    'Licencia');
+	},
 	preparaMenu:function()
     {	
         this.getBoton('btnAfp').enable();
         this.getBoton('btnBonoDesc').enable();
+        this.getBoton('btnLicencia').enable();
         Phx.vista.FuncionarioPlanilla.superclass.preparaMenu.call(this);
     },
     liberaMenu:function()
     {	
         this.getBoton('btnAfp').disable();
-        this.getBoton('btnBonoDesc').disable();       
+        this.getBoton('btnBonoDesc').disable();
+        this.getBoton('btnLicencia').disable();              
         Phx.vista.FuncionarioPlanilla.superclass.liberaMenu.call(this);
     },
 

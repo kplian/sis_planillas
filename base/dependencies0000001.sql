@@ -1323,6 +1323,9 @@ AS
          cc.tipo_contrato::text = oc.tipo_contrato::text
   WHERE oc.monto_detalle_obligacion <> 0::numeric;
  DROP VIEW plani.vobligacion_pago;
+ 
+ 
+ 
 CREATE OR REPLACE VIEW plani.vobligacion_pago(
     id_obligacion,
     id_planilla,

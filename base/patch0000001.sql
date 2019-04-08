@@ -841,7 +841,50 @@ ALTER TABLE plani.ttipo_obligacion
 
 COMMENT ON COLUMN plani.ttipo_obligacion.codigo_tipo_relacion_haber
 IS 'tipo de relacion contable apra genrar cbte de obligaciones con moviemiento al haber';
-  
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_funcionario_fk FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    
+--------------- SQL ---------------
+
+ -- object recreation
+ALTER TABLE plani.ttipo_planilla
+  DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
+
+ALTER TABLE plani.ttipo_planilla
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text)  OR ((tipo_presu_cc)::text = 'hoja_calculo'::text) ); 
+    
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN tipo_horario VARCHAR(15) DEFAULT 'normal' NOT NULL;
+
+COMMENT ON COLUMN plani.tprorrateo.tipo_horario
+IS 'normal,  extra o  nocturno,  tipo de horario prorrateado';  
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tprorrateo
+  ADD COLUMN calculado_resta VARCHAR DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tprorrateo.calculado_resta
+IS 'indica se se calculo por resta';
+ 
     
 /***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
-
+/***********************************I-SCP-EGS-PLANI-1-07/03/2019****************************************/
+ALTER TABLE plani.tlicencia
+  ADD COLUMN id_estado_wf INTEGER;
+ALTER TABLE plani.tlicencia
+  ADD COLUMN id_proceso_wf INTEGER;
+ALTER TABLE plani.tlicencia
+  ADD COLUMN nro_tramite VARCHAR;
+/***********************************F-SCP-EGS-PLANI-1-07/03/2019****************************************/
