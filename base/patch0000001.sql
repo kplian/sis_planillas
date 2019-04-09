@@ -888,3 +888,50 @@ ALTER TABLE plani.tlicencia
 ALTER TABLE plani.tlicencia
   ADD COLUMN nro_tramite VARCHAR;
 /***********************************F-SCP-EGS-PLANI-1-07/03/2019****************************************/
+
+/***********************************I-SCP-CAP-PLANI-1-08/04/2019****************************************/
+DROP VIEW plani.vcomp_planilla_det;
+
+ALTER TABLE plani.tconsolidado_columna
+  ALTER COLUMN valor TYPE NUMERIC;
+
+ALTER TABLE plani.tconsolidado_columna
+  ALTER COLUMN valor_ejecutado TYPE NUMERIC;
+
+ALTER TABLE plani.tobligacion_agrupador
+  RENAME COLUMN id_ogligacion_agrupador TO id_obligacion_agrupador;
+
+ALTER TABLE plani.tobligacion_columna
+  ALTER COLUMN monto_detalle_obligacion TYPE NUMERIC;
+
+ALTER TABLE plani.tprorrateo
+  ALTER COLUMN porcentaje TYPE NUMERIC;
+
+ALTER TABLE plani.tprorrateo
+  ALTER COLUMN porcentaje_dias TYPE NUMERIC;
+
+ALTER TABLE plani.tprorrateo_columna
+  ALTER COLUMN porcentaje TYPE NUMERIC;
+
+ALTER TABLE plani.ttipo_obligacion
+  DROP COLUMN cotigo_tipo_relacion_haber;
+
+ALTER TABLE plani.ttipo_obligacion
+  DROP COLUMN cotigo_tipo_relacion_debe;
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD CONSTRAINT ttipo_obligacion__id_ob_agrp_fk FOREIGN KEY (id_tipo_obligacion_agrupador)
+    REFERENCES plani.ttipo_obligacion(id_tipo_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+
+ALTER TABLE plani.ttipo_obligacion_columna
+  ALTER COLUMN pago TYPE VARCHAR COLLATE pg_catalog."default";
+
+
+
+
+/***********************************F-SCP-CAP-PLANI-1-08/04/2019****************************************/
+
+
