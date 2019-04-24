@@ -337,5 +337,24 @@ VALUES
 /***********************************I-DAT-EGS-PLANI-0-05/02/2019****************************************/
 select pxp.f_insert_tgui ('Agrupador de Obligaciones', 'Agrupa el tipo de Obligacion ', 'AGRTO', 'si', 3, 'sis_planillas/vista/tipo_obligacion_agrupador/TipoObligacionAgrupador.php', 3, '', 'TipoObligacionAgrupador', 'PLANI');
 /***********************************F-DAT-EGS-PLANI-0-05/02/2019****************************************/
+/***********************************I-DAT-EGS-PLANI-0-24/04/2019****************************************/
+select pxp.f_insert_tgui ('Tipo Licencia', 'Tipo Lincencia', 'TIPLIC', 'si', 1, 'sis_planillas/vista/tipo_licencia/TipoLicencia.php', 3, '', 'TipoLicencia', 'PLANI');
+select pxp.f_insert_tgui ('Licencia VoBo', 'Licencia Visto Bueno', 'LICVOBO', 'si', 6, 'sis_planillas/vista/licencia/LicenciaVobo.php', 2, '', 'LicenciaVobo', 'PLANI');
+select pxp.f_insert_tgui ('Solicitud Licencia', 'Solicitud Lincenia', 'SOLPLA', 'si', 7, 'sis_planillas/vista/licencia/LicenciaReq.php', 2, '', 'LicenciaReq', 'PLANI');
+
+------PROCESO WF
+select wf.f_import_tproceso_macro ('insert','LIC', 'PLANI', 'Licencias','si');
+select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
+select wf.f_import_tcategoria_documento ('insert','proceso', 'Proceso');
+select wf.f_import_ttipo_proceso ('insert','LICE',NULL,NULL,'LIC','Licencia','','','si','','','','LICE',NULL);
+select wf.f_import_ttipo_estado ('insert','borrador','LICE','Borrador','si','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
+select wf.f_import_ttipo_estado ('insert','vobo','LICE','Visto Bueno','no','no','no','funcion_listado','plani.f_lista_funcionario_wf','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
+select wf.f_import_ttipo_estado ('insert','finalizado','LICE','Finalizado','no','no','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
+select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'');
+select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'');
+
+
+/***********************************F-DAT-EGS-PLANI-0-24/04/2019****************************************/
+
 
   

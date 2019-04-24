@@ -1885,4 +1885,11 @@ AS
 
 
 /***********************************F-DEP-CAP-PLANI-0-08/04/2019****************************************/
+/***********************************I-DEP-EGS-PLANI-0-24/04/2019****************************************/
+select pxp.f_insert_testructura_gui ('TIPLIC', 'DEFPLA');
+select pxp.f_insert_testructura_gui ('LICVOBO', 'PLANI');
+select pxp.f_insert_testructura_gui ('SOLPLA', 'PLANI');
+
+/***********************************F-DEP-EGS-PLANI-0-24/04/2019****************************************/
+
 
