@@ -1891,5 +1891,15 @@ select pxp.f_insert_testructura_gui ('LICVOBO', 'PLANI');
 select pxp.f_insert_testructura_gui ('SOLPLA', 'PLANI');
 
 /***********************************F-DEP-EGS-PLANI-0-24/04/2019****************************************/
+/***********************************I-DEP-MMV-PLANI-5-30/04/2019****************************************/
+ALTER TABLE plani.tplanilla
+  ADD COLUMN dividir_comprobante VARCHAR(5);
+
+ALTER TABLE plani.tplanilla
+  ALTER COLUMN dividir_comprobante SET DEFAULT 'no';
+  
+ALTER TABLE plani.tplanilla
+  ADD COLUMN id_tipo_contrato INTEGER;
+/***********************************F-DEP-MMV-PLANI-5-30/04/2019****************************************/
 
 
