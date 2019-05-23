@@ -357,4 +357,22 @@ select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'')
 /***********************************F-DAT-EGS-PLANI-0-24/04/2019****************************************/
 
 
+
+
+/***********************************I-DAT-RAC-PLANI-7-08/05/2019****************************************/
+
+select pxp.f_insert_tgui ('Tipo Columna (Planillas)', 'Tipo Columna (Planillas)', 'TIPCOLCUE', 'si', 7, 'sis_contabilidad/vista/tipo_columna_cuenta/TipoColumnaCuenta.php', 3, '', 'TipoColumnaCuenta', 'CONTA');
+select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
+select pxp.f_insert_tgui ('Planilla VoBo', 'Planilla VoBo', 'PLAVOBO', 'si', 2, 'sis_planillas/vista/planilla/PlanillaVb.php', 2, '', 'PlanillaVb', 'PLANI');
+select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
+
+select conta.f_import_ttipo_relacion_contable ('insert','INCAPTEMP',NULL,'Incapacidad Temporal por Cobrar','activo','no','si','si','flujo','recurso_gasto','no','no','no',NULL);
+
+select conta.f_import_ttipo_relacion_contable ('insert','SALXPALI',NULL,'Salario por Aplicar','activo','no','si','no','flujo','recurso_gasto','no','no','no',NULL);
+
+select conta.f_import_ttipo_relacion_contable ('insert','CCCLMCTA','TTIP','Centro de costos columnas solo contables','activo','si-unico','no','no','','','no','no','no','');
+/***********************************F-DAT-RAC-PLANI-7-08/05/2019****************************************/
+
+
+
   

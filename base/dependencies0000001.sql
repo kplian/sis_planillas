@@ -1891,15 +1891,135 @@ select pxp.f_insert_testructura_gui ('LICVOBO', 'PLANI');
 select pxp.f_insert_testructura_gui ('SOLPLA', 'PLANI');
 
 /***********************************F-DEP-EGS-PLANI-0-24/04/2019****************************************/
-/***********************************I-DEP-MMV-PLANI-5-30/04/2019****************************************/
-ALTER TABLE plani.tplanilla
-  ADD COLUMN dividir_comprobante VARCHAR(5);
 
-ALTER TABLE plani.tplanilla
-  ALTER COLUMN dividir_comprobante SET DEFAULT 'no';
+
+/***********************************I-DEP-RAC-PLANI-2-15/05/2019****************************************/
+
+CREATE OR REPLACE VIEW plani.vincapacidad_temporal(
+    monto_incapacidad,
+    id_planilla,
+    id_tipo_columna)
+AS
+  SELECT sum(cv.valor) AS monto_incapacidad,
+         fp.id_planilla,
+         cv.id_tipo_columna
+  FROM plani.ttipo_columna tc
+       JOIN plani.tcolumna_valor cv ON cv.id_tipo_columna = tc.id_tipo_columna
+       JOIN plani.tfuncionario_planilla fp ON cv.id_funcionario_planilla =
+         fp.id_funcionario_planilla
+  WHERE tc.codigo::TEXT = 'INCAP_TEMPORAL'::TEXT AND
+        tc.estado_reg::TEXT = 'activo'::TEXT AND
+        fp.estado_reg::TEXT = 'activo'::TEXT
+  GROUP BY fp.id_planilla,
+           cv.id_tipo_columna;
+           
   
-ALTER TABLE plani.tplanilla
-  ADD COLUMN id_tipo_contrato INTEGER;
-/***********************************F-DEP-MMV-PLANI-5-30/04/2019****************************************/
+           
+CREATE OR REPLACE VIEW plani.vcomp_planilla_det_diario(
+    id_consolidado_columna,
+    id_consolidado,
+    id_planilla,
+    monto,
+    monto_presupuestario,
+    id_cc,
+    id_presupuesto,
+    descripcion_columna,
+    id_cuenta,
+    id_partida,
+    id_auxiliar,
+    id_tipo_presupuesto,
+    presupuestario)
+AS
+  SELECT concol.id_consolidado_columna,
+         concol.id_consolidado,
+         con.id_planilla,
+         concol.valor AS monto,
+         concol.valor_ejecutado AS monto_presupuestario,
+         con.id_cc,
+         con.id_presupuesto,
+         ((tc.nombre::TEXT || '. Personal '::TEXT) || tipcon.nombre::TEXT)::
+           character VARYING AS descripcion_columna,
+         concol.id_cuenta,
+         concol.id_partida,
+         concol.id_auxiliar,
+         fc.id_tipo_presupuesto,
+         CASE
+           WHEN fc.id_tipo_presupuesto IS NOT NULL THEN 1
+           ELSE 0
+         END AS presupuestario
+  FROM plani.tconsolidado con
+       JOIN plani.tconsolidado_columna concol ON concol.id_consolidado =
+         con.id_consolidado
+       JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+         concol.id_tipo_columna
+       JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::TEXT =
+         concol.tipo_contrato::TEXT
+       JOIN pre.tpresupuesto pre ON pre.id_presupuesto = con.id_presupuesto
+       JOIN pre.ttipo_presupuesto tp ON pre.tipo_pres::TEXT = tp.codigo::TEXT
+       LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto =
+         tp.id_tipo_presupuesto
+  WHERE fc.id_tipo_presupuesto IS NULL;
+  
+  
+  CREATE OR REPLACE VIEW plani.vcomp_planilla_det_presup (
+    id_consolidado_columna,
+    id_consolidado,
+    id_planilla,
+    monto,
+    monto_presupuestario,
+    id_cc,
+    id_presupuesto,
+    descripcion_columna,
+    id_cuenta,
+    id_partida,
+    id_auxiliar,
+    id_tipo_presupuesto,
+    presupuestario)
+AS
+ SELECT concol.id_consolidado_columna,
+    concol.id_consolidado,
+    con.id_planilla,
+    concol.valor AS monto,
+    concol.valor_ejecutado AS monto_presupuestario,
+    con.id_cc,
+    con.id_presupuesto,
+    ((tc.nombre::text || '. Personal '::text) || tipcon.nombre::text)::character varying AS descripcion_columna,
+    concol.id_cuenta,
+    concol.id_partida,
+    concol.id_auxiliar,
+    fc.id_tipo_presupuesto,
+        CASE
+            WHEN fc.id_tipo_presupuesto IS NOT NULL THEN 1
+            ELSE 0
+        END AS presupuestario
+   FROM plani.tconsolidado con
+     JOIN plani.tconsolidado_columna concol ON concol.id_consolidado = con.id_consolidado
+     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna = concol.id_tipo_columna
+     JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::text = concol.tipo_contrato::text
+     JOIN pre.tpresupuesto pre ON pre.id_presupuesto = con.id_presupuesto
+     JOIN pre.ttipo_presupuesto tp ON pre.tipo_pres::text = tp.codigo::text
+     LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto = tp.id_tipo_presupuesto
+  WHERE fc.id_tipo_presupuesto IS NOT NULL;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;   
+
+/***********************************F-DEP-RAC-PLANI-2-15/05/2019****************************************/
 
 

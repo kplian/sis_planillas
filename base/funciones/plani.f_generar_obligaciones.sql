@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_generar_obligaciones (
   p_id_planilla integer,
   p_id_usuario integer
@@ -18,8 +20,9 @@ $body$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #0               17/10/2014        JRR KPLIAN       creacion
- #1 ETR           07/02/2019        RAC KPLIAN       Genera agrupadores de obligacion para todas las obligaciones segun configuracion 
-                                                     Agergar id_funcionario  en obligaciones por funcionario    
+ #1 ETR           07/02/2019        RAC KPLIAN       Genera agrupadores de obligacion para todas las obligaciones segun configuracion , Agergar id_funcionario  en obligaciones por funcionario
+ #7 ETR           22/05/2019        RAC KPLIAN       Aumntar logica para considerar columnas del tipo si_contable                                           
+                                                        
 */
 
 DECLARE
@@ -52,6 +55,7 @@ BEGIN
     v_nombre_tabla = 'tmp_plani_obli_' || p_id_planilla;
     --raise exception 'temporalmente en observacion';
     --Crear tabla temporal con detalle de obligaciones
+    --#7 agrega columna compromete
     v_sql_tabla = 'CREATE TEMPORARY TABLE ' || v_nombre_tabla || '
     		(	id_tipo_obligacion INTEGER,
             	id_funcionario INTEGER,
@@ -72,7 +76,8 @@ BEGIN
                 nro_afp VARCHAR(100),
                 nombre_banco VARCHAR(100),
                 id_institucion INTEGER,
-                nro_cuenta VARCHAR
+                nro_cuenta VARCHAR,
+                compromete VARCHAR(15)
   			) ON COMMIT DROP';
 
     EXECUTE(v_sql_tabla);
