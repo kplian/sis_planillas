@@ -16,6 +16,7 @@
    
  #0              17-01-2014        GUY BOA             Creacion 
  #1              22-02-2019        Rarteaga           agregaga  hoja_calculo
+ #9 EndeETR      22/05/2019        EGS           	  btn de plantilla para exportar datos del tipo planilla
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -45,6 +46,15 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
                 disabled: true,
                 handler: this.onBtnReportes,
                 tooltip: 'Diseño de Reportes para la Planilla'
+            }
+        );
+        this.addButton('btnExpPla',//#9
+            {
+                text: 'Exportar Plantilla',
+                iconCls: 'bchecklist',
+                disabled: false,
+                handler: this.expProceso,
+                tooltip: '<b>Exportar</b><br/>Exporta a archivo SQL la plantilla'
             }
         );
 		this.load({params:{start:0, limit:this.tam_pag}})
@@ -397,12 +407,18 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
         this.getBoton('btnObligaciones').enable();  
         this.getBoton('btnReportes').enable();      
         Phx.vista.TipoPlanilla.superclass.preparaMenu.call(this);
+        
+   		this.getBoton('btnExpPla').enable(); //#9
+
     },
     liberaMenu:function()
     {	
         this.getBoton('btnObligaciones').disable(); 
         this.getBoton('btnReportes').disable();       
         Phx.vista.TipoPlanilla.superclass.liberaMenu.call(this);
+   
+   		this.getBoton('btnExpPla').disable(); //#9
+
     },
     onBtnObligaciones: function(){
 			var rec = {maestro: this.sm.getSelected().data};
@@ -429,7 +445,21 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
                     rec,
                     this.idContenedor,
                     'Reporte');
-	}
+	},
+	expProceso : function(resp){ //#9
+			var data=this.sm.getSelected().data;
+			console.log('data',data);
+			Phx.CP.loadingShow();
+			Ext.Ajax.request({
+				url: '../../sis_planillas/control/ExportarPlantilla/exportarDatosTipoPlanilla',
+				params: { 'id_tipo_planilla' : data.id_tipo_planilla },
+				success: this.successExport,
+				failure: this.conexionFailure,
+				timeout: this.timeout,
+				scope: this
+			});
+			
+	},
 	}
 )
 </script>
