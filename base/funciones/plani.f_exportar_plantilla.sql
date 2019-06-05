@@ -17,6 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
   ISSUE		    FECHA    		AUTOR			DESCRIPCION
 	#9 EndeEtr 	21/11/2018		EGS		        Creacion
+    #11endeetr  05/06/2019       EGS            Se aumento Cmp editable
  DESCRIPCION:
  AUTOR:
  FECHA:
@@ -93,7 +94,8 @@ BEGIN
                              tc.finiquito,
                              tc.tiene_detalle,
                              tc.recalcular,
-                             tc.estado_reg
+                             tc.estado_reg,
+                             tc.editable  --#11
                       FROM plani.ttipo_columna tc
                         left JOIN plani.ttipo_planilla tpla on tpla.id_tipo_planilla = tc.id_tipo_planilla 
                       WHERE tc.id_tipo_planilla = '||v_parametros.id_tipo_planilla;

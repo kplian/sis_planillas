@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 * 	ISSUE		FECHA    		AUTOR			DESCRIPCION
 *	#9			23/05/2019		EGS				creacion 
+ 	#11   endeetr    05/06/2019       EGS              actualizaciones de registros activos
 */
 
 class MODExportarPlantilla extends MODbase{
@@ -74,6 +75,7 @@ class MODExportarPlantilla extends MODbase{
             $this->captura('tiene_detalle','varchar');
             $this->captura('recalcular','varchar');
             $this->captura('estado_reg','varchar');
+            $this->captura('editable','varchar'); //#11
 			
 		
 			

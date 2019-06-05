@@ -13,6 +13,7 @@ CREATE OR REPLACE FUNCTION plani.f_import_ttipo_columna_planilla (
   p_finiquito varchar,
   p_tiene_detalle varchar,
   p_recalcular varchar,
+  p_editable varchar,
   p_estado_reg varchar
 )
 RETURNS varchar AS
@@ -27,7 +28,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  ISSUE            FECHA            AUTOR            DESCRIPCION
-
+ #11   endeetr    05/06/2019       EGS              Se aumento cmp editable y actualizaciones
 ***************************************************************************/
 
 DECLARE
@@ -36,21 +37,22 @@ DECLARE
     v_id_tipo_planilla      integer;
 BEGIN
      
-
+    SELECT
+     tpla.id_tipo_planilla
+    INTO 
+    v_id_tipo_planilla
+    FROM plani.ttipo_planilla tpla   
+    where trim(lower(tpla.codigo )) = trim(lower(p_codigo_tipo_pla)) and tpla.estado_reg = 'activo'; --#11
+    --raise exception ' %',v_id_tipo_planilla;
 
     SELECT
      tic.id_tipo_columna
     INTO 
     v_id_tipo_columna
     FROM plani.ttipo_columna tic   
-    where trim(lower(tic.codigo)) = trim(lower(p_codigo));
-    --raise exception ' %',p_codigo;
-    SELECT
-     tpla.id_tipo_planilla
-    INTO 
-    v_id_tipo_planilla
-    FROM plani.ttipo_planilla tpla   
-    where trim(lower(tpla.codigo )) = trim(lower(p_codigo_tipo_pla));         
+    where trim(lower(tic.codigo)) = trim(lower(p_codigo)) and tic.id_tipo_planilla = v_id_tipo_planilla and tic.estado_reg = 'activo'; --#11
+    --raise exception ' %',v_id_tipo_columna;
+         
     if (p_accion = 'delete') then
         
         update plani.ttipo_columna
@@ -78,7 +80,8 @@ BEGIN
                   orden,
                   finiquito,
                   tiene_detalle,
-                  recalcular
+                  recalcular,
+                  editable
                 )
                 VALUES (
                   1,
@@ -96,7 +99,8 @@ BEGIN
                   p_orden,
                   p_finiquito,
                   p_tiene_detalle,
-                  p_recalcular
+                  p_recalcular,
+                  p_editable
               );
            
                 
@@ -119,7 +123,8 @@ BEGIN
                 orden = p_orden,
                 finiquito = p_finiquito,
                 tiene_detalle = p_tiene_detalle,
-                recalcular = p_recalcular
+                recalcular = p_recalcular,
+                editable = p_editable
               WHERE 
                 id_tipo_columna = v_id_tipo_columna;
         end if;

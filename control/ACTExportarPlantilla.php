@@ -7,6 +7,7 @@
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
 *  ISSUE		FECHA    		AUTOR			DESCRIPCION
 *	#9			22/05/2019		EGS				creacion 
+ * #11   endeetr    05/06/2019       EGS              actualizaciones de registros activos
  */
 
 class ACTExportarPlantilla extends ACTbase{    
@@ -104,7 +105,8 @@ class ACTExportarPlantilla extends ACTbase{
 							 (is_null($row['orden'])?'NULL':"'".$row['orden']."'") ."," .
 							 (is_null($row['finiquito'])?'NULL':"'".$row['finiquito']."'") ."," .	
 							 (is_null($row['tiene_detalle'])?'NULL':"'".$row['tiene_detalle']."'") ."," .	
-							 (is_null($row['recalcular'])?'NULL':"'".$row['recalcular']."'") ."," .								 							 							 	
+							 (is_null($row['recalcular'])?'NULL':"'".$row['recalcular']."'") ."," .
+							 (is_null($row['editable'])?'NULL':"'".$row['editable']."'") ."," .		// --#11						 							 							 								 								 							 							 	
 							 (is_null($row['estado_reg'])?'NULL':"'".$row['estado_reg']."'") .");\r\n");
 						
 				

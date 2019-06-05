@@ -24,7 +24,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  ISSUE            FECHA            AUTOR            DESCRIPCION
-
+#11   endeetr    05/06/2019       EGS              actualizaciones de registros activos
 ***************************************************************************/
 
 DECLARE
@@ -40,7 +40,7 @@ BEGIN
     INTO 
     v_id_tipo_planilla
     FROM plani.ttipo_planilla tip   
-    where trim(lower(tip.codigo)) = trim(lower(p_codigo));
+    where trim(lower(tip.codigo)) = trim(lower(p_codigo)) and tip.estado_reg = 'activo'; --#11
     --raise exception ' %',p_codigo;
     SELECT
      pm.id_proceso_macro

@@ -24,7 +24,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  ISSUE            FECHA            AUTOR            DESCRIPCION
-
+ #11   endeetr    05/06/2019       EGS              actualizaciones de registros activos
 ***************************************************************************/
 
 DECLARE
@@ -34,21 +34,21 @@ DECLARE
     v_id_tipo_obligacion_agrupador  integer;
 BEGIN
      
-
+    SELECT
+     tpla.id_tipo_planilla
+    INTO 
+    v_id_tipo_planilla
+    FROM plani.ttipo_planilla tpla   
+    where trim(lower(tpla.codigo )) = trim(lower(p_codigo_tipo_planilla)) and tpla.estado_reg = 'activo'; --#11
 
     SELECT
      tio.id_tipo_obligacion
     INTO 
     v_id_tipo_obligacion
     FROM plani.ttipo_obligacion tio  
-    where trim(lower(tio.codigo)) = trim(lower(p_codigo));
+    where trim(lower(tio.codigo)) = trim(lower(p_codigo)) and tio.id_tipo_planilla = v_id_tipo_planilla and tio.estado_reg = 'activo'; --#11
 
-    SELECT
-     tpla.id_tipo_planilla
-    INTO 
-    v_id_tipo_planilla
-    FROM plani.ttipo_planilla tpla   
-    where trim(lower(tpla.codigo )) = trim(lower(p_codigo_tipo_planilla)); 
+    
     
     SELECT
      tioa.id_tipo_obligacion_agrupador

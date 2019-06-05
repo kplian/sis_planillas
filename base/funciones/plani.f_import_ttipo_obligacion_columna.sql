@@ -20,7 +20,7 @@ $body$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  ISSUE            FECHA            AUTOR            DESCRIPCION
-
+ #11   endeetr    05/06/2019       EGS              actualizaciones de registros activos
 ***************************************************************************/
 
 DECLARE
@@ -35,21 +35,21 @@ BEGIN
     INTO 
     v_id_tipo_planilla
     FROM plani.ttipo_planilla tip   
-    where trim(lower(tip.codigo)) = trim(lower(p_codigo_tipo_planilla));
+    where trim(lower(tip.codigo)) = trim(lower(p_codigo_tipo_planilla)) and tip.estado_reg = 'activo' ; --#11
     
     SELECT
          tio.id_tipo_obligacion
         INTO 
         v_id_tipo_obligacion
         FROM plani.ttipo_obligacion tio  
-        where trim(lower(tio.codigo)) = trim(lower(p_codigo_tipo_obligacion)) and tio.id_tipo_planilla = v_id_tipo_planilla;
+        where trim(lower(tio.codigo)) = trim(lower(p_codigo_tipo_obligacion)) and tio.id_tipo_planilla = v_id_tipo_planilla and tio.estado_reg = 'activo'; --#11
 
     SELECT
      tioc.id_tipo_obligacion_columna
     INTO 
     v_id_tipo_obligacion_columna
     FROM plani.ttipo_obligacion_columna tioc  
-    where trim(lower(tioc.codigo_columna)) = trim(lower(p_codigo));
+    where trim(lower(tioc.codigo_columna)) = trim(lower(p_codigo)) and tioc.id_tipo_obligacion = v_id_tipo_obligacion and tioc.estado_reg = 'activo'; --#11
     
     
  
