@@ -2023,3 +2023,109 @@ ALTER TABLE plani.tobligacion_agrupador
 /***********************************F-DEP-RAC-PLANI-2-15/05/2019****************************************/
 
 
+/***********************************I-DEP-RAC-PLANI-10-30/05/2019****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_afp_fk FOREIGN KEY (id_afp)
+    REFERENCES plani.tafp(id_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    --------------- SQL ---------------
+ 
+DROP VIEW plani.vcomp_planilla_obli_agrupador;
+
+CREATE VIEW plani.vcomp_planilla_obli_agrupador  
+AS
+  SELECT dcon.id_depto AS id_depto_conta,
+         pro.nro_tramite,
+         CASE WHEN afp.id_afp IS NULL THEN toa.nombre
+              ELSE toa.nombre || ' ('||afp.nombre||')'   
+         END  AS acreedor,
+         toa.nombre AS descripcion,
+         pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character VARYING)::INTEGER AS id_cuenta_bancaria,
+         p.id_int_comprobante,
+         param.f_get_moneda_base() AS id_moneda,
+         p.fecha_planilla AS fecha_actual,
+         p.id_gestion,
+         CASE
+           WHEN oa.tipo_pago::TEXT = 'cheque'::TEXT THEN 'cheque'::TEXT
+           ELSE 'transferencia'::TEXT
+         END AS forma_pago,
+         (
+           SELECT f_get_config_relacion_contable.ps_id_centro_costo
+           FROM conta.f_get_config_relacion_contable('CCDEPCON'::character
+             VARYING, p.id_gestion, dcon.id_depto, NULL::INTEGER,
+             'No existe presupuesto administrativo relacionado al departamento de RRHH'
+             ::character VARYING) f_get_config_relacion_contable(ps_id_cuenta,
+             ps_id_auxiliar, ps_id_partida, ps_id_centro_costo,
+             ps_nombre_tipo_relacion)
+         ) AS id_centro_costo_depto,
+         sum(o.monto_obligacion) AS monto_obligacion,
+         toa.id_tipo_obligacion_agrupador,
+         oa.id_obligacion_agrupador,
+         oa.id_planilla
+  FROM plani.tobligacion_agrupador oa
+       JOIN plani.ttipo_obligacion_agrupador toa ON
+         toa.id_tipo_obligacion_agrupador = oa.id_tipo_obligacion_agrupador
+       JOIN plani.tplanilla p ON p.id_planilla = oa.id_planilla
+       JOIN wf.tproceso_wf pro ON pro.id_proceso_wf = p.id_proceso_wf
+       JOIN param.tdepto dep ON dep.id_depto = p.id_depto
+       JOIN plani.tobligacion o ON o.id_obligacion_agrupador =
+         oa.id_obligacion_agrupador
+       LEFT JOIN plani.tafp afp on afp.id_afp = oa.id_afp  
+       LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+       LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+       LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema AND sub.codigo::TEXT = 'CONTA'::TEXT
+  GROUP BY dcon.id_depto,
+           pro.nro_tramite,
+           toa.nombre,
+           p.id_int_comprobante,
+           p.fecha_planilla,
+           p.id_gestion,
+           o.tipo_pago,
+           toa.id_tipo_obligacion_agrupador,
+           oa.id_planilla,
+           oa.id_obligacion_agrupador,
+           oa.tipo_pago,
+           afp.id_afp;
+
+ALTER TABLE plani.vcomp_planilla_obli_agrupador
+  OWNER TO postgres;
+  
+  
+  --------------- SQL ---------------
+
+CREATE VIEW plani.vobligacion_agrupador 
+AS 
+SELECT ob.id_obligacion_agrupador,
+         ob.id_planilla,
+         ob.acreedor,
+         per.periodo,
+         ges.gestion,
+         sum(ob.monto_obligacion) AS monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       JOIN plani.tobligacion_agrupador oa ON oa.id_obligacion_agrupador = ob.id_obligacion_agrupador
+       JOIN plani.ttipo_obligacion_agrupador toa on toa.id_tipo_obligacion_agrupador = oa.id_tipo_obligacion_agrupador
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+           
+         
+  GROUP BY ob.id_obligacion_agrupador,
+           ob.id_plan_pago,
+           ob.id_planilla,          
+           ob.acreedor,
+           per.periodo,
+           ges.gestion;
+
+/***********************************F-DEP-RAC-PLANI-10-30/05/2019****************************************/
+
+

@@ -40,7 +40,7 @@ BEGIN
     -- 1) con el id_comprobante identificar el plan de pago
    
       select 
-          o.*
+          oa.*
       into
           v_registros
       from  plani.tobligacion_agrupador oa      
@@ -53,7 +53,7 @@ BEGIN
      UPDATE plani.tobligacion_agrupador oa SET
        obs_cbte = 'Eliminado manualmente el cbte id '||p_id_int_comprobante,
        id_int_comprobante = NULL
-     WHERE oa.id_obligacion = v_registros.id_obligacion;
+     WHERE oa.id_obligacion_agrupador = v_registros.id_obligacion_agrupador;
      
      
                

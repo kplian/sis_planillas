@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_plasue_generar_horas_sigma (
   p_id_planilla integer,
   p_id_usuario integer,
@@ -5,6 +7,14 @@ CREATE OR REPLACE FUNCTION plani.f_plasue_generar_horas_sigma (
 )
 RETURNS varchar AS
 $body$
+/*
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17/10/2014        JRR KPLIAN        creacion
+ #10 ETR          29/05/2019        RAC KPLIAN        mejora mensaje de error
+*/
 DECLARE
   v_empleados		record;
   v_asignacion		record;
@@ -69,7 +79,8 @@ BEGIN
             ofi.zona_franca,
             ofi.frontera,
             es.id_escala_salarial,
-            fun.id_funcionario
+            fun.id_funcionario,
+            fun.desc_funcionario1 --#10
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -160,6 +171,11 @@ BEGIN
                         Por favor revise la informacion de los contratos', v_asignacion.nombre_funcionario;
         	end if;
             if (v_horas_contrato > 0) then
+                
+               IF orga.f_get_haber_basico_a_fecha(v_asignacion.id_escala_salarial,v_planilla.fecha_ini) is null THEN
+                  raise exception 'no se pudo obtener un sueldo para el empleado %, (%,%)',v_asignacion.desc_funcionario1, v_asignacion.id_escala_salarial,v_planilla.fecha_ini ;
+               END IF; 
+            
                INSERT INTO
                   plani.thoras_trabajadas
                 (

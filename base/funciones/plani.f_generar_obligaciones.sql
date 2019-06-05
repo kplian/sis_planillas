@@ -21,7 +21,8 @@ $body$
    
  #0               17/10/2014        JRR KPLIAN       creacion
  #1 ETR           07/02/2019        RAC KPLIAN       Genera agrupadores de obligacion para todas las obligaciones segun configuracion , Agergar id_funcionario  en obligaciones por funcionario
- #7 ETR           22/05/2019        RAC KPLIAN       Aumntar logica para considerar columnas del tipo si_contable                                           
+ #7 ETR           22/05/2019        RAC KPLIAN       Aumntar logica para considerar columnas del tipo si_contable   
+ #10 ETR          30/05/2019        RAC KPLIAN       Condiferar obligacion del tipo AFP, donde el mismo tipo de agrupador se divide por cada AFP                                        
                                                         
 */
 
@@ -128,10 +129,8 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'transferencia_empleados',
-                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
-                    v_lugar,
-                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' ||
-                    v_lugar,
+                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' || v_lugar,
+                    v_registros.nombre || ' ' || v_obligaciones.nombre_banco || ' ' || v_lugar,
                     v_obligaciones.valor
                   ) returning id_obligacion into v_id_obligacion;
 
@@ -309,7 +308,7 @@ BEGIN
                     v_registros.id_tipo_obligacion,
                     p_id_planilla,
                     'cheque',
-                    v_obligaciones.nombre_afp || ' ' || v_registros.nombre || ' ' ||  v_lugar,
+                    v_obligaciones.nombre_afp,--acreedor
                     v_obligaciones.nombre_afp || ' ' || v_registros.nombre ||  ' ' || v_lugar,
                     v_obligaciones.valor,
                     v_obligaciones.id_afp
@@ -518,60 +517,131 @@ BEGIN
                   ob.acreedor,
                   ob.id_planilla,
                   ob.descripcion,
-                  ob.tipo_pago
+                  ob.tipo_pago,
+                  tob.tipo_obligacion,
+                  COALESCE(ob.id_afp,0) id_afp      --#10
                 from plani.tobligacion ob
                 inner join plani.ttipo_obligacion tob on tob.id_tipo_obligacion = ob.id_tipo_obligacion
-                where ob.id_planilla = p_id_planilla and ob.estado_reg = 'activo'  and tob.id_tipo_obligacion_agrupador is not null )LOOP
+                where ob.id_planilla = p_id_planilla and ob.estado_reg = 'activo'  
+                and tob.id_tipo_obligacion_agrupador is not null 
+                order by id_afp
+                
+                )LOOP  --solo considerar obligacion con agrupador configurado
          
-         --check if exists  only one group for id_tipo_agrupador 
-         v_id_obligacion_agrupador = NULL;
-         
-         select 
-           oa.id_obligacion_agrupador 
-         into 
-           v_id_obligacion_agrupador
-         from plani.tobligacion_agrupador oa 
-         where     oa.id_tipo_obligacion_agrupador =  v_registros_ob.id_tipo_obligacion_agrupador
-              and  oa.id_planilla = v_registros_ob.id_planilla
-              and  oa.acreedor = v_registros_ob.acreedor;
-         
-        IF v_id_obligacion_agrupador is null  THEN
-         -- if not exits create a new record for obligacion_agrupador
-          
-         INSERT INTO 
-                    plani.tobligacion_agrupador
-                  (
-                    id_usuario_reg,                  
-                    fecha_reg,
-                    estado_reg,
-                    id_tipo_obligacion_agrupador,
-                    id_planilla,
-                    monto_agrupador,
-                    acreedor,
-                    descripcion,
-                    tipo_pago
-                  )
-                  VALUES (
-                    p_id_usuario,
-                    now(),
-                    'activo',                    
-                     v_registros_ob.id_tipo_obligacion_agrupador,
-                    v_registros_ob.id_planilla,
-                    0,
-                    v_registros_ob.acreedor,
-                    v_registros_ob.descripcion,
-                    v_registros_ob.tipo_pago
-                  ) returning id_obligacion_agrupador into v_id_obligacion_agrupador;
-         
+        
+        
+        
+        -- chequear el tipo de obligacion , pago comunes, afp, ..... los otros por le momento  no seran considerados
+        IF v_registros_ob.tipo_obligacion = 'pago_comun' THEN
+        
+                   --check if exists  only one group for id_tipo_agrupador 
+                   v_id_obligacion_agrupador = NULL;
+                   
+                   select 
+                     oa.id_obligacion_agrupador 
+                   into 
+                     v_id_obligacion_agrupador
+                   from plani.tobligacion_agrupador oa 
+                   where     oa.id_tipo_obligacion_agrupador =  v_registros_ob.id_tipo_obligacion_agrupador
+                        and  oa.id_planilla = v_registros_ob.id_planilla
+                        and  oa.acreedor = v_registros_ob.acreedor;
+                   
+                  IF v_id_obligacion_agrupador is null  THEN
+                         -- if not exits create a new record for obligacion_agrupador
+                          
+                         INSERT INTO 
+                                    plani.tobligacion_agrupador
+                                  (
+                                    id_usuario_reg,                  
+                                    fecha_reg,
+                                    estado_reg,
+                                    id_tipo_obligacion_agrupador,
+                                    id_planilla,
+                                    monto_agrupador,
+                                    acreedor,
+                                    descripcion,
+                                    tipo_pago
+                                  )
+                                  VALUES (
+                                    p_id_usuario,
+                                    now(),
+                                    'activo',                    
+                                     v_registros_ob.id_tipo_obligacion_agrupador,
+                                    v_registros_ob.id_planilla,
+                                    0,
+                                    v_registros_ob.acreedor,
+                                    v_registros_ob.descripcion,
+                                    v_registros_ob.tipo_pago
+                                  ) returning id_obligacion_agrupador into v_id_obligacion_agrupador;
+                 
+                END IF;
+                
+                
+        
+        ELSEIF v_registros_ob.tipo_obligacion = 'pago_afp'  THEN
+        
+        
+                   ---chequea si ya existe un agrupador para esa AFP
+                   
+                   v_id_obligacion_agrupador = NULL;
+                   select 
+                     oa.id_obligacion_agrupador 
+                   into 
+                     v_id_obligacion_agrupador
+                   from plani.tobligacion_agrupador oa 
+                   where     oa.id_tipo_obligacion_agrupador =  v_registros_ob.id_tipo_obligacion_agrupador
+                        and  oa.id_planilla = v_registros_ob.id_planilla
+                        and  oa.id_afp = v_registros_ob.id_afp;
+                        
+                   
+                   IF v_id_obligacion_agrupador is null  THEN
+                         -- if not exits create a new record for obligacion_agrupador and id_adp inser a new one
+                          
+                         INSERT INTO 
+                                    plani.tobligacion_agrupador
+                                  (
+                                    id_usuario_reg,                  
+                                    fecha_reg,
+                                    estado_reg,
+                                    id_tipo_obligacion_agrupador,
+                                    id_planilla,
+                                    monto_agrupador,
+                                    acreedor,
+                                    descripcion,
+                                    tipo_pago,
+                                    id_afp
+                                  )
+                                  VALUES (
+                                    p_id_usuario,
+                                    now(),
+                                    'activo',                    
+                                     v_registros_ob.id_tipo_obligacion_agrupador,
+                                    v_registros_ob.id_planilla,
+                                    0,
+                                    v_registros_ob.acreedor,
+                                    v_registros_ob.descripcion,
+                                    v_registros_ob.tipo_pago,
+                                    v_registros_ob.id_afp
+                                    
+                                  ) returning id_obligacion_agrupador into v_id_obligacion_agrupador;
+                 
+                    END IF;     
+        
+        ELSE
+           raise exception 'es tipo de pago no esta considerado para agrupadores';
         END IF;
         
         -- actualizar el agrupador en la obligacion de pago         
         update plani.tobligacion o set
-        id_obligacion_agrupador = v_id_obligacion_agrupador
+           id_obligacion_agrupador = v_id_obligacion_agrupador
         where o.id_obligacion = v_registros_ob.id_obligacion;
+    
+         
            
     
     END LOOP;
+    
+    
     
     
   	return 'exito';

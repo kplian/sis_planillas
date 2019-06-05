@@ -353,6 +353,14 @@ select wf.f_import_ttipo_estado ('insert','finalizado','LICE','Finalizado','no',
 select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'');
 select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'');
 
+------------------------------------------------
+--catalog de AFP para dividir la obligaciones 
+-------------------------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tafp_empleado','PLANI','tafp');
+select param.f_import_tcatalogo ('insert','PLANI','AFP Futuro','FUTURO','tafp_empleado');
+select param.f_import_tcatalogo ('insert','PLANI','AFP Prevision','PREV','tafp_empleado');
+
 
 /***********************************F-DAT-EGS-PLANI-0-24/04/2019****************************************/
 

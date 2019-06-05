@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.ft_columna_valor_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -15,10 +17,12 @@ $body$
  COMENTARIOS:
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17-01-2014        JRR KPLIAN       creacion
+ #10              04/06/2019        RAC KPLIAN       valida si la coluna es editable o no previamente a la edicion
+  
 ***************************************************************************/
 
 DECLARE
@@ -109,10 +113,16 @@ BEGIN
             if (v_tipo_columna.tiene_detalle = 'si') then
             	raise exception 'La columna tiene detalle, no es posible modificar el valor de la columna directamente. Modifique el detalle';
             end if;
-
-			/*if (v_estado_planilla != 'calculo_columnas')then
-				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado "calculo_columnas"';
-			end if;*/
+            
+            --#10 se descomenta este bloque, esta validacion me parece correcta, añade calculo horas            
+			if (v_estado_planilla not in ('calculo_columnas','calculo_horas')) then
+				raise exception 'No es posible modificar un valor para una planilla que no se encuentra en estado calculo_columnas';
+			end if;
+            
+            -- #10 valida si la columna es editable
+           IF v_tipo_columna.editable = 'no' THEN
+              raise exception 'La columna % no es editable ',v_tipo_columna.nombre; 
+           END IF;
 
 			--Sentencia de la modificacion
 			update plani.tcolumna_valor set

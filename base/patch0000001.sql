@@ -991,5 +991,30 @@ IS 'pra describir si el c bte fue eliminado,...el FK se pierde';
 /***********************************F-SCP-RAC-PLANI-2-15/05/2019****************************************/
 
 
+/***********************************I-SCP-RAC-PLANI-10-30/05/2019****************************************/
 
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN id_afp INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion_agrupador.id_afp
+IS 'identifica los agrupadores por AFP';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_columna
+  ADD COLUMN editable VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_columna.editable
+IS 'la columnas es editable manualmente, si o no';
+/***********************************F-SCP-RAC-PLANI-10-30/05/2019****************************************/
+
+/***********************************I-SCP-MZM-PLANI-8-31/05/2019****************************************/
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN espacio_previo VARCHAR(2);
+
+ALTER TABLE plani.treporte_columna
+  ALTER COLUMN espacio_previo SET DEFAULT 'no';
+/***********************************F-SCP-MZM-PLANI-8-31/05/2019****************************************/
 
