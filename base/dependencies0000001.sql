@@ -1250,7 +1250,7 @@ ALTER TABLE plani.tconsolidado_columna
     NOT DEFERRABLE;
 /***********************************F-DEP-JRR-PLANI-0-25/04/2016****************************************/
 /***********************************I-DEP-JRR-PLANI-0-10/03/2017****************************************/
-CREATE VIEW plani.vcomp_planilla_obli (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli (
     id_obligacion,
     id_depto_conta,
     nro_tramite,
@@ -1444,7 +1444,7 @@ select pxp.f_insert_testructura_gui ('AGRTO', 'DEFPLA');
 /***********************************F-DEP-EGS-PLANI-0-05/02/2019****************************************/
 
 /***********************************I-DEP-CAP-PLANI-0-08/04/2019****************************************/
-CREATE VIEW plani.vcomp_planilla_det (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_det (
     id_consolidado_columna,
     id_consolidado,
     id_planilla,
@@ -1477,7 +1477,7 @@ FROM plani.tconsolidado con
          concol.tipo_contrato::text;
 
 
-CREATE VIEW plani.vcomp_dev_planilla (
+CREATE OR REPLACE VIEW plani.vcomp_dev_planilla (
     id_plan_pago,
     id_moneda,
     id_depto_conta,
@@ -1574,7 +1574,7 @@ FROM tes.tplan_pago pp
      JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
      JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = pla.id_tipo_planilla;
 
-CREATE VIEW plani.vcomp_planilla (
+CREATE OR REPLACE VIEW plani.vcomp_planilla (
     id_planilla,
     id_depto_conta,
     nro_tramite,
@@ -1629,7 +1629,7 @@ FROM plani.tplanilla pla
 GROUP BY pla.id_planilla, dcon.id_depto, pw.nro_tramite, tp.nombre,
     per.periodo, ges.gestion, pla.nro_planilla, pla.fecha_planilla, pla.id_gestion;
     
-CREATE VIEW plani.vcomp_planilla_obli (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli (
     id_obligacion,
     id_depto_conta,
     nro_tramite,
@@ -1677,7 +1677,7 @@ FROM plani.tobligacion o
      LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
          AND sub.codigo::text = 'CONTA'::text;
          
-CREATE VIEW plani.vcomp_planilla_obli_agrupador (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador (
     id_depto_conta,
     nro_tramite,
     acreedor,
@@ -1731,7 +1731,7 @@ FROM plani.tobligacion_agrupador oa
 GROUP BY dcon.id_depto, pro.nro_tramite, toa.nombre, p.id_int_comprobante,
     p.fecha_planilla, p.id_gestion, o.tipo_pago, toa.id_tipo_obligacion_agrupador, oa.id_planilla, oa.id_obligacion_agrupador, oa.tipo_pago;
     
-CREATE VIEW plani.vobligacion_presu (
+CREATE OR REPLACE VIEW plani.vobligacion_presu (
     id_obligacion_columna,
     id_planilla,
     id_obligacion,
@@ -2038,7 +2038,7 @@ ALTER TABLE plani.tobligacion_agrupador
  
 DROP VIEW plani.vcomp_planilla_obli_agrupador;
 
-CREATE VIEW plani.vcomp_planilla_obli_agrupador  
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador  
 AS
   SELECT dcon.id_depto AS id_depto_conta,
          pro.nro_tramite,
@@ -2099,7 +2099,7 @@ ALTER TABLE plani.vcomp_planilla_obli_agrupador
   
   --------------- SQL ---------------
 
-CREATE VIEW plani.vobligacion_agrupador 
+CREATE OR REPLACE VIEW plani.vobligacion_agrupador 
 AS 
 SELECT ob.id_obligacion_agrupador,
          ob.id_planilla,
@@ -2130,5 +2130,9 @@ SELECT ob.id_obligacion_agrupador,
 /***********************************I-DEP-MMV-PLANI-6-6/06/2019****************************************/
 select pxp.f_insert_testructura_gui ('FOE', 'PLANI');
 /***********************************F-DEP-MMV-PLANI-6-6/06/2019****************************************/
+/***********************************I-DEP-EGS-PLANI-01-06/06/2019****************************************/
+select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
+select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
+/***********************************F-DEP-EGS-PLANI-01-06/06/2019****************************************/
 
 

@@ -311,13 +311,13 @@ VALUES (E'plani_carga_presupuesto_from_uo', E'no', E'Carga el presupuesto automa
 /***********************************F-DAT-JRR-PLANI-0-25/01/2017****************************************/
 
 /***********************************I-DAT-JRR-PLANI-0-10/03/2017****************************************/
-
+/*
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_cuenta_bancaria_defecto', E'1', E'Cuenta bancaria por defecto para pagos generados por planillas');
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_generar_comprobante_obligaciones', E'no', E'bandera para generar comprobante de obligaciones');
-
+*/
 /***********************************F-DAT-JRR-PLANI-0-10/03/2017****************************************/
 
 
@@ -369,10 +369,8 @@ select param.f_import_tcatalogo ('insert','PLANI','AFP Prevision','PREV','tafp_e
 
 /***********************************I-DAT-RAC-PLANI-7-08/05/2019****************************************/
 
-select pxp.f_insert_tgui ('Tipo Columna (Planillas)', 'Tipo Columna (Planillas)', 'TIPCOLCUE', 'si', 7, 'sis_contabilidad/vista/tipo_columna_cuenta/TipoColumnaCuenta.php', 3, '', 'TipoColumnaCuenta', 'CONTA');
-select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
+select pxp.f_insert_tgui ('Tipo Columna (Planillas)', 'Tipo Columna (Planillas)', 'TIPCOLCUEP', 'si', 7, 'sis_contabilidad/vista/tipo_columna_cuenta/TipoColumnaCuenta.php', 3, '', 'TipoColumnaCuenta', 'CONTA');
 select pxp.f_insert_tgui ('Planilla VoBo', 'Planilla VoBo', 'PLAVOBO', 'si', 2, 'sis_planillas/vista/planilla/PlanillaVb.php', 2, '', 'PlanillaVb', 'PLANI');
-select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
 
 select conta.f_import_ttipo_relacion_contable ('insert','INCAPTEMP',NULL,'Incapacidad Temporal por Cobrar','activo','no','si','si','flujo','recurso_gasto','no','no','no',NULL);
 
