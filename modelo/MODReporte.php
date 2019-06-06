@@ -42,6 +42,9 @@ class MODReporte extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('control_reporte','varchar');
 		$this->captura('tipo_reporte','varchar');
+		$this->captura('multilinea','varchar');
+		$this->captura('vista_datos_externos','varchar');
+		$this->captura('num_columna_multilinea','integer');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -73,6 +76,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
+		$this->setParametro('multilinea','multilinea','varchar');
+		$this->setParametro('vista_datos_externos','vista_datos_externos','varchar');
+		$this->setParametro('num_columna_multilinea','num_columna_multilinea','integer');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -105,6 +111,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('titulo_reporte','titulo_reporte','varchar');
 		$this->setParametro('control_reporte','control_reporte','varchar');
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
+		$this->setParametro('multilinea','multilinea','varchar');
+		$this->setParametro('vista_datos_externos','vista_datos_externos','varchar');
+		$this->setParametro('num_columna_multilinea','num_columna_multilinea','integer');
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -157,8 +166,13 @@ class MODReporte extends MODbase{
 		$this->captura('depto','varchar');
 		$this->captura('cantidad_columnas','integer');
 		
+		$this->captura('multilinea','varchar');
+        $this->captura('vista_datos_externos','varchar');
+        $this->captura('num_columna_multilinea','integer');
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
+		//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -262,11 +276,15 @@ class MODReporte extends MODbase{
 		
 		//Datos de la columna
 		$this->captura('codigo_columna','varchar');	
-		$this->captura('valor_columna','numeric');			
+		$this->captura('valor_columna','varchar');			
 		$this->captura('nombre','varchar');
+		$this->captura('espacio_previo','integer');
+		
+		
+		
 
 		//Ejecuta la instruccion
-		$this->armarConsulta();
+		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -428,6 +446,50 @@ class MODReporte extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+
+
+/****/
+function listarReporteDetalleMultiCell(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_REPODETMUL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
+		$this->setParametro('id_uo','id_uo','integer');	
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('nombre_empleado','text');
+		$this->captura('codigo_empleado','varchar');
+		$this->captura('codigo_cargo','varchar');
+		$this->captura('doc_id','varchar');
+		//$this->captura('id_presupuesto','integer');
+		$this->captura('id_gerencia','integer');
+		$this->captura('gerencia','varchar');
+				
+		//Datos del tipo_reporte_columna
+		$this->captura('sumar_total','varchar');
+		$this->captura('ancho_columna','integer');
+		$this->captura('titulo_reporte_superior','varchar');	
+		$this->captura('titulo_reporte_inferior','varchar');		
+		
+		//Datos de la columna
+		$this->captura('codigo_columna','varchar');	
+		$this->captura('valor_columna','varchar');			
+		$this->captura('nombre','varchar');
+		$this->captura('espacio_previo','integer');
+		
+		
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		//echo "****".$this->getConsulta(); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

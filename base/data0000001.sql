@@ -311,13 +311,13 @@ VALUES (E'plani_carga_presupuesto_from_uo', E'no', E'Carga el presupuesto automa
 /***********************************F-DAT-JRR-PLANI-0-25/01/2017****************************************/
 
 /***********************************I-DAT-JRR-PLANI-0-10/03/2017****************************************/
-
+/*
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_cuenta_bancaria_defecto', E'1', E'Cuenta bancaria por defecto para pagos generados por planillas');
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES (E'plani_generar_comprobante_obligaciones', E'no', E'bandera para generar comprobante de obligaciones');
-
+*/
 /***********************************F-DAT-JRR-PLANI-0-10/03/2017****************************************/
 
 
@@ -353,8 +353,34 @@ select wf.f_import_ttipo_estado ('insert','finalizado','LICE','Finalizado','no',
 select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'');
 select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'');
 
+------------------------------------------------
+--catalog de AFP para dividir la obligaciones 
+-------------------------------------------------
+
+select param.f_import_tcatalogo_tipo ('insert','tafp_empleado','PLANI','tafp');
+select param.f_import_tcatalogo ('insert','PLANI','AFP Futuro','FUTURO','tafp_empleado');
+select param.f_import_tcatalogo ('insert','PLANI','AFP Prevision','PREV','tafp_empleado');
+
 
 /***********************************F-DAT-EGS-PLANI-0-24/04/2019****************************************/
+
+
+
+
+/***********************************I-DAT-RAC-PLANI-7-08/05/2019****************************************/
+
+select pxp.f_insert_tgui ('Tipo Columna (Planillas)', 'Tipo Columna (Planillas)', 'TIPCOLCUEP', 'si', 7, 'sis_contabilidad/vista/tipo_columna_cuenta/TipoColumnaCuenta.php', 3, '', 'TipoColumnaCuenta', 'CONTA');
+select pxp.f_insert_tgui ('Planilla VoBo', 'Planilla VoBo', 'PLAVOBO', 'si', 2, 'sis_planillas/vista/planilla/PlanillaVb.php', 2, '', 'PlanillaVb', 'PLANI');
+
+select conta.f_import_ttipo_relacion_contable ('insert','INCAPTEMP',NULL,'Incapacidad Temporal por Cobrar','activo','no','si','si','flujo','recurso_gasto','no','no','no',NULL);
+
+select conta.f_import_ttipo_relacion_contable ('insert','SALXPALI',NULL,'Salario por Aplicar','activo','no','si','no','flujo','recurso_gasto','no','no','no',NULL);
+
+select conta.f_import_ttipo_relacion_contable ('insert','CCCLMCTA','TTIP','Centro de costos columnas solo contables','activo','si-unico','no','no','','','no','no','no','');
+/***********************************F-DAT-RAC-PLANI-7-08/05/2019****************************************/
+/***********************************I-DAT-MMA-PLANI-6-06/06/2019****************************************/
+select pxp.f_insert_tgui ('Filtro Cbte', 'Filtro Cbte', 'FOE', 'si', 7, 'sis_planillas/vista/filtro_cbte/FiltroCbte.php', 2, '', 'FiltroCbte', 'PLANI');
+/***********************************F-DAT-MMA-PLANI-6-06/06/2019****************************************/
 
 
   

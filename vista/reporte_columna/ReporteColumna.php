@@ -17,7 +17,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ReporteColumna.superclass.constructor.call(this,config);
 		this.init();
-		
+		this.iniciarEventos();
 	},
 			
 	Atributos:[
@@ -41,6 +41,28 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 			},
 			type:'Field',
 			form:true 
+		},
+		{
+			config:{
+				name: 'origen',
+				fieldLabel: 'Origen',
+				allowBlank:false,
+				emptyText:'Origen...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['vista_externa','columna_planilla'],	
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['vista_externa','columna_planilla'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		},
 		{
 			config: {
@@ -86,7 +108,21 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 			},
 			grid: true,
 			form: true
-		},		
+		},	{
+			config:{
+				name: 'columna_vista',
+				fieldLabel: 'Columna de Vista',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:30
+			},
+				type:'TextField',
+				filters:{pfiltro:'repcol.columna_vista',type:'string'},
+				id_grupo:0,
+				grid:true,
+				form:true
+		},	
 		{
 			config:{
 				name: 'sumar_total',
@@ -267,7 +303,22 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},{
+			config:{
+				name: 'espacio_previo',
+				fieldLabel: 'Espacio Previo',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:4
+			},
+				type:'NumberField',
+				filters:{pfiltro:'repcol.espacio_previo',type:'numeric'},
+				id_grupo:1,
+				grid:true,
+				form:true
 		}
+		
 	],
 	tam_pag:50,	
 	title:'Reporte Columna',
@@ -292,6 +343,10 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
 		{name:'titulo_reporte_superior', type: 'string'},
 		{name:'titulo_reporte_inferior', type: 'string'},
+		{name:'espacio_previo', type: 'numeric'},
+		{name:'columna_vista', type: 'string'},
+		{name:'origen', type: 'string'}
+		
 		
 	],
 	sortInfo:{
@@ -317,8 +372,53 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
     {
     	this.Cmp.tipo_columna.setValue('otro');  
     	this.Cmp.id_reporte.setValue(this.maestro.id_reporte);       
-        Phx.vista.ReporteColumna.superclass.loadValoresIniciales.call(this);        
+        Phx.vista.ReporteColumna.superclass.loadValoresIniciales.call(this); 
+        
+        
+     
+          
+               
     },
+    iniciarEventos:function(){
+    	//this.ocultarComponente(this.Cmp.codigo_columna);
+    	//this.ocultarComponente(this.Cmp.columna_vista);
+    	this.Cmp.espacio_previo.setValue(0);
+    	this.Cmp.origen.on('select',function(cmp,rec){
+    		if(rec.json=='vista_externa'){
+    			this.Cmp.origen.setValue('vista_externa');
+    			this.mostrarComponente(this.Cmp.columna_vista);
+				this.ocultarComponente(this.Cmp.codigo_columna);
+				this.Cmp.codigo_columna.allowBlank=true;
+				this.Cmp.columna_vista.allowBlank=false;
+				
+    		}else{
+    			this.Cmp.origen.setValue('columna_planilla');
+    			this.mostrarComponente(this.Cmp.codigo_columna);
+				this.ocultarComponente(this.Cmp.columna_vista);
+				this.Cmp.codigo_columna.allowBlank=false;
+				this.Cmp.columna_vista.allowBlank=true;
+    		}
+    		
+    		
+			/*if(this.isInArray(rec.json, this.arrayStore['vista_externa'])){
+					this.Cmp.origen.setValue('vista_externa');
+					
+			}else{
+				this.Cmp.origen.setValue('columna_planilla');
+				
+			}
+			
+			if(this.Cmp.tipo.getValue() == 'vista_externa'){
+				this.mostrarComponente(this.Cmp.columna_vista);
+				this.ocultarComponente(this.Cmp.codigo_columna);
+			}else{
+				this.mostrarComponente(this.Cmp.codigo_columna);
+				this.ocultarComponente(this.Cmp.columna_vista);
+			}
+			*/
+		
+			},this);
+    }
 	}
 )
 </script>

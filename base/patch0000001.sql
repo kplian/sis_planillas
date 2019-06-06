@@ -890,7 +890,6 @@ ALTER TABLE plani.tlicencia
 /***********************************F-SCP-EGS-PLANI-1-07/03/2019****************************************/
 
 /***********************************I-SCP-CAP-PLANI-1-08/04/2019****************************************/
-DROP VIEW plani.vcomp_planilla_det;
 
 ALTER TABLE plani.tconsolidado_columna
   ALTER COLUMN valor TYPE NUMERIC;
@@ -934,4 +933,103 @@ ALTER TABLE plani.ttipo_obligacion_columna
 
 /***********************************F-SCP-CAP-PLANI-1-08/04/2019****************************************/
 
+
+/***********************************I-SCP-MMV-PLANI-5-30/04/2019****************************************/
+ALTER TABLE plani.tplanilla
+  ADD COLUMN dividir_comprobante VARCHAR(5);
+
+ALTER TABLE plani.tplanilla
+  ALTER COLUMN dividir_comprobante SET DEFAULT 'no';
+  
+ALTER TABLE plani.tplanilla
+  ADD COLUMN id_tipo_contrato INTEGER; 
+/***********************************F-SCP-MMV-PLANI-5-30/04/2019****************************************/
+
+
+/***********************************I-SCP-RAC-PLANI-2-15/05/2019****************************************/
+
+--------------- SQL ---------------
+
+CREATE TABLE plani.tfiltro_cbte (
+  id_filtro_cbte SERIAL NOT NULL,
+  id_tipo_presupuesto INTEGER NOT NULL,
+  obs TEXT,
+  PRIMARY KEY(id_filtro_cbte)
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+COMMENT ON COLUMN plani.tfiltro_cbte.id_tipo_presupuesto
+IS 'identifica los presupeusto que entran al abte de diario presupeustario para planillas, los que noesten presente iran al  cbte de diraio contable';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN id_int_comprobante_2 INTEGER;
+
+COMMENT ON COLUMN plani.tplanilla.id_int_comprobante_2
+IS 'se añadir por en algunos casos es necesario dividir la pnailal en dos cbte, un o presupeustario y otro solo contable,.....se divide segun tipo de presupuesto configurado en la tabla plani.tfiltro_cbte';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD COLUMN obs_cbte VARCHAR;
+
+COMMENT ON COLUMN plani.tobligacion.obs_cbte
+IS 'pra describir si el c bte fue eliminado,...el FK se pierde';
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN obs_cbte VARCHAR;
+
+COMMENT ON COLUMN plani.tobligacion_agrupador.obs_cbte
+IS 'pra describir si el c bte fue eliminado,...el FK se pierde';
+/***********************************F-SCP-RAC-PLANI-2-15/05/2019****************************************/
+
+
+/***********************************I-SCP-RAC-PLANI-10-30/05/2019****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD COLUMN id_afp INTEGER;
+
+COMMENT ON COLUMN plani.tobligacion_agrupador.id_afp
+IS 'identifica los agrupadores por AFP';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.ttipo_columna
+  ADD COLUMN editable VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_columna.editable
+IS 'la columnas es editable manualmente, si o no';
+/***********************************F-SCP-RAC-PLANI-10-30/05/2019****************************************/
+
+/***********************************I-SCP-MZM-PLANI-8-31/05/2019****************************************/
+ALTER TABLE plani.treporte
+  ADD COLUMN multilinea VARCHAR(2);
+
+ALTER TABLE plani.treporte
+  ALTER COLUMN multilinea SET DEFAULT 'no';
+
+ALTER TABLE plani.treporte
+  ADD COLUMN vista_datos_externos VARCHAR(100);
+
+ALTER TABLE plani.treporte
+  ADD COLUMN num_columna_multilinea INTEGER;
+
+
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN columna_vista VARCHAR(100);
+
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN origen VARCHAR(30);
+
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN espacio_previo INTEGER;
+/***********************************F-SCP-MZM-PLANI-8-31/05/2019****************************************/
 

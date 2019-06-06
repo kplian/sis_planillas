@@ -1250,7 +1250,7 @@ ALTER TABLE plani.tconsolidado_columna
     NOT DEFERRABLE;
 /***********************************F-DEP-JRR-PLANI-0-25/04/2016****************************************/
 /***********************************I-DEP-JRR-PLANI-0-10/03/2017****************************************/
-CREATE VIEW plani.vcomp_planilla_obli (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli (
     id_obligacion,
     id_depto_conta,
     nro_tramite,
@@ -1444,7 +1444,7 @@ select pxp.f_insert_testructura_gui ('AGRTO', 'DEFPLA');
 /***********************************F-DEP-EGS-PLANI-0-05/02/2019****************************************/
 
 /***********************************I-DEP-CAP-PLANI-0-08/04/2019****************************************/
-CREATE VIEW plani.vcomp_planilla_det (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_det (
     id_consolidado_columna,
     id_consolidado,
     id_planilla,
@@ -1477,7 +1477,7 @@ FROM plani.tconsolidado con
          concol.tipo_contrato::text;
 
 
-CREATE VIEW plani.vcomp_dev_planilla (
+CREATE OR REPLACE VIEW plani.vcomp_dev_planilla (
     id_plan_pago,
     id_moneda,
     id_depto_conta,
@@ -1574,7 +1574,7 @@ FROM tes.tplan_pago pp
      JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
      JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = pla.id_tipo_planilla;
 
-CREATE VIEW plani.vcomp_planilla (
+CREATE OR REPLACE VIEW plani.vcomp_planilla (
     id_planilla,
     id_depto_conta,
     nro_tramite,
@@ -1629,7 +1629,7 @@ FROM plani.tplanilla pla
 GROUP BY pla.id_planilla, dcon.id_depto, pw.nro_tramite, tp.nombre,
     per.periodo, ges.gestion, pla.nro_planilla, pla.fecha_planilla, pla.id_gestion;
     
-CREATE VIEW plani.vcomp_planilla_obli (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli (
     id_obligacion,
     id_depto_conta,
     nro_tramite,
@@ -1677,7 +1677,7 @@ FROM plani.tobligacion o
      LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
          AND sub.codigo::text = 'CONTA'::text;
          
-CREATE VIEW plani.vcomp_planilla_obli_agrupador (
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador (
     id_depto_conta,
     nro_tramite,
     acreedor,
@@ -1731,7 +1731,7 @@ FROM plani.tobligacion_agrupador oa
 GROUP BY dcon.id_depto, pro.nro_tramite, toa.nombre, p.id_int_comprobante,
     p.fecha_planilla, p.id_gestion, o.tipo_pago, toa.id_tipo_obligacion_agrupador, oa.id_planilla, oa.id_obligacion_agrupador, oa.tipo_pago;
     
-CREATE VIEW plani.vobligacion_presu (
+CREATE OR REPLACE VIEW plani.vobligacion_presu (
     id_obligacion_columna,
     id_planilla,
     id_obligacion,
@@ -1891,5 +1891,248 @@ select pxp.f_insert_testructura_gui ('LICVOBO', 'PLANI');
 select pxp.f_insert_testructura_gui ('SOLPLA', 'PLANI');
 
 /***********************************F-DEP-EGS-PLANI-0-24/04/2019****************************************/
+
+
+/***********************************I-DEP-RAC-PLANI-2-15/05/2019****************************************/
+
+CREATE OR REPLACE VIEW plani.vincapacidad_temporal(
+    monto_incapacidad,
+    id_planilla,
+    id_tipo_columna)
+AS
+  SELECT sum(cv.valor) AS monto_incapacidad,
+         fp.id_planilla,
+         cv.id_tipo_columna
+  FROM plani.ttipo_columna tc
+       JOIN plani.tcolumna_valor cv ON cv.id_tipo_columna = tc.id_tipo_columna
+       JOIN plani.tfuncionario_planilla fp ON cv.id_funcionario_planilla =
+         fp.id_funcionario_planilla
+  WHERE tc.codigo::TEXT = 'INCAP_TEMPORAL'::TEXT AND
+        tc.estado_reg::TEXT = 'activo'::TEXT AND
+        fp.estado_reg::TEXT = 'activo'::TEXT
+  GROUP BY fp.id_planilla,
+           cv.id_tipo_columna;
+           
+  
+           
+CREATE OR REPLACE VIEW plani.vcomp_planilla_det_diario(
+    id_consolidado_columna,
+    id_consolidado,
+    id_planilla,
+    monto,
+    monto_presupuestario,
+    id_cc,
+    id_presupuesto,
+    descripcion_columna,
+    id_cuenta,
+    id_partida,
+    id_auxiliar,
+    id_tipo_presupuesto,
+    presupuestario)
+AS
+  SELECT concol.id_consolidado_columna,
+         concol.id_consolidado,
+         con.id_planilla,
+         concol.valor AS monto,
+         concol.valor_ejecutado AS monto_presupuestario,
+         con.id_cc,
+         con.id_presupuesto,
+         ((tc.nombre::TEXT || '. Personal '::TEXT) || tipcon.nombre::TEXT)::
+           character VARYING AS descripcion_columna,
+         concol.id_cuenta,
+         concol.id_partida,
+         concol.id_auxiliar,
+         fc.id_tipo_presupuesto,
+         CASE
+           WHEN fc.id_tipo_presupuesto IS NOT NULL THEN 1
+           ELSE 0
+         END AS presupuestario
+  FROM plani.tconsolidado con
+       JOIN plani.tconsolidado_columna concol ON concol.id_consolidado =
+         con.id_consolidado
+       JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+         concol.id_tipo_columna
+       JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::TEXT =
+         concol.tipo_contrato::TEXT
+       JOIN pre.tpresupuesto pre ON pre.id_presupuesto = con.id_presupuesto
+       JOIN pre.ttipo_presupuesto tp ON pre.tipo_pres::TEXT = tp.codigo::TEXT
+       LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto =
+         tp.id_tipo_presupuesto
+  WHERE fc.id_tipo_presupuesto IS NULL;
+  
+  
+  CREATE OR REPLACE VIEW plani.vcomp_planilla_det_presup (
+    id_consolidado_columna,
+    id_consolidado,
+    id_planilla,
+    monto,
+    monto_presupuestario,
+    id_cc,
+    id_presupuesto,
+    descripcion_columna,
+    id_cuenta,
+    id_partida,
+    id_auxiliar,
+    id_tipo_presupuesto,
+    presupuestario)
+AS
+ SELECT concol.id_consolidado_columna,
+    concol.id_consolidado,
+    con.id_planilla,
+    concol.valor AS monto,
+    concol.valor_ejecutado AS monto_presupuestario,
+    con.id_cc,
+    con.id_presupuesto,
+    ((tc.nombre::text || '. Personal '::text) || tipcon.nombre::text)::character varying AS descripcion_columna,
+    concol.id_cuenta,
+    concol.id_partida,
+    concol.id_auxiliar,
+    fc.id_tipo_presupuesto,
+        CASE
+            WHEN fc.id_tipo_presupuesto IS NOT NULL THEN 1
+            ELSE 0
+        END AS presupuestario
+   FROM plani.tconsolidado con
+     JOIN plani.tconsolidado_columna concol ON concol.id_consolidado = con.id_consolidado
+     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna = concol.id_tipo_columna
+     JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::text = concol.tipo_contrato::text
+     JOIN pre.tpresupuesto pre ON pre.id_presupuesto = con.id_presupuesto
+     JOIN pre.ttipo_presupuesto tp ON pre.tipo_pres::text = tp.codigo::text
+     LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto = tp.id_tipo_presupuesto
+  WHERE fc.id_tipo_presupuesto IS NOT NULL;
+  
+  
+  --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT tobligacion__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+ --------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;   
+
+/***********************************F-DEP-RAC-PLANI-2-15/05/2019****************************************/
+
+
+/***********************************I-DEP-RAC-PLANI-10-30/05/2019****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tobligacion_agrupador
+  ADD CONSTRAINT tobligacion_agrupador__id_afp_fk FOREIGN KEY (id_afp)
+    REFERENCES plani.tafp(id_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+    
+    --------------- SQL ---------------
+ 
+DROP VIEW plani.vcomp_planilla_obli_agrupador;
+
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador  
+AS
+  SELECT dcon.id_depto AS id_depto_conta,
+         pro.nro_tramite,
+         CASE WHEN afp.id_afp IS NULL THEN toa.nombre
+              ELSE toa.nombre || ' ('||afp.nombre||')'   
+         END  AS acreedor,
+         toa.nombre AS descripcion,
+         pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character VARYING)::INTEGER AS id_cuenta_bancaria,
+         p.id_int_comprobante,
+         param.f_get_moneda_base() AS id_moneda,
+         p.fecha_planilla AS fecha_actual,
+         p.id_gestion,
+         CASE
+           WHEN oa.tipo_pago::TEXT = 'cheque'::TEXT THEN 'cheque'::TEXT
+           ELSE 'transferencia'::TEXT
+         END AS forma_pago,
+         (
+           SELECT f_get_config_relacion_contable.ps_id_centro_costo
+           FROM conta.f_get_config_relacion_contable('CCDEPCON'::character
+             VARYING, p.id_gestion, dcon.id_depto, NULL::INTEGER,
+             'No existe presupuesto administrativo relacionado al departamento de RRHH'
+             ::character VARYING) f_get_config_relacion_contable(ps_id_cuenta,
+             ps_id_auxiliar, ps_id_partida, ps_id_centro_costo,
+             ps_nombre_tipo_relacion)
+         ) AS id_centro_costo_depto,
+         sum(o.monto_obligacion) AS monto_obligacion,
+         toa.id_tipo_obligacion_agrupador,
+         oa.id_obligacion_agrupador,
+         oa.id_planilla
+  FROM plani.tobligacion_agrupador oa
+       JOIN plani.ttipo_obligacion_agrupador toa ON
+         toa.id_tipo_obligacion_agrupador = oa.id_tipo_obligacion_agrupador
+       JOIN plani.tplanilla p ON p.id_planilla = oa.id_planilla
+       JOIN wf.tproceso_wf pro ON pro.id_proceso_wf = p.id_proceso_wf
+       JOIN param.tdepto dep ON dep.id_depto = p.id_depto
+       JOIN plani.tobligacion o ON o.id_obligacion_agrupador =
+         oa.id_obligacion_agrupador
+       LEFT JOIN plani.tafp afp on afp.id_afp = oa.id_afp  
+       LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+       LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+       LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema AND sub.codigo::TEXT = 'CONTA'::TEXT
+  GROUP BY dcon.id_depto,
+           pro.nro_tramite,
+           toa.nombre,
+           p.id_int_comprobante,
+           p.fecha_planilla,
+           p.id_gestion,
+           o.tipo_pago,
+           toa.id_tipo_obligacion_agrupador,
+           oa.id_planilla,
+           oa.id_obligacion_agrupador,
+           oa.tipo_pago,
+           afp.id_afp;
+
+ALTER TABLE plani.vcomp_planilla_obli_agrupador
+  OWNER TO postgres;
+  
+  
+  --------------- SQL ---------------
+
+CREATE OR REPLACE VIEW plani.vobligacion_agrupador 
+AS 
+SELECT ob.id_obligacion_agrupador,
+         ob.id_planilla,
+         ob.acreedor,
+         per.periodo,
+         ges.gestion,
+         sum(ob.monto_obligacion) AS monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       JOIN plani.tobligacion_agrupador oa ON oa.id_obligacion_agrupador = ob.id_obligacion_agrupador
+       JOIN plani.ttipo_obligacion_agrupador toa on toa.id_tipo_obligacion_agrupador = oa.id_tipo_obligacion_agrupador
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+           
+         
+  GROUP BY ob.id_obligacion_agrupador,
+           ob.id_plan_pago,
+           ob.id_planilla,          
+           ob.acreedor,
+           per.periodo,
+           ges.gestion;
+
+/***********************************F-DEP-RAC-PLANI-10-30/05/2019****************************************/
+/***********************************I-DEP-MMV-PLANI-6-6/06/2019****************************************/
+select pxp.f_insert_testructura_gui ('FOE', 'PLANI');
+/***********************************F-DEP-MMV-PLANI-6-6/06/2019****************************************/
+/***********************************I-DEP-EGS-PLANI-01-06/06/2019****************************************/
+select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
+select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
+/***********************************F-DEP-EGS-PLANI-01-06/06/2019****************************************/
 
 

@@ -5,6 +5,14 @@
 *@author  (admin)
 *@date 17-01-2014 19:43:15
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+ * 
+ *     HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               17-01-2014         JRR KPLIAN       creacion
+ #10              04/06/2019        RAC KPLIAN       añade posibilidad  para configurar  si el tipo de columna es editable
+  
 */
 
 class MODTipoColumna extends MODbase{
@@ -41,6 +49,7 @@ class MODTipoColumna extends MODbase{
 		$this->captura('finiquito','varchar');
 		$this->captura('tiene_detalle','varchar');
 		$this->captura('recalcular','varchar');
+		$this->captura('editable','varchar');  // #10 ++
 		
 		
 		//Ejecuta la instruccion
@@ -72,6 +81,9 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
 		$this->setParametro('recalcular','recalcular','varchar');
+		$this->setParametro('editable','editable','varchar'); //#10 ++
+		
+		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -103,6 +115,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('finiquito','finiquito','varchar');
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
 		$this->setParametro('recalcular','recalcular','varchar');
+		$this->setParametro('editable','editable','varchar'); //#10 ++
 		
 
 		//Ejecuta la instruccion

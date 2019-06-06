@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_prorratear_pres_cos_empleados (
   p_id_planilla integer,
   p_tipo_generacion varchar,
@@ -19,6 +21,7 @@ $body$
    
  #0               28-09-2013        GUY BOA             Creacion 
  #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias , hoja_calculo
+ #7               22-05-2019        Rarteaga            considerar columnas ci_contable en las hojas de tiempo
 
 */
 DECLARE
@@ -43,7 +46,8 @@ DECLARE
   v_horas_laborales			numeric;
   v_id_gestion_contable		integer;
   v_registros_det           record;
-  v_registros_aux           record;  
+  v_registros_aux           record;
+  v_id_cc_aux               integer;  
   
 BEGIN
 	v_nombre_funcion = 'plani.f_prorratear_pres_cos_empleados';
@@ -1421,8 +1425,8 @@ BEGIN
                           end loop;
 
                   end loop;
-
-            elsif (v_planilla.tipo_presu_cc in ('ultimo_activo_gestion','ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
+            --#7 se agrega hoja_calculo para procesar columnas si_contable
+            elsif (v_planilla.tipo_presu_cc in ('hoja_calculo','ultimo_activo_gestion','ultimo_activo_periodo', 'prorrateo_aguinaldo', 'retroactivo_sueldo' ,'retroactivo_asignaciones')) then
                 --se inserta el prorrrateo para todos los funcionarios
                 for v_registros in (select fp.id_funcionario_planilla,
                                     car.id_oficina,car.id_lugar,tc.codigo as tipo_contrato
@@ -1431,53 +1435,67 @@ BEGIN
                                     inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                                     inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
                                     where id_planilla = p_id_planilla)loop
-                    INSERT INTO
-                          plani.tprorrateo
-                        (
-                          id_usuario_reg,
-                          fecha_reg,
-                          estado_reg,
-                          id_funcionario_planilla,
-                          id_horas_trabajadas,
-                          id_presupuesto,
-                          id_cc,
-                          tipo_prorrateo,
-                          porcentaje,
-                          tipo_contrato,
-                          id_oficina,
-                          id_lugar
-                        )
-                        VALUES (
-                          p_id_usuario,
-                          now(),
-                          'activo',
-                          v_registros.id_funcionario_planilla,
-                          NULL,
-                          case when p_tipo_generacion = 'presupuestos' then
-                            v_id_pres_adm
-                          else
-                            NULL
-                          END,
-                          case when p_tipo_generacion = 'costos' then
-                            v_id_pres_adm
-                          else
-                            NULL
-                          END,
-                          p_tipo_generacion,
-                          100,
-                          v_registros.id_oficina,
-                          v_registros.tipo_contrato,
-                          v_registros.id_lugar
-                        )returning id_prorrateo into v_id_prorrateo;
+                                    
+                                    
+                         v_consulta = '	select cv.id_tipo_columna,cv.codigo_columna,tc.compromete
+                                          from plani.tfuncionario_planilla fp
+                                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+                                          inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and
+                                                                          tc.compromete = ''si_contable''
+                                          where fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla;          
+                                    
+                         for v_columnas in execute (v_consulta) loop
+                         
+                              --#7 recuperar el centro de costo de las columnas si_contable, des una relacion contable especifica  ,...CCCLMCTA
+                              --  si no tiene se usa el cnetro de costo adminsitrativo              
+                             
+                              --obtener el centro de costos administrativo para este depto de organigrama
+                              SELECT ps_id_centro_costo into v_id_cc_aux
+                              FROM conta.f_get_config_relacion_contable('CCCLMCTA'::character
+                                   varying, v_id_gestion_contable, v_columnas.id_tipo_columna,NULL,'No existe centro de costo relacionado a la columna');               
+                                              
+                              INSERT INTO
+                                    plani.tprorrateo
+                                  (
+                                    id_usuario_reg,
+                                    fecha_reg,
+                                    estado_reg,
+                                    id_funcionario_planilla,
+                                    id_horas_trabajadas,
+                                    id_presupuesto,
+                                    id_cc,
+                                    tipo_prorrateo,
+                                    porcentaje,                         
+                                    id_oficina,
+                                    tipo_contrato, --#7 se corrige el orden de las columnas
+                                    id_lugar
+                                  )
+                                  VALUES (
+                                    p_id_usuario,
+                                    now(),
+                                    'activo',
+                                    v_registros.id_funcionario_planilla,
+                                    NULL,
+                                    case when p_tipo_generacion = 'presupuestos' then
+                                      v_id_cc_aux
+                                    else
+                                      v_id_pres_adm
+                                    END,
+                                    case when p_tipo_generacion = 'costos' then
+                                      v_id_cc_aux
+                                    else
+                                      v_id_pres_adm
+                                    END,
+                                    p_tipo_generacion,
+                                    100,
+                                    v_registros.id_oficina,
+                                    v_registros.tipo_contrato,
+                                    v_registros.id_lugar
+                                  )returning id_prorrateo into v_id_prorrateo;
 
-                        v_consulta = '	select cv.id_tipo_columna,cv.codigo_columna,tc.compromete
-                                from plani.tfuncionario_planilla fp
-                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
-                                inner join plani.ttipo_columna tc on tc.id_tipo_columna = cv.id_tipo_columna and
-                                                                tc.compromete = ''si_contable''
-                                where fp.id_funcionario_planilla = ' || v_registros.id_funcionario_planilla;
-
-                        for v_columnas in execute (v_consulta) loop
+                                 
+                         
+                         
                             INSERT INTO
                               plani.tprorrateo_columna
                             (

@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_conta_relacionar_cuentas (
   p_id_planilla integer,
   p_id_usuario integer
@@ -19,6 +21,7 @@ $body$
    
  #0               17/10/2014        JRR KPLIAN        Creación
  #1 ETR           24/01/2019        RAC KPLIAN        agrega cuenta contable, relaciones contables debe y haber configurables
+ #10 ETR          29/05/2019        RAC KPLIAN        Considerar catalogos para obligaciones de planilla 
 
 */
 DECLARE
@@ -42,20 +45,32 @@ BEGIN
     from plani.tplanilla pla
     where pla.id_planilla = p_id_planilla;
 	--Generamos  cuenta, auxiliar y partida para obligaciones     
-    for v_registros in ( select o.*,tipo.nombre as tipo_obligacion_desc, tipo.tipo_obligacion, tipo.codigo_tipo_relacion_debe, tipo.codigo_tipo_relacion_haber
+    for v_registros in ( select o.*,
+                                tipo.nombre as tipo_obligacion_desc, 
+                                tipo.tipo_obligacion, 
+                                tipo.codigo_tipo_relacion_debe, 
+                                tipo.codigo_tipo_relacion_haber,
+                                afp.codigo as codigo_afp
                         from plani.tobligacion o
                         inner join plani.ttipo_obligacion tipo on tipo.id_tipo_obligacion = o.id_tipo_obligacion
+                        left join  plani.tafp afp on afp.id_afp = o.id_afp
                         where id_planilla = v_planilla.id_planilla and o.estado_reg = 'activo')loop
                         
                    
          --#1  define el id para buscar la relacion contable
-         IF v_registros.tipo_obligacion = 'pago_afp'  THEN
-            v_id_relacion = v_registros.id_afp;   
-         ELSE
-            v_id_relacion = v_registros.id_tipo_obligacion;   --Por defecto ubscamos 
-         END IF;
+         v_id_relacion = v_registros.id_tipo_obligacion;    
+        
         
         --#1 recupera relaciones contables para el debe 
+        /*
+            p_codigo varchar,
+            p_id_gestion integer,
+            p_id_tabla integer = NULL::integer,
+            p_id_centro_costo integer = NULL::integer,
+            p_mensaje_error varchar = NULL::character varying,
+            p_id_moneda integer = NULL::integer,
+            p_codigo_aplicacion varchar = NULL::character varying,
+        */
         SELECT 
           ps_id_partida,ps_id_cuenta,ps_id_auxiliar 
         into 
@@ -63,17 +78,24 @@ BEGIN
         FROM conta.f_get_config_relacion_contable(  v_registros.codigo_tipo_relacion_debe, 
                                                     v_planilla.id_gestion_contable, 
                                                     v_id_relacion,
-                                                    NULL, 
-                                                    'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion_desc ||'. <br> Mensaje: ');
-         
-         
+                                                    NULL, --centro de costo
+                                                    'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion_desc ||'. <br> Mensaje: ',
+                                                    NULL,-- moneda
+                                                    v_registros.codigo_afp);  --#10 añade catalog para recuperar relacion contable por afp,..cuando no sea afp sera nulo
+                                                    
+                  
         --#1 recupera relaciones contable para el haber 
         SELECT 
           ps_id_partida,ps_id_cuenta,ps_id_auxiliar 
         into 
           v_config_haber 
-        FROM conta.f_get_config_relacion_contable(v_registros.codigo_tipo_relacion_haber, v_planilla.id_gestion_contable, v_id_relacion,
-        NULL, 'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion_desc ||'. <br> Mensaje: ');
+        FROM conta.f_get_config_relacion_contable( v_registros.codigo_tipo_relacion_haber, 
+                                                   v_planilla.id_gestion_contable, 
+                                                   v_id_relacion,
+                                                    NULL, 
+                                                    'No se encontro relación contable para la obligacion: '||v_registros.tipo_obligacion_desc ||'. <br> Mensaje: ',
+                                                    NULL,-- moneda
+                                                    v_registros.codigo_afp );--#10 añade catalog para recuperar relacion contable por afp,..cuando no sea afp sera nulo
         
         
         -- #1   recuperamos el auxiliar del funcionario

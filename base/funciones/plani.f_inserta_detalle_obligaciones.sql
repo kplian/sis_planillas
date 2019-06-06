@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_inserta_detalle_obligaciones (
   p_nombre_tabla varchar,
   p_id_tipo_obligacion integer,
@@ -5,6 +7,24 @@ CREATE OR REPLACE FUNCTION plani.f_inserta_detalle_obligaciones (
 )
 RETURNS varchar AS
 $body$
+  /**************************************************************************
+   PLANI
+  ***************************************************************************
+   SCRIPT:
+   COMENTARIOS:
+   AUTOR: Jaim Rivera (Kplian)
+   DESCRIP:  inserta el detalle de obligacion de apgo de planilla
+   Fecha: 27/01/2014
+
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               27/01/2014        GUY BOA             Creacion 
+ #7               13-05-2019        Rarteaga            considera la obligacion de pago contable (no tiene prorrateo de costos) al validar pago de obligaciones
+ 
+ ********************************************************************************/
 DECLARE
 	v_planilla			   record;
     v_sql				   text;
@@ -23,6 +43,7 @@ DECLARE
     v_consulta				varchar;
     v_suma_detalle_si		numeric;
     v_valor_columna_resta	numeric;
+    v_suma_pago_contable    numeric; --#7
 
 BEGIN
 	select * into v_planilla
@@ -30,10 +51,41 @@ BEGIN
     inner join plani.ttipo_planilla tp
     	on tp.id_tipo_planilla = p.id_tipo_planilla
     where p.id_planilla = p_id_planilla;
+    
+    
+    /*
+    --#7 la tabla temporal tiene la siguiente estrcutura 
+    
+    CREATE TEMPORARY TABLE 
+    		(	id_tipo_obligacion INTEGER,
+            	id_funcionario INTEGER,
+                nombre_funcionario TEXT,
+                id_funcionario_planilla INTEGER,
+                id_presupuesto INTEGER,
+                id_cc INTEGER,
+                tipo_contrato VARCHAR(10),
+                id_tipo_columna INTEGER,
+                codigo_columna VARCHAR(30),
+                porcentaje NUMERIC,
+                valor NUMERIC,
+                es_ultimo VARCHAR(2),
+                id_lugar INTEGER,
+                nombre_lugar VARCHAR(100),
+                id_afp INTEGER,
+                nombre_afp VARCHAR(300),
+                nro_afp VARCHAR(100),
+                nombre_banco VARCHAR(100),
+                id_institucion INTEGER,
+                nro_cuenta VARCHAR,
+                compromete VARCHAR(15)
+  			) ON COMMIT DROP
+    
+    
+    */
 
 	v_nombre_funcion = 'plani.f_inserta_detalle_obligaciones';
 	--inserta el detalle de los pagos presupuestarios en la tabla temporal para las obligaciones indicadas
-
+ 
     if (v_planilla.tipo_presu_cc = 'parametrizacion' ) then
     	v_tipo_contrato = 'ht.tipo_contrato';
         v_join_ht = 'inner join plani.thoras_trabajadas ht
@@ -48,17 +100,35 @@ BEGIN
     end if;
 
     EXECUTE('INSERT into ' || p_nombre_tabla || '
-    		 select 	toc.id_tipo_obligacion,fp.id_funcionario,fun.desc_funcionario2 as nombre_funcionario,fp.id_funcionario_planilla,
-                  pro.id_presupuesto,	pro.id_cc, ' || v_tipo_contrato ||',
-                  cv.id_tipo_columna,cv.codigo_columna,procol.porcentaje,
-                  cv.valor*procol.porcentaje/100 as valor,toc.es_ultimo,
-                  lug.id_lugar, lug.nombre as nombre_lugar, afp.id_afp ,afp.nombre as nombre_afp, fafp.nro_afp,
-                  ins.nombre as nombre_banco,ins.id_institucion, fcu.nro_cuenta
+    		 select 	
+                  toc.id_tipo_obligacion,
+                  fp.id_funcionario,
+                  fun.desc_funcionario2 as nombre_funcionario,
+                  fp.id_funcionario_planilla,
+                  pro.id_presupuesto,	
+                  pro.id_cc, 
+                  ' || v_tipo_contrato ||',
+                  cv.id_tipo_columna,
+                  cv.codigo_columna,
+                  procol.porcentaje,
+                  cv.valor*procol.porcentaje/100 as valor,
+                  toc.es_ultimo,
+                  lug.id_lugar, 
+                  lug.nombre as nombre_lugar, 
+                  afp.id_afp ,
+                  afp.nombre as nombre_afp, 
+                  fafp.nro_afp,
+                  ins.nombre as nombre_banco,
+                  ins.id_institucion, 
+                  fcu.nro_cuenta,
+                  tc.compromete
 
               from plani.tprorrateo pro
               ' || v_join_ht || '
               inner join plani.tcolumna_valor cv
                   on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+              inner join plani.ttipo_columna tc
+                  on tc.id_tipo_columna = cv.id_tipo_columna
               inner join plani.ttipo_obligacion_columna toc
                   on toc.codigo_columna = cv.codigo_columna and toc.id_tipo_obligacion = ' || p_id_tipo_obligacion || ' and toc.presupuesto = ''si''
               inner join plani.tprorrateo_columna procol
@@ -77,7 +147,7 @@ BEGIN
                   on ins.id_institucion = fcu.id_institucion
               where fp.id_planilla = ' || p_id_planilla);
 
-     -- solo entra al for si existe una tipo_cobligacion_columna que se reste en elultimo pago
+     -- solo entra al for si existe una tipo_cobligacion_columna que se reste en el ultimo pago
      if (exists (	select 1
      				from plani.ttipo_obligacion_columna toc
                     where id_tipo_obligacion = p_id_tipo_obligacion and
@@ -150,17 +220,30 @@ BEGIN
       inner join plani.ttipo_obligacion_columna toc
             on toc.codigo_columna = cv.codigo_columna and toc.id_tipo_obligacion = p_id_tipo_obligacion and toc.pago = 'si'
       where fp.id_planilla = p_id_planilla;
+      
+      --#7 condiera los pagos contable para la valicion de la boligacion
+      SELECT sum(cv.valor) into v_suma_pago_contable
+      from plani.tfuncionario_planilla fp
+      inner join plani.tcolumna_valor cv on fp.id_funcionario_planilla = cv.id_funcionario_planilla
+      inner join plani.ttipo_obligacion_columna toc
+            on toc.codigo_columna = cv.codigo_columna and toc.id_tipo_obligacion = p_id_tipo_obligacion and toc.pago = 'si_contable'
+      where fp.id_planilla = p_id_planilla;
+      
+      
 
       EXECUTE('select  sum(valor)
               from ' || p_nombre_tabla
               || ' where id_tipo_obligacion = ' || p_id_tipo_obligacion) into v_suma_detalle;
-
+              
+              
+ 	--raise exception ' p_nombre_tabla -> %, v_suma_pago: %, v_suma_detalle: %',p_nombre_tabla, v_suma_pago, v_suma_detalle;
+     
       if (round(v_suma_pago,2) <> round(v_suma_detalle,2)) then
       	select tob.nombre
         into v_nombre_obligacion
         from plani.ttipo_obligacion tob
         where id_tipo_obligacion = p_id_tipo_obligacion;
-      	raise exception 'Los montos presupuestarios no igualan a los montos de pago para la obligacion: %, diferencia: %, v_suma_pago: %, v_suma_detalle: %',v_nombre_obligacion,round(v_suma_pago,2) - round(v_suma_detalle,2), v_suma_pago, v_suma_detalle;
+      	 raise exception 'Los montos presupuestarios no igualan a los montos de pago para la obligacion: %, diferencia: %, v_suma_pago: %, v_suma_detalle: %',v_nombre_obligacion,round(v_suma_pago,2) - round(v_suma_detalle,2), v_suma_pago, v_suma_detalle;
       end if;
 
   	return 'exito';

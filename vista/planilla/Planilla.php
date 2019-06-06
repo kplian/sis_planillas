@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-01-2014 16:11:04
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+ *HISTORIAL DE MODIFICACIONES:
+ *#ISSUE				FECHA				AUTOR				DESCRIPCION
+ *#5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+ */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -310,7 +313,6 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
 		{
    			config:{
        		    name:'id_uo',
@@ -334,6 +336,73 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
    		     grid:true,
    			form:true
    	      },
+        ////5/////
+        {
+            config: {
+                name: 'id_tipo_contrato',
+                fieldLabel: 'Tipo Contrato',
+                //typeAhead: false,
+                //forceSelection: false,
+                hiddenName: 'id_tipo_planilla',
+                allowBlank: true,
+                emptyText: 'Tipo Contrato...',
+                store: new Ext.data.JsonStore({
+                    url: '../../sis_organigrama/control/TipoContrato/listarTipoContrato',
+                    id: 'id_tipo_contrato',
+                    root: 'datos',
+                    sortInfo: {
+                        field: 'codigo',
+                        direction: 'ASC'
+                    },
+                    totalProperty: 'total',
+                    fields: ['id_tipo_contrato', 'nombre', 'codigo'],
+                    // turn on remote sorting
+                    remoteSort: true,
+                    baseParams: {par_filtro: 'tipcon.nombre#tipcon.codigo'}
+                }),
+                valueField: 'id_tipo_contrato',
+                displayField: 'nombre',
+                gdisplayField: 'nombre',
+                triggerAction: 'all',
+                lazyRender: true,
+                mode: 'remote',
+                pageSize: 20,
+                queryDelay: 200,
+                listWidth:280,
+                minChars: 2,
+                gwidth: 120,
+                renderer:function (value, p, record){return String.format('{0}', record.data['tipo_contrato']);},
+            },
+            type: 'ComboBox',
+            id_grupo: 0,
+            filters: {
+                pfiltro: 'tipcon.nombre',
+                type: 'string'
+            },
+            grid: true,
+            form: true
+        },
+        ////5/////
+          {
+                config:{
+                    name: 'dividir_comprobante',
+                    fieldLabel: 'Dividir Comprobante',
+                    allowBlank: true,
+                    width: 80,
+                    gwidth: 80,
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    store:['si','no']
+                },
+                type:'ComboBox',
+                id_grupo:1,
+                filters:{pfiltro:'plani.apertura_cb',type:'string'},
+                valorInicial: 'no',
+                grid:true,
+                form:true
+          },
    	      {
 			config:{
 				name: 'observaciones',
@@ -348,9 +417,6 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},
-		
-		
-		
 		{
 			config:{
 				name: 'estado_reg',
@@ -466,6 +532,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+        {name:'dividir_comprobante', type: 'string'},
+        {name:'tipo_contrato', type: 'string'}
 
 	],
 	sortInfo:{
