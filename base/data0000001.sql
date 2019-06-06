@@ -380,7 +380,9 @@ select conta.f_import_ttipo_relacion_contable ('insert','SALXPALI',NULL,'Salario
 
 select conta.f_import_ttipo_relacion_contable ('insert','CCCLMCTA','TTIP','Centro de costos columnas solo contables','activo','si-unico','no','no','','','no','no','no','');
 /***********************************F-DAT-RAC-PLANI-7-08/05/2019****************************************/
-
+/***********************************I-DAT-MMA-PLANI-6-06/06/2019****************************************/
+select pxp.f_insert_tgui ('Filtro Cbte', 'Filtro Cbte', 'FOE', 'si', 7, 'sis_planillas/vista/filtro_cbte/FiltroCbte.php', 2, '', 'FiltroCbte', 'PLANI');
+/***********************************F-DAT-MMA-PLANI-6-06/06/2019****************************************/
 
 
   
