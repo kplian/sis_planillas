@@ -371,6 +371,54 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},	
+		{
+			config:{
+				name: 'multilinea',
+				fieldLabel: 'Multilinea',
+				allowBlank:false,
+				emptyText:'Definir Multilinea...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 80,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'vista_datos_externos',
+				fieldLabel: 'Vista Datos Externos',
+				allowBlank: false,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:100
+			},
+				type:'TextField',
+				filters:{pfiltro:'repo.vista_datos_externos',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'num_columna_multilinea',
+				fieldLabel: 'Num Col. para Multilinea',
+				gwidth: 120
+			},
+				type:'NumberField',
+				filters:{pfiltro:'repo.num_columna_multilinea',type:'numeric'},
+				grid:true,
+				form:true
+		}
 	],
 	tam_pag:50,	
 	title:'Reportes de Planilla',
@@ -401,6 +449,9 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
 		{name:'tipo_reporte', type: 'string'},
+		{name:'multilinea', type: 'string'},
+		{name:'vista_datos_externos', type: 'string'},
+		{name:'num_columna_multilinea', type: 'numeric'}
 		
 	],
 	sortInfo:{

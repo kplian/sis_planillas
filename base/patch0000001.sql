@@ -890,7 +890,6 @@ ALTER TABLE plani.tlicencia
 /***********************************F-SCP-EGS-PLANI-1-07/03/2019****************************************/
 
 /***********************************I-SCP-CAP-PLANI-1-08/04/2019****************************************/
-DROP VIEW plani.vcomp_planilla_det;
 
 ALTER TABLE plani.tconsolidado_columna
   ALTER COLUMN valor TYPE NUMERIC;
@@ -1011,10 +1010,26 @@ IS 'la columnas es editable manualmente, si o no';
 /***********************************F-SCP-RAC-PLANI-10-30/05/2019****************************************/
 
 /***********************************I-SCP-MZM-PLANI-8-31/05/2019****************************************/
-ALTER TABLE plani.treporte_columna
-  ADD COLUMN espacio_previo VARCHAR(2);
+ALTER TABLE plani.treporte
+  ADD COLUMN multilinea VARCHAR(2);
+
+ALTER TABLE plani.treporte
+  ALTER COLUMN multilinea SET DEFAULT 'no';
+
+ALTER TABLE plani.treporte
+  ADD COLUMN vista_datos_externos VARCHAR(100);
+
+ALTER TABLE plani.treporte
+  ADD COLUMN num_columna_multilinea INTEGER;
+
 
 ALTER TABLE plani.treporte_columna
-  ALTER COLUMN espacio_previo SET DEFAULT 'no';
+  ADD COLUMN columna_vista VARCHAR(100);
+
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN origen VARCHAR(30);
+
+ALTER TABLE plani.treporte_columna
+  ADD COLUMN espacio_previo INTEGER;
 /***********************************F-SCP-MZM-PLANI-8-31/05/2019****************************************/
 

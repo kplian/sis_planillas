@@ -14,7 +14,8 @@ require_once(dirname(__FILE__).'/../reportes/RBoletaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaActualizadaItemXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RGeneralPlanillaXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RPresupuestoRetroactivoXls.php');
-
+require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaMultiCell2.php');
+require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaMultiCellXls.php');
 class ACTReporte extends ACTbase{
 
     function listarReporte(){
@@ -56,8 +57,10 @@ class ACTReporte extends ACTbase{
         if ($this->objParam->getParametro('id_proceso_wf') != '') {
             $this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
         }
-
-        $this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
+		$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
+       
 
         $this->objFunc=$this->create('MODReporte');
 
@@ -66,6 +69,8 @@ class ACTReporte extends ACTbase{
 
         $this->objFunc=$this->create('MODReporte');
         $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
+		
+		
         //obtener titulo del reporte
         $titulo = $this->res->datos[0]['titulo_reporte'];
         //Genera el nombre del archivo (aleatorio + titulo)
@@ -92,11 +97,18 @@ class ACTReporte extends ACTbase{
         $this->objParam->addParametro('titulo_archivo',$titulo);
 
 
-        if ($tipo_reporte == 'pdf') {
+        if ($tipo_reporte == 'pdf') { 
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             //Instancia la clase de pdf
-            $this->objReporteFormato=new RPlanillaGenerica($this->objParam);
+            
+            if($this->res->datos[0]['multilinea']=='si'){
+            	//echo "entra por multilinea	"; exit;
+            	$this->objReporteFormato=new RPlanillaGenericaMultiCell2($this->objParam);
+            }else{// echo "NOOO es multilinea"; exit;
+            	$this->objReporteFormato=new RPlanillaGenerica($this->objParam);
+            }
+			
             $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
             //$this->objReporteFormato->renderDatos($this->res2->datos);
             $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
@@ -108,6 +120,7 @@ class ACTReporte extends ACTbase{
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             $this->objParam->addParametro('config',$this->res->datos[0]);
             $this->objParam->addParametro('datos',$this->res2->datos);
+
 
             //Instancia la clase de excel
             $this->objReporteFormato=new RPlanillaGenericaXls($this->objParam);
@@ -182,7 +195,6 @@ class ACTReporte extends ACTbase{
         if ($this->objParam->getParametro('id_depto') != '') {
             $this->objParam->addFiltro("plani.id_depto = ". $this->objParam->getParametro('id_depto'));
         }
-
 
 
         $this->objParam->addFiltro("plani.estado not in (''registro_funcionarios'', ''registro_horas'')"); //plani.estado = ''planilla_finalizada''
@@ -348,6 +360,90 @@ class ACTReporte extends ACTbase{
         $this->res = $mensajeExito;
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
+
+	/*******/
+	function reportePlanillaMultiCell($id_reporte,$tipo_reporte)	{
+
+        if ($this->objParam->getParametro('id_proceso_wf') != '') {
+            $this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
+        }
+		$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
+       
+
+        $this->objFunc=$this->create('MODReporte');
+
+        $this->res=$this->objFunc->listarReporteMaestro($this->objParam);
+
+
+        $this->objFunc=$this->create('MODReporte');
+        $this->res2=$this->objFunc->listarReporteDetalleMultiCell($this->objParam);
+        //obtener titulo del reporte
+        $titulo = $this->res->datos[0]['titulo_reporte'];
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+
+        //obtener tamaño y orientacion
+        if ($this->res->datos[0]['hoja_posicion'] == 'carta_vertical') {
+            $tamano = 'LETTER';
+            $orientacion = 'P';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'carta_horizontal') {
+            $tamano = 'LETTER';
+            $orientacion = 'L';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'oficio_vertical') {
+            $tamano = 'LEGAL';
+            $orientacion = 'P';
+        } else {
+            $tamano = 'LEGAL';
+            $orientacion = 'L';
+        }
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+
+
+        if ($tipo_reporte == 'pdf') { 
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            //Instancia la clase de pdf
+            
+            $this->objReporteFormato=new RPlanillaGenericaMultiCell2($this->objParam);
+            
+            $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+            //$this->objReporteFormato->renderDatos($this->res2->datos);
+            $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        } else {
+			//echo "****"; exit;
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objParam->addParametro('config',$this->res->datos[0]);
+            $this->objParam->addParametro('datos',$this->res2->datos);
+
+
+            //Instancia la clase de excel
+            $this->objReporteFormato=new RPlanillaGenericaMultiCellXls($this->objParam);
+            $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte();
+        }
+
+
+
+
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
+
+
 }
 
 ?>
