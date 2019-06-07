@@ -2135,4 +2135,37 @@ select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
 select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
 /***********************************F-DEP-EGS-PLANI-01-06/06/2019****************************************/
 
+/***********************************I-DEP-MZM-PLANI-8-06/06/2019****************************************/
+
+  --------------- SQL ---------------
+
+CREATE OR REPLACE VIEW plani.vobligacion_agrupador 
+AS 
+SELECT ob.id_obligacion_agrupador,
+         ob.id_planilla,
+         ob.acreedor,
+         per.periodo,
+         ges.gestion,
+         sum(ob.monto_obligacion) AS monto_obligacion
+  FROM plani.tobligacion ob
+       JOIN plani.ttipo_obligacion tob ON tob.id_tipo_obligacion =
+         ob.id_tipo_obligacion
+       JOIN plani.tplanilla pla ON ob.id_planilla = pla.id_planilla
+       JOIN plani.tobligacion_agrupador oa ON oa.id_obligacion_agrupador = ob.id_obligacion_agrupador
+       JOIN plani.ttipo_obligacion_agrupador toa on toa.id_tipo_obligacion_agrupador = oa.id_tipo_obligacion_agrupador
+       LEFT JOIN param.tperiodo per ON per.id_periodo = pla.id_periodo
+       JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
+       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+         pla.id_tipo_planilla
+           
+         
+  GROUP BY ob.id_obligacion_agrupador,
+           ob.id_plan_pago,
+           ob.id_planilla,          
+           ob.acreedor,
+           per.periodo,
+           ges.gestion;
+
+/***********************************F-DEP-MZM-PLANI-8-06/06/2019****************************************/
+
 
