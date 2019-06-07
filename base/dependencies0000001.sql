@@ -2135,4 +2135,62 @@ select pxp.f_insert_testructura_gui ('TIPCOLCUEP', 'RELACON');
 select pxp.f_insert_testructura_gui ('PLAVOBO', 'PLANI');
 /***********************************F-DEP-EGS-PLANI-01-06/06/2019****************************************/
 
+/***********************************I-DEP-MZM-PLANI-8-06/06/2019****************************************/
+
+  --------------- SQL ---------------
+
+CREATE VIEW plani.vdatos_funcionarios_planilla (
+    id_funcionario,
+    fecha_ingreso,
+    fecha_nacimiento,
+    oficina,
+    cargo,
+    regional,
+    codigo_regional,
+    codigo_funcionario,
+    nombre_funcionario,
+    nivel,
+    id_cargo,
+    id_uo_funcionario)
+AS
+SELECT fun.id_funcionario,
+    tfun.fecha_ingreso,
+    tper.fecha_nacimiento,
+    fun.oficina_nombre AS oficina,
+    "substring"(fun.nombre_cargo::text, 1, 58)::character varying(150) AS cargo,
+    fun.lugar_nombre AS regional,
+    lug.codigo AS codigo_regional,
+    fun.cargo_codigo AS codigo_funcionario,
+    "substring"(fun.desc_funcionario2, 1, 58) AS nombre_funcionario,
+    13 AS nivel,
+    fun.id_cargo,
+    fun.id_uo_funcionario
+FROM orga.vfuncionario_cargo_lugar fun
+     JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
+     JOIN segu.tpersona tper ON tper.id_persona = tfun.id_persona
+     JOIN param.tlugar lug ON lug.id_lugar = fun.id_lugar;
+     
+  --------------- SQL ---------------   
+     
+CREATE VIEW plani.vdatos_func_planilla (
+    id_funcionario,
+    id_uo_funcionario,
+    nombre_col,
+    valor_col)
+AS
+SELECT t.id_funcionario,
+    t.id_uo_funcionario,
+    u.nombre_col,
+    u.valor_col
+FROM plani.vdatos_funcionarios_planilla t
+     CROSS JOIN LATERAL UNNEST(ARRAY['nombre_funcionario'::text,
+         'codigo_funcionario'::text, 'codigo_regional'::text, 'nivel'::text,
+         'cargo'::text, 'fecha_nacimiento'::text, 'fecha_ingreso'::text],
+         ARRAY[t.nombre_funcionario, t.codigo_funcionario::text,
+         t.codigo_regional::text, t.nivel || ''::text, t.cargo::text,
+         t.fecha_nacimiento || ''::text, t.fecha_ingreso || ''::text])
+         u(nombre_col, valor_col);     
+
+/***********************************F-DEP-MZM-PLANI-8-06/06/2019****************************************/
+
 

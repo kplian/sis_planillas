@@ -19,6 +19,10 @@ $body$
    DESCRIPCION:
    AUTOR:
    FECHA:
+   
+   #ISSUE				FECHA				AUTOR				DESCRIPCION
+   #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
+   															y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
   ***************************************************************************/
 
   DECLARE
@@ -44,6 +48,11 @@ $body$
     v_codigo_pres			varchar = '';
     v_cont_pres				integer = 0;
     v_id_funcionario		integer = -1;
+    
+    --reportes q requieren informacion adicional (vista)
+    v_datos_externos		record;
+    v_consulta_externa 		varchar;
+    v_columnas_externas		varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -82,7 +91,10 @@ $body$
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
 						repo.control_reporte,
-						repo.tipo_reporte
+						repo.tipo_reporte,
+                        repo.multilinea,
+                        repo.vista_datos_externos,
+                        repo.num_columna_multilinea
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repo.id_usuario_mod
@@ -150,8 +162,13 @@ $body$
                             ges.gestion,
                             uo.nombre_unidad,
                             dep.nombre_corto,
-                            (select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)::integer
-
+                            case when repo.multilinea=''si'' then
+                               ((select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)+(select sum(espacio_previo) from plani.treporte_columna where  id_reporte=repo.id_reporte))::integer
+                            else (select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)::integer
+                            end as cantidad_columnas
+							, repo.multilinea,
+                            repo.vista_datos_externos,
+                            repo.num_columna_multilinea
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
@@ -388,9 +405,9 @@ $body$
  	#FECHA:		17-01-2014 22:07:28
 	***********************************/
 
-    elsif(p_transaccion='PLA_REPODET_SEL')then
+    /*elsif(p_transaccion='PLA_REPODET_SEL')then
 
-      begin
+      begin 
         --para obtener la columna de ordenacion para el reporte
         execute	'select repo.ordenar_por
            			from plani.tplanilla plani
@@ -411,6 +428,11 @@ $body$
         else
         	v_tipo_contrato = '';
       	end if;
+        
+        
+        --para obtener la vista con la cual hacer join en caso de requerirse
+        
+        
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -427,7 +449,7 @@ $body$
                             repcol.titulo_reporte_inferior,
                             colval.codigo_columna,
                             colval.valor,
-                            tcon.nombre
+                            tcon.nombre,repcol.espacio_previo
 						from plani.tfuncionario_planilla fp
                         inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
 						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
@@ -451,7 +473,7 @@ $body$
         --Devuelve la respuesta
         return v_consulta;
 
-      end;
+      end;*/
 
     /*********************************
  	#TRANSACCION:  'PLA_REPOACIT_SEL'
@@ -883,7 +905,119 @@ $body$
 			return v_consulta;
 
 		end;
+ /*********************************
+ 	#TRANSACCION:  'PLA_REPODETMUL_SEL'
+ 	#DESCRIPCION:	Reporte Generico de planilla de sueldos detalle
+ 	#AUTOR:		
+ 	#FECHA:		24-05-2019 22:07:28
+	***********************************/
 
+elsif(p_transaccion='PLA_REPODET_SEL')then
+ --para obtener la columna de ordenacion para el reporte
+ begin
+        execute	'select repo.ordenar_por
+           			from plani.tplanilla plani
+					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+           			where '||v_parametros.filtro into v_ordenar_por;
+        if (v_ordenar_por = 'nombre')then
+          v_ordenar_por = 'fun.desc_funcionario2';
+        elsif (v_ordenar_por = 'doc_id') then
+          v_ordenar_por = 'fun.ci';
+        elsif (v_ordenar_por = 'codigo_cargo') then
+          v_ordenar_por = 'car.codigo';
+        else
+          v_ordenar_por = 'fun.codigo';
+        end if;
+
+		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then
+          if(length(v_parametros.tipo_contrato)>0) then
+        	v_tipo_contrato = 'tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
+          else
+             v_tipo_contrato = '';
+          end if;
+        else
+        	v_tipo_contrato = '';
+      	end if;
+       -- raise exception 'aaa%',v_tipo_contrato;
+        --para obtener la vista con la cual hacer join en caso de requerirse
+        
+		execute	'select repo.multilinea, repo.vista_datos_externos, repo.num_columna_multilinea,
+        round((((repo.ancho_total-1)/repo.num_columna_multilinea)/1.5),0)::integer as ancho_col
+           			from plani.tplanilla plani
+					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+           			where '||v_parametros.filtro into v_datos_externos;
+                    
+                  
+        if(length(v_datos_externos.vista_datos_externos)!=0) then
+       
+        		if exists (select 1  from pg_views where viewname=split_part(v_datos_externos.vista_datos_externos,'.',2)
+                and schemaname=split_part(v_datos_externos.vista_datos_externos,'.',1)) then
+                   v_columnas_externas:='(case when repcol.origen=''columna_planilla'' then repcol.codigo_columna else vista.nombre_col end)::varchar as codigo_columna
+                   ,
+ 					(case when repcol.origen=''columna_planilla'' then round(colval.valor,2)::varchar else  
+                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' ) then
+                         substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+1))  )
+                       else
+                         vista.valor_col 
+                       end)
+                     end)::varchar as valor';
+                   v_consulta_externa:='left join '|| v_datos_externos.vista_datos_externos || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_uo_funcionario=fp.id_uo_funcionario
+                   ';
+                else
+                	v_consulta_externa:='';
+                    v_columnas_externas:=' colval.codigo_columna,
+                            colval.valor';
+                end if;
+        else
+          v_consulta_externa:='';
+          v_columnas_externas:=' colval.codigo_columna,
+                            colval.valor';
+        end if;
+        
+
+        --round(ancho_total_hoja-1/num_columnas,2)
+
+        --Sentencia de la consulta
+        v_consulta:='select
+                            fun.id_funcionario,
+                            substring(fun.desc_funcionario2 from 1 for 38),
+                            cat.descripcion::varchar,
+                            car.codigo,
+                            fun.ci,
+                            uo.id_uo,
+                            uo.nombre_unidad,
+                            repcol.sumar_total,
+                            repcol.ancho_columna,
+                            repcol.titulo_reporte_superior,
+                            repcol.titulo_reporte_inferior,
+                            '||v_columnas_externas||'
+                            ,tcon.nombre,repcol.espacio_previo
+                            
+						from plani.tfuncionario_planilla fp
+                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
+						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+                        inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
+                        left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                         and
+                        repcol.codigo_columna = colval.codigo_columna
+                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                        left join orga.tcargo_presupuesto cp on car.id_cargo = cp.id_cargo and cp.id_gestion = 15
+                        left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
+                        left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
+                        inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                        inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
+                        inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
+                        '||v_consulta_externa||' where  '||v_tipo_contrato;
+
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||' order by uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
+		raise notice 'v_consulta: %', v_consulta;
+        --Devuelve la respuesta
+        return v_consulta;
+
+      end;
     else
 
       raise exception 'Transaccion inexistente';

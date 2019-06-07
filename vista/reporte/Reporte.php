@@ -17,6 +17,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Reporte.superclass.constructor.call(this,config);
 		this.init();
+		this.iniciarEventos();
 		this.load({params:{start:0, limit:this.tam_pag,id_tipo_planilla : this.maestro.id_tipo_planilla}})
 	},
 			
@@ -412,6 +413,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'num_columna_multilinea',
 				fieldLabel: 'Num Col. para Multilinea',
+				minValue:0,
 				gwidth: 120
 			},
 				type:'NumberField',
@@ -470,7 +472,34 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		  title:'Reporte Columna', 
 		  height:'55%',
 		  cls:'ReporteColumna'
-	}
+	},
+	
+	iniciarEventos:function(){
+    	this.Cmp.vista_datos_externos.allowBlank=true;
+		this.Cmp.num_columna_multilinea.allowBlank=true;
+		this.Cmp.multilinea.setValue("no");
+    	this.Cmp.num_columna_multilinea.setValue(0);
+    	
+    	this.Cmp.multilinea.on('select',function(cmp,rec){
+    		if(rec.json=='si'){
+    			this.Cmp.multilinea.setValue('si');
+    			this.Cmp.num_columna_multilinea.minValue=1;
+				this.mostrarComponente(this.Cmp.num_columna_multilinea);
+				this.mostrarComponente(this.Cmp.vista_datos_externos);
+				
+    		}else{
+    			this.Cmp.multilinea.setValue('no');
+    			this.Cmp.num_columna_multilinea.minValue=0;
+    			this.Cmp.num_columna_multilinea.setValue(0);
+    			this.ocultarComponente(this.Cmp.num_columna_multilinea);
+    			this.ocultarComponente(this.Cmp.vista_datos_externos);
+    		}
+    		
+    		
+			
+			},this);
+    }
+	
 	}
 )
 </script>

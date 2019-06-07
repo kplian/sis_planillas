@@ -1,8 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_reporte_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
-
+CREATE OR REPLACE FUNCTION plani.ft_reporte_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_reporte_ime
@@ -16,6 +19,9 @@ $BODY$
  DESCRIPCION:	
  AUTOR:			
  FECHA:		
+ #ISSUE				FECHA				AUTOR				DESCRIPCION
+ #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinealas operaciones basicas (inserciones, modificaciones, eliminaciones) de la tabla 'plani.treporte',en procedimiento REPODET_SEL	
+   
 ***************************************************************************/
 
 DECLARE
@@ -62,7 +68,10 @@ BEGIN
 			fecha_mod,
 			ancho_total,
 			control_reporte,
-			tipo_reporte
+			tipo_reporte,
+            multilinea,
+            vista_datos_externos,
+            num_columna_multilinea
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.numerar,
@@ -82,8 +91,10 @@ BEGIN
 			null,
 			plani.f_reporte_get_ancho_total_hoja(v_parametros.hoja_posicion),
 			v_parametros.control_reporte,
-			v_parametros.tipo_reporte
-							
+			v_parametros.tipo_reporte,
+			v_parametros.multilinea,
+            v_parametros.vista_datos_externos,
+            v_parametros.num_columna_multilinea				
 			)RETURNING id_reporte into v_id_reporte;
 			
 			v_resp = plani.f_reporte_calcular_ancho_utilizado(v_id_reporte);
@@ -123,7 +134,11 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			fecha_mod = now(),
 			control_reporte = v_parametros.control_reporte,
-			tipo_reporte = v_parametros.tipo_reporte
+			tipo_reporte = v_parametros.tipo_reporte,
+            multilinea=v_parametros.multilinea,
+            vista_datos_externos=v_parametros.vista_datos_externos,
+            num_columna_multilinea=v_parametros.num_columna_multilinea
+            
 			where id_reporte=v_parametros.id_reporte;
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte);   
 			--Definicion de la respuesta
@@ -174,7 +189,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_reporte_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

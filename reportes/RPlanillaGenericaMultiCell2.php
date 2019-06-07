@@ -101,6 +101,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$sum_total = array();
 		
 		$empleados_gerencia = 1;
+		$this->numeracion=1;
 		$this->ancho_col=35;
 		$array_show = array(); //$this->iniciarArrayShow($this->datos_detalle[0]);		
 		array_push($this->tablewidths, $this->ancho_col); 
@@ -134,8 +135,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->ln(6);
 					$this->SetFont('','B',8);
 					$this->Cell(0,0,'Sub Total:'.$this->gerencia,'',1);
+					$this->Cell(30,3,'# Empl.' . $empleados_gerencia,'',1,'L');
 					$this->ln(6);
 				$this->subtotales($detalle_col_mod,$sum_subtotal);
+				$this->gerencia=$this->datos_detalle[$i]['gerencia'];
+				$empleados_gerencia=0;
 				$detalle_col_mod=array();
 				$this->AddPage();
 				
@@ -151,8 +155,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$columnas++;
 			
 			}
-			
-			$empleados_gerencia++;
+			if($id_funcionario!=$this->datos_detalle[$i]['id_funcionario']){
+				$empleados_gerencia++;
+				$this->numeracion++;
+			}
+			$id_funcionario=$this->datos_detalle[$i]['id_funcionario'];
 			$this->gerencia=$this->datos_detalle[$i]['gerencia'];
 			
 				
@@ -186,7 +193,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->Cell(0,0,'','B',1);
 					$this->ln(6);
 					$this->SetFont('','B',8);
-		$this->Cell(80,3,'Sub-Total ' . $this->gerencia . ' : ','',0,'L');
+		$this->Cell(80,3,'Sub Total:' . $this->gerencia.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
 	 				
 		
