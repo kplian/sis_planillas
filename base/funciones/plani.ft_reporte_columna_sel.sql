@@ -1,7 +1,11 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_reporte_columna_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+CREATE OR REPLACE FUNCTION plani.ft_reporte_columna_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_reporte_columna_sel
@@ -14,7 +18,10 @@ $BODY$
 
  DESCRIPCION:	
  AUTOR:			
- FECHA:		
+ FECHA:	
+ #ISSUE				FECHA				AUTOR				DESCRIPCION
+ #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos espacio_previo,columna_vista,origen en operaciones basicas (listar, contar) de la tabla 'plani.treporte_columna',en procedimiento REPCOL_SEL	
+   	
 ***************************************************************************/
 
 DECLARE
@@ -56,8 +63,10 @@ BEGIN
 						usu2.cuenta as usr_mod,
 						repcol.titulo_reporte_superior,
 						repcol.titulo_reporte_inferior,
-						repcol.tipo_columna
-							
+						repcol.tipo_columna,
+                        repcol.espacio_previo,
+						repcol.columna_vista,
+                        repcol.origen
 						from plani.treporte_columna repcol
 						inner join segu.tusuario usu1 on usu1.id_usuario = repcol.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repcol.id_usuario_mod
@@ -112,7 +121,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_reporte_columna_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
