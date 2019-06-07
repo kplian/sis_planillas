@@ -380,6 +380,8 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
                
     },
     iniciarEventos:function(){
+    	this.Cmp.codigo_columna.allowBlank=true;
+		this.Cmp.columna_vista.allowBlank=true;
     	//this.ocultarComponente(this.Cmp.codigo_columna);
     	//this.ocultarComponente(this.Cmp.columna_vista);
     	this.Cmp.espacio_previo.setValue(0);
