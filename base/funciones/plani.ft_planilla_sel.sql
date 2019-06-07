@@ -14,12 +14,11 @@ $body$
    FECHA:	        22-01-2014 16:11:04
    COMENTARIOS:
   ***************************************************************************
-   HISTORIAL DE MODIFICACIONES:
+ HISTORIAL DE MODIFICACIONES:
+  #ISSUE				FECHA				AUTOR				DESCRIPCION
+   #13					7-6-2019			MMV ETR				Incluir campos tipo_contrato y dividir_comprobante
+ ***************************************************************************/
 
-   DESCRIPCION:
-   AUTOR:
-   FECHA:
-  ***************************************************************************/
 
   DECLARE
 
@@ -109,7 +108,9 @@ $body$
 						pxp.f_get_variable_global(''plani_tiene_costos''),
 						plani.fecha_planilla,
                         plani.codigo_poa,
-                        plani.obs_poa
+                        plani.obs_poa,
+                        plani.dividir_comprobante, --#13
+                        tc.nombre as tipo_contrato --#13
 						from plani.tplanilla plani
 						inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
@@ -118,6 +119,7 @@ $body$
 						inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
 						left join orga.tuo uo on uo.id_uo = plani.id_uo
 						inner join param.tdepto depto on depto.id_depto = plani.id_depto
+						left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato --#13
 				        where  ' || v_filtro;
 
         --Definicion de la respuesta
@@ -159,6 +161,7 @@ $body$
 						left join param.tperiodo per on per.id_periodo = plani.id_periodo
 						inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
 						left join orga.tuo uo on uo.id_uo = plani.id_uo
+                        left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato --#13
 					    where ' || v_filtro;
 
         --Definicion de la respuesta
