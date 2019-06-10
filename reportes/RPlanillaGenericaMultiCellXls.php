@@ -148,7 +148,7 @@ class RPlanillaGenericaMultiCellXls
 		$fila = $fila-1;
 		
 		/////////////////////***********************************Detalle***********************************************
-		/*foreach($datos as $value) {			
+		foreach($datos as $value) {			
 			if ($id_funcionario != $value['id_funcionario']) {				
 				$fila++;
 				$columnas = $columnas_basicas;
@@ -166,7 +166,7 @@ class RPlanillaGenericaMultiCellXls
 				
 				
 			}else{
-				if($col_lim ==$limite){
+				if($col_lim >=$limite){
 					$fila++;
 					$col_lim=$columnas_basicas;
 				}
@@ -177,7 +177,7 @@ class RPlanillaGenericaMultiCellXls
 				$col_lim++;
 			}
 			
-		}*/
+		}
 		//************************************************Fin Detalle***********************************************
 		
 	}
