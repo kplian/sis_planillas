@@ -2228,9 +2228,11 @@ FROM (
                      JOIN plani.tfuncionario_planilla fp_1 ON
                          fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
                      JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
-            pl.id_periodo AND p.id_gestion = pl.id_gestion AND
-            p.id_tipo_planilla = 2 AND tc.codigo::text = 'SUBPRE'::text
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUB'::text AND tc.codigo::text = 'SUBPRE'::text
         ) AS subpre,
             (
         SELECT cv.valor
@@ -2240,9 +2242,11 @@ FROM (
                      JOIN plani.tfuncionario_planilla fp_1 ON
                          fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
                      JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
-            pl.id_periodo AND p.id_gestion = pl.id_gestion AND
-            p.id_tipo_planilla = 2 AND tc.codigo::text = 'SUBSEP'::text
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUB'::text AND tc.codigo::text = 'SUBSEP'::text
         ) AS subsep,
             (
         SELECT cv.valor
@@ -2252,9 +2256,11 @@ FROM (
                      JOIN plani.tfuncionario_planilla fp_1 ON
                          fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
                      JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
-            pl.id_periodo AND p.id_gestion = pl.id_gestion AND
-            p.id_tipo_planilla = 2 AND tc.codigo::text = 'SUBLAC'::text
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUB'::text AND tc.codigo::text = 'SUBLAC'::text
         ) AS sublac,
             (
         SELECT cv.valor
@@ -2264,9 +2270,11 @@ FROM (
                      JOIN plani.tfuncionario_planilla fp_1 ON
                          fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
                      JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
-            pl.id_periodo AND p.id_gestion = pl.id_gestion AND
-            p.id_tipo_planilla = 2 AND tc.codigo::text = 'SUBNAT'::text
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUB'::text AND tc.codigo::text = 'SUBNAT'::text
         ) AS subnat
     FROM orga.vfuncionario_cargo_lugar fun
              JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
