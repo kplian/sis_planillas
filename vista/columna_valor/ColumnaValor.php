@@ -5,6 +5,13 @@
 *@author  (admin)
 *@date 27-01-2014 04:53:54
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * 
+ * HISTORIAL DE MODIFICACIONES:
+   	
+ ISSUE            FECHA:		      AUTOR                 DESCRIPCION
+ ---------------------------------------------------------------------------------------------   
+ #00  ETR       27-01-2014        JRR               creacion  
+ #14  ETR       10/06/2019        RAC KPLIAN        aumenta capacidad de decimales en columnas editables 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -93,6 +100,8 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 				name: 'valor',
 				fieldLabel: 'Valor',
 				allowBlank: false,
+				allowDecimals: true,/ /#14 +
+				decimalPrecision:20, //#14 +
 				anchor: '80%',
 				gwidth: 100,
 				maxLength:1179650
