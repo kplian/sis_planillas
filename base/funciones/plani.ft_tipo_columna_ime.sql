@@ -14,11 +14,11 @@ $body$
  FECHA:	        17-01-2014 19:43:15
  COMENTARIOS:	
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
+    HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+ #10              04/06/2019        RAC KPLIAN       añade posibilidad  para configurar  si el tipo de columna es editable
+
 ***************************************************************************/
 
 DECLARE
@@ -30,21 +30,21 @@ DECLARE
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
 	v_id_tipo_columna	integer;
-			    
+
 BEGIN
 
     v_nombre_funcion = 'plani.ft_tipo_columna_ime';
     v_parametros = pxp.f_get_record(p_tabla);
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PLA_TIPCOL_INS'
  	#DESCRIPCION:	Insercion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-01-2014 19:43:15
 	***********************************/
 
 	if(p_transaccion='PLA_TIPCOL_INS')then
-					
+
         begin
         	if (plani.f_existe_columna(v_parametros.codigo,v_parametros.id_tipo_planilla)) then
         		raise exception 'Ya existe otro parametro o columna con este codigo';
@@ -68,7 +68,8 @@ BEGIN
 			id_usuario_mod,
 			finiquito,
 			tiene_detalle,
-			recalcular
+			recalcular,
+            editable --#10
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.compromete,
@@ -87,12 +88,12 @@ BEGIN
 			null,
 			v_parametros.finiquito,
 			v_parametros.tiene_detalle,
-			v_parametros.recalcular
-							
+			v_parametros.recalcular,
+			v_parametros.editable	--#10
 			)RETURNING id_tipo_columna into v_id_tipo_columna;
-			
+
 			--Definicion de la respuesta
-			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Tipo Columna almacenado(a) con exito (id_tipo_columna'||v_id_tipo_columna||')'); 
+			v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Tipo Columna almacenado(a) con exito (id_tipo_columna'||v_id_tipo_columna||')');
             v_resp = pxp.f_agrega_clave(v_resp,'id_tipo_columna',v_id_tipo_columna::varchar);
 
             --Devuelve la respuesta
@@ -100,17 +101,17 @@ BEGIN
 
 		end;
 
-	/*********************************    
+	/*********************************
  	#TRANSACCION:  'PLA_TIPCOL_MOD'
  	#DESCRIPCION:	Modificacion de registros
- 	#AUTOR:		admin	
+ 	#AUTOR:		admin
  	#FECHA:		17-01-2014 19:43:15
 	***********************************/
 
 	elsif(p_transaccion='PLA_TIPCOL_MOD')then
 
 		begin
-        	
+
 			--Sentencia de la modificacion
 			update plani.ttipo_columna set
 			id_tipo_planilla = v_parametros.id_tipo_planilla,
@@ -126,7 +127,8 @@ BEGIN
 			id_usuario_mod = p_id_usuario,
 			finiquito = v_parametros.finiquito,
 			tiene_detalle = v_parametros.tiene_detalle,
-			recalcular = v_parametros.recalcular
+			recalcular = v_parametros.recalcular,
+            editable = v_parametros.editable --#10
 			where id_tipo_columna=v_parametros.id_tipo_columna;
                
 			--Definicion de la respuesta
