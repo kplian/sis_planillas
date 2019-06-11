@@ -2235,7 +2235,7 @@ FROM (
             = 'PLASUB'::text AND tc.codigo::text = 'SUBPRE'::text
         ) AS subpre,
             (
-        SELECT cv.valor
+        SELECT sum(cv.valor) AS sum
         FROM plani.tcolumna_valor cv
                      JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
                          cv.id_tipo_columna
@@ -2246,7 +2246,8 @@ FROM (
                          p.id_tipo_planilla
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
             pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
-            = 'PLASUB'::text AND tc.codigo::text = 'SUBSEP'::text
+            = 'PLASUB'::text AND (tc.codigo::text = ANY
+            (ARRAY['SUBSEP'::character varying, 'SUBNAT'::character varying]::text[]))
         ) AS subsep,
             (
         SELECT cv.valor
@@ -2261,21 +2262,7 @@ FROM (
         WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
             pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
             = 'PLASUB'::text AND tc.codigo::text = 'SUBLAC'::text
-        ) AS sublac,
-            (
-        SELECT cv.valor
-        FROM plani.tcolumna_valor cv
-                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
-                         cv.id_tipo_columna
-                     JOIN plani.tfuncionario_planilla fp_1 ON
-                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
-                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
-                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
-                         p.id_tipo_planilla
-        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
-            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
-            = 'PLASUB'::text AND tc.codigo::text = 'SUBNAT'::text
-        ) AS subnat
+        ) AS sublac
     FROM orga.vfuncionario_cargo_lugar fun
              JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
              JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
@@ -2287,12 +2274,11 @@ FROM (
      CROSS JOIN LATERAL UNNEST(ARRAY['nombre_funcionario'::text,
          'codigo_funcionario'::text, 'codigo_regional'::text, 'nivel'::text,
          'cargo'::text, 'fecha_nacimiento'::text, 'fecha_ingreso'::text,
-         'subpre'::text, 'subsep'::text, 'sublac'::text, 'subnat'::text],
+         'subpre'::text, 'subsep'::text, 'sublac'::text],
          ARRAY[a.nombre_funcionario, a.codigo_funcionario::text,
          a.codigo_regional::text, a.nivel || ''::text, a.cargo::text,
          a.fecha_nacimiento || ''::text, a.fecha_ingreso || ''::text,
          round(a.subpre, 2) || ''::text, round(a.subsep, 2) || ''::text,
-         round(a.sublac, 2) || ''::text, round(a.subnat, 2) || ''::text])
-         u(nombre_col, valor_col);
+         round(a.sublac, 2) || ''::text]) u(nombre_col, valor_col);
          
 /***********************************F-DEP-MZM-PLANI-8-11/06/2019****************************************/
