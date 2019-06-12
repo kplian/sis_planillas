@@ -251,7 +251,7 @@ $body$
       where v_gestion + v_periodo BETWEEN valor_min and valor_max;
 
     --Prorrateo de Antiguedad
-    ELSIF (p_codigo = 'BONANT') THEN
+    ELSIF (p_codigo = 'BONOANTG') THEN --#XX   cambio de codigo 
 
       select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
       into v_id_uo_funcionario, v_id_funcionario,v_fecha_ini
