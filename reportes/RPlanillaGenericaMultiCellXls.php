@@ -65,6 +65,7 @@ class RPlanillaGenericaMultiCellXls
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,'Gerencia');
 		$columnas++;
 		
+		
 		/*if ($config['numerar'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(8);
 			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,$fila,'No');
@@ -93,35 +94,50 @@ class RPlanillaGenericaMultiCellXls
 		}*/
 		
 		$columnas_basicas = $columnas;
-		$col_lim=$columnas_basicas;
+		$col_lim=1;
 		$fila=1;
+		
 		//echo 'col:'.$columnas .' basicas:'. $columnas_basicas .' total:'.$config['cantidad_columnas']; exit;
+		
 		foreach($datos as $value) {
-			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$col_lim=$col_lim+$value['espacio_previo'];
-			$columnas=$columnas+$value['espacio_previo'];
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col_lim,$fila,$value['titulo_reporte_superior'].' '.$value['titulo_reporte_inferior']);
-			$columnas++;
-			$col_lim++;
+			
+			
+			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$col_lim])->setWidth(10);
 			
 			if ($columnas - $columnas_basicas== $config['cantidad_columnas']) {
 				
 					$fila++;
 					$col_lim=$columnas_basicas;
+					$columnas=0;
 					break;
-				}else{
+			}else{
 					
 					//while ($col_lim <=$limite)
-					if($col_lim >=$limite){
+					if($col_lim+$value['espacio_previo'] >$limite){
+						
 						$fila++;
-						$col_lim=$columnas_basicas;
+						$col_lim=$value['espacio_previo']-($limite-$col_lim);
+					}	
+					else{
+						$col_lim=$col_lim+$value['espacio_previo'];
 					}
+			}
+			
+			
+			$columnas=$columnas+$value['espacio_previo'];
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col_lim,$fila,$value['titulo_reporte_superior'].' '.$value['titulo_reporte_inferior']);
+			$columnas++;
+			$col_lim++;
+			
+			
 				
 			}
-		}		
-		$columnas = 0;
-		$columnas++;
-		$col_lim=0;
+				
+				
+		//}		
+		$columnas = 1;
+		
+		$col_lim=1;
 		//Titulos de columnas inferiores e iniciacion de los arreglos para la tabla
 		/*if ($config['numerar'] == 'si') {			
 			$columnas++;
@@ -153,25 +169,33 @@ class RPlanillaGenericaMultiCellXls
 				$fila++;
 				$columnas = $columnas_basicas;
 				$col_lim=$columnas;
-				$fila++;
+				//$fila++;
 				$fil_col++;
 				
 				
 				$this->imprimeDatosBasicos($config,$value,$fila,$fil_col);
-				$col_lim=$col_lim+$value['espacio_previo'];
+				if($col_lim+$value['espacio_previo'] >$limite){
+						
+						$fila++;
+						$col_lim=$value['espacio_previo']-($limite-$col_lim);
+					}	
+					else{
+						$col_lim=$col_lim+$value['espacio_previo'];
+					}
 				$id_funcionario = $value['id_funcionario'];
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col_lim,$fila,$value['valor_columna']);
 				
 				$col_lim++;
-				
-				
+								
 			}else{
-				if($col_lim >=$limite){
-					$fila++;
-					$col_lim=$columnas_basicas;
-				}
-				
-				$col_lim=$col_lim+$value['espacio_previo'];
+				if($col_lim+$value['espacio_previo'] >$limite){
+						
+						$fila++;
+						$col_lim=$value['espacio_previo']-($limite-$col_lim);
+					}	
+					else{
+						$col_lim=$col_lim+$value['espacio_previo'];
+					}
 				$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col_lim,$fila,$value['valor_columna']);
 				$columnas++;
 				$col_lim++;

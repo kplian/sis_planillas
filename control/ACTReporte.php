@@ -121,9 +121,13 @@ class ACTReporte extends ACTbase{
             $this->objParam->addParametro('config',$this->res->datos[0]);
             $this->objParam->addParametro('datos',$this->res2->datos);
 
-
+			if($this->res->datos[0]['multilinea']=='si'){
+            	//echo "entra por multilinea	"; exit;
+            	$this->objReporteFormato=new RPlanillaGenericaMultiCellXls($this->objParam);
+				}else{
             //Instancia la clase de excel
             $this->objReporteFormato=new RPlanillaGenericaXls($this->objParam);
+				}
             $this->objReporteFormato->imprimeDatos();
             $this->objReporteFormato->generarReporte();
         }
@@ -142,7 +146,6 @@ class ACTReporte extends ACTbase{
 
     function reporteBoleta()	{
 
-
         if ($this->objParam->getParametro('id_tipo_planilla') != '') {
             $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
         }
@@ -158,6 +161,27 @@ class ACTReporte extends ACTbase{
         if ($this->objParam->getParametro('id_periodo') != '') {
             $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
         }
+
+		//10.06.2019
+
+		if ($this->objParam->getParametro('id_proceso_wf') != '') {
+            $this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
+        }
+		
+		if($id_reporte!=''){
+			
+			$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		}else{	
+			if ($this->objParam->getParametro('id_reporte') != '') {
+				$this->objParam->addFiltro("repo.id_reporte = ". $this->objParam->getParametro('id_reporte'));
+         
+             }
+		
+			
+		}
+		
+		
+
 
         $this->objFunc=$this->create('MODReporte');
 

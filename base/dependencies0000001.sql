@@ -2196,16 +2196,17 @@ FROM plani.vdatos_funcionarios_planilla t
 
 CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
     id_funcionario,
-    id_uo_funcionario,
+    id_funcionario_planilla,
     nombre_col,
     valor_col)
 AS
 SELECT a.id_funcionario,
-    a.id_uo_funcionario,
+    a.id_funcionario_planilla,
     u.nombre_col,
     u.valor_col
 FROM (
     SELECT fun.id_funcionario,
+            fp.id_funcionario_planilla,
             fun.id_uo_funcionario,
             tfun.fecha_ingreso,
             tper.fecha_nacimiento,
@@ -2293,9 +2294,9 @@ FROM (
             pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo::text
             = ANY (ARRAY['PLASUB'::character varying::text, 'PLASUE'::character
             varying::text])) AND (tc.codigo::text = ANY (ARRAY['SUBSEP'::text,
-            'SUBNAT'::text, 'COTIZABLE'::text, 'AFP_APPAT'::text,
-            'AFP_RIEPRO'::text, 'AFP_VIVIE'::text, 'PREAGUI'::text,
-            'PREPRI'::text, 'CAJSAL'::text, 'PREVBS'::text]))
+            'SUBPRE'::text, 'SUBLAC'::text, 'SUBNAT'::text, 'COTIZABLE'::text,
+            'AFP_APPAT'::text, 'AFP_RIEPRO'::text, 'AFP_VIVIE'::text,
+            'PREAGUI'::text, 'PREPRI'::text, 'CAJSAL'::text, 'PREVBS'::text]))
         ) AS total_gral
     FROM orga.vfuncionario_cargo_lugar fun
              JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
@@ -2315,5 +2316,5 @@ FROM (
          a.fecha_ingreso || ''::text, round(a.subpre, 2) || ''::text,
          round(a.subsep, 2) || ''::text, round(a.sublac, 2) || ''::text,
          round(a.total_ganado, 2) || ''::text, round(a.total_gral, 2) ||
-         ''::text]) u(nombre_col, valor_col);   
+         ''::text]) u(nombre_col, valor_col); 
 /***********************************F-DEP-MZM-PLANI-8-11/06/2019****************************************/
