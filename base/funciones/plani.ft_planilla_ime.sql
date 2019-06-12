@@ -14,11 +14,9 @@ $body$
  FECHA:	        22-01-2014 16:11:04
  COMENTARIOS:
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:
- AUTOR:
- FECHA:
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
 ***************************************************************************/
 
 DECLARE
@@ -182,7 +180,6 @@ BEGIN
              'Planilla '||v_num_plani,
              v_num_plani);
 
-
         	--Sentencia de la insercion
         	insert into plani.tplanilla(
 			id_periodo,
@@ -201,7 +198,9 @@ BEGIN
 			id_proceso_wf,
 			estado,
 			id_depto,
-			fecha_planilla
+			fecha_planilla,
+            dividir_comprobante,--#5
+            id_tipo_contrato --#5
           	) values(
 			v_parametros.id_periodo,
 			v_parametros.id_gestion,
@@ -219,9 +218,10 @@ BEGIN
 			v_id_proceso_wf,
 			v_codigo_estado,
 			v_parametros.id_depto,
-			v_parametros.fecha_planilla
+			v_parametros.fecha_planilla,
+            v_parametros.dividir_comprobante,--#5
+            v_parametros.id_tipo_contrato --5
 			)RETURNING id_planilla into v_id_planilla;
-
             execute 'select ' || v_tipo_planilla.funcion_obtener_empleados || '(' || v_id_planilla || ')'
         	into v_resp;
 
@@ -247,6 +247,7 @@ BEGIN
 			--Sentencia de la modificacion
 			update plani.tplanilla set
 			observaciones = v_parametros.observaciones,
+            dividir_comprobante = v_parametros.dividir_comprobante,
 			id_usuario_mod = p_id_usuario,
 			fecha_planilla = v_parametros.fecha_planilla,
 			fecha_mod = now()
