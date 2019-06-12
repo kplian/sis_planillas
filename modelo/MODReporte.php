@@ -242,7 +242,7 @@ class MODReporte extends MODbase{
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	
+	//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -310,7 +310,7 @@ class MODReporte extends MODbase{
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
-		
+		//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

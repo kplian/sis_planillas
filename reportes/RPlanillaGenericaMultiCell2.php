@@ -21,6 +21,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $id_fun0;
 	var $posY;
 	var $ancho_col;
+	var $alto_grupo;
 	function Header() {
 		$max_fila=2; $this->max_columna=0;
 		$espacio_previo=0;
@@ -53,7 +54,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			$id_funcionario = $this->datos_detalle[0]['id_funcionario'];
 			
 			$this->id_fun0=$id_funcionario;
-			
+			$this->alto_grupo=$this->GetY();
 			$detalle_col_mod=array();
 			foreach($this->datos_detalle as $value) {
 				if($id_funcionario!=$value['id_funcionario']) break;
@@ -64,14 +65,15 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				}
 			}
+			
 			$this->SetFont('','B',7);
-			$this->grillaDatos($detalle_col_mod,0, $this->datos_titulo['num_columna_multilinea']);
+			$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
 			$this->ln(2);
 			$this->SetLineWidth(0.1);
  	 		$this->SetDrawColor(0,0,0);
 			$this->Cell(0,0,'','B',1);
 			$this->posY=$this->GetY();
-		
+			$this->alto_grupo=$this->posY-$this->alto_grupo;
 	}
 	function datosHeader ($titulo, $detalle) { 
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT;
@@ -91,7 +93,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//$this->SetMargins(5,$this->GetY()+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*5), 5);
 		
 	
-		$this->SetMargins(5,$this->GetY(), 5);
+		$this->SetMargins(5,$this->alto_grupo*2, 5);
 		//iniciacion de datos 
 		$id_funcionario = $this->datos_detalle[0]['id_funcionario'];
 		$this->gerencia=$this->datos_detalle[0]['gerencia'];
@@ -116,7 +118,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$detalle_col_mod=array();
 		$this->SetFont('','',6);
 		
-		//echo '**'.sizeof($this->datos_detalle); exit;
 		//foreach ($this->datos_detalle as $value) {
 			$subtotal=array();	
 			
@@ -126,31 +127,46 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$this->SetFont('','',6);
 				
 				$this->SetY($this->posY);
-				$this->grillaDatos($detalle_col_mod,$border=0,$this->datos_titulo['num_columna_multilinea']);
+				$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0,$this->datos_titulo['num_columna_multilinea']);
+				
 				$columnas=0;
-				$this->ln(10);
+				$this->ln(4);
 					$this->SetLineWidth(0.1);
  	 				$this->SetDrawColor(0,0,0);
 					$this->Cell(0,0,'','B',1);
-					$this->ln(6);
+					$this->ln(4);
 					$this->SetFont('','B',8);
+					
+					
 					$this->Cell(0,0,'Sub Total:'.$this->gerencia,'',1);
 					$this->Cell(30,3,'# Empl.' . $empleados_gerencia,'',1,'L');
-					$this->ln(6);
+					//$this->ln(6);
+					
 				$this->subtotales($detalle_col_mod,$sum_subtotal);
+				
 				$this->gerencia=$this->datos_detalle[$i]['gerencia'];
 				$empleados_gerencia=0;
 				$detalle_col_mod=array();
 				$this->AddPage();
-				
+				array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
+				array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
+				array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
 			}else{ 
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
 				
+				
+				
+				
 				if(($i%($this->datos_titulo['cantidad_columnas']))==0 && $i!=0){
 					$columnas=0;
+					
 				}
+				
+				//$h=($this->alto_grupo*2)+($i*$this->alto_grupo);
+				
+				
 				$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
 				$columnas++;
 			
@@ -186,12 +202,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//$this->Cell($this->ancho_sin_totales,3,'TOTAL GERENCIA ' . $this->gerencia . ' : ','RBT',0,'R');
 		$this->SetFont('','',6);
 		
-		$this->grillaDatos($detalle_col_mod,$border=0, $this->datos_titulo['num_columna_multilinea']);
-		$this->ln(10);
+		$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
+		$this->ln(4);
 					$this->SetLineWidth(0.1);
  	 				$this->SetDrawColor(0,0,0);
 					$this->Cell(0,0,'','B',1);
-					$this->ln(6);
+					$this->ln(4);
 					$this->SetFont('','B',8);
 		$this->Cell(80,3,'Sub Total:' . $this->gerencia.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
@@ -199,7 +215,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
 					
 
-		$this->ln(10);
+		$this->ln(4);
 		//$this->Cell($this->ancho_sin_totales,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'R');
 		//$this->ln(15);
 		$this->SetLineWidth(1);
@@ -243,7 +259,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		}
 		
 		
-		$this->grillaDatos($result,0, $this->datos_titulo['num_columna_multilinea']);
+		$this->grillaDatos($result,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
     }
 }
 ?>

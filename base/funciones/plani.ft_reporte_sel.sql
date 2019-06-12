@@ -289,7 +289,7 @@ $body$
 
     elsif(p_transaccion='PLA_REPOMAESBOL_SEL')then
 
-      begin
+      begin 
         if (not exists(	select 1
                          from plani.treporte r
                          where r.id_tipo_planilla = v_parametros.id_tipo_planilla and r.estado_reg = 'activo' and
@@ -334,7 +334,7 @@ $body$
 				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
 				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
 				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
-				        where repo.tipo_reporte = ''boleta'' and ';
+				        where planifun.id_funcionario=250 and  repo.tipo_reporte = ''boleta'' and ';
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
@@ -350,7 +350,7 @@ $body$
                             fun.codigo,
                             fun.ci,
                             fun.id_funcionario,
-                            ent.identificador_min_trabajo
+                            ent.identificador_min_trabajo, ent.identificador_caja_salud
 			';
 
 
@@ -385,7 +385,7 @@ $body$
                         inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte and
                         											repcol.codigo_columna = colval.codigo_columna
 
-				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
+				        where planifun.id_funcionario=250 and repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
@@ -949,7 +949,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     
                   
         if(length(v_datos_externos.vista_datos_externos)!=0) then
-       
+
         		if exists (select 1  from pg_views where viewname=split_part(v_datos_externos.vista_datos_externos,'.',2)
                 and schemaname=split_part(v_datos_externos.vista_datos_externos,'.',1)) then
                    v_columnas_externas:='(case when repcol.origen=''columna_planilla'' then repcol.codigo_columna else vista.nombre_col end)::varchar as codigo_columna
@@ -961,17 +961,17 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                          vista.valor_col 
                        end)
                      end)::varchar as valor';
-                   v_consulta_externa:='left join '|| v_datos_externos.vista_datos_externos || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_uo_funcionario=fp.id_uo_funcionario
+                   v_consulta_externa:='left join '|| v_datos_externos.vista_datos_externos || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_funcionario_planilla=fp.id_funcionario_planilla
                    ';
                 else
                 	v_consulta_externa:='';
                     v_columnas_externas:=' colval.codigo_columna,
-                            colval.valor';
+                            colval.valor::varchar';
                 end if;
         else
           v_consulta_externa:='';
           v_columnas_externas:=' colval.codigo_columna,
-                            colval.valor';
+                            colval.valor::varchar';
         end if;
         
 
