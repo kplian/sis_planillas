@@ -113,7 +113,7 @@ $body$
     ELSIF (p_codigo = 'SUELDOMES') THEN
       v_factor_tiempo = plani.f_get_valor_columna_valor('FACTIEMPO', p_id_funcionario_planilla)::numeric; --#2 ++
     
-      select sum(ht.sueldo)
+      select sum(ht.sueldo * (ht.horas_normales/240)) --#14  corrige calculo de sueldo basico
       into v_auxiliar
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
@@ -128,7 +128,7 @@ $body$
       
      
     
-     v_resultado = (v_auxiliar * v_factor_tiempo) + --sueldo segun horas efectvamente trabajadas trabajadas
+     v_resultado = (v_auxiliar) + --sueldo segun horas efectvamente trabajadas trabajadas
                    (v_costo_horas_incapcidad * v_factor_incapcidad_cubierto_empresa);  -- el monto  que paga la empresa por incapacidad temporal
                      
       /*
