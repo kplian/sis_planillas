@@ -100,7 +100,7 @@ Phx.vista.ColumnaValor=Ext.extend(Phx.gridInterfaz,{
 				name: 'valor',
 				fieldLabel: 'Valor',
 				allowBlank: false,
-				allowDecimals: true,/ /#14 +
+				allowDecimals: true, //#14 +
 				decimalPrecision:20, //#14 +
 				anchor: '80%',
 				gwidth: 100,
