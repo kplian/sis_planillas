@@ -238,7 +238,11 @@ class MODReporte extends MODbase{
 		$this->captura('horas_trabajadas','integer');
 		$this->captura('ci','varchar');
 		$this->captura('id_funcionario','integer');
+		$this->captura('cantidad_columnas','integer');
 		
+		$this->captura('multilinea','varchar');
+        $this->captura('vista_datos_externos','varchar');
+        $this->captura('num_columna_multilinea','integer');
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
@@ -249,7 +253,7 @@ class MODReporte extends MODbase{
 		return $this->respuesta;
 	}
 	
-	function listarReporteDetalle(){
+	function listarReporteDetalle(){ 
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_reporte_sel';
 		$this->transaccion='PLA_REPODET_SEL';
@@ -257,7 +261,10 @@ class MODReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
-		$this->setParametro('id_uo','id_uo','integer');	
+		$this->setParametro('id_uo','id_uo','integer');
+		
+		
+			
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('nombre_empleado','text');
@@ -285,6 +292,7 @@ class MODReporte extends MODbase{
 
 		//Ejecuta la instruccion
 		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

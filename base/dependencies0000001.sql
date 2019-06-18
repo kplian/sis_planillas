@@ -2194,6 +2194,8 @@ FROM plani.vdatos_funcionarios_planilla t
 /***********************************F-DEP-MZM-PLANI-8-06/06/2019****************************************/
 /***********************************I-DEP-MZM-PLANI-11-06/06/2019****************************************/
 
+DROP VIEW plani.vdatos_func_planilla;
+
 CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
     id_funcionario,
     id_funcionario_planilla,

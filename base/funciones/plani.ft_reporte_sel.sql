@@ -162,10 +162,7 @@ $body$
                             ges.gestion,
                             uo.nombre_unidad,
                             dep.nombre_corto,
-                            case when repo.multilinea=''si'' then
-                               ((select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)+(select sum(espacio_previo) from plani.treporte_columna where  id_reporte=repo.id_reporte))::integer
-                            else (select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)::integer
-                            end as cantidad_columnas
+                            (select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)::integer as cantidad_columnas
 							, repo.multilinea,
                             repo.vista_datos_externos,
                             repo.num_columna_multilinea
@@ -290,13 +287,16 @@ $body$
     elsif(p_transaccion='PLA_REPOMAESBOL_SEL')then
 
       begin 
+      
+      if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
+      
         if (not exists(	select 1
                          from plani.treporte r
                          where r.id_tipo_planilla = v_parametros.id_tipo_planilla and r.estado_reg = 'activo' and
                                r.tipo_reporte = 'boleta')) then
           raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
         end if;
-
+	end if;
         --Sentencia de la consulta
         v_consulta:='select
                             repo.titulo_reporte,
@@ -318,7 +318,14 @@ $body$
                             end)::varchar as item,
                             fun.codigo as codigo_empleado,
                             sum(ht.horas_normales)::integer,
-                            fun.ci,fun.id_funcionario
+                            fun.ci,fun.id_funcionario,
+                            case when repo.multilinea=''si'' then
+                               ((select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)+(select sum(espacio_previo) from plani.treporte_columna where  id_reporte=repo.id_reporte))::integer
+                            else (select count(*) from plani.treporte_columna where id_reporte = repo.id_reporte)::integer
+                            end as cantidad_columnas
+							, repo.multilinea,
+                            repo.vista_datos_externos,
+                            repo.num_columna_multilinea
 
 						from plani.tplanilla plani
                         inner join param.tdepto dep on  dep.id_depto = plani.id_depto
@@ -334,7 +341,7 @@ $body$
 				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
 				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
 				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
-				        where planifun.id_funcionario=250 and  repo.tipo_reporte = ''boleta'' and ';
+				        where  ';
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
@@ -351,6 +358,12 @@ $body$
                             fun.ci,
                             fun.id_funcionario,
                             ent.identificador_min_trabajo, ent.identificador_caja_salud
+                            ,
+                             repo.multilinea,
+                            repo.vista_datos_externos,
+                            repo.num_columna_multilinea, repo.id_reporte
+                            limit 3
+                           
 			';
 
 
@@ -915,9 +928,10 @@ $body$
 elsif(p_transaccion='PLA_REPODET_SEL')then
  --para obtener la columna de ordenacion para el reporte
  begin
-        execute	'select repo.ordenar_por
+        execute	'select distinct repo.ordenar_por
            			from plani.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_ordenar_por;
         if (v_ordenar_por = 'nombre')then
           v_ordenar_por = 'fun.desc_funcionario2';
@@ -941,10 +955,11 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
        -- raise exception 'aaa%',v_tipo_contrato;
         --para obtener la vista con la cual hacer join en caso de requerirse
         
-		execute	'select repo.multilinea, repo.vista_datos_externos, repo.num_columna_multilinea,
+		execute	'select distinct repo.multilinea, repo.vista_datos_externos, repo.num_columna_multilinea,
         round((((repo.ancho_total-1)/repo.num_columna_multilinea)/1.5),0)::integer as ancho_col
            			from plani.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_datos_externos;
                     
                   
@@ -955,8 +970,8 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                    v_columnas_externas:='(case when repcol.origen=''columna_planilla'' then repcol.codigo_columna else vista.nombre_col end)::varchar as codigo_columna
                    ,
  					(case when repcol.origen=''columna_planilla'' then round(colval.valor,2)::varchar else  
-                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' ) then
-                         substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+1))  )
+                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'') then
+                         substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+1)-2)  )
                        else
                          vista.valor_col 
                        end)
@@ -1008,7 +1023,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
-                        '||v_consulta_externa||' where  '||v_tipo_contrato;
+                        '||v_consulta_externa||' where '||v_tipo_contrato;
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;

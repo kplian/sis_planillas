@@ -62,13 +62,14 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					array_push($detalle_col_mod,$value['id_funcionario']);
 					array_push($detalle_col_mod,$value['espacio_previo']);
 					array_push($detalle_col_mod,$value['titulo_reporte_superior'].' '.$value['titulo_reporte_inferior']);
-				
+					array_push($detalle_col_mod,'B');
+					array_push($detalle_col_mod,'0');
 				}
 			}
 			
 			$this->SetFont('','B',7);
 			$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
-			$this->ln(2);
+			$this->ln(1);
 			$this->SetLineWidth(0.1);
  	 		$this->SetDrawColor(0,0,0);
 			$this->Cell(0,0,'','B',1);
@@ -102,7 +103,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$sum_subtotal = array();
 		$sum_total = array();
 		
-		$empleados_gerencia = 1;
+		$empleados_gerencia = 0;
 		$this->numeracion=1;
 		$this->ancho_col=35;
 		$array_show = array(); //$this->iniciarArrayShow($this->datos_detalle[0]);		
@@ -117,9 +118,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$fila=0;
 		$detalle_col_mod=array();
 		$this->SetFont('','',6);
-		
+		$linea=0;
 		//foreach ($this->datos_detalle as $value) {
-			$subtotal=array();	
+		$subtotal=array();	
 			
 		for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
 			
@@ -129,45 +130,72 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$this->SetY($this->posY);
 				$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0,$this->datos_titulo['num_columna_multilinea']);
 				
-				$columnas=0;
-				$this->ln(4);
-					$this->SetLineWidth(0.1);
- 	 				$this->SetDrawColor(0,0,0);
-					$this->Cell(0,0,'','B',1);
-					$this->ln(4);
+				
+				
+				$this->ln(2);
 					$this->SetFont('','B',8);
 					
 					
 					$this->Cell(0,0,'Sub Total:'.$this->gerencia,'',1);
 					$this->Cell(30,3,'# Empl.' . $empleados_gerencia,'',1,'L');
 					//$this->ln(6);
-					
+					//echo $sum_subtotal[$columnas].'---'.$columnas; exit;
 				$this->subtotales($detalle_col_mod,$sum_subtotal);
 				
+				$columnas=0;
+				for ($m = 0; $m < $this->datos_titulo['cantidad_columnas']; $m++) {
+		
+				 		$sum_subtotal[$m]=0;
+						
+					}
 				$this->gerencia=$this->datos_detalle[$i]['gerencia'];
 				$empleados_gerencia=0;
 				$detalle_col_mod=array();
 				$this->AddPage();
+				
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
-			}else{ 
-				array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
-				array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
-				array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+				array_push($detalle_col_mod,'');
+				array_push($detalle_col_mod,'0');
+				if($this->datos_detalle[$i]['sumar_total']=='si') {
+					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+				}
+				$columnas++;
+			}else{
 				
-				
-				
-				
-				if(($i%($this->datos_titulo['cantidad_columnas']))==0 && $i!=0){
-					$columnas=0;
+				if($id_funcionario!=$this->datos_detalle[$i+1]['id_funcionario'] ){
+					
+					
+					array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
+					array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+					array_push($detalle_col_mod,$this->datos_detalle[$i]['valor_columna']);
+					array_push($detalle_col_mod,'');
+					array_push($detalle_col_mod,'1');
+					
+					$id_funcionario=$this->datos_detalle[$i+1]['id_funcionario'];
+					
+					
+				}else{
+					$id_funcionario=$this->datos_detalle[$i]['id_funcionario'];
+					array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
+					array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
+					array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+					array_push($detalle_col_mod,'');
+					array_push($detalle_col_mod,'0');
+					
 					
 				}
 				
-				//$h=($this->alto_grupo*2)+($i*$this->alto_grupo);
+			    			
+				if(($columnas==($this->datos_titulo['cantidad_columnas'])) ){
+					$columnas=0; 
+				}
 				
 				
-				$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+				if($this->datos_detalle[$i]['sumar_total']=='si') {
+					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+				}
 				$columnas++;
 			
 			}
@@ -175,13 +203,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$empleados_gerencia++;
 				$this->numeracion++;
 			}
-			$id_funcionario=$this->datos_detalle[$i]['id_funcionario'];
+			
 			$this->gerencia=$this->datos_detalle[$i]['gerencia'];
 			
-				
-				$sum_subtotal[$columnas] +=$value['valor_columna'];
-				$sum_total[$columna] += $value['valor_columna'];
-				$columna++;
 				
 			}
 			
@@ -192,25 +216,27 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
 		//Añade el ultimo subtotal de la gerencia
 		//generar subtotales
-		$this->SetY($this->posY);
+		/*$this->SetY($this->posY);
 		$this->SetFont('','B',6);
 		$this->SetLineWidth(0.1);
  	 	$this->SetDrawColor(0,0,0);
-		$this->Cell(0,0,'','B',1);
+		$this->Cell(0,0,'','B',1);*/
 		//$this->Ln(20);
 		
 		//$this->Cell($this->ancho_sin_totales,3,'TOTAL GERENCIA ' . $this->gerencia . ' : ','RBT',0,'R');
 		$this->SetFont('','',6);
 		
 		$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
-		$this->ln(4);
+		$this->Cell(80,3,'Sub Total:' . $this->gerencia.'','',1,'L');
+		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
+		$this->subtotales($detalle_col_mod,$sum_subtotal);
+		/*$this->ln(4);
 					$this->SetLineWidth(0.1);
  	 				$this->SetDrawColor(0,0,0);
 					$this->Cell(0,0,'','B',1);
-					$this->ln(4);
+					$this->ln(4);*/
 					$this->SetFont('','B',8);
-		$this->Cell(80,3,'Sub Total:' . $this->gerencia.'','',1,'L');
-		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
+		
 	 				
 		
 					
@@ -239,7 +265,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
     	for ($i=0; $i< sizeof($data); $i++ ){
     		
-			if($i%3==0){
+			if($i%5==0){
 				if($id_emp!=$data[$i]){
     			break;
     		}else{
@@ -247,18 +273,24 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
 				array_push($result, $data_sub[$cc]);
+				array_push($result,'B');
+				array_push($result,'0');
 				$cc++;
 	    	}
 			
 			
 			$id_emp=$data[$i];
-			$sum_subtotal[$i]=0;
-			$i=$i+2;
+			//$sum_subtotal[$i]=0;
+			$i=$i+4;
 			}
     		
 		}
 		
-		
+		$dimensions = $this->getPageDimensions();
+		if ($this->GetY()+$this->alto_grupo+$dimensions['bm']> $dimensions['hk']){
+						$this->AddPage();
+		}
+
 		$this->grillaDatos($result,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
     }
 }
