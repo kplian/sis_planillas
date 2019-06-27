@@ -111,6 +111,9 @@ $body$
       
     --#2 Sueldo Mes , incluye incapacidad temporal y el tiempo trabajado efectivo
     ELSIF (p_codigo = 'SUELDOMES') THEN
+      
+      
+      
       v_factor_tiempo = plani.f_get_valor_columna_valor('FACTIEMPO', p_id_funcionario_planilla)::numeric; --#2 ++
     
       select sum(ht.sueldo * (ht.horas_normales/240)) --#14  corrige calculo de sueldo basico
@@ -118,31 +121,18 @@ $body$
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
       
-      --v_resultado = (v_factor_tiempo);-- + (v_resultado *(1 - v_factor_tiempo) *(1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric));
-      
-      
-      --v_resultado = (v_auxiliar * v_factor_tiempo) + (v_auxiliar *(1 - v_factor_tiempo) *(1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric));
       
       v_costo_horas_incapcidad = (v_auxiliar/240) * ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * 8 );  --el costo por todas las hroas de incapacidad
+      
+      
       v_factor_incapcidad_cubierto_empresa = 1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric;--porcentaje de incapcidad que cubre la empresa
       
      
     
-     v_resultado = (v_auxiliar) + --sueldo segun horas efectvamente trabajadas trabajadas
+      v_resultado = (v_auxiliar - v_costo_horas_incapcidad) + --sueldo segun horas efectvamente trabajadas trabajadas
                    (v_costo_horas_incapcidad * v_factor_incapcidad_cubierto_empresa);  -- el monto  que paga la empresa por incapacidad temporal
                      
-      /*
-      v_resultado =   (v_auxiliar * v_factor_tiempo)  --sueldo segun horas trabajadas
-                    + 
-      
-      
-      v_resultado =     (v_auxiliar * v_factor_tiempo)  --sueldo segun horas trabajadas
-                     + (v_resultado*( 1- plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric)) --la inversa de las horas 
-                   
-                    + (v_resultado *
-                        (1 - v_factor_tiempo) 
-                        *(1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric));*/
-      
+           
       
     --#1  caculo de sueldo por hora 
     ELSIF (p_codigo = 'SUHORA') THEN
