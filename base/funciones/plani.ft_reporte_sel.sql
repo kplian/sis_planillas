@@ -22,7 +22,9 @@ $body$
    
    #ISSUE				FECHA				AUTOR				DESCRIPCION
    #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
-   															y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
+   					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
+                    
+   #17		etr			28-06-2019			MZM             adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
   ***************************************************************************/
 
   DECLARE
@@ -53,6 +55,7 @@ $body$
     v_datos_externos		record;
     v_consulta_externa 		varchar;
     v_columnas_externas		varchar;
+    v_consulta_orden	varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -156,7 +159,6 @@ $body$
                             repo.agrupar_por,
                             repo.ordenar_por,
                             repo.titulo_reporte,
-
                             plani.nro_planilla,
                             per.periodo,
                             ges.gestion,
@@ -933,12 +935,20 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_ordenar_por;
+                    
+        v_consulta_orden:=' uo.id_uo,
+                            uo.nombre_unidad,';
         if (v_ordenar_por = 'nombre')then
           v_ordenar_por = 'fun.desc_funcionario2';
         elsif (v_ordenar_por = 'doc_id') then
           v_ordenar_por = 'fun.ci';
         elsif (v_ordenar_por = 'codigo_cargo') then
           v_ordenar_por = 'car.codigo';
+        --28.06.2019
+         elsif (v_ordenar_por = 'centro') then
+          v_ordenar_por = 'centro.uo_centro_orden, uofuncionario.orden_centro';
+        -- fin 28..06.2019 
+         v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
         else
           v_ordenar_por = 'fun.codigo';
         end if;
@@ -998,9 +1008,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                             substring(fun.desc_funcionario2 from 1 for 38),
                             cat.descripcion::varchar,
                             car.codigo,
-                            fun.ci,
-                            uo.id_uo,
-                            uo.nombre_unidad,
+                            fun.ci,'||v_consulta_orden||'
                             repcol.sumar_total,
                             repcol.ancho_columna,
                             repcol.titulo_reporte_superior,
@@ -1022,12 +1030,15 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                         left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
+                        inner join orga.vuo_centro centro on centro.id_uo=uofun.id_uo
+                        inner join orga.tuo uofuncionario on uofuncionario.id_uo=uofun.id_uo
+
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         '||v_consulta_externa||' where '||v_tipo_contrato;
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
-        v_consulta:=v_consulta||' order by uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
+        v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
 		raise notice 'v_consulta: %', v_consulta;
         --Devuelve la respuesta
         return v_consulta;
