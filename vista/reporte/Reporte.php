@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 17-01-2014 22:07:28
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
-*/
+issue 	empresa		autor	fecha	detalle
+ *17	etr			MZM		28.06.2019	Adicion de opcion centro en combo ordenar_por
+ * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -261,12 +263,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 120,
-				store:['nombre','doc_id','codigo_cargo','codigo_empleado']
+				store:['nombre','doc_id','codigo_cargo','codigo_empleado','centro'] //#17
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado'],	
+	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado','centro'], //#17	
 	       		 	},
 				id_grupo:1,
 				grid:true,

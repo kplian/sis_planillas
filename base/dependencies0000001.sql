@@ -2320,3 +2320,12 @@ FROM (
          round(a.total_ganado, 2) || ''::text, round(a.total_gral, 2) ||
          ''::text]) u(nombre_col, valor_col); 
 /***********************************F-DEP-MZM-PLANI-8-11/06/2019****************************************/
+
+/***********************************I-DEP-MZM-PLANI-17-11/06/2019****************************************/
+ALTER TABLE plani.treporte
+DROP CONSTRAINT chk__treporte__ordenar_por RESTRICT;
+
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text));
+  
+/***********************************F-DEP-MZM-PLANI-17-11/06/2019****************************************/
