@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_calcular_prorrateo_bono_antiguedad (
   p_nivel_antiguedad integer,
   p_id_funcionario_planilla integer,
@@ -8,6 +10,24 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_prorrateo_bono_antiguedad (
 )
 RETURNS numeric AS
 $body$
+  /**************************************************************************
+   PLANI
+  ***************************************************************************
+   SCRIPT:
+   COMENTARIOS:
+   AUTOR: Jaim Rivera (Kplian)
+   DESCRIP:
+   Fecha: 27/01/2014
+
+
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               27/01/2014        GUY BOA             Creacion 
+ #18               03-07-2019        Rarteaga            Considera empleados con antiguedad superioes a 19 años
+ 
+ *******************************************************************************/
 DECLARE
 
     v_resp	            varchar;
@@ -50,113 +70,74 @@ BEGIN
     into v_porcentaje, v_valor_min
     from plani.tantiguedad
     where p_nivel_antiguedad BETWEEN valor_min and valor_max;
-
-
-    if v_porcentaje = 5 then
-    	if p_fecha_ini = p_fecha_per_ini then
-        	if v_horas_normales = 240 then
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-            else
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-            end if;
+    
+    
+    
+    --#18 p_fecha_ini,   ES el cumpleaños de trabajado
+    --#18 p_fecha_per_ini,  Es la fecha de inicio del periodo de la plnailla
+    --#18 restruturacion de IF para facilitar el entendimiento y mantenimiento
+    
+    IF p_fecha_ini = p_fecha_per_ini THEN 
+    
+        if v_horas_normales = 240 then
+             v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
         else
-        	if v_valor_min = p_nivel_antiguedad and p_fecha_ini between p_fecha_per_ini and p_fecha_per_fin then
-                v_superior = 30-date_part('day',p_fecha_ini) + 1;
-                v_inferior = 15-date_part('day',p_fecha_ini) - 1;
-                v_resultado = ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
-            else
-            	if v_horas_normales = 240 then
-                  v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-                else
-                  v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-                end if;
-            end if;
-
+             v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
         end if;
-
-    elsif v_porcentaje = 11 then
-
-
-
-        if p_fecha_ini = p_fecha_per_ini then
-
-            if v_horas_normales = 240 then
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-            else
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-            end if;
-        else
-
-        	if v_valor_min = p_nivel_antiguedad and p_fecha_ini between p_fecha_per_ini and p_fecha_per_fin  then
-
-             v_superior = 30 - date_part('day',p_fecha_ini) + 1;
-   			 v_inferior = 30 - v_superior;
-             v_resultado = (((v_salario_minimo*5/100)*3) * v_inferior/30) + (((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30);
-
-            else
-
-              if v_horas_normales = 240 then
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
+    
+    ELSE 
+        --  Si el cambio de categoria se produce en mes, se calulo parte del bono con la categoria previa y los dias restantes con la nueva
+        IF v_valor_min = p_nivel_antiguedad and p_fecha_ini between p_fecha_per_ini and p_fecha_per_fin THEN
+        
+             if v_porcentaje = 5 then              	
+                    v_superior = 30-date_part('day',p_fecha_ini) + 1;
+                    v_resultado = ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30; 
+                                           
+              elsif v_porcentaje = 11 then
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = (((v_salario_minimo*5/100)*3) * v_inferior/30) + (((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30);
+                    
+              elsif v_porcentaje = 18 then              	
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = ((v_salario_minimo*11/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30; 
+                            
+              elsif v_porcentaje = 26 then              	
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = ((v_salario_minimo*18/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
+                                
+              elsif v_porcentaje = 34 then                    
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = ((v_salario_minimo*26/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
+                                  
+              elsif v_porcentaje = 42 then --#18  se aumenta esta consideracion que faltaba
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = ((v_salario_minimo*34/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30; 
+                                 
+              elsif v_porcentaje = 50 then  --#18  se aumenta esta consideracion que faltaba
+                    v_superior = 30 - date_part('day',p_fecha_ini) + 1;
+                    v_inferior = 30 - v_superior;
+                    v_resultado = ((v_salario_minimo*42/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
+                    
               else
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
+                  v_resultado = 0;
               end if;
-            end if;
-        end if;
-
-    elsif v_porcentaje = 18 then
-    	if p_fecha_ini = p_fecha_per_ini then
-        	if v_horas_normales = 240 then
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
+        
+        ELSE
+        
+            if v_horas_normales = 240 then
+              v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
             else
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
+              v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
             end if;
-        else
-
-        	if v_valor_min = p_nivel_antiguedad and p_fecha_ini between p_fecha_per_ini and p_fecha_per_fin then
-
-            	v_superior = 30 - date_part('day',p_fecha_ini) + 1;
-   				v_inferior = 30 - v_superior;
-
-              	v_resultado = ((v_salario_minimo*11/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
-
-
-        	else
-
-            	if v_horas_normales = 240 then
-              		v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-                else
-              		v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-              	end if;
-            end if;
-        end if;
-    elsif v_porcentaje = 26 then
-    	if p_fecha_ini = p_fecha_per_ini then
-        	if v_horas_normales = 240 then
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-            else
-              	v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-            end if;
-        else
-        	if v_valor_min = p_nivel_antiguedad and p_fecha_ini between p_fecha_per_ini and p_fecha_per_fin then
-              v_superior = 30 - date_part('day',p_fecha_ini) + 1;
-   			  v_inferior = 30 - v_superior;
-              v_resultado = ((v_salario_minimo*18/100)*3) * v_inferior/30 + ((v_salario_minimo*v_porcentaje/100)*3) * v_superior/30;
-        	else
-            	if v_horas_normales = 240 then
-              		v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
-              	else
-              		v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
-              	end if;
-            end if;
-        end if;
-
-    elsif v_porcentaje = 34 then
-
-    elsif v_porcentaje = 46 then
-
-    else
-    	v_resultado = 0;
-    end if;
+        
+        END IF;
+    
+    END IF;
 
     return v_resultado;
 EXCEPTION
