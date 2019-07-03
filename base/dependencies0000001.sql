@@ -2196,7 +2196,7 @@ FROM plani.vdatos_funcionarios_planilla t
 
 DROP VIEW plani.vdatos_func_planilla;
 
-CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
+CREATE VIEW plani.vdatos_func_planilla (
     id_funcionario,
     id_funcionario_planilla,
     nombre_col,
@@ -2210,7 +2210,8 @@ FROM (
     SELECT fun.id_funcionario,
             fp.id_funcionario_planilla,
             fun.id_uo_funcionario,
-            tfun.fecha_ingreso,
+            plani.f_get_fecha_primer_contrato_empleado(fun.id_uo_funcionario,
+                fun.id_funcionario, fun.fecha_asignacion) AS fecha_ingreso,
             tper.fecha_nacimiento,
             fun.oficina_nombre AS oficina,
             fun.nombre_cargo AS cargo,
@@ -2299,7 +2300,23 @@ FROM (
             'SUBPRE'::text, 'SUBLAC'::text, 'SUBNAT'::text, 'COTIZABLE'::text,
             'AFP_APPAT'::text, 'AFP_RIEPRO'::text, 'AFP_VIVIE'::text,
             'PREAGUI'::text, 'PREPRI'::text, 'CAJSAL'::text, 'PREVBS'::text]))
-        ) AS total_gral
+        ) AS total_gral,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo::text
+            = ANY (ARRAY['PLASUB'::character varying::text, 'PLASUE'::character
+            varying::text])) AND (tc.codigo::text = ANY (ARRAY['SUBPRE'::text,
+            'SUBLAC'::text, 'TOT_DESC'::text]))
+        ) AS total_desc
     FROM orga.vfuncionario_cargo_lugar fun
              JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
              JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
@@ -2312,13 +2329,13 @@ FROM (
          'codigo_funcionario'::text, 'codigo_regional'::text, 'nivel'::text,
          'cargo'::text, 'fecha_nacimiento'::text, 'fecha_ingreso'::text,
          'subpre'::text, 'subsep'::text, 'sublac'::text, 'total_ganado'::text,
-         'total_gral'::text], ARRAY[a.nombre_funcionario,
+         'total_gral'::text, 'total_desc'::text], ARRAY[a.nombre_funcionario,
          a.codigo_funcionario::text, a.codigo_regional::text, a.nivel ||
          ''::text, a.cargo::text, a.fecha_nacimiento || ''::text,
          a.fecha_ingreso || ''::text, round(a.subpre, 2) || ''::text,
          round(a.subsep, 2) || ''::text, round(a.sublac, 2) || ''::text,
          round(a.total_ganado, 2) || ''::text, round(a.total_gral, 2) ||
-         ''::text]) u(nombre_col, valor_col); 
+         ''::text, round(a.total_desc, 2) || ''::text]) u(nombre_col, valor_col);
 /***********************************F-DEP-MZM-PLANI-8-11/06/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-17-11/06/2019****************************************/
@@ -2329,3 +2346,94 @@ ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text));
   
 /***********************************F-DEP-MZM-PLANI-17-11/06/2019****************************************/
+
+
+
+/***********************************I-DEP-RAC-PLANI-16-01/07/2019****************************************/
+
+
+CREATE OR REPLACE VIEW plani.vrep_funcionario 
+AS
+ SELECT uofunc.id_uo_funcionario,
+         uofunc.id_uo,
+         uofunc.id_funcionario,
+         funcio.ci,
+         funcio.codigo,
+         funcio.desc_funcionario1,
+         funcio.desc_funcionario2,
+         funcio.num_doc,
+         uofunc.fecha_asignacion,
+         uofunc.fecha_finalizacion,
+         uofunc.estado_reg,
+         uofunc.fecha_mod,
+         uofunc.fecha_reg,
+         uofunc.id_usuario_mod,
+         uofunc.id_usuario_reg,
+         cargo.id_cargo,
+         uofunc.observaciones_finalizacion,
+         uofunc.nro_documento_asignacion,
+         uofunc.fecha_documento_asignacion,
+         uofunc.tipo,
+         (COALESCE((('Cod: '::TEXT || cargo.codigo::TEXT) || '---Id: '::TEXT) ||
+           cargo.id_cargo, 'Id: '::TEXT || cargo.id_cargo) || ' -- '::TEXT) ||
+           cargo.nombre::TEXT AS TEXT,
+         cargo.codigo AS codigo_cargo,
+         cargo.nombre AS nombre_cargo,
+         lug.nombre AS nombre_lugar,
+         uog.codigo_gerencia,
+         uog.nombre_unidad_gerencia,
+         uop.codigo_uo_pre,
+         uop.nombre_uo_pre,
+         uoc.codigo_uo_centro,
+         uoc.nombre_uo_centro,
+         ''         AS firma,
+         fun.interno,
+         fun.id_biometrico,
+         fun.email_empresa,
+         fun.telefono_ofi,
+         fun.codigo_rciva,
+         fun.profesion,
+         afp.id_afp,
+         afp.nombre AS nombre_afp,
+         fafp.nro_afp,
+         fafp.tipo_jubilado,
+         date_part('year'::TEXT, age(per.fecha_nacimiento::TIMESTAMP WITH TIME
+           ZONE)) AS edad,
+         per.carnet_discapacitado,
+         per.celular1 AS celular_personal,
+         per.correo AS correo_personal,
+         per.estado_civil,
+         per.expedicion,
+         per.genero,
+         per.direccion,
+         per.fecha_nacimiento,
+         date_part('year'::TEXT, per.fecha_nacimiento) AS ano_nacimiento,
+         pxp.f_obtener_literal_periodo(date_part('month'::TEXT,
+           per.fecha_nacimiento)::INTEGER, 0) AS mes_nacimiento,
+         date_part('month'::TEXT, per.fecha_nacimiento)::INTEGER AS mes_numero,
+         uoc.uo_centro_orden,
+         tc.codigo as codigo_tipo_contrato,
+         tc.nombre as nombre_tipo_contrato,
+         uofunc.tipo as tipo_asignacion
+  FROM orga.tuo_funcionario uofunc
+       JOIN orga.tuo uo ON uo.id_uo = uofunc.id_uo
+       JOIN orga.vuo_gerencia uog ON uog.id_uo = uo.id_uo
+       JOIN orga.vuo_presu uop ON uop.id_uo = uo.id_uo
+       JOIN orga.vuo_centro uoc ON uoc.id_uo = uo.id_uo
+       JOIN orga.vfuncionario funcio ON funcio.id_funcionario =
+         uofunc.id_funcionario
+       JOIN orga.tfuncionario fun ON fun.id_funcionario = funcio.id_funcionario
+       JOIN segu.tpersona per ON per.id_persona = fun.id_persona
+       LEFT JOIN plani.tfuncionario_afp fafp ON fafp.id_funcionario =
+         fun.id_funcionario AND fafp.estado_reg::TEXT = 'activo'::TEXT
+       LEFT JOIN plani.tafp afp ON afp.id_afp = fafp.id_afp
+       LEFT JOIN orga.tcargo cargo ON cargo.id_cargo = uofunc.id_cargo
+       LEFT JOIN param.tlugar lug ON lug.id_lugar = cargo.id_lugar
+       LEFT JOIN orga.ttipo_contrato tc ON tc.id_tipo_contrato = cargo.id_tipo_contrato
+  WHERE uofunc.estado_reg::TEXT <> 'inactivo'::TEXT;
+
+
+/***********************************F-DEP-RAC-PLANI-16-01/07/2019****************************************/
+
+
+
