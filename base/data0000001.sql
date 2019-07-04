@@ -388,4 +388,15 @@ select pxp.f_insert_tgui ('Reporte Funcionario Planillas', 'Reporte Funcionario 
 
 /***********************************F-DAT-EGS-PLANI-6-04/07/2019****************************************/
 
+
+
+/***********************************I-DAT-RAC-PLANI-19-04/07/2019****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'plani_csv_imp_columna', E'CI', E'Define la columnas por la que se importan los archivos csv a planillas, CI o CODIGO,   carnet de identidad o codigo de empleado ');
+ 
+/***********************************F-DAT-RAC-PLANI-19-04/07/2019****************************************/ 
+  
+
   
