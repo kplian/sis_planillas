@@ -382,5 +382,21 @@ select conta.f_import_ttipo_relacion_contable ('insert','CCCLMCTA','TTIP','Centr
 select pxp.f_insert_tgui ('Filtro Cbte', 'Filtro Cbte', 'FOE', 'si', 7, 'sis_planillas/vista/filtro_cbte/FiltroCbte.php', 2, '', 'FiltroCbte', 'PLANI');
 /***********************************F-DAT-MMA-PLANI-6-06/06/2019****************************************/
 
+/***********************************I-DAT-EGS-PLANI-1-04/07/2019****************************************/
+
+select pxp.f_insert_tgui ('Reporte Funcionario Planillas', 'Reporte Funcionario Planillas', 'REPFUN', 'si', 10, 'sis_planillas/vista/reporte_funcionario/FuncionarioPlanillaReporte.php', 3, '', 'FuncionarioPlanillaReporte', 'PLANI');
+
+/***********************************F-DAT-EGS-PLANI-6-04/07/2019****************************************/
+
+
+
+/***********************************I-DAT-RAC-PLANI-19-04/07/2019****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'plani_csv_imp_columna', E'CI', E'Define la columnas por la que se importan los archivos csv a planillas, CI o CODIGO,   carnet de identidad o codigo de empleado ');
+ 
+/***********************************F-DAT-RAC-PLANI-19-04/07/2019****************************************/ 
+  
 
   
