@@ -61,7 +61,7 @@ BEGIN
     from plani.tparametro_valor tp
     where tp.codigo = 'HORLAB' and tp.fecha_fin is null;
 
-    select th.horas_normales
+    select sum(th.horas_normales)  --#18 aumenta el sum para considerar si el empleado cambio de cargo durante el mes
     into v_horas_normales
     from plani.thoras_trabajadas th
     where th.id_funcionario_planilla = p_id_funcionario_planilla;
@@ -84,6 +84,7 @@ BEGIN
         else
              v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
         end if;
+      
     
     ELSE 
         --  Si el cambio de categoria se produce en mes, se calulo parte del bono con la categoria previa y los dias restantes con la nueva
@@ -134,6 +135,8 @@ BEGIN
             else
               v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
             end if;
+            
+            -- raise notice 'horas normales % ,  minimo %  , por % ', v_horas_normales, v_salario_minimo, v_porcentaje ;
         
         END IF;
     
