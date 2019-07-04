@@ -27,7 +27,7 @@ $body$
  #0               27/01/2014        GUY BOA             Creacion 
  #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias
  #2               13-05-2019        Rarteaga            incapidad temporal  
- 
+ #18              03-07-2019        Rarteaga            restructuracion de codigo
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -243,30 +243,41 @@ $body$
     --Prorrateo de Antiguedad
     ELSIF (p_codigo = 'BONOANTG') THEN --#XX   cambio de codigo 
 
-      select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
-      into v_id_uo_funcionario, v_id_funcionario,v_fecha_ini
-      from plani.tfuncionario_planilla fp
-        inner join orga.tuo_funcionario uf on uf.id_uo_funcionario = fp.id_uo_funcionario
-      where fp.id_funcionario_planilla = p_id_funcionario_planilla;
+        select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
+        into v_id_uo_funcionario, v_id_funcionario, v_fecha_ini
+        from plani.tfuncionario_planilla fp
+          inner join orga.tuo_funcionario uf on uf.id_uo_funcionario = fp.id_uo_funcionario
+        where fp.id_funcionario_planilla = p_id_funcionario_planilla;
 
-      v_fecha_ini = plani.f_get_fecha_primer_contrato_empleado(v_id_uo_funcionario, v_id_funcionario, v_fecha_ini);
+        -- recupera la fecha de su primer contrato sin interupciones
+        v_fecha_ini = plani.f_get_fecha_primer_contrato_empleado(v_id_uo_funcionario, v_id_funcionario, v_fecha_ini);
 
-      v_fecha_ini_actual = date(date_part('day', v_fecha_ini)||'/'||date_part('month', v_fecha_ini)||'/'||date_part('year', p_fecha_ini));
-      --raise exception 'fi % ff %', p_fecha_ini, p_fecha_fin;
-      if v_fecha_ini_actual between p_fecha_ini and p_fecha_fin then
-        v_gestion:= (select (date_part('year', age(v_fecha_ini_actual, v_fecha_ini))));
-        v_periodo:= (select (date_part('month',age(v_fecha_ini_actual, v_fecha_ini))));
-      else
-          v_gestion:= (select (date_part('year', age(p_fecha_ini, v_fecha_ini))));
-          v_periodo:= (select (date_part('month',age(p_fecha_ini, v_fecha_ini))));
-      end if;
+        -- calcula la fecha donde se cumplira un año para la presente gestion, aniversario contractual
+        
+        v_fecha_ini_actual = date(date_part('day', v_fecha_ini)||'/'||date_part('month', v_fecha_ini)||'/'||date_part('year', p_fecha_ini));
+        
+        
+        if v_fecha_ini_actual between p_fecha_ini and p_fecha_fin then  --si en el mes de la planilla cumple un año mas de contrato
+        
+            v_gestion:= (select (date_part('year', age(v_fecha_ini_actual, v_fecha_ini))));
+            v_periodo:= (select (date_part('month',age(v_fecha_ini_actual, v_fecha_ini))));
+        
+        else  --si no cumple un año mas de contrato en el mes de la planilla
+        
+            v_gestion:= (select (date_part('year', age(p_fecha_ini, v_fecha_ini))));
+            v_periodo:= (select (date_part('month',age(p_fecha_ini, v_fecha_ini))));
+        end if;
+        
+        --si el empleado tiene registrado una antiguedad previa se suman los meses de antiguedad
+        v_periodo := v_periodo + (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
+       
+        --se convierte los meses en años y se redondeda
+        v_periodo := (select floor(v_periodo/12));
+        
+        -- total de años de antiguedad calculados
+        v_nivel_antiguedad = v_gestion + v_periodo;
 
-      v_periodo:= v_periodo + (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
-
-      v_periodo:=(select floor(v_periodo/12));
-      v_nivel_antiguedad = v_gestion + v_periodo;
-
-      v_resultado = plani.f_calcular_prorrateo_bono_antiguedad(v_nivel_antiguedad, p_id_funcionario_planilla, v_id_funcionario, v_fecha_ini_actual, p_fecha_ini, p_fecha_fin);
+        v_resultado = plani.f_calcular_prorrateo_bono_antiguedad(v_nivel_antiguedad, p_id_funcionario_planilla, v_id_funcionario, v_fecha_ini_actual, p_fecha_ini, p_fecha_fin);
 
     --Factor de Antiguedad
     ELSIF (p_codigo = 'FACTORANTICOMI') THEN
