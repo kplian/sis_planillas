@@ -88,7 +88,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//Titulos de columnas inferiores e iniciacion de los arreglos para la tabla
 		$this->ancho_sin_totales = 0;
 		$this->cantidad_columnas_estaticas = 0;
-		$this->SetMargins(5,$this->GetY()+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*5), 5);
+		$this->SetMargins(5,$this->GetY()+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*9), 5);
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
