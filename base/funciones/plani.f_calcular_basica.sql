@@ -28,6 +28,7 @@ $body$
  #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias
  #2               13-05-2019        Rarteaga            incapidad temporal  
  #18              03-07-2019        Rarteaga            restructuracion de codigo
+ #20              16-07-2019        Rarteaga            funcion basica para  obtener el factor de disponibilidad
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -182,10 +183,20 @@ $body$
       where     th.id_funcionario = v_planilla.id_funcionario 
             and th.id_periodo = v_planilla.id_periodo
             and th.estado = 'aprobado';
+            
+    --#20 calculo del factor de disponibilidad 
+    ELSIF (p_codigo = 'FACTDISP') THEN
     
-    --Dias dados por ley
+        SELECT  COALESCE(tcar.factor_disp) 
+        INTO v_resultado
+        FROM orga.tuo_funcionario uofun
+        INNER JOIN orga.tcargo car on uofun.id_cargo = car.id_cargo
+        LEFT JOIN orga.ttipo_cargo tcar ON tcar.id_tipo_cargo = car.id_tipo_cargo
+        WHERE uofun.id_uo_funcionario = v_planilla.id_uo_funcionario;
+      
     
-    ELSIF (p_codigo = 'DIALEY') THEN
+    
+    ELSIF (p_codigo = 'DIALEY') THEN  -- Dias dados por ley
       v_resultado = 0;
       if ( v_cantidad_horas_mes = plani.f_get_valor_columna_valor('HORNORM', p_id_funcionario_planilla)) then
         v_resultado = 10;
