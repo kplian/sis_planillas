@@ -23,21 +23,23 @@ $body$
  #0               17-01-2014        JRR KPLIAN       creacion
  #10              04/06/2019        RAC KPLIAN       valida si la coluna es editable o no previamente a la edicion
  #19              04/07/2019        RAC KPLIAN       Cambiar  importación de CSV para columnas variable según  código de empleado en vez de Carnet de identidad 
+ #21              17/07/2019        RAC              Reomver prefijo de codigo de  empleado al importar CSV  de manera configurable
 ***************************************************************************/
 
 DECLARE
 
-    v_nro_requerimiento        integer;
-    v_parametros               record;
-    v_id_requerimiento         integer;
-    v_resp                    varchar;
-    v_nombre_funcion        text;
-    v_mensaje_error         text;
-    v_id_columna_valor    integer;
-    v_estado_planilla        varchar;
-    v_id_funcionario_planilla    integer;
-    v_tipo_columna            record;
-    v_plani_csv_imp_columna   varchar;
+    v_nro_requerimiento            integer;
+    v_parametros                   record;
+    v_id_requerimiento             integer;
+    v_resp                         varchar;
+    v_nombre_funcion               text;
+    v_mensaje_error                text;
+    v_id_columna_valor             integer;
+    v_estado_planilla              varchar;
+    v_id_funcionario_planilla      integer;
+    v_tipo_columna                 record;
+    v_plani_csv_imp_columna        varchar; --#19
+    v_plani_csv_imp_pref_codemp    varchar; --#21
 
 BEGIN
 
@@ -177,12 +179,15 @@ BEGIN
                 on fp.id_funcionario = f.id_funcionario and fp.id_planilla =  v_parametros.id_planilla
                 where f.ci = v_parametros.ci;
             ELSE
+                --#21 recupera configuracion de prefijos de codigo de empleado
+                v_plani_csv_imp_pref_codemp = pxp.f_get_variable_global('plani_csv_imp_pref_codemp');
+               
                 select fp.id_funcionario_planilla
                 into v_id_funcionario_planilla
                 from orga.vfuncionario f
                 inner join plani.tfuncionario_planilla fp
                 on fp.id_funcionario = f.id_funcionario and fp.id_planilla =  v_parametros.id_planilla
-                where f.codigo = v_parametros.ci; -- busca por codigo empelado
+                where v_parametros.ci =  trim(both  v_plani_csv_imp_columna from  f.codigo); -- busca por codigo empelado , #21 remueve al principio y final el patron configurado en  v_plani_csv_imp_columna
             
             END IF;
 

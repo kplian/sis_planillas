@@ -399,4 +399,13 @@ VALUES
 /***********************************F-DAT-RAC-PLANI-19-04/07/2019****************************************/ 
   
 
+/***********************************I-DAT-RAC-PLANI-21-17/07/2019****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES 
+  (E'plani_csv_imp_pref_codemp', E'', E'los datos de esta configuracion se eliminan del frepijo de empleado para facilitar la introduccion de datos al importar columnas desde CSV');
+
+
+/***********************************F-DAT-RAC-PLANI-21-17/07/2019****************************************/
+
   
