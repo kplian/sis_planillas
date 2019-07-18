@@ -14,6 +14,8 @@ $body$
    
  #0               17/10/2014        JRR KPLIAN        creacion
  #10 ETR          29/05/2019        RAC KPLIAN        mejora mensaje de error
+ #21 ETR          17/07/2019        RAC KPLIAN        considerar carga horaria configurada para el funcionario en orga.tuo_funcionario
+ 
 */
 DECLARE
   v_empleados		record;
@@ -25,7 +27,6 @@ DECLARE
   v_resp		            varchar;
   v_nombre_funcion        	text;
   v_mensaje_error         	text;
-  v_cantidad_horas_mes		integer;
   v_planilla			record;
   v_filter				varchar;
   v_dia_fin				integer;
@@ -46,7 +47,6 @@ BEGIN
 
 
 
-    v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
 
     if (p_id_funcionario_planilla is not null) then
     	v_filter = ' where id_funcionario_planilla = ' || p_id_funcionario_planilla ;
@@ -80,7 +80,8 @@ BEGIN
             ofi.frontera,
             es.id_escala_salarial,
             fun.id_funcionario,
-            fun.desc_funcionario1 --#10
+            fun.desc_funcionario1, --#10
+            uofun.carga_horaria --#21
             from orga.tuo_funcionario uofun
             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -160,16 +161,19 @@ BEGIN
             if (v_dia_fin = 28 and v_mes_fin = 2 and pxp.isleapyear(v_ano_fin)= FALSE) then
             	v_horas_contrato = v_horas_contrato + 16;
             end if;
-
+            
+            --#21 calcular factor de horas contrato en funcion a carga horaria
+            v_horas_contrato = v_horas_contrato / ( 240/ v_asignacion.carga_horaria);
 
             v_horas_total = v_horas_total + v_horas_contrato;
 
-            if (v_horas_total > v_cantidad_horas_mes) then
+            if (v_horas_total > v_asignacion.carga_horaria) then  --#11
 
         		raise exception 'La cantidad de dias trabajados para el empleado % ,
                         es superior a la cantidad de dias en el periodo.
-                        Por favor revise la informacion de los contratos', v_asignacion.nombre_funcionario;
+                        Por favor revise la informacion de los contratos y la carga horaria configurada', v_asignacion.nombre_funcionario;
         	end if;
+            
             if (v_horas_contrato > 0) then
                 
                IF orga.f_get_haber_basico_a_fecha(v_asignacion.id_escala_salarial,v_planilla.fecha_ini) is null THEN

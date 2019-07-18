@@ -26,6 +26,7 @@ $body$
  #0               17/10/2014        JRR KPLIAN        Función que se encarga de verificar la integridad del comprobante para posteriormente validarlo
  #1 ETR           24/01/2019        RAC KPLIAN        quita la validacion automatiza del cbte de devengado     
  #7 ETR           25/05/2019        RAC KPLIAN        Configurar la logica para dividir el cbte de devengado en uno presupeustario y uno solo contable
+ #21 ETR          17/07/2019        RAC               Recueprar la carga horaria segun configuracion de tuo_funcionario en de usar HORLAB, para que se considere los empleados de medio tiempo
 */
 
 DECLARE
@@ -122,14 +123,19 @@ BEGIN
 
          update plani.tplanilla set
             requiere_calculo = 'no'
-        where id_planilla =  v_planilla.id_planilla;
+         where id_planilla =  v_planilla.id_planilla;
          if (v_planilla.calculo_horas = 'si') then
-            v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', v_planilla.fecha_ini)::integer;
+                
+               
 
-                for v_empleados in (select funpla.*,fun.desc_funcionario1 as nombre from plani.tfuncionario_planilla funpla
+                for v_empleados in (select funpla.*,fun.desc_funcionario1 as nombre , uofun.carga_horaria
+                                    from plani.tfuncionario_planilla funpla
                                     inner join orga.vfuncionario fun on fun.id_funcionario = funpla.id_funcionario
+                                    inner join orga.tuo_funcionario uofun ON uofun.id_uo_funcionario = funpla.id_uo_funcionario
                                     where id_planilla = v_planilla.id_planilla)loop
-
+                                   
+                    v_cantidad_horas_mes = v_empleados.carga_horaria;    --#21  recupera carga horaria de configuracion
+                                    
                     select sum(horas_normales)::integer, round(sum(sueldo / v_cantidad_horas_mes * case when horas_normales=0 then 1 else horas_normales end),2)
                     into v_suma_horas, v_suma_sueldo
                     from plani.thoras_trabajadas
