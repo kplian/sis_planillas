@@ -25,7 +25,8 @@ $body$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #0               27/01/2014        GUY BOA             Creacion 
- #18               03-07-2019        Rarteaga            Considera empleados con antiguedad superioes a 19 años
+ #18              03-07-2019        Rarteaga            Considera empleados con antiguedad superioes a 19 años
+ #21             17-07-2019         RArteaga            Considerar carga horaria configurada para el usario en vez de quemar 240
  
  *******************************************************************************/
 DECLARE
@@ -50,17 +51,22 @@ DECLARE
 
 BEGIN
 	v_nombre_funcion = 'plani.f_calcular_prorrateo_bono_antiguedad';
+    
+    --#21 adiciona carga horaria
+    select 
+       uofun.carga_horaria 
+    into 
+      v_horas_laborales
+    from  plani.tfuncionario_planilla fp 
+    inner join orga.tuo_funcionario uofun ON uofun.id_uo_funcionario = fp.id_uo_funcionario
+    where fp.id_funcionario_planilla = p_id_funcionario_planilla;
 
     select tp.valor
     into v_salario_minimo
     from plani.tparametro_valor tp
     where tp.codigo = 'SALMIN' and tp.fecha_fin is null;
 
-    select tp.valor
-    into v_horas_laborales
-    from plani.tparametro_valor tp
-    where tp.codigo = 'HORLAB' and tp.fecha_fin is null;
-
+   
     select sum(th.horas_normales)  --#18 aumenta el sum para considerar si el empleado cambio de cargo durante el mes
     into v_horas_normales
     from plani.thoras_trabajadas th
@@ -79,7 +85,7 @@ BEGIN
     
     IF p_fecha_ini = p_fecha_per_ini THEN 
     
-        if v_horas_normales = 240 then
+        if v_horas_normales = v_horas_laborales then
              v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
         else
              v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;
@@ -130,7 +136,7 @@ BEGIN
         
         ELSE
         
-            if v_horas_normales = 240 then
+            if v_horas_normales = v_horas_laborales then
               v_resultado = ((v_salario_minimo*v_porcentaje/100)*3);
             else
               v_resultado = ((v_salario_minimo*v_porcentaje/100)*3)*v_horas_normales/v_horas_laborales;

@@ -29,6 +29,7 @@ $body$
  #2               13-05-2019        Rarteaga            incapidad temporal  
  #18              03-07-2019        Rarteaga            restructuracion de codigo
  #20              16-07-2019        Rarteaga            funcion basica para  obtener el factor de disponibilidad
+ #21              17/07/2019        RArteaga            Considera carga horaira para calcula trabajadores medio tiempo
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -85,13 +86,13 @@ $body$
   BEGIN
     v_nombre_funcion = 'plani.f_calcular_basica';
     v_resultado = 0;
-    v_cantidad_horas_mes = plani.f_get_valor_parametro_valor('HORLAB', p_fecha_ini)::integer;
+   
     
 
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
       uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
       per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario,
-      p.id_periodo
+      p.id_periodo, uofun.carga_horaria --#21 adiciona carga horaria
     into v_planilla
     from plani.tplanilla p
       inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -101,8 +102,13 @@ $body$
       left join param.tperiodo per on per.id_periodo = p.id_periodo
     where fp.id_funcionario_planilla = p_id_funcionario_planilla;
     
-     --#2 calculo del tiempo efectivamente trabajado en porcentaje   
-    IF (p_codigo = 'FACTIEMPO') THEN  
+    
+     v_cantidad_horas_mes = v_planilla.carga_horaria; --#21
+    
+    
+    IF (p_codigo = 'CARHOR') THEN  --#21 recupera la carga horaria del funcionario   
+      v_resultado =  v_cantidad_horas_mes;
+    ELSIF (p_codigo = 'FACTIEMPO') THEN   --#2 calculo del tiempo efectivamente trabajado en porcentaje   
       v_resultado =  (plani.f_get_valor_columna_valor('HORNORM', p_id_funcionario_planilla)::numeric) / v_cantidad_horas_mes::numeric; 
     ELSIF (p_codigo = 'SUELDOBA') THEN
       select sum(ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
@@ -117,13 +123,13 @@ $body$
       
       v_factor_tiempo = plani.f_get_valor_columna_valor('FACTIEMPO', p_id_funcionario_planilla)::numeric; --#2 ++
     
-      select sum(ht.sueldo * (ht.horas_normales/240)) --#14  corrige calculo de sueldo basico
+      select sum(ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes)) --#14  corrige calculo de sueldo basico
       into v_auxiliar
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
       
       
-      v_costo_horas_incapcidad = (v_auxiliar/240) * ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * 8 );  --el costo por todas las hroas de incapacidad
+      v_costo_horas_incapcidad = (v_auxiliar/v_cantidad_horas_mes) * ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * (v_cantidad_horas_mes/30));  --el costo por todas las hroas de incapacidad
       
       
       v_factor_incapcidad_cubierto_empresa = 1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric;--porcentaje de incapcidad que cubre la empresa
@@ -157,7 +163,7 @@ $body$
           
       v_cantidad_horas_it = plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::integer;  --#2 replatea el calculo de horas normal , se cinluye la incapacidad temporal 
     
-      select sum(ht.horas_normales) - (v_cantidad_horas_it * 8) --#2 add v_cantidad_horas_it
+      select sum(ht.horas_normales) - (v_cantidad_horas_it * (v_cantidad_horas_mes/30)) --#2 add v_cantidad_horas_it
       into v_resultado
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
@@ -655,32 +661,7 @@ $body$
       where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
             ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
 
-      /*select sum( case when (orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
-                             and orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
-
-        (orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) -
-        (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
-                  else
-                    0
-                  end),
-        array_agg( (case when (orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
-                               and orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
-
-          (orga.f_get_haber_basico_a_fecha_v2(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) -
-          (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
-                    else
-                      0
-                    end) order by ht.id_horas_trabajadas asc) into v_resultado, v_resultado_array
-      from plani.tplanilla p
-      inner join param.tperiodo tper on tper.id_periodo = p.id_periodo
-        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
-        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
-        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-      where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
-            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and tper.periodo not in (8,9);*/
-
+     
       v_resultado = 0;
       v_i = 1;
 
@@ -1037,7 +1018,7 @@ $body$
         from plani.thoras_trabajadas tht
         where tht.id_funcionario_planilla = v_registros.id_funcionario_planilla;
 
-        if v_registros.periodo = v_periodo_aux and v_horas_normales = 240 then
+        if v_registros.periodo = v_periodo_aux and v_horas_normales = v_cantidad_horas_mes then
             v_periodo_total =  v_periodo_total + 1;
             v_periodo_aux = v_periodo_aux - 1;
             v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
@@ -1045,7 +1026,7 @@ $body$
                 exit;
             end if;
         else
-            if v_horas_normales = 240 then
+            if v_horas_normales = v_cantidad_horas_mes then
               v_periodo_total = 1;
               v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
               v_periodo_aux = v_registros.periodo - 1;
@@ -1114,7 +1095,7 @@ $body$
         from plani.tcolumna_valor cv
         where id_funcionario_planilla = v_id_funcionario_planilla_mes and cv.codigo_columna = 'BONFRONTERA' and cv.estado_reg = 'activo';
 
-        v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/240);
+        v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/v_cantidad_horas_mes);
 
         v_aux = v_aux + v_aux_2;
 
@@ -1153,7 +1134,7 @@ $body$
         where tht.id_funcionario_planilla = v_registros.id_funcionario_planilla;
 
 
-        if v_registros.periodo = v_periodo_aux and v_horas_normales = 240 then
+        if v_registros.periodo = v_periodo_aux and v_horas_normales = v_cantidad_horas_mes then
             v_periodo_total =  v_periodo_total + 1;
             v_periodo_aux = v_periodo_aux - 1;
             v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
@@ -1161,7 +1142,7 @@ $body$
                 exit;
             end if;
         else
-            if v_horas_normales = 240 then
+            if v_horas_normales = v_cantidad_horas_mes then
               v_periodo_total = 1;
               v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
               v_periodo_aux = v_registros.periodo - 1;
@@ -1232,7 +1213,7 @@ $body$
         from plani.tcolumna_valor cv
         where id_funcionario_planilla = v_id_funcionario_planilla_mes and cv.codigo_columna = 'BONFRONTERA' and cv.estado_reg = 'activo';
 
-        v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/240);
+        v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/v_cantidad_horas_mes);
 
         v_aux = v_aux + v_aux_2;
 
@@ -1269,7 +1250,7 @@ $body$
         from plani.thoras_trabajadas tht
         where tht.id_funcionario_planilla = v_registros.id_funcionario_planilla;
 
-        if v_registros.periodo = v_periodo_aux and v_horas_normales = 240 then
+        if v_registros.periodo = v_periodo_aux and v_horas_normales = v_cantidad_horas_mes then
             v_periodo_total =  v_periodo_total + 1;
             v_periodo_aux = v_periodo_aux - 1;
             v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
@@ -1277,7 +1258,7 @@ $body$
                 exit;
             end if;
         else
-            if v_horas_normales = 240 then
+            if v_horas_normales = v_cantidad_horas_mes then
               v_periodo_total = 1;
               v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
               v_periodo_aux = v_registros.periodo - 1;
@@ -1348,7 +1329,7 @@ $body$
           from plani.tcolumna_valor cv
           where id_funcionario_planilla = v_id_funcionario_planilla_mes and cv.codigo_columna = 'BONFRONTERA' and cv.estado_reg = 'activo';
 
-          v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/240);
+          v_aux_2 = (2000*v_factor_anti/100*3)*(v_hor_norm/v_cantidad_horas_mes);
 
           v_aux = v_aux + v_aux_2;
 
