@@ -5,6 +5,11 @@
 *@author  (admin)
 *@date 18-01-2014 02:56:10
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * 
+ * 
+ * ISSUE            FECHA:		      AUTOR       DESCRIPCION
+* #23  etr 	     29/07/2019			RAC 		reparar bug al cambiar de pagina , no manda el id del reporte  
+*
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -357,6 +362,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 	bsave:true,
 	onReloadPage:function(m){
 		this.maestro=m;
+		this.store.baseParams={id_reporte:this.maestro.id_reporte}; //#23 manda el id_reporte como parametro para todas las paginas
 		if (this.maestro.tipo_reporte == 'boleta') {
 			this.mostrarComponente(this.Cmp.tipo_columna);
 			this.Cmp.tipo_columna.allowBlank = false;
@@ -365,7 +371,7 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 			this.ocultarComponente(this.Cmp.tipo_columna);
 			this.Cmp.tipo_columna.allowBlank = true;
 		}
-		this.load({params:{start:0, limit:this.tam_pag,id_reporte:this.maestro.id_reporte}});
+		this.load({params:{start:0, limit:this.tam_pag}});
 		this.Cmp.codigo_columna.store.baseParams.id_tipo_planilla = this.maestro.id_tipo_planilla;			
 	},
 	loadValoresIniciales:function()
