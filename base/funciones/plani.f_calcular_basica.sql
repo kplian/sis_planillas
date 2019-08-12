@@ -30,6 +30,8 @@ $body$
  #18              03-07-2019        Rarteaga            restructuracion de codigo
  #20              16-07-2019        Rarteaga            funcion basica para  obtener el factor de disponibilidad
  #21              17/07/2019        RArteaga            Considera carga horaira para calcula trabajadores medio tiempo
+ #24              30/07/2019        Rarteaga            columna básica para calculo de reintegro por horas extra
+ #25              01/08/2019        Rarteaga            Nuevas colunas para planilla de reintegro mensual
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -81,6 +83,8 @@ $body$
     v_auxiliar              numeric;
     v_costo_horas_incapcidad  numeric;  --#2
     v_factor_incapcidad_cubierto_empresa  numeric;  --#2
+    v_reintegro_sueldoba                  numeric; --#24
+    v_bono_ant_original                   numeric; --#25
 
 
   BEGIN
@@ -90,9 +94,9 @@ $body$
     
 
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
-      uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
-      per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario,
-      p.id_periodo, uofun.carga_horaria --#21 adiciona carga horaria
+           uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
+           per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario,
+           p.id_periodo, uofun.carga_horaria --#21 adiciona carga horaria
     into v_planilla
     from plani.tplanilla p
       inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
@@ -138,8 +142,30 @@ $body$
     
       v_resultado = (v_auxiliar - v_costo_horas_incapcidad) + --sueldo segun horas efectvamente trabajadas trabajadas
                    (v_costo_horas_incapcidad * v_factor_incapcidad_cubierto_empresa);  -- el monto  que paga la empresa por incapacidad temporal
-                     
-           
+                   
+                   
+    --#25 PRMSUELDOBA  - sueldo para reintegro mensual
+    
+    ELSIF (p_codigo = 'PRMSUELDOBA') THEN  
+      
+          select 
+                sum( 
+                       (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) * (ht.horas_normales / v_cantidad_horas_mes) ) 
+                     - (ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes))
+                  ) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and  ht.estado_reg = 'activo' 
+           and p.id_periodo =  v_planilla.id_periodo
+           and p.id_gestion = v_planilla.id_gestion;               
       
     --#1  caculo de sueldo por hora 
     ELSIF (p_codigo = 'SUHORA') THEN
@@ -295,7 +321,9 @@ $body$
         v_nivel_antiguedad = v_gestion + v_periodo;
 
         v_resultado = plani.f_calcular_prorrateo_bono_antiguedad(v_nivel_antiguedad, p_id_funcionario_planilla, v_id_funcionario, v_fecha_ini_actual, p_fecha_ini, p_fecha_fin);
-
+     
+    
+    
     --Factor de Antiguedad
     ELSIF (p_codigo = 'FACTORANTICOMI') THEN
       select fp.id_uo_funcionario, fp.id_funcionario, uf.fecha_asignacion
@@ -362,18 +390,33 @@ $body$
           v_i = v_i + 1;
         end loop;
         v_resultado = 0;
+       
+      elseif (v_planilla.codigo = 'PLANRE') then  --#25 jubilado 55 recupera de las planilla mensual correpondiente
+ 
+          select cv.valor 
+          into v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+          where  fp.id_funcionario = v_planilla.id_funcionario 
+            and  tp.codigo = 'PLASUE' 
+            and p.id_gestion = v_planilla.id_gestion 
+            and p.id_periodo =  v_planilla.id_periodo
+            and cv.codigo_columna = 'JUB55' ;
+            
+           
+
       else
-
-
-        if (exists (select 1
-                    from plani.tfuncionario_afp fa
-                    where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
-                          id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
-                          (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
-          v_resultado = 0;
-        else
-          v_resultado = 1;
-        end if;
+             if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_55' AND
+                              id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
+                              (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+              v_resultado = 0;
+            else
+              v_resultado = 1;
+            end if;
       end if;
 
     --Jubilado de 55
@@ -472,48 +515,68 @@ $body$
 
     --Jubilado de 65
     ELSIF (p_codigo = 'JUB65') THEN
-      if (v_planilla.codigo = 'PLAREISU') then
-        select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
-        from plani.tplanilla p
-          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-          inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
-          inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-          inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
-          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
-        where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
-              ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB65' ;
-        v_i = 1;
-        FOR v_detalle in (    select cd.id_columna_detalle, cd.valor,cd.valor_generado
-                            from plani.tcolumna_detalle cd
-                              inner join plani.tcolumna_valor cv
-                                on cv.id_columna_valor = cd.id_columna_valor
-                              inner join plani.thoras_trabajadas ht
-                                on ht.id_horas_trabajadas = cd.id_horas_trabajadas
-                            where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
-                            order by ht.id_horas_trabajadas asc) loop
-          if (v_detalle.valor = v_detalle.valor_generado) then
+    
+    
+          if (v_planilla.codigo = 'PLAREISU') then
+            
+            select array_agg(cv.valor order by ht.id_horas_trabajadas asc) into v_resultado_array
+            from plani.tplanilla p
+              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+              inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+              inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+              inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+              inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+            where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
+                  ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion and cv.codigo_columna = 'JUB65' ;
+            v_i = 1;
+            
+            FOR v_detalle in (    select cd.id_columna_detalle, cd.valor,cd.valor_generado
+                                from plani.tcolumna_detalle cd
+                                  inner join plani.tcolumna_valor cv
+                                    on cv.id_columna_valor = cd.id_columna_valor
+                                  inner join plani.thoras_trabajadas ht
+                                    on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                                where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
+                                order by ht.id_horas_trabajadas asc) loop
+              if (v_detalle.valor = v_detalle.valor_generado) then
 
-            update plani.tcolumna_detalle set
-              valor = v_resultado_array[v_i],
-              valor_generado = v_resultado_array[v_i]
-            where id_columna_detalle = v_detalle.id_columna_detalle;
+                update plani.tcolumna_detalle set
+                  valor = v_resultado_array[v_i],
+                  valor_generado = v_resultado_array[v_i]
+                where id_columna_detalle = v_detalle.id_columna_detalle;
 
-          end if;
-          v_i = v_i + 1;
-        end loop;
-        v_resultado = 0;
-      else
+              end if;
+              v_i = v_i + 1;
+            end loop;
+            v_resultado = 0;
+           
+         elseif (v_planilla.codigo = 'PLANRE') then  -- #25 es planilla de reintegro mensual
+            
+              select  cv.valor  
+              into v_resultado
+              from plani.tplanilla p
+                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+                  inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+                  inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+              where 
+                          fp.id_funcionario = v_planilla.id_funcionario 
+                      and tp.codigo = 'PLASUE' 
+                      and p.id_gestion = v_planilla.id_gestion 
+                      and p.id_periodo =  v_planilla.id_periodo
+                      and cv.codigo_columna = 'JUB65' ;
+                
+          else
 
-        if (exists (select 1
-                    from plani.tfuncionario_afp fa
-                    where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
-                          id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
-                          (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
-          v_resultado = 0;
-        else
-          v_resultado = 1;
+            if (exists (select 1
+                        from plani.tfuncionario_afp fa
+                        where fa.estado_reg = 'activo' and fa.tipo_jubilado = 'jubilado_65' AND
+                              id_funcionario = v_planilla.id_funcionario and fa.fecha_ini <= p_fecha_ini and
+                              (fa.fecha_fin is null or fa.fecha_fin > p_fecha_ini))) then
+              v_resultado = 0;
+            else
+                v_resultado = 1;
+            end if;
         end if;
-      end if;
 
     --Factor del bono de frontera
     ELSIF (p_codigo = 'FACFRONTERA') THEN
@@ -548,19 +611,36 @@ $body$
 
       --v_id_periodo_anterior = param.f_get_id_periodo_anterior(v_planilla.id_periodo);
 
-      select     (case when per.id_periodo is not null then
-        per.fecha_fin
-               ELSE
-                 p.fecha_planilla
-               end) as fecha_plani, cv.valor into v_fecha_plani, v_resultado
+      select   (case when  per.id_periodo is not null then
+                           per.fecha_fin
+                      else
+                         p.fecha_planilla
+                       end
+                ) as fecha_plani, 
+               cv.valor 
+        into  
+             v_fecha_plani, 
+             v_resultado
       from plani.tplanilla p
-        inner join plani.tfuncionario_planilla fp
-          on p.id_planilla = fp.id_planilla and fp.id_funcionario = v_planilla.id_funcionario
+        inner join plani.tfuncionario_planilla fp on p.id_planilla = fp.id_planilla and fp.id_funcionario = v_planilla.id_funcionario
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and
-                                              cv.codigo_columna = 'SALDODEPSIGPER'
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'SALDODEPSIGPER'
         left join param.tperiodo per on per.id_periodo = p.id_periodo
-      where ((tp.codigo = 'PLASUE' and p.id_periodo is not NULL and per.fecha_fin < coalesce(v_planilla.fecha_planilla,p_fecha_fin)) or (tp.codigo = 'PLAREISU' and p.id_periodo is null and p.fecha_planilla < coalesce(v_planilla.fecha_planilla,p_fecha_fin)))
+      where 
+          ( 
+             (     
+                   tp.codigo = 'PLASUE' 
+               and p.id_periodo is not NULL 
+               and per.fecha_fin < coalesce(v_planilla.fecha_planilla,p_fecha_fin)
+             ) 
+             or 
+             (
+                  tp.codigo = 'PLAREISU' 
+               and p.id_periodo is null 
+               and p.fecha_planilla < coalesce(v_planilla.fecha_planilla,p_fecha_fin)
+             )
+          )
+             
       order by fecha_plani desc limit 1;
       
       
@@ -590,32 +670,56 @@ $body$
     --Factor del zona franca
     ELSIF (p_codigo = 'FAC_ZONAFRAN') THEN
 
-      if (v_planilla.codigo = 'PLAREISU') then
-        select sum(cv.valor),sum(1) into v_resultado, v_aux
-        from plani.tfuncionario_planilla fp
-          inner join plani.tcolumna_valor cv
-            on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'FAC_ZONAFRAN'
-          inner join plani.tplanilla p
-            on p.id_planilla = fp.id_planilla
-          inner join plani.ttipo_planilla tp
-            on p.id_tipo_planilla = tp.id_tipo_planilla
-          inner join param.tperiodo per
-            on per.id_periodo = p.id_periodo
-        where fp.id_funcionario = v_planilla.id_funcionario and tp.codigo = 'PLASUE' and
-              per.fecha_fin < v_planilla.fecha_planilla and cv.estado_reg = 'activo' and
-              p.id_gestion = v_planilla.id_gestion;
+          if (v_planilla.codigo = 'PLAREISU') then
+            
+              select sum(cv.valor),sum(1) into v_resultado, v_aux
+              from plani.tfuncionario_planilla fp
+                inner join plani.tcolumna_valor cv
+                  on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'FAC_ZONAFRAN'
+                inner join plani.tplanilla p
+                  on p.id_planilla = fp.id_planilla
+                inner join plani.ttipo_planilla tp
+                  on p.id_tipo_planilla = tp.id_tipo_planilla
+                inner join param.tperiodo per
+                  on per.id_periodo = p.id_periodo
+              where fp.id_funcionario = v_planilla.id_funcionario and tp.codigo = 'PLASUE' and
+                    per.fecha_fin < v_planilla.fecha_planilla and cv.estado_reg = 'activo' and
+                    p.id_gestion = v_planilla.id_gestion;
 
-        v_resultado = v_resultado / v_aux;
+            v_resultado = v_resultado / v_aux;
+            
+          
+          elseif (v_planilla.codigo = 'PLANRE') then  --#25 para planilla de reintegro mensual
+           
+              select 
+                  sum(cv.valor),
+                  sum(1) 
+              into 
+                  v_resultado, 
+                  v_aux
+              from plani.tfuncionario_planilla fp
+                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'FAC_ZONAFRAN'
+                inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
+                inner join plani.ttipo_planilla tp on p.id_tipo_planilla = tp.id_tipo_planilla
+                inner join param.tperiodo per on per.id_periodo = p.id_periodo
+              where    fp.id_funcionario = v_planilla.id_funcionario 
+                   and tp.codigo = 'PLASUE' 
+                   and per.fecha_fin < v_planilla.fecha_planilla 
+                   and cv.estado_reg = 'activo' 
+                   and p.id_gestion = v_planilla.id_gestion
+                   and p.id_periodo =  v_planilla.id_periodo;
 
-      else
-        select coalesce (sum(ht.porcentaje_sueldo),0)
-        into v_resultado
-        from plani.thoras_trabajadas ht
-        where ht.id_funcionario_planilla = p_id_funcionario_planilla and
-              ht.zona_franca = 'si';
+              v_resultado = v_resultado / v_aux;  
 
-        v_resultado = 1-(v_resultado/100);
-      end if;
+          else
+              select coalesce (sum(ht.porcentaje_sueldo),0)
+              into v_resultado
+              from plani.thoras_trabajadas ht
+              where ht.id_funcionario_planilla = p_id_funcionario_planilla and
+                    ht.zona_franca = 'si';
+
+              v_resultado = 1-(v_resultado/100);
+          end if;
 
     --Factor del zona franca para la planilla de prima
      --Factor del zona franca para la planilla de prima
@@ -630,62 +734,420 @@ $body$
         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
         inner join orga.toficina ofi on ofi.id_oficina = car.id_oficina
       where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario;
+    
+    
+    
+      --#25 calcular la suma de reintegro de RC-IVA para la planilla deonce se cobrara el impuesto 
+         
+      ELSIF (p_codigo = 'REI-RCIVA') THEN  
+    
+         IF  v_planilla.calcular_reintegro_rciva = 'si'  THEN  -- si la planilla esta configurada para hace el calculo del RC-IVA acumulado
+          
+          select 
+               (cval.valor) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMIMPRCIVA'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLANRE'                  
+           and p.id_gestion = v_planilla.id_gestion;
+        ELSE
+          v_resultado := 0;
+        END IF;
+           
+       
+      --#25 calculo de reintegro por horas extra para planilla de reintegro mensual  
+         
+      ELSIF (p_codigo = 'PRMEXTRA') THEN  
+    
+          --recuperar sueldo segun escala salarial
+          
+          v_reintegro_sueldoba = plani.f_get_valor_columna_valor('PRMSUELDOBA', p_id_funcionario_planilla); -- recupera el reintegro de sueldo basico
+          
+          select 
+               ( (cval.valor * v_reintegro_sueldoba) / cval_s.valor ) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'EXTRA'
+            inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and p.id_periodo =  v_planilla.id_periodo         
+           and p.id_gestion = v_planilla.id_gestion;
+     
+     --#25 calculo de reintegro por horas nocturan con regla de 2 para planilla de reintegro mensual  
+         
+      ELSIF (p_codigo = 'PRMNOCTURNO') THEN  
+    
+          --recuperar sueldo segun escala salarial
+          
+          v_reintegro_sueldoba = plani.f_get_valor_columna_valor('PRMSUELDOBA', p_id_funcionario_planilla); -- recupera el reintegro de sueldo basico
+          
+          select 
+               ( (cval.valor * v_reintegro_sueldoba) / cval_s.valor ) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'NOCTURNO'
+            inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and p.id_periodo =  v_planilla.id_periodo         
+           and p.id_gestion = v_planilla.id_gestion;
+     
+      --#25 calculo de reintegro por disponibilidad con regla de 2 para planilla de reintegro mensual  
+         
+      ELSIF (p_codigo = 'PRMDISPONIBILIDAD') THEN  
+    
+          --recuperar sueldo segun escala salarial
+          
+          v_reintegro_sueldoba = plani.f_get_valor_columna_valor('PRMSUELDOBA', p_id_funcionario_planilla); -- recupera el reintegro de sueldo basico
+          
+          select 
+               ( (cval.valor * v_reintegro_sueldoba) / cval_s.valor ) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'DISPONIBILIDAD'
+            inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and p.id_periodo =  v_planilla.id_periodo         
+           and p.id_gestion = v_planilla.id_gestion;      
+           
+    -- #25 reintegro por leactancia prenatal planila  mensual de reintegros
+    ELSIF (p_codigo = 'PRMLACPRE') THEN
+      
+      
+      v_subsidio_actual = plani.f_get_valor_parametro_valor('MONTOSUB',v_planilla.fecha_planilla);
+
+      select sum(v_subsidio_actual - cv.valor) 
+      into v_resultado
+      from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+      where    fp.id_funcionario = v_planilla.id_funcionario 
+           and cv.estado_reg = 'activo' 
+           and p.id_gestion = v_planilla.id_gestion 
+           and p.id_periodo =  v_planilla.id_periodo  
+           and cv.codigo_columna in ('SUBLAC','SUBPRE') 
+           and cv.valor < v_subsidio_actual 
+           and cv.valor > 0;
+          
+    -- #25 PRMBONFRONTERA    bono frontera para reintegro de sueldos mensual
+    
+    ELSIF (p_codigo = 'PRMBONFRONTERA') THEN
 
 
-    ELSIF (p_codigo = 'REISUELDOBA') THEN
-      v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
+      select sum( 
+                  case when orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo then
 
-
-      select sum( case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
-                             and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
-
-        (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) -
-        (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+                     (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor) -
+                     (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales * 0.2 * cv.valor)
                   else
                     0
-                  end),
-        array_agg( (case when (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
-                               and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
-
-          (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) -
-          (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
-                    else
-                      0
-                    end) order by ht.id_horas_trabajadas asc) into v_resultado, v_resultado_array
+                  end)
+         
+      into v_resultado 
       from plani.tplanilla p
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
         inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
         inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
         inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-      where fp.id_funcionario = v_planilla.id_funcionario and  tp.codigo = 'PLASUE' and
-            ht.estado_reg = 'activo' and p.id_gestion = v_planilla.id_gestion;
-
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+      where    fp.id_funcionario = v_planilla.id_funcionario 
+          and  tp.codigo = 'PLASUE' 
+          and  ht.estado_reg = 'activo' 
+          and  p.id_gestion = v_planilla.id_gestion 
+          and  p.id_periodo =  v_planilla.id_periodo  
+          and  cv.codigo_columna = 'FACFRONTERA' ;
+      
+     -- #25 PRMNATSEP,  reintegro natalidad y sepeio planilla reintegro mensual
      
-      v_resultado = 0;
-      v_i = 1;
+    ELSIF (p_codigo = 'PRMNATSEP') THEN
+    
+      v_subsidio_actual = plani.f_get_valor_parametro_valor('MONTOSUB',v_planilla.fecha_planilla);
 
-      FOR v_detalle in (    select cd.id_columna_detalle, cd.valor,cd.valor_generado
-                          from plani.tcolumna_detalle cd
-                            inner join plani.tcolumna_valor cv
-                              on cv.id_columna_valor = cd.id_columna_valor
-                            inner join plani.thoras_trabajadas ht
-                              on ht.id_horas_trabajadas = cd.id_horas_trabajadas
-                          where cv.id_columna_valor = p_id_columna_valor and cv.estado_reg = 'activo'
-                          order by ht.id_horas_trabajadas asc) loop
+      select 
+          sum(v_subsidio_actual - cv.valor) 
+      into v_resultado
+      from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+      where 
+                fp.id_funcionario = v_planilla.id_funcionario 
+            and cv.estado_reg = 'activo' 
+            and p.id_gestion = v_planilla.id_gestion 
+            and p.id_periodo =  v_planilla.id_periodo  
+            and cv.codigo_columna in ('SUBNAT','SUBSEP') 
+            and cv.valor < v_subsidio_actual 
+            and cv.valor > 0;
+            
+    -- #25 reintegro de bono de antiguedad mensual
+    ELSIF (p_codigo = 'PRMBONOANTG') THEN 
+        
+    
+        select 
+            fp.id_uo_funcionario, 
+            fp.id_funcionario, 
+            uf.fecha_asignacion
+        into 
+           v_id_uo_funcionario, 
+           v_id_funcionario, 
+           v_fecha_ini
+        from plani.tfuncionario_planilla fp
+        inner join orga.tuo_funcionario uf on uf.id_uo_funcionario = fp.id_uo_funcionario
+        where fp.id_funcionario_planilla = p_id_funcionario_planilla;
+        
+        
+        
+         -- recupera el bono de antiguedad asignado en el mes original
+        select 
+                cval.valor  
+          into
+               v_bono_ant_original
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'BONOANTG'
+        where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and p.id_periodo =  v_planilla.id_periodo         
+           and p.id_gestion = v_planilla.id_gestion;
+           
+           
+           
+        
 
-        if (v_detalle.valor = v_detalle.valor_generado) then
+        -- recupera la fecha de su primer contrato sin interupciones
+        v_fecha_ini = plani.f_get_fecha_primer_contrato_empleado(v_id_uo_funcionario, v_id_funcionario, v_fecha_ini);
 
-          update plani.tcolumna_detalle set
-            valor = coalesce(v_resultado_array[v_i], 0),
-            valor_generado = coalesce(v_resultado_array[v_i], 0)
-          where id_columna_detalle = v_detalle.id_columna_detalle;
-          v_resultado = v_resultado + v_resultado_array[v_i];
-        else
-          v_resultado = v_resultado + v_detalle.valor;
+        -- calcula la fecha donde se cumplira un año para la presente gestion, aniversario contractual
+        
+        v_fecha_ini_actual = date(date_part('day', v_fecha_ini)||'/'||date_part('month', v_fecha_ini)||'/'||date_part('year', p_fecha_ini));
+        
+        
+        if v_fecha_ini_actual between p_fecha_ini and p_fecha_fin then  --si en el mes de la planilla cumple un año mas de contrato
+        
+            v_gestion:= (select (date_part('year', age(v_fecha_ini_actual, v_fecha_ini))));
+            v_periodo:= (select (date_part('month',age(v_fecha_ini_actual, v_fecha_ini))));
+        
+        else  --si no cumple un año mas de contrato en el mes de la planilla
+        
+            v_gestion:= (select (date_part('year', age(p_fecha_ini, v_fecha_ini))));
+            v_periodo:= (select (date_part('month',age(p_fecha_ini, v_fecha_ini))));
         end if;
-        v_i = v_i + 1;
-      end loop;
+        
+        --si el empleado tiene registrado una antiguedad previa se suman los meses de antiguedad
+        v_periodo := v_periodo + (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
+       
+        --se convierte los meses en años y se redondeda
+        v_periodo := (select floor(v_periodo/12));
+        
+        -- total de años de antiguedad calculados
+        v_nivel_antiguedad = v_gestion + v_periodo;
+
+        v_resultado = plani.f_calcular_prorrateo_bono_antiguedad(v_nivel_antiguedad, p_id_funcionario_planilla, v_id_funcionario, v_fecha_ini_actual, p_fecha_ini, p_fecha_fin, 'SI',v_planilla.fecha_planilla );
+                
+        v_resultado = v_resultado - v_bono_ant_original;
+        
+        /*
+        IF v_planilla.id_funcionario  =  320 THEN
+          raise exception '%,%,% , -- % -- %', v_fecha_ini, p_fecha_ini, p_fecha_fin, v_bono_ant_original, v_resultado;
+        END IF;*/
+                
+    --#25 PRMBANT   reintegro mensual de bono de antiguedad
+    
+    ELSIF (p_codigo = 'PRMBANT') THEN
+
+     IF v_planilla.id_funcionario  =  320 THEN
+       -- raise exception '%,%,%,%', v_planilla.id_gestion, v_planilla.id_periodo, v_planilla.fecha_planilla  , v_cantidad_horas_mes;
+     END IF;
+
+      select sum(
+                  (
+                    (plani.f_get_valor_parametro_valor('SALMIN', v_planilla.fecha_planilla)*cv.valor/100*3)* (ht.horas_normales/v_cantidad_horas_mes)
+                  )
+                 -
+                  (
+                    (plani.f_get_valor_parametro_valor('SALMIN', per.fecha_fin)*cv.valor/100*3) * (ht.horas_normales / v_cantidad_horas_mes)
+                  ) 
+                ) 
+       into v_resultado 
+      from plani.tplanilla p
+        inner join param.tperiodo per on per.id_periodo = p.id_periodo
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
+      where 
+                 fp.id_funcionario = v_planilla.id_funcionario 
+            and  tp.codigo = 'PLASUE' 
+            and  cv.estado_reg = 'activo' 
+            and  p.id_gestion = v_planilla.id_gestion
+            and  p.id_periodo =  v_planilla.id_periodo   
+            and  cv.codigo_columna = 'FACTORANTI';
+            
+     -- raise exception '%', v_resultado;       
+     
+    --#25  cotizable para reintegro mensual
+    
+    ELSIF (p_codigo = 'PRMCOTIZABLE_MES') THEN
+   
+      v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
+
+      select sum(  case when ( orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo ) then
+
+                    cv.valor
+                  else
+                    0
+                  end) 
+       into v_resultado 
+      from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and
+                                              cv.codigo_columna = 'COTIZABLE' and cv.estado_reg = 'activo'
+        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+        inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+      where 
+                 fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and  ht.estado_reg = 'activo' 
+           and p.id_gestion = v_planilla.id_gestion
+           and p.id_periodo =  v_planilla.id_periodo;
+
+ 
+     
+    ELSIF (p_codigo = 'REISUELDOBA') THEN  --#24 refactorizacion
+      
+          v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
+
+
+          select 
+                array_agg(
+                            (
+                       
+                             case when (     orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo
+                                         and orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) <= v_max_retro) then
+
+                                          (orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) / v_cantidad_horas_mes * ht.horas_normales) -
+                                          (ht.sueldo / v_cantidad_horas_mes * ht.horas_normales)
+                                  else
+                                           0
+                                   end
+                            ) order by ht.id_horas_trabajadas asc
+                         ) 
+          into
+              v_resultado_array
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tuo_funcionario uofun on ht.id_uo_funcionario = uofun.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and  ht.estado_reg = 'activo' 
+           and p.id_gestion = v_planilla.id_gestion;
+
+         
+          v_resultado = 0;
+          v_i = 1;
+
+          FOR v_detalle in (  select cd.id_columna_detalle, 
+                                     cd.valor,
+                                     cd.valor_generado
+                              from plani.tcolumna_detalle cd
+                              inner join plani.tcolumna_valor cv on cv.id_columna_valor = cd.id_columna_valor
+                              inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                              where cv.id_columna_valor = p_id_columna_valor 
+                                and cv.estado_reg = 'activo'
+                              order by ht.id_horas_trabajadas asc) LOOP
+
+                if (v_detalle.valor = v_detalle.valor_generado) then
+
+                  update plani.tcolumna_detalle set
+                    valor = coalesce(v_resultado_array[v_i], 0),
+                    valor_generado = coalesce(v_resultado_array[v_i], 0)
+                  where id_columna_detalle = v_detalle.id_columna_detalle;
+                  
+                  v_resultado = v_resultado + v_resultado_array[v_i];
+                else                  
+                  v_resultado = v_resultado + v_detalle.valor;
+                end if;
+                
+                v_i = v_i + 1;
+                
+          END LOOP;
+      
+    ELSIF (p_codigo = 'REIEXTRA') THEN  --#24 calculo de reintegro por horas extra
+    
+          --recuperar sueldo segun escala salarial
+          
+          
+          v_reintegro_sueldoba = plani.f_get_valor_columna_valor('REISUELDOBA', p_id_funcionario_planilla); -- recupera el reintegro de sueldo basico
+          
+          select 
+                array_agg(
+                            ( (cval.valor * v_reintegro_sueldoba) / cval_s.valor ) order by p.id_planilla asc
+                         ) 
+          into
+              v_resultado_array
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'EXTRA'
+            inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
+            
+            
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE'          
+           and p.id_gestion = v_planilla.id_gestion;
+
+         
+          v_resultado = 0;
+          v_i = 1;
+
+          FOR v_detalle in (  select cd.id_columna_detalle, 
+                                     cd.valor,
+                                     cd.valor_generado
+                              from plani.tcolumna_detalle cd
+                              inner join plani.tcolumna_valor cv on cv.id_columna_valor = cd.id_columna_valor
+                              inner join plani.thoras_trabajadas ht on ht.id_horas_trabajadas = cd.id_horas_trabajadas
+                              where cv.id_columna_valor = p_id_columna_valor 
+                                and cv.estado_reg = 'activo'
+                              order by ht.id_horas_trabajadas asc) LOOP
+
+                if (v_detalle.valor = v_detalle.valor_generado) then
+
+                  update plani.tcolumna_detalle set
+                    valor = coalesce(v_resultado_array[v_i], 0),
+                    valor_generado = coalesce(v_resultado_array[v_i], 0)
+                  where id_columna_detalle = v_detalle.id_columna_detalle;
+                  
+                  v_resultado = v_resultado + v_resultado_array[v_i];
+                else                  
+                  v_resultado = v_resultado + v_detalle.valor;
+                end if;
+                
+                v_i = v_i + 1;
+                
+          END LOOP;
+      
+
 
     ELSIF (p_codigo = 'COTIZABLE_MES') THEN
       v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;

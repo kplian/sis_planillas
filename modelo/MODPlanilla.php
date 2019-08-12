@@ -6,9 +6,12 @@
 *@date 22-01-2014 16:11:04
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 *HISTORIAL DE MODIFICACIONES:
-*#ISSUE				FECHA				AUTOR				DESCRIPCION
-*#5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
- **/
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+
+#5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+#25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+
+ ***/
 
 class MODPlanilla extends MODbase{
 	
@@ -56,7 +59,11 @@ class MODPlanilla extends MODbase{
 		$this->captura('codigo_poa','varchar');
 		$this->captura('obs_poa','text');
 		$this->captura('dividir_comprobante','varchar');
-		$this->captura('tipo_contrato','varchar'); //5
+		$this->captura('tipo_contrato','varchar'); //#5
+		$this->captura('id_tipo_contrato','integer'); //#5
+		$this->captura('calcular_reintegro_rciva','varchar'); //#25
+		
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -350,7 +357,10 @@ class MODPlanilla extends MODbase{
 		$this->setParametro('id_depto','id_depto','integer');
 		$this->setParametro('fecha_planilla','fecha_planilla','date');
 		$this->setParametro('dividir_comprobante','dividir_comprobante','varchar');
-        $this->setParametro('id_tipo_contrato','id_tipo_contrato','int4'); // 5
+        $this->setParametro('id_tipo_contrato','id_tipo_contrato','int4'); //#5
+        $this->setParametro('calcular_reintegro_rciva','calcular_reintegro_rciva','varchar'); //#25
+        
+        
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -381,6 +391,8 @@ class MODPlanilla extends MODbase{
 		$this->setParametro('estado','estado','varchar');
 		$this->setParametro('fecha_planilla','fecha_planilla','date');
         $this->setParametro('dividir_comprobante','dividir_comprobante','varchar');
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4'); //#5
+		$this->setParametro('calcular_reintegro_rciva','calcular_reintegro_rciva','varchar'); //#25
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();

@@ -1033,3 +1033,20 @@ ALTER TABLE plani.treporte_columna
   ADD COLUMN espacio_previo INTEGER;
 /***********************************F-SCP-MZM-PLANI-8-31/05/2019****************************************/
 
+
+/***********************************I-SCP-RAC-PLANI-25-07/08/2019****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN calcular_reintegro_rciva VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tplanilla.calcular_reintegro_rciva
+IS 'si o no, incluye columnas marcacados como reintegro_rciva,  si no es no el valor por defecto es cero';
+
+
+
+/***********************************F-SCP-RAC-PLANI-25-07/08/2019****************************************/
+
+
+
