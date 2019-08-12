@@ -6,7 +6,9 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_prorrateo_bono_antiguedad (
   p_id_funcionario integer,
   p_fecha_ini date,
   p_fecha_per_ini date,
-  p_fecha_per_fin date
+  p_fecha_per_fin date,
+  p_planilla_reintegro varchar = 'NO'::character varying,
+  p_fecha_plt_reintegro date = NULL::date
 )
 RETURNS numeric AS
 $body$
@@ -26,7 +28,8 @@ $body$
    
  #0               27/01/2014        GUY BOA             Creacion 
  #18              03-07-2019        Rarteaga            Considera empleados con antiguedad superioes a 19 años
- #21             17-07-2019         RArteaga            Considerar carga horaria configurada para el usario en vez de quemar 240
+ #21              17-07-2019        RArteaga            Considerar carga horaria configurada para el usario en vez de quemar 240
+ #25              05-08-2019        RArteaga            Correcion del salario minimo para que se calcule el salario minimo a la fecha de la planilla y no el ultimo
  
  *******************************************************************************/
 DECLARE
@@ -61,12 +64,32 @@ BEGIN
     inner join orga.tuo_funcionario uofun ON uofun.id_uo_funcionario = fp.id_uo_funcionario
     where fp.id_funcionario_planilla = p_id_funcionario_planilla;
 
+    
     select tp.valor
     into v_salario_minimo
     from plani.tparametro_valor tp
-    where tp.codigo = 'SALMIN' and tp.fecha_fin is null;
-
+    where   tp.codigo = 'SALMIN' 
+         and 
+         CASE WHEN p_planilla_reintegro = 'NO' THEN
+            (     
+             ( p_fecha_per_ini BETWEEN tp.fecha_ini AND  tp.fecha_fin)       --#25
+              OR
+             (p_fecha_per_ini >= tp.fecha_ini AND   tp.fecha_fin is null)
+             )
+           ELSE  -- si es planilla de reintegro calculo con la fecha de la planilla de reintegro con el sueldo bascio
+            (     
+             ( p_fecha_plt_reintegro BETWEEN tp.fecha_ini AND  tp.fecha_fin)       --#25
+              OR
+             (p_fecha_plt_reintegro >= tp.fecha_ini AND   tp.fecha_fin is null)
+             )
+          END;
+       
+      
    
+    IF v_salario_minimo is null THEN
+       raise exception 'No se encontro un salario minimo para la fecha % ', p_fecha_per_ini; 
+    END IF;
+
     select sum(th.horas_normales)  --#18 aumenta el sum para considerar si el empleado cambio de cargo durante el mes
     into v_horas_normales
     from plani.thoras_trabajadas th

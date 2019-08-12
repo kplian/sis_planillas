@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -17,6 +19,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
   #ISSUE				FECHA				AUTOR				DESCRIPCION
    #13					7-6-2019			MMV ETR				Incluir campos tipo_contrato y dividir_comprobante
+   #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
  ***************************************************************************/
 
 
@@ -110,7 +113,9 @@ $body$
                         plani.codigo_poa,
                         plani.obs_poa,
                         plani.dividir_comprobante, --#13
-                        tc.nombre as tipo_contrato --#13
+                        tc.nombre as tipo_contrato ,--#13
+                        plani.id_tipo_contrato,
+                        plani.calcular_reintegro_rciva
 						from plani.tplanilla plani
 						inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod

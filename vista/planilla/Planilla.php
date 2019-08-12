@@ -7,7 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  *HISTORIAL DE MODIFICACIONES:
  *#ISSUE				FECHA				AUTOR				DESCRIPCION
- *#5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+ #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+ #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -403,6 +404,29 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 grid:true,
                 form:true
           },
+          
+         //#25 calcular_reintegro_rciva
+         {
+                config:{
+                    name: 'calcular_reintegro_rciva',
+                    fieldLabel: 'Incluir Reintegro RC-IVA',
+                    qtip: 'Procesa la columnas de reintegreo rc-iva',
+                    allowBlank: true,
+                    width: 80,
+                    gwidth: 80,
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    store:['si','no']
+                },
+                type:'ComboBox',
+                id_grupo:1,
+                filters:{pfiltro:'plani.apertura_cb',type:'string'},
+                valorInicial: 'no',
+                grid:true,
+                form:true
+          },
    	      {
 			config:{
 				name: 'observaciones',
@@ -533,7 +557,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
         {name:'dividir_comprobante', type: 'string'},
-        {name:'tipo_contrato', type: 'string'}
+        {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato'
 
 	],
 	sortInfo:{
@@ -567,7 +591,9 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.ocultarComponente(this.Cmp.id_tipo_planilla);
     	this.ocultarComponente(this.Cmp.id_uo);
     	this.ocultarComponente(this.Cmp.id_periodo);
-    	this.ocultarComponente(this.Cmp.id_gestion); 
+    	this.ocultarComponente(this.Cmp.id_gestion);
+    	this.ocultarComponente(this.Cmp.id_tipo_contrato); //#25 id_tipo_contrato  
+    	
     	Phx.vista.Planilla.superclass.onButtonEdit.call(this);
     	
     },

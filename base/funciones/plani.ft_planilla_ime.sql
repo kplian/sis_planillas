@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.ft_planilla_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -17,6 +19,7 @@ $body$
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+#25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
 ***************************************************************************/
 
 DECLARE
@@ -182,45 +185,47 @@ BEGIN
 
         	--Sentencia de la insercion
         	insert into plani.tplanilla(
-			id_periodo,
-			id_gestion,
-			id_uo,
-			id_tipo_planilla,
-			estado_reg,
-			observaciones,
-			fecha_reg,
-			id_usuario_reg,
-			id_usuario_mod,
-			fecha_mod,
-			nro_planilla,
-			id_estado_wf,
-			id_proceso_macro,
-			id_proceso_wf,
-			estado,
-			id_depto,
-			fecha_planilla,
-            dividir_comprobante,--#5
-            id_tipo_contrato --#5
+              id_periodo,
+              id_gestion,
+              id_uo,
+              id_tipo_planilla,
+              estado_reg,
+              observaciones,
+              fecha_reg,
+              id_usuario_reg,
+              id_usuario_mod,
+              fecha_mod,
+              nro_planilla,
+              id_estado_wf,
+              id_proceso_macro,
+              id_proceso_wf,
+              estado,
+              id_depto,
+              fecha_planilla,
+              dividir_comprobante,--#5
+              id_tipo_contrato, --#5
+              calcular_reintegro_rciva --#25
           	) values(
-			v_parametros.id_periodo,
-			v_parametros.id_gestion,
-			v_parametros.id_uo,
-			v_parametros.id_tipo_planilla,
-			'activo',
-			v_parametros.observaciones,
-			now(),
-			p_id_usuario,
-			null,
-			null,
-			v_num_plani,
-			v_id_estado_wf,
-			v_id_proceso_macro,
-			v_id_proceso_wf,
-			v_codigo_estado,
-			v_parametros.id_depto,
-			v_parametros.fecha_planilla,
-            v_parametros.dividir_comprobante,--#5
-            v_parametros.id_tipo_contrato --5
+              v_parametros.id_periodo,
+              v_parametros.id_gestion,
+              v_parametros.id_uo,
+              v_parametros.id_tipo_planilla,
+              'activo',
+              v_parametros.observaciones,
+              now(),
+              p_id_usuario,
+              null,
+              null,
+              v_num_plani,
+              v_id_estado_wf,
+              v_id_proceso_macro,
+              v_id_proceso_wf,
+              v_codigo_estado,
+              v_parametros.id_depto,
+              v_parametros.fecha_planilla,
+              v_parametros.dividir_comprobante,--#5
+              v_parametros.id_tipo_contrato ,--5
+              v_parametros.calcular_reintegro_rciva --#25
 			)RETURNING id_planilla into v_id_planilla;
             execute 'select ' || v_tipo_planilla.funcion_obtener_empleados || '(' || v_id_planilla || ')'
         	into v_resp;
@@ -246,11 +251,12 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update plani.tplanilla set
-			observaciones = v_parametros.observaciones,
-            dividir_comprobante = v_parametros.dividir_comprobante,
-			id_usuario_mod = p_id_usuario,
-			fecha_planilla = v_parametros.fecha_planilla,
-			fecha_mod = now()
+              observaciones = v_parametros.observaciones,
+              dividir_comprobante = v_parametros.dividir_comprobante,
+			  id_usuario_mod = p_id_usuario,
+			  fecha_planilla = v_parametros.fecha_planilla,
+			  fecha_mod = now(),
+              calcular_reintegro_rciva = v_parametros.calcular_reintegro_rciva --#25
 			where id_planilla=v_parametros.id_planilla;
 
 			--Definicion de la respuesta
