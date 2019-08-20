@@ -9,6 +9,8 @@
  *#ISSUE				FECHA				AUTOR				DESCRIPCION
  #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
  #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+ #26	   ETR				20/08/2019			kplian MMV			corrección de bug combo tipo contrato button new
+
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -592,7 +594,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.ocultarComponente(this.Cmp.id_uo);
     	this.ocultarComponente(this.Cmp.id_periodo);
     	this.ocultarComponente(this.Cmp.id_gestion);
-    	this.ocultarComponente(this.Cmp.id_tipo_contrato); //#25 id_tipo_contrato  
+        this.ocultarComponente(this.Cmp.id_tipo_contrato); //#25 id_tipo_contrato
     	
     	Phx.vista.Planilla.superclass.onButtonEdit.call(this);
     	
@@ -685,8 +687,9 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.mostrarComponente(this.Cmp.id_uo);
     	this.mostrarComponente(this.Cmp.id_periodo);
     	this.mostrarComponente(this.Cmp.id_gestion);
-    	Phx.vista.Planilla.superclass.onButtonNew.call(this);
-    	
+        this.ocultarComponente(this.Cmp.id_tipo_contrato); //#26
+        Phx.vista.Planilla.superclass.onButtonNew.call(this);
+
     },
     onButtonColumnasCsv : function() {                   
         var rec=this.sm.getSelected();
