@@ -28,8 +28,8 @@ $body$
  ISSUE            FECHA:              AUTOR                       DESCRIPCION
    
  #0               27/01/2014        Jaim Rivera Rojas(Kplian)  Creacion 
- #21               21-08-2019        Rarteaga                   Considera moenda dolares
-
+ #27               21-08-2019        Rarteaga                   Considera moenda dolares
+**********************************************************************************************
 */
 DECLARE
 	v_resp	            	varchar;
