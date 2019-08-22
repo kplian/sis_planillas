@@ -687,7 +687,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     	this.mostrarComponente(this.Cmp.id_uo);
     	this.mostrarComponente(this.Cmp.id_periodo);
     	this.mostrarComponente(this.Cmp.id_gestion);
-        this.ocultarComponente(this.Cmp.id_tipo_contrato); //#26
+        this.mostrarComponente(this.Cmp.id_tipo_contrato); //#26
         Phx.vista.Planilla.superclass.onButtonNew.call(this);
 
     },
