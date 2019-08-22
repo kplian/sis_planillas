@@ -2588,3 +2588,152 @@ FROM (
          ''::text, a.codigo_rciva::text, a.tipo_documento::text,
          a.num_documento::text]) u(nombre_col, valor_col);
 /***********************************F-DEP-MZM-PLANI-8-17/07/2019****************************************/
+
+/***********************************I-DEP-MZM-PLANI-8-21/08/2019****************************************/
+CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
+    id_funcionario,
+    id_funcionario_planilla,
+    nombre_col,
+    valor_col)
+AS
+SELECT a.id_funcionario,
+    a.id_funcionario_planilla,
+    u.nombre_col,
+    u.valor_col
+FROM (
+    SELECT fun.id_funcionario,
+            fp.id_funcionario_planilla,
+            fun.id_uo_funcionario,
+            plani.f_get_fecha_primer_contrato_empleado(fun.id_uo_funcionario,
+                fun.id_funcionario, fun.fecha_asignacion) AS fecha_ingreso,
+            tper.fecha_nacimiento,
+            fun.oficina_nombre AS oficina,
+            fun.descripcion_cargo AS cargo,
+            fun.lugar_nombre AS regional,
+            lug.codigo AS codigo_regional,
+            fun.cargo_codigo AS codigo_funcionario,
+            "substring"(fun.desc_funcionario2, 1, 58) AS nombre_funcionario,
+            13 AS nivel,
+            fun.id_cargo,
+            fp.id_planilla,
+            pl.id_periodo,
+            pl.id_gestion,
+            (
+        SELECT cv.valor
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUB'::text AND tc.codigo::text = 'SUBPRE'::text
+        ) AS subpre,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUE'::text AND (tc.codigo::text = ANY (ARRAY['SUBSEP'::text,
+            'SUBNAT'::text]))
+        ) AS subsep,
+            (
+        SELECT cv.valor
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo::text
+            = 'PLASUE'::text AND tc.codigo::text = 'SUBLAC'::text
+        ) AS sublac,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo::text
+            = ANY (ARRAY['PLASUB'::character varying::text, 'PLASUE'::character
+            varying::text])) AND (tc.codigo::text = ANY (ARRAY['SUBSEP'::text,
+            'SUBPRE'::text, 'SUBLAC'::text, 'SUBNAT'::text, 'COTIZABLE'::text]))
+        ) AS total_ganado,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo::text
+            = ANY (ARRAY['PLASUB'::character varying::text, 'PLASUE'::character
+            varying::text])) AND (tc.codigo::text = ANY (ARRAY['SUBSEP'::text,
+            'SUBPRE'::text, 'SUBLAC'::text, 'SUBNAT'::text, 'COTIZABLE'::text,
+            'AFP_APPAT'::text, 'AFP_RIEPRO'::text, 'AFP_VIVIE'::text,
+            'PREAGUI'::text, 'PREPRI'::text, 'CAJSAL'::text, 'PREVBS'::text]))
+        ) AS total_gral,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo::text
+            = ANY (ARRAY['PLASUB'::character varying::text, 'PLASUE'::character
+            varying::text])) AND (tc.codigo::text = ANY (ARRAY['SUBPRE'::text,
+            'SUBLAC'::text, 'TOT_DESC'::text]))
+        ) AS total_desc,
+            tfun.codigo_rciva,
+            tper.tipo_documento,
+            tper.num_documento
+    FROM orga.vfuncionario_cargo_lugar fun
+             JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
+             JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+                 tfun.id_funcionario AND fp.id_uo_funcionario = fun.id_uo_funcionario
+             JOIN plani.tplanilla pl ON pl.id_planilla = fp.id_planilla
+             JOIN segu.tpersona tper ON tper.id_persona = tfun.id_persona
+             JOIN param.tlugar lug ON lug.id_lugar = fun.id_lugar
+    ) a
+     CROSS JOIN LATERAL UNNEST(ARRAY['nombre_funcionario'::text,
+         'codigo_funcionario'::text, 'codigo_regional'::text, 'nivel'::text,
+         'cargo'::text, 'fecha_nacimiento'::text, 'fecha_ingreso'::text,
+         'subpre'::text, 'subsep'::text, 'sublac'::text, 'total_ganado'::text,
+         'total_gral'::text, 'total_desc'::text, 'codigo_rciva'::text,
+         'tipo_documento'::text, 'num_documento'::text],
+         ARRAY[a.nombre_funcionario, a.codigo_funcionario::text,
+         a.codigo_regional::text, a.nivel::text || ''::text, a.cargo::text,
+         a.fecha_nacimiento || ''::text, a.fecha_ingreso || ''::text,
+         round(a.subpre, 2) || ''::text, round(a.subsep, 2) || ''::text,
+         round(a.sublac, 2) || ''::text, round(a.total_ganado, 2) || ''::text,
+         round(a.total_gral, 2) || ''::text, round(a.total_desc, 2) ||
+         ''::text, a.codigo_rciva::text, a.tipo_documento::text,
+         a.num_documento::text]) u(nombre_col, valor_col);
+/***********************************F-DEP-MZM-PLANI-8-21/08/2019****************************************/         
