@@ -24,7 +24,7 @@ $body$
    #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
    					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
                     
-   #17		etr			28-06-2019			MZM             adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
+   #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
   ***************************************************************************/
 
   DECLARE
@@ -966,7 +966,13 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         --para obtener la vista con la cual hacer join en caso de requerirse
         
 		execute	'select distinct repo.multilinea, repo.vista_datos_externos, repo.num_columna_multilinea,
-        round((((repo.ancho_total-1)/repo.num_columna_multilinea)/1.5),0)::integer as ancho_col
+        
+(case when (repo.multilinea=''si'') then
+        (round((((repo.ancho_total-1)/coalesce(repo.num_columna_multilinea,1))/1.5),0)::integer)
+else  repo.ancho_total
+end
+)
+        as ancho_col
            			from plani.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
