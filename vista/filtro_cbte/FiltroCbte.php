@@ -7,6 +7,7 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #6	ETR			15-05-2019 22:18:29		MMV Kplian			Identifica los presupeusto que entran al abte de diario presupeustario para planillas, los que noesten presente iran al  cbte de diraio
+#28 ETR         22-08-2019              RAC Kplian          añade qtip para explicar la funcionalidad de la interface 
 #*/
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -37,6 +38,7 @@ Phx.vista.FiltroCbte=Ext.extend(Phx.gridInterfaz,{
             config:{
                 name: 'id_tipo_presupuesto',
                 fieldLabel: 'Tipo de Presupuesto',
+                qtip: 'identifica los presupeusto que entran al cbte de diario presupeustario para planillas, los que noe sten presente iran al  cbte de diraio ',
                 allowBlank: false,
                 emptyText:'Filtro...',
                 store : new Ext.data.JsonStore({
