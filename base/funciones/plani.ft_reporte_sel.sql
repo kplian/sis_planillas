@@ -946,7 +946,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
           v_ordenar_por = 'car.codigo';
         --28.06.2019
          elsif (v_ordenar_por = 'centro') then
-          v_ordenar_por = 'centro.uo_centro_orden, uofuncionario.orden_centro';
+          v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
         -- fin 28..06.2019 
          v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
         else
