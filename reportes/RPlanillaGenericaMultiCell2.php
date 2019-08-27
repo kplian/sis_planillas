@@ -242,7 +242,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//planilla
 		$this->ln(4);
 		$this->SetFont('','B',9);
-		$this->Cell(30,3,'TOTAL FUNCIONARIOS PLANILLA: '.$this->numeracion,'',1,'L');
+		$this->Cell(30,3,'TOTAL FUNCIONARIOS PLANILLA: '.$this->numeracion-1,'',1,'L');
 		
 		$this->subtotales($detalle_col_mod,$sum_total);			
 		
