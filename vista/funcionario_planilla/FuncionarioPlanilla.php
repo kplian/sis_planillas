@@ -5,6 +5,9 @@
 *@author  (admin)
 *@date 22-01-2014 16:11:08
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+HISTORIAL DE MODIFICACIONES:
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -61,6 +64,18 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				form:false,
                 bottom_filter : true
 		},
+        { //#29
+			config:{
+				name: 'desc_codigo',
+				fieldLabel: 'Codigo',
+				gwidth: 100
+			},
+				type:'TextField',
+				filters:{pfiltro:'funcio.codigo',type:'string'},
+				grid:true,
+				form:false,
+                bottom_filter : true
+		}, //#29
 		{
    			config:{
        		    name:'id_funcionario',
@@ -323,7 +338,8 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'nro_afp', type: 'string'},
 		{name:'banco', type: 'string'},
 		{name:'nro_cuenta', type: 'string'}	,	
-		{name:'ci', type: 'string'}	,
+		{name:'ci', type: 'string'},
+        {name:'desc_codigo', type: 'string'} //#29
 		
 	],
 	sortInfo:{

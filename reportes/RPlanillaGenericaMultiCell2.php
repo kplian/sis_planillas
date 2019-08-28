@@ -69,6 +69,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					array_push($detalle_col_mod,$value['titulo_reporte_superior'].' '.$value['titulo_reporte_inferior']);
 					array_push($detalle_col_mod,'B');
 					array_push($detalle_col_mod,'0');
+					array_push($detalle_col_mod,'R');
 				}
 			}
 			
@@ -125,7 +126,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$linea=0;
 		
 		$subtotal=array();	
-			
+		setlocale(LC_MONETARY, 'it_IT');
 		for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
 			
 			if($this->gerencia!=$this->datos_detalle[$i]['gerencia']){
@@ -158,12 +159,42 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
 				array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
-				array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+				
+				//echo $this->datos_detalle[$i]['valor_columna'].'tipo:'.gettype($this->datos_detalle[$i]['valor_columna']); exit;
+				//setlocale(LC_MONETARY, 'it_IT');
+				//echo money_format('%.2n', $this->datos_detalle[$i]['valor_columna']) ; exit;
+				//var_dump ($this->datos_detalle[$i]); exit;
+				
+				if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
+					$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
+					$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+					$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
+					$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
+					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
+				
+				 ){
+				 	
+				 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],4,',','.'));
+				 	
+				 }
+				else{
+					array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+				}
+				
+				
+				
 				array_push($detalle_col_mod,'');
 				array_push($detalle_col_mod,'0');
+				array_push($detalle_col_mod,'R');
 				if($this->datos_detalle[$i]['sumar_total']=='si') {
-					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+				    //$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+					$sum_subtotal[$columnas]=($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+					
 				}
+				
+			
+				
+				
 				$columnas++;
 			}else{
 				
@@ -172,9 +203,25 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					
 					array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
 					array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
-					array_push($detalle_col_mod,$this->datos_detalle[$i]['valor_columna']);
+					
+						if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
+							$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
+							$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+							$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
+							$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
+							$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
+						
+						 ){
+						 	
+						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	
+						 }
+						else{
+							array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+						}
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'1');
+					array_push($detalle_col_mod,'R');
 					
 					$id_funcionario=$this->datos_detalle[$i+1]['id_funcionario'];
 					
@@ -183,9 +230,24 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$id_funcionario=$this->datos_detalle[$i]['id_funcionario'];
 					array_push($detalle_col_mod, $this->datos_detalle[$i]['id_funcionario']);
 					array_push($detalle_col_mod, $this->datos_detalle[$i]['espacio_previo']);
-					array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+						if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
+						$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
+						$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+						$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
+						$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
+						$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
+					
+						 ){
+						 	
+						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	
+						 }
+						else{
+							array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+						}
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'0');
+					array_push($detalle_col_mod,'R');
 					
 					
 				}
@@ -197,9 +259,14 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				
 				if($this->datos_detalle[$i]['sumar_total']=='si') {
-					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+//					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+					$sum_subtotal[$columnas] =($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+					
 					$sum_total[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+						
 				}
+
+				
 				$columnas++;
 			
 			}
@@ -241,7 +308,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
 		//planilla
 		$this->ln(4);
-		$this->SetFont('','B',9);
+		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
 		$this->Cell(30,3,'TOTAL FUNCIONARIOS PLANILLA: '.$xxx,'',1,'L');
 		
@@ -258,23 +325,23 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
     	for ($i=0; $i< sizeof($data); $i++ ){
     		
-			if($i%5==0){
+			if($i%6==0){
 				if($id_emp!=$data[$i]){
     			break;
     		}else{
     			
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
-				array_push($result, $data_sub[$cc]);
+				array_push($result, number_format($data_sub[$cc],2,',','.'));
 				array_push($result,'B');
 				array_push($result,'0');
+				array_push($result,'R');
 				$cc++;
 	    	}
 			
+					$id_emp=$data[$i];
 			
-			$id_emp=$data[$i];
-			
-			$i=$i+4;
+			$i=$i+5;
 			}
     		
 		}
