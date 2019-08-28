@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 26-01-2014 21:35:44
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -73,7 +75,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
                 name: 'ci',
                 fieldLabel: 'CI',
                 allowBlank: true,
-                gwidth: 130
+                gwidth: 100
             },
                 type:'TextField',
                 filters:{pfiltro:'fun.ci',type:'string'},
@@ -81,7 +83,19 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
                 grid:true,
                 form:false,
                 bottom_filter : true
-        },  
+        },
+        { //#29
+            config:{
+                name: 'desc_codigo',
+                fieldLabel: 'Codigo',
+                gwidth: 100
+            },
+            type:'TextField',
+            filters:{pfiltro:'fun.codigo',type:'string'},
+            grid:true,
+            form:false,
+            bottom_filter : true
+        }, //#29
 		{
 			config:{
 				name: 'desc_funcionario',
@@ -313,6 +327,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_mod', type: 'string'},
 		{name:'desc_funcionario', type: 'string'},
 		{name:'ci', type: 'string'},
+        {name:'desc_codigo', type: 'string'} // #29
 		
 	],
 	sortInfo:{

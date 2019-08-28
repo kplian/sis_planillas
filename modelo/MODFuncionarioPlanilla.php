@@ -5,7 +5,10 @@
 *@author  (admin)
 *@date 22-01-2014 16:11:08
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+HISTORIAL DE MODIFICACIONES:
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
+ */
 
 class MODFuncionarioPlanilla extends MODbase{
 	
@@ -42,9 +45,10 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->captura('nro_cuenta','varchar');	
 		$this->captura('ci','varchar');	
 		$this->captura('desc_cargo','varchar');	
-		$this->captura('tipo_contrato','varchar');		
-		
-		//Ejecuta la instruccion
+		$this->captura('tipo_contrato','varchar');
+        $this->captura('desc_codigo','varchar');  //#29
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		

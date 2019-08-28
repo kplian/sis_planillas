@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 26-01-2014 21:35:44
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
+ */
 
 class MODHorasTrabajadas extends MODbase{
 	
@@ -40,6 +42,7 @@ class MODHorasTrabajadas extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('desc_funcionario','text');
         $this->captura('ci','varchar');
+        $this->captura('desc_codigo','varchar'); // #29
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

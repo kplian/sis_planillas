@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -22,10 +20,12 @@ $body$
  AUTOR:
  FECHA:
      HISTORIAL DE MODIFICACIONES:
-       
+
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
-   
- #51            18/07/2019        RAC       bug en ordenacion , se agrgan alias 
+
+ #51            18/07/2019        RAC       bug en ordenacion , se agrgan alias
+ #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
+
 ***************************************************************************/
 
 DECLARE
@@ -76,7 +76,8 @@ BEGIN
                         fcb.nro_cuenta,
                         funcio.ci,
                         (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
-                        funplan.tipo_contrato
+                        funplan.tipo_contrato,
+                        funcio.codigo as desc_codigo  --#29
                         from plani.tfuncionario_planilla funplan
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
@@ -95,7 +96,6 @@ BEGIN
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
             v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-            raise notice 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
 
@@ -428,3 +428,6 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
+
+ALTER FUNCTION plani.ft_funcionario_planilla_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
+  OWNER TO postgres;
