@@ -7,6 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
+#29 ETR        28/08/2019        MMV       Correccion de nombre de desc_funcionario1
+
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -98,7 +100,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
         }, //#29
 		{
 			config:{
-				name: 'desc_funcionario',
+				name: 'desc_funcionario1', // #29
 				fieldLabel: 'Funcionario',
 				allowBlank: true,
 				gwidth: 130
@@ -325,7 +327,7 @@ Phx.vista.HorasTrabajadas=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		{name:'desc_funcionario', type: 'string'},
+		{name:'desc_funcionario1', type: 'string'}, //#29
 		{name:'ci', type: 'string'},
         {name:'desc_codigo', type: 'string'} // #29
 		

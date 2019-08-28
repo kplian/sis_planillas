@@ -7,6 +7,8 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
+#29 ETR        28/08/2019        MMV       Correccion de nombre de desc_funcionario1
+
  */
 
 class MODHorasTrabajadas extends MODbase{
@@ -40,7 +42,7 @@ class MODHorasTrabajadas extends MODbase{
 		$this->captura('fecha_mod','timestamp');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		$this->captura('desc_funcionario','text');
+		$this->captura('desc_funcionario1','text'); //#29
         $this->captura('ci','varchar');
         $this->captura('desc_codigo','varchar'); // #29
 		
