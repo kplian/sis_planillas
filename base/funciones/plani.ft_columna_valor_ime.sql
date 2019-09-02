@@ -24,6 +24,7 @@ $body$
  #10              04/06/2019        RAC KPLIAN       valida si la coluna es editable o no previamente a la edicion
  #19              04/07/2019        RAC KPLIAN       Cambiar  importación de CSV para columnas variable según  código de empleado en vez de Carnet de identidad 
  #21              17/07/2019        RAC              Reomver prefijo de codigo de  empleado al importar CSV  de manera configurable
+ #31              02/09/2019        RAC              coregir bug con nombre de variable al procesar importancion por codigo v_plani_csv_imp_pref_codemp
 ***************************************************************************/
 
 DECLARE
@@ -178,6 +179,8 @@ BEGIN
                 inner join plani.tfuncionario_planilla fp
                 on fp.id_funcionario = f.id_funcionario and fp.id_planilla =  v_parametros.id_planilla
                 where f.ci = v_parametros.ci;
+            
+                          
             ELSE
                 --#21 recupera configuracion de prefijos de codigo de empleado
                 v_plani_csv_imp_pref_codemp = pxp.f_get_variable_global('plani_csv_imp_pref_codemp');
@@ -187,7 +190,7 @@ BEGIN
                 from orga.vfuncionario f
                 inner join plani.tfuncionario_planilla fp
                 on fp.id_funcionario = f.id_funcionario and fp.id_planilla =  v_parametros.id_planilla
-                where v_parametros.ci =  trim(both  v_plani_csv_imp_columna from  f.codigo); -- busca por codigo empelado , #21 remueve al principio y final el patron configurado en  v_plani_csv_imp_columna
+                where v_parametros.ci =  trim(both  v_plani_csv_imp_pref_codemp from  f.codigo); -- busca por codigo empelado , #21 remueve al principio y final el patron configurado en  v_plani_csv_imp_columna, #31 corrige bug en nombre de variable
             
             END IF;
 
