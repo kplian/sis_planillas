@@ -16,6 +16,7 @@ require_once(dirname(__FILE__).'/../reportes/RGeneralPlanillaXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RPresupuestoRetroactivoXls.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaMultiCell2.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaMultiCellXls.php');
+require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaMultiCellTotales.php');
 class ACTReporte extends ACTbase{
 
     function listarReporte(){
@@ -70,6 +71,10 @@ class ACTReporte extends ACTbase{
         $this->objFunc=$this->create('MODReporte');
         $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
 		
+		if($this->objParam->getParametro('totales')=='si'){
+			$this->objFunc=$this->create('MODReporte');
+			$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
+		}
 		
         //obtener titulo del reporte
         $titulo = $this->res->datos[0]['titulo_reporte'];
@@ -95,8 +100,9 @@ class ACTReporte extends ACTbase{
         $this->objParam->addParametro('orientacion',$orientacion);
         $this->objParam->addParametro('tamano',$tamano);
         $this->objParam->addParametro('titulo_archivo',$titulo);
-
-
+		
+		
+        
         if ($tipo_reporte == 'pdf') { 
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
@@ -104,12 +110,21 @@ class ACTReporte extends ACTbase{
             
             if($this->res->datos[0]['multilinea']=='si'){
             	//echo "entra por multilinea	"; exit;
-            	$this->objReporteFormato=new RPlanillaGenericaMultiCell2($this->objParam);
+            	if($this->objParam->getParametro('totales')=='si'){
+            		$this->objReporteFormato=new RPlanillaGenericaMultiCellTotales($this->objParam);
+            	}else{$this->objReporteFormato=new RPlanillaGenericaMultiCell2($this->objParam);}
+            	
             }else{// echo "NOOO es multilinea"; exit;
             	$this->objReporteFormato=new RPlanillaGenerica($this->objParam);
             }
 			
-            $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+			if($this->objParam->getParametro('totales')=='si'){
+				$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos, $this->res3->datos);
+			}else{
+				$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+			}
+			
+            
             //$this->objReporteFormato->renderDatos($this->res2->datos);
             $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
             $this->objReporteFormato->generarReporte();
@@ -243,6 +258,8 @@ class ACTReporte extends ACTbase{
             if ($this->objParam->getParametro('id_periodo') != '') {
                 $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
             }
+			
+			
 			
 		if ($this->objParam->getParametro('tipo_reporte') == 'planilla') {
             $this->reportePlanilla($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));

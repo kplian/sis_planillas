@@ -5,6 +5,7 @@
  *@author  RCM
  *@date    07/08/2013
  *@description Reporte Material Entregado/Recibido
+ * #33	etr			MZM		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -152,7 +153,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						direction: 'ASC'
 					},
 					totalProperty: 'total',
-					fields: ['id_reporte', 'titulo_reporte','tipo_reporte'],
+					fields: ['id_reporte', 'titulo_reporte','tipo_reporte','multilinea'],
 					// turn on remote sorting
 					remoteSort: true,
 					baseParams: {par_filtro: 'repo.titulo_reporte'}
@@ -227,6 +228,23 @@ header("content-type: text/javascript; charset=UTF-8");
 				type:'ComboBox',				
 				id_grupo:0,
 				grid:true
+		},
+		{
+			config:{//#33
+				name: 'totales',
+				fieldLabel: 'Totales?',
+				allowBlank:false,
+				emptyText:'Totales...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',				
+				id_grupo:0,
+				grid:true
 		}
 		],
 		title : 'Generar Reporte',
@@ -238,6 +256,8 @@ header("content-type: text/javascript; charset=UTF-8");
 		constructor : function(config) {
 			Phx.vista.GenerarReporte.superclass.constructor.call(this, config);
 			this.init();
+			
+			this.ocultarComponente(this.Cmp.totales);
 			this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
 				if (r.data.periodicidad == 'anual') {
 					this.ocultarComponente(this.Cmp.id_periodo);
@@ -265,8 +285,15 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.nombre_tipo_contrato.setValue(r.data.nombre);
 			},this);
 			
-			this.Cmp.id_reporte.on('select',function(c,r,i){
+			this.Cmp.id_reporte.on('select',function(c,r,i){ //#33
 				this.Cmp.tipo_reporte.setValue(r.data.tipo_reporte);
+				if(r.data.tipo_reporte=='planilla' && r.data.multilinea=='si' ){
+					this.mostrarComponente(this.Cmp.totales);
+					this.Cmp.totales.allowBlank = false;	
+				}else{
+					this.ocultarComponente(this.Cmp.totales);
+					this.Cmp.totales.setValue('no');
+				}
 			},this);			
 			
 			

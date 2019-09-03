@@ -1050,3 +1050,14 @@ IS 'si o no, incluye columnas marcacados como reintegro_rciva,  si no es no el v
 
 
 
+/***********************************I-SCP-MZM-PLANI-32-02/09/2019****************************************/
+ALTER TABLE plani.treporte
+  ADD COLUMN id_pie_firma INTEGER;
+  
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT fk_treporte__id_pie_firma FOREIGN KEY (id_pie_firma)
+    REFERENCES param.tpie_firma(id_pie_firma)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE;
+/***********************************F-SCP-MZM-PLANI-32-02/09/2019****************************************/    

@@ -7,6 +7,7 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 issue 	empresa		autor	fecha	detalle
  *17	etr			MZM		28.06.2019	Adicion de opcion centro en combo ordenar_por
+ * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -422,6 +423,49 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'repo.num_columna_multilinea',type:'numeric'},
 				grid:true,
 				form:true
+		},
+		{//#32
+			config: {
+				name: 'id_pie_firma',
+				fieldLabel: 'Pie de Firmas',
+				allowBlank: true,
+				emptyText: 'Elija una opción...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_parametros/control/PieFirma/listarPieFirma',
+					id: 'id_pie_firma',
+					root: 'datos',
+					sortInfo: {
+						field: 'pie.nombre',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_pie_firma', 'nombre'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'pie.nombre'}
+				}),
+				valueField: 'id_pie_firma',
+				displayField: 'nombre',
+				gdisplayField: 'nombre',
+				hiddenName: 'nombre',
+				forceSelection: false,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				anchor: '100%',
+				gwidth: 200,
+				minChars: 2,
+				renderer : function(value, p, record) {
+					return String.format('{0}', record.data['nombre']);
+				}
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {pfiltro: 'tpie_firma.nombre',type: 'string'},
+			grid: true,
+			form: true
 		}
 	],
 	tam_pag:50,	
@@ -455,7 +499,10 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'tipo_reporte', type: 'string'},
 		{name:'multilinea', type: 'string'},
 		{name:'vista_datos_externos', type: 'string'},
-		{name:'num_columna_multilinea', type: 'numeric'}
+		{name:'num_columna_multilinea', type: 'numeric'},
+		//#32
+		{name:'id_pie_firma', type: 'numeric'},
+		{name:'nombre', type: 'varchar'}
 		
 	],
 	sortInfo:{

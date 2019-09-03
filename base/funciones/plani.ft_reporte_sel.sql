@@ -25,6 +25,7 @@ $body$
    					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
                     
    #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
+   #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
   ***************************************************************************/
 
   DECLARE
@@ -98,9 +99,13 @@ $body$
                         repo.multilinea,
                         repo.vista_datos_externos,
                         repo.num_columna_multilinea
+                        --#32 - 31.08.2019
+                        ,repo.id_pie_firma,
+                        pie.nombre as nombre_pie_firma
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repo.id_usuario_mod
+                        left join param.tpie_firma pie on pie.id_pie_firma=repo.id_pie_firma
 				        where  ';
 
         --Definicion de la respuesta
@@ -936,6 +941,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_ordenar_por;
                     
+		                   
+                    
+                    
         v_consulta_orden:=' uo.id_uo,
                             uo.nombre_unidad,';
         if (v_ordenar_por = 'nombre')then
@@ -945,15 +953,17 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         elsif (v_ordenar_por = 'codigo_cargo') then
           v_ordenar_por = 'car.codigo';
         --28.06.2019
-         elsif (v_ordenar_por = 'centro') then
-          v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
-        -- fin 28..06.2019 
-         v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
+         elsif (v_ordenar_por = 'centro') then 
+            
+	             v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
+                 -- fin 28..06.2019 
+         		v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
+	      
         else
           v_ordenar_por = 'fun.codigo';
         end if;
 
-		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then
+		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
           if(length(v_parametros.tipo_contrato)>0) then
         	v_tipo_contrato = 'tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
           else
@@ -1006,50 +1016,69 @@ end
         end if;
         
 
-        --round(ancho_total_hoja-1/num_columnas,2)
+		
 
-        --Sentencia de la consulta
-        v_consulta:='select
-                            fun.id_funcionario,
-                            substring(fun.desc_funcionario2 from 1 for 38),
-                            cat.descripcion::varchar,
-                            car.codigo,
-                            fun.ci,'||v_consulta_orden||'
-                            repcol.sumar_total,
-                            repcol.ancho_columna,
-                            repcol.titulo_reporte_superior,
-                            repcol.titulo_reporte_inferior,
-                            '||v_columnas_externas||'
-                            ,tcon.nombre,repcol.espacio_previo
+            --Sentencia de la consulta
+            v_consulta:='select
+                                fun.id_funcionario,
+                                substring(fun.desc_funcionario2 from 1 for 38),
+                                cat.descripcion::varchar,
+                                car.codigo,
+                                fun.ci,'||v_consulta_orden||'
+                                repcol.sumar_total,
+                                repcol.ancho_columna,
+                                repcol.titulo_reporte_superior,
+                                repcol.titulo_reporte_inferior,
+                                '||v_columnas_externas||'
+                                ,tcon.nombre,repcol.espacio_previo
+                                
+                            from plani.tfuncionario_planilla fp
+                            inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
+                            inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+                            inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
+                            left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                            and
+                            repcol.codigo_columna = colval.codigo_columna
                             
-						from plani.tfuncionario_planilla fp
-                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
-						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
-                        inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
-                        left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
-                         and
-                        repcol.codigo_columna = colval.codigo_columna
-                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
-                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-                        left join orga.tcargo_presupuesto cp on car.id_cargo = cp.id_cargo and cp.id_gestion = 15
-                        left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
-                        left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
-                        inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
-                        inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
-                        inner join orga.vuo_centro centro on centro.id_uo=uofun.id_uo
-                        inner join orga.tuo uofuncionario on uofuncionario.id_uo=uofun.id_uo
+                            
+                            inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                            inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                            left join orga.tcargo_presupuesto cp on car.id_cargo = cp.id_cargo and cp.id_gestion = 15
+                            left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
+                            left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
+                            inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                            inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
+                            inner join orga.vuo_centro centro on centro.id_uo=uofun.id_uo
+                            inner join orga.tuo uofuncionario on uofuncionario.id_uo=uofun.id_uo
 
-                        inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
-                        '||v_consulta_externa||' where '||v_tipo_contrato;
+                            inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
+                            '||v_consulta_externa||' where '||v_tipo_contrato;
 
-        --Definicion de la respuesta
-        v_consulta:=v_consulta||v_parametros.filtro;
-        v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
-		raise notice 'v_consulta: %', v_consulta;
-        --Devuelve la respuesta
-        return v_consulta;
-
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
+            raise notice 'v_consulta: %', v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
+       
       end;
+      
+      elsif (p_transaccion='PLA_FIRREP_SEL')then
+         --para obtener la columna de ordenacion para el reporte #32
+         begin
+              
+               v_consulta:='select car.nombre, fc.desc_funcionario1,per.abreviatura_titulo from plani.treporte repo
+                                inner join plani.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
+                                inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
+                                inner join orga.tcargo car on car.id_cargo=piedet.id_cargo
+                                inner join orga.vfuncionario_cargo fc on fc.id_cargo=piedet.id_cargo
+                                inner join orga.tfuncionario fun on fun.id_funcionario=fc.id_funcionario
+		                        inner join segu.tpersona per on per.id_persona=fun.id_persona
+                                where ';
+               v_consulta:=v_consulta||v_parametros.filtro;  
+               v_consulta:=v_consulta||' order by piedet.orden '  ;             
+               return v_consulta;                
+          end;    
     else
 
       raise exception 'Transaccion inexistente';

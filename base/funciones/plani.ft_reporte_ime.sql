@@ -21,7 +21,7 @@ $body$
  FECHA:		
  #ISSUE				FECHA				AUTOR				DESCRIPCION
  #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinealas operaciones basicas (inserciones, modificaciones, eliminaciones) de la tabla 'plani.treporte',en procedimiento REPODET_SEL	
-   
+ #32	ETR			02.09.2019			MZM				Adicion de relacion id_pie_firma 
 ***************************************************************************/
 
 DECLARE
@@ -72,6 +72,8 @@ BEGIN
             multilinea,
             vista_datos_externos,
             num_columna_multilinea
+            --#32 - 31.08.2019
+            ,id_pie_firma
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.numerar,
@@ -95,6 +97,8 @@ BEGIN
 			v_parametros.multilinea,
             v_parametros.vista_datos_externos,
             v_parametros.num_columna_multilinea				
+            --#32 - 31.08.2019
+            ,v_parametros.id_pie_firma
 			)RETURNING id_reporte into v_id_reporte;
 			
 			v_resp = plani.f_reporte_calcular_ancho_utilizado(v_id_reporte);
@@ -138,7 +142,8 @@ BEGIN
             multilinea=v_parametros.multilinea,
             vista_datos_externos=v_parametros.vista_datos_externos,
             num_columna_multilinea=v_parametros.num_columna_multilinea
-            
+            --#32 - 31.08.2019
+            ,id_pie_firma=v_parametros.id_pie_firma
 			where id_reporte=v_parametros.id_reporte;
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte);   
 			--Definicion de la respuesta

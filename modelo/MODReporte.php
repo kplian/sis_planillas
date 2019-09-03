@@ -5,7 +5,8 @@
 *@author  (admin)
 *@date 17-01-2014 22:07:28
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
+**/
 
 class MODReporte extends MODbase{
 	
@@ -45,9 +46,13 @@ class MODReporte extends MODbase{
 		$this->captura('multilinea','varchar');
 		$this->captura('vista_datos_externos','varchar');
 		$this->captura('num_columna_multilinea','integer');
+		//#32 - 30.08.2019
+		$this->captura('id_pie_reporte','integer');
+		$this->captura('nombre','varchar');
+		
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta();
+		$this->armarConsulta(); 
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -79,6 +84,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('multilinea','multilinea','varchar');
 		$this->setParametro('vista_datos_externos','vista_datos_externos','varchar');
 		$this->setParametro('num_columna_multilinea','num_columna_multilinea','integer');
+		//#32 - 31.08.2019
+		$this->setParametro('id_pie_firma','id_pie_firma','integer');
+		
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -114,7 +122,8 @@ class MODReporte extends MODbase{
 		$this->setParametro('multilinea','multilinea','varchar');
 		$this->setParametro('vista_datos_externos','vista_datos_externos','varchar');
 		$this->setParametro('num_columna_multilinea','num_columna_multilinea','integer');
-
+		//#32 - 31.08.2019
+		$this->setParametro('id_pie_firma','id_pie_firma','integer');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -173,6 +182,8 @@ class MODReporte extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		// echo "****".$this->getConsulta(); exit;
+	
+		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -262,7 +273,7 @@ class MODReporte extends MODbase{
 		
 		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
 		$this->setParametro('id_uo','id_uo','integer');
-		
+		$this->setParametro('totales','totales','varchar');
 		
 			
 		//Datos del empleado
@@ -286,12 +297,13 @@ class MODReporte extends MODbase{
 		$this->captura('valor_columna','varchar');			
 		$this->captura('nombre','varchar');
 		$this->captura('espacio_previo','integer');
-		
-		
+				
 		
 
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); 
+		
+		//echo "****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -498,6 +510,31 @@ function listarReporteDetalleMultiCell(){
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+//#32 - 31.08.2019
+
+	function listarFirmasReporte(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_reporte_sel';
+		$this->transaccion='PLA_FIRREP_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
 			
+		//Datos del empleado
+		$this->captura('nombre_cargo_firma','varchar');
+		$this->captura('nombre_empleado_firma','text');
+		$this->captura('abreviatura_titulo','varchar');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta(); 
+		
+		//echo "****".$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 }
 ?>
