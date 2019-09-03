@@ -19,7 +19,7 @@ $body$
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
-#25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+#34 ETR             03/09/2019          RAC                 nro de tramite de planillas que sea el nro de planilla        
 ***************************************************************************/
 
 DECLARE
@@ -98,7 +98,7 @@ BEGIN
             select * into v_tipo_planilla
             from plani.ttipo_planilla
             where id_tipo_planilla = v_parametros.id_tipo_planilla;
-
+      
         	if (v_id_uos is not null) then
         		if (v_parametros.id_uo is null) then
         			raise exception 'El departamento de RRHH seleccionado no tiene permisos para
@@ -181,51 +181,50 @@ BEGIN
              NULL,
              NULL,
              'Planilla '||v_num_plani,
-             v_num_plani);
+             v_num_plani,
+             v_num_plani); --#34 nro _tramite custo toma el nro de la planilla
 
         	--Sentencia de la insercion
         	insert into plani.tplanilla(
-              id_periodo,
-              id_gestion,
-              id_uo,
-              id_tipo_planilla,
-              estado_reg,
-              observaciones,
-              fecha_reg,
-              id_usuario_reg,
-              id_usuario_mod,
-              fecha_mod,
-              nro_planilla,
-              id_estado_wf,
-              id_proceso_macro,
-              id_proceso_wf,
-              estado,
-              id_depto,
-              fecha_planilla,
-              dividir_comprobante,--#5
-              id_tipo_contrato, --#5
-              calcular_reintegro_rciva --#25
+			id_periodo,
+			id_gestion,
+			id_uo,
+			id_tipo_planilla,
+			estado_reg,
+			observaciones,
+			fecha_reg,
+			id_usuario_reg,
+			id_usuario_mod,
+			fecha_mod,
+			nro_planilla,
+			id_estado_wf,
+			id_proceso_macro,
+			id_proceso_wf,
+			estado,
+			id_depto,
+			fecha_planilla,
+            dividir_comprobante,
+            id_tipo_contrato --#5
           	) values(
-              v_parametros.id_periodo,
-              v_parametros.id_gestion,
-              v_parametros.id_uo,
-              v_parametros.id_tipo_planilla,
-              'activo',
-              v_parametros.observaciones,
-              now(),
-              p_id_usuario,
-              null,
-              null,
-              v_num_plani,
-              v_id_estado_wf,
-              v_id_proceso_macro,
-              v_id_proceso_wf,
-              v_codigo_estado,
-              v_parametros.id_depto,
-              v_parametros.fecha_planilla,
-              v_parametros.dividir_comprobante,--#5
-              v_parametros.id_tipo_contrato ,--5
-              v_parametros.calcular_reintegro_rciva --#25
+			v_parametros.id_periodo,
+			v_parametros.id_gestion,
+			v_parametros.id_uo,
+			v_parametros.id_tipo_planilla,
+			'activo',
+			v_parametros.observaciones,
+			now(),
+			p_id_usuario,
+			null,
+			null,
+			v_num_plani,
+			v_id_estado_wf,
+			v_id_proceso_macro,
+			v_id_proceso_wf,
+			v_codigo_estado,
+			v_parametros.id_depto,
+			v_parametros.fecha_planilla,
+            v_parametros.dividir_comprobante,
+            v_parametros.id_tipo_contrato --5
 			)RETURNING id_planilla into v_id_planilla;
             execute 'select ' || v_tipo_planilla.funcion_obtener_empleados || '(' || v_id_planilla || ')'
         	into v_resp;
@@ -251,12 +250,11 @@ BEGIN
 		begin
 			--Sentencia de la modificacion
 			update plani.tplanilla set
-              observaciones = v_parametros.observaciones,
-              dividir_comprobante = v_parametros.dividir_comprobante,
-			  id_usuario_mod = p_id_usuario,
-			  fecha_planilla = v_parametros.fecha_planilla,
-			  fecha_mod = now(),
-              calcular_reintegro_rciva = v_parametros.calcular_reintegro_rciva --#25
+			observaciones = v_parametros.observaciones,
+            dividir_comprobante = v_parametros.dividir_comprobante,
+			id_usuario_mod = p_id_usuario,
+			fecha_planilla = v_parametros.fecha_planilla,
+			fecha_mod = now()
 			where id_planilla=v_parametros.id_planilla;
 
 			--Definicion de la respuesta
