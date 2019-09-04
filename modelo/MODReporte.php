@@ -229,9 +229,12 @@ class MODReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('id_tipo_planilla','id_tipo_planilla','int4');
-		$this->setParametro('id_funcionario','id_funcionario','int4');	
+		$this->setParametro('id_funcionario_planilla','id_funcionario_planilla','int4');	
 		$this->setParametro('id_uo','id_uo','int4');
-		$this->setParametro('tipo_contrato','tipo_contrato','varchar');		
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');
+		//**************************
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
+						
 		//Datos del tipo de reporte
 		
 		$this->captura('titulo_reporte','varchar');
@@ -525,7 +528,7 @@ function listarReporteDetalleMultiCell(){
 		$this->captura('nombre_cargo_firma','varchar');
 		$this->captura('nombre_empleado_firma','text');
 		$this->captura('abreviatura_titulo','varchar');
-
+		$this->captura('orden','integer');
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		

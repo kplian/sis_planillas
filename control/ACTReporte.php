@@ -165,9 +165,15 @@ class ACTReporte extends ACTbase{
             $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
         }
 
-        //if ($this->objParam->getParametro('id_funcionario') != '') {
-        //  $this->objParam->addFiltro("planifun.id_funcionario = ". $this->objParam->getParametro('id_funcionario'));
-        //}
+        if ($this->objParam->getParametro('id_funcionario_planilla') != '') {
+          $this->objParam->addFiltro("fp.id_funcionario_planilla = ". $this->objParam->getParametro('id_funcionario_planilla'));
+        }
+        
+		if ($this->objParam->getParametro('tipo_reporte') != '') {
+          $this->objParam->addFiltro("repo.tipo_reporte = ''". $this->objParam->getParametro('tipo_reporte')."''");
+        }
+        
+        //////03.09.2019*********************
 
         if ($this->objParam->getParametro('id_gestion') != '') {
             $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
@@ -214,7 +220,7 @@ class ACTReporte extends ACTbase{
         
         
 		$filtro_previo=$this->objParam->parametros_consulta['filtro']; 
-		$this->objFunc=$this->create('MODReporte');
+		$this->objFunc=$this->create('MODReporte'); 
 		if($this->res->datos[0]['multilinea']=='si'){
 			$i=0;	
 			 $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
@@ -259,7 +265,10 @@ class ACTReporte extends ACTbase{
                 $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
             }
 			
-			
+			///////**********
+			if ($this->objParam->getParametro('id_funcionario_planilla') != '') {
+                $this->objParam->addFiltro("fp.id_funcionario_planilla= ". $this->objParam->getParametro('id_funcionario_planilla'));
+            }
 			
 		if ($this->objParam->getParametro('tipo_reporte') == 'planilla') {
             $this->reportePlanilla($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
