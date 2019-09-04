@@ -947,20 +947,24 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         v_consulta_orden:=' uo.id_uo,
                             uo.nombre_unidad,';
         if (v_ordenar_por = 'nombre')then
-          v_ordenar_por = 'fun.desc_funcionario2';
+          v_ordenar_por = 'uo.id_uo,
+                            uo.nombre_unidad,fun.desc_funcionario2';
         elsif (v_ordenar_por = 'doc_id') then
-          v_ordenar_por = 'fun.ci';
+          v_ordenar_por = 'uo.id_uo,
+                            uo.nombre_unidad,fun.ci';
         elsif (v_ordenar_por = 'codigo_cargo') then
-          v_ordenar_por = 'car.codigo';
+          v_ordenar_por = 'uo.id_uo,
+                            uo.nombre_unidad,car.codigo';
         --28.06.2019
-         elsif (v_ordenar_por = 'centro') then 
+        elsif (v_ordenar_por = 'centro') then 
             
 	             v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
                  -- fin 28..06.2019 
          		v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
 	      
         else
-          v_ordenar_por = 'fun.codigo';
+          v_ordenar_por = 'uo.id_uo,
+                            uo.nombre_unidad,fun.codigo';
         end if;
 
 		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
@@ -1056,18 +1060,18 @@ end
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
-            v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,uo.prioridad::integer, uo.id_uo,fun.id_funcionario,repcol.orden asc';
+            v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
             raise notice 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
-       
+       --uo.prioridad::integer, uo.id_uo,fun.id_funcionario,
       end;
       
       elsif (p_transaccion='PLA_FIRREP_SEL')then
          --para obtener la columna de ordenacion para el reporte #32
          begin
               
-               v_consulta:='select car.nombre, fc.desc_funcionario1,per.abreviatura_titulo from plani.treporte repo
+               v_consulta:='select distinct car.nombre, fc.desc_funcionario1,per.abreviatura_titulo,piedet.orden  from plani.treporte repo
                                 inner join plani.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
                                 inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
                                 inner join orga.tcargo car on car.id_cargo=piedet.id_cargo

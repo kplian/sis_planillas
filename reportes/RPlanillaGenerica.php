@@ -149,7 +149,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				if ($this->gerencia != $value['gerencia']) {
 					//generar subtotales
 					$this->SetFont('','B',7);
-	 				$this->Cell($this->ancho_sin_totales,3,'TOTAL GERENCIA ' . $this->gerencia . ' : ','RBT',0,'R');
+	 				$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
 					for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 						if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
@@ -160,12 +160,12 @@ class RPlanillaGenerica extends  ReportePDF {
 					}
 	 	 			
 					$this->ln(10);
-					$this->Cell($this->ancho_sin_totales,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'R');
+					$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 					//crear nueva pagina y cambiar de gerencia
 					$this->gerencia = $value['gerencia'];
 					$empleados_gerencia = 0;
 					$this->AddPage();
-				}
+				} 
 				$this->numeracion++;
 				$empleados_gerencia++;
 				$array_show = $this->iniciarArrayShow($value);
@@ -187,7 +187,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		//Añade el ultimo subtotal de la gerencia
 		//generar subtotales
 		$this->SetFont('','B',6);
-		$this->Cell($this->ancho_sin_totales,3,'TOTAL GERENCIA ' . $this->gerencia . ' : ','RBT',0,'R');
+		$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
 		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 			if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
@@ -197,7 +197,7 @@ class RPlanillaGenerica extends  ReportePDF {
 			$sum_subtotal[$i] = 0;
 		}		
 		$this->ln(10);
-		$this->Cell($this->ancho_sin_totales,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'R');
+		$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 		$this->ln(10);
 		
 		//planilla
@@ -209,7 +209,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 		}
 		$this->ln(10);
-		$this->Cell($this->ancho_sin_totales,3,'TOTAL FUNCIONARIOS PLANILLA: '.$this->numeracion,'',0,'R');
+		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL FUNCIONARIOS PLANILLA: '.$this->numeracion,'',0,'L');
 			
 	}
 	function iniciarArrayShow($detalle) {

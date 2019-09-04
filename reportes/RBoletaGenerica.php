@@ -24,6 +24,7 @@ class RBoletaGenerica extends  ReportePDF {
 	}
 	function generarReporte() { 
 		//var_dump($this->datos_titulo); exit;
+		
 		$this->setFontSubsetting(false);
 		//$this->AddPage();
 		
@@ -123,8 +124,9 @@ class RBoletaGenerica extends  ReportePDF {
 				$linea=0;
 				$detalle_col_mod=array();
 				$alineacion='R';
+				$this->AddPage();
 				$ancho_col= round((($this->ancho_hoja-1)/$this->datos_titulo['num_columna_multilinea']),2);
-				
+				 //echo sizeof($this->datos_detalle); exit;
 				for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
 					
 					$dimensions=$this->getPageDimensions();
@@ -134,11 +136,12 @@ class RBoletaGenerica extends  ReportePDF {
 					
 					if($this->datos_detalle[$i]['id_funcionario']!=$id_fun){
 						
-						 if ($this->GetY()+$x+$dimensions['bm']> $dimensions['hk']){
+						if ($this->GetY()+$x+$dimensions['bm']> $dimensions['hk']){
 						$this->AddPage();
 						
 					   }
 						//cabecera del reporte
+						$this->SetFont('','',6.5);
 						$fecha_rep = date("d/m/Y");
 						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
 						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
@@ -150,8 +153,9 @@ class RBoletaGenerica extends  ReportePDF {
 					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
 					    $this->Ln(5);
 					    $this->SetFont('','',6.5);
-					   
+					  
 					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R');
+						
 						$this->Ln(5);
 					    	
 					    $detalle_col_mod=array();
@@ -239,9 +243,6 @@ class RBoletaGenerica extends  ReportePDF {
 						
 						
 						
-						
-							
-						
 					}
 					$id_fun=$this->datos_detalle[$i]['id_funcionario'];
 					
@@ -249,12 +250,29 @@ class RBoletaGenerica extends  ReportePDF {
 					
 					
 				}
-				 	
+						$dimensions=$this->getPageDimensions();
+					   if ($this->GetY()+$x+$dimensions['bm']> $dimensions['hk']){
+						$this->AddPage();
+						
+					   }
 				 		
+				   		$this->SetFont('','',6.5);
+						$fecha_rep = date("d/m/Y");
+						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
+						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
+						
+						$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 15, $this->GetY()-15, 30, 15);
+						$this->SetFont('','B',15);
+					    $this->Cell(0,5,$this->datos_titulo['titulo_reporte'],0,1,'C');
+					    $this->SetFont('','B',10);
+					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+					    $this->Ln(5);
+					    $this->SetFont('','',6.5);
+					   
+					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R');
+						$this->Ln(5);		
 				 	
-				   //$detalle_col_mod=array();
-				  // var_dump($detalle_col_mod); exit;
-				     
+				   
 				   
 		}else{
 				if (($this->num_boleta%2) == 1) {
