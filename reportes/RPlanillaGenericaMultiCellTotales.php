@@ -290,7 +290,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		//Añade el ultimo subtotal de la gerencia
 		
 		$this->SetFont('','B',8);
-		
+		$this->ln(10);
 		//$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
 		$this->Cell(80,3,'Sub Total:' . $this->tipo_ordenacion.$this->gerencia.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
@@ -308,7 +308,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		//planilla
 		$this->gerencia='TOTAL EMPRESA';
 		$this->AddPage();
-		$this->ln(4);
+		$this->ln(10);
 		$this->SetFont('','B',8);
 		$xxx=$this->numeracion-1;
 		$this->Cell(30,3,'TOTAL FUNCIONARIOS: '.$xxx,'',1,'L');
