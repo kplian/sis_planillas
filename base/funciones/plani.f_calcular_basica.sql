@@ -32,6 +32,7 @@ $body$
  #21              17/07/2019        RArteaga            Considera carga horaira para calcula trabajadores medio tiempo
  #24              30/07/2019        Rarteaga            columna básica para calculo de reintegro por horas extra
  #25              01/08/2019        Rarteaga            Nuevas colunas para planilla de reintegro mensual
+ #35              05/09/2019        RArteaga            Funcion bascia para arastrar el cotizable de las planillas de reintegro REI-PLT
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -757,6 +758,26 @@ $body$
         ELSE
           v_resultado := 0;
         END IF;
+        
+      --#35 calcular la suma de total de reintegro pagado, en las planillas de reintegro mensual previas           
+      ELSIF (p_codigo = 'REI-PLT') THEN  
+    
+         IF  v_planilla.calcular_reintegro_rciva = 'si'  THEN  -- si la planilla esta configurada para hace el calculo del RC-IVA acumulado
+          
+          select 
+               (cval.valor) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMCOTIZABLE'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLANRE'                  
+           and p.id_gestion = v_planilla.id_gestion;
+        ELSE
+          v_resultado := 0;
+        END IF;  
            
        
       --#25 calculo de reintegro por horas extra para planilla de reintegro mensual  
