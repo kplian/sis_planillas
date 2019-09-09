@@ -33,6 +33,7 @@ $body$
  #24              30/07/2019        Rarteaga            columna básica para calculo de reintegro por horas extra
  #25              01/08/2019        Rarteaga            Nuevas colunas para planilla de reintegro mensual
  #35              05/09/2019        RArteaga            Funcion bascia para arastrar el cotizable de las planillas de reintegro REI-PLT
+ #36              09/09/2019        RArteaga            Corregir sueldomes cuando la incapacidad temporal lleva cero horas trabajadas
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -86,6 +87,7 @@ $body$
     v_factor_incapcidad_cubierto_empresa  numeric;  --#2
     v_reintegro_sueldoba                  numeric; --#24
     v_bono_ant_original                   numeric; --#25
+    v_horas_normales_ht                   integer; --#36
 
 
   BEGIN
@@ -128,14 +130,18 @@ $body$
       
       v_factor_tiempo = plani.f_get_valor_columna_valor('FACTIEMPO', p_id_funcionario_planilla)::numeric; --#2 ++
     
-      select sum(ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes)) --#14  corrige calculo de sueldo basico
-      into v_auxiliar
+      select sum(ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes)), --#14  corrige calculo de sueldo basico
+             sum(ht.horas_normales)
+      into v_auxiliar,
+           v_horas_normales_ht --#36 horas normales de hoja de tiempo
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
       
       
-      v_costo_horas_incapcidad = (v_auxiliar/v_cantidad_horas_mes) * ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * (v_cantidad_horas_mes/30));  --el costo por todas las hroas de incapacidad
-      
+      --el costo por todas las hroas de incapacidad
+      v_costo_horas_incapcidad = (v_auxiliar/v_horas_normales_ht) *   --#36 utilia la horas normales segun hoja de tiempo
+                                 ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * 
+                                 (v_cantidad_horas_mes/30));  --el costo por todas las hroas de incapacidad
       
       v_factor_incapcidad_cubierto_empresa = 1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric;--porcentaje de incapcidad que cubre la empresa
       
