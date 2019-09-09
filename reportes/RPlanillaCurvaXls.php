@@ -505,14 +505,14 @@ class RPlanillaCurvaXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(41, $fila,$value['extra'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(42, $fila,$value['hornoc'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(43, $fila,$value['nocturno'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(44, $fila,$value['suelmes'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(44, $fila,$value['sueldo_mes'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(45, $fila,$value['nombre_afp'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(46, $fila,$value['nivel_salarial_categoria'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(47, $fila,$value['basico_limite'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(48, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(49, $fila,$value['antiguedad_anterior'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(50, $fila,date_format(date_create($value['fecha_planilla']),'d/m/Y') );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(51, $fila,$value['sueldo_mes'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(51, $fila,$value['suelmes'] ); //suelmes
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(52, $fila,$value['cotizable'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(53, $fila,$value['liquido'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(54, $fila,$value['disponibilidad'] );

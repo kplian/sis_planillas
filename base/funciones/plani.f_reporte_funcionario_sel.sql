@@ -74,7 +74,7 @@ DECLARE
     v_asigcaja_it	numeric;
     v_asig		numeric;
     
-  
+   v_registros_det record;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -145,7 +145,7 @@ BEGIN
           while (v_contador< v_bandera) loop
                
               if(v_parametros.tipo_reporte='empleado_edad') then
-               v_filtro:='select rfu.nombre_uo_pre,rfu.codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
+               v_filtro:='select rfu.nombre_uo_pre,trim (both ''FUNODTPR'' from rfu.codigo) as codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
                       tt.antiguedad_ant,tt.antiguedad_anos,tt.antiguedad, rfu.genero, rfu.fecha_nacimiento, 
                       --rfu.edad
                         date_part(''year''::text,age('''||v_parametros.fecha||''', rfu.fecha_nacimiento))::integer as edad
@@ -161,7 +161,7 @@ BEGIN
                             and date_part(''year''::text,age('''||v_parametros.fecha||''', rfu.fecha_nacimiento))::integer between '|| v_contador||' and '|| v_fin|| '
                  			order by rfu.genero,rfu.fecha_nacimiento DESC, rfu.desc_funcionario2 ';
               else
-                v_filtro:=' select rfu.nombre_uo_pre,rfu.codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
+                v_filtro:=' select rfu.nombre_uo_pre,trim (both ''FUNODTPR'' from rfu.codigo) as codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
                       tt.antiguedad_ant,tt.antiguedad_anos,tt.antiguedad, rfu.genero, rfu.fecha_nacimiento, rfu.edad
                       ,rfu.nombre_cargo
                       from plani.vrep_funcionario rfu
@@ -209,21 +209,42 @@ BEGIN
         
         v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
         if(v_parametros.tipo_reporte='reserva_beneficios2') then
-           v_id_periodo_min:=(select p.id_periodo from param.tperiodo p inner join plani.tplanilla pl
-							on p.id_periodo=pl.id_periodo
-							inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
-							where p.id_periodo<v_id_periodo
-                            and pl.estado!='registro_horas'
-                    	    order by p.fecha_ini desc
-                        	limit 1 offset 1);
-        else
-	        v_id_periodo_min:=(select p.id_periodo from param.tperiodo p inner join plani.tplanilla pl
+           for v_registros in (select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
 							on p.id_periodo=pl.id_periodo
 							inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
 							where p.id_periodo<=v_id_periodo
                             and pl.estado!='registro_horas'
                     	    order by p.fecha_ini desc
-                        	limit 1 offset 2);
+                        	limit 1 offset 1) loop
+                            v_id_periodo_min:=v_registros.id_periodo;
+           end loop;
+        	v_id_periodo_min=coalesce (v_id_periodo_min,v_id_periodo);
+           
+        else
+           for v_registros in (
+                              select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
+                              on p.id_periodo=pl.id_periodo
+                              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
+                              where p.id_periodo<=v_id_periodo
+                              and pl.estado!='registro_horas'
+                              order by p.fecha_ini desc
+                              limit 1 offset 2) loop
+                              v_id_periodo_min:=v_registros.id_periodo;
+           end loop;
+           if(v_id_periodo_min is null) then 
+               for v_registros in (select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
+							on p.id_periodo=pl.id_periodo
+							inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
+							where p.id_periodo<=v_id_periodo
+                            and pl.estado!='registro_horas'
+                    	    order by p.fecha_ini desc
+                        	limit 1 offset 1) loop
+                            v_id_periodo_min:=v_registros.id_periodo;
+               end loop;
+                v_id_periodo_min=coalesce (v_id_periodo_min,v_id_periodo);
+           end if;
+           
+           
     	end if;                    
         v_tc:=(select round( param.f_get_tipo_cambio((select id_moneda from param.tmoneda where triangulacion='si' limit 1), v_parametros.fecha,'O'),2));
         v_col:='inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=plani.id_tipo_planilla 
@@ -231,11 +252,21 @@ BEGIN
 				and tcol.codigo = colval.codigo_columna';
         v_ordenar:='fun.desc_funcionario2 ';
         v_condicion:=' plani.id_periodo='||v_id_periodo||'  ';  --uo.orden_centro 0 quitar
+        
+        --03.09.2019: adicion de id_tipo_contrato
+        if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+          if(v_parametros.id_tipo_contrato>0) then
+        	v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+          end if;
+        end if;
+        -- fin 03.09.2019
+       
+        
         v_cols:='tcol.codigo,round(colval.valor,2),';
         
                 if(v_parametros.tipo_reporte='nomina_salario') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'',''HABBAS'')';
-                    v_ordenar:='uo.orden_centro,fun.desc_funcionario2,tcol.codigo desc';
+                    v_ordenar:='cen.uo_centro_orden,fun.desc_funcionario2,tcol.codigo desc';
                 elseif (v_parametros.tipo_reporte='no_sindicato' or v_parametros.tipo_reporte='aporte_sindicato') then
                 	if(v_parametros.tipo_reporte='no_sindicato') then
                     	v_col:=v_col||' and tcol.codigo in (''APSIND'') and colval.valor=0';
@@ -246,9 +277,9 @@ BEGIN
                 		v_col:=v_col||' and tcol.codigo in (''CACSELFIJO'') and colval.valor>0';
                  elseif(v_parametros.tipo_reporte='reserva_beneficios') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
-                elseif(v_parametros.tipo_reporte='reserva_beneficios3' ) then
+                elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
-					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
+					v_condicion:='  plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
                     
                 else 
                     create temp  table tt_totplan(id_funcionario integer,
@@ -297,10 +328,10 @@ BEGIN
                 
                     v_col:='inner join tt_totplan tcol on tcol.id_funcionario=fp.id_funcionario 
                     ';
-                    v_ordenar:='uo.orden_centro,fun.desc_funcionario2,tcol.codigo asc';
+                    v_ordenar:='cen.uo_centro_orden,fun.desc_funcionario2,tcol.codigo asc';
                     v_cols:='tcol.codigo, round(tcol.total,2),';
                 end if;
-				
+
         
         if(v_parametros.tipo_reporte='reserva_beneficios2') then
            create temp table tt_reserva2(
@@ -319,7 +350,7 @@ BEGIN
         	for v_registros in (select
                             fun.id_funcionario,
                             fun.desc_funcionario2,
-                            fun.codigo,
+                            trim (both 'FUNODTPR' from fun.codigo) as codigo,
                             tcol.codigo as codigo_col,
                             (case when ff.fecha_quinquenio is null then
                             (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) )
@@ -381,36 +412,50 @@ BEGIN
                  v_consulta:='select
                             fun.id_funcionario,
                             substring(fun.desc_funcionario2 from 1 for 38),
-                            fun.codigo,
+                            trim (both ''FUNODTPR'' from fun.codigo)::varchar as codigo,
                             fun.ci,
                             (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)) as fecha_ingreso,
                             '||v_cols||'
                             tcon.nombre,
                             substring(car.nombre from 1 for 50) ,
                             ger.nombre_unidad_gerencia,
-                            cen.nombre_uo_pre, 
-                            uo.orden_centro, param.f_get_periodo_literal(per.id_periodo) as periodo, ges.gestion,
+                            cen.nombre_uo_centro, 
+                            cen.uo_centro_orden, param.f_get_periodo_literal(per.id_periodo) as periodo, ges.gestion,
                             esc.codigo as nivel
                             ,ofi.nombre as distrito, pers.expedicion,'||v_tc||',
 							
                             (case when ff.fecha_quinquenio is null then
                                (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))
                              else
-                               ff.fecha_quinquenio
+                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
+                                  (ff.fecha_quinquenio -  interval ''60 month'')::date
+                               else
+                            		ff.fecha_quinquenio
+                               end
+                               )
                             end) as fecha_quinquenio
                             ,
                             
 							(case when ff.fecha_quinquenio is null then
                                date_part(''year'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)) ))::integer  
                             else
-	                            date_part(''year'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer                           
+                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
+                               		date_part(''year'' ::text, age('''||v_parametros.fecha||''', (ff.fecha_quinquenio -  interval ''60 month'')::date ))::integer                           
+                               else
+                               	 date_part(''year'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer                           
+                               end)
                             end) AS anos_quinquenio  
 
                            ,
                            (case when ff.fecha_quinquenio is null then
                               date_part(''month'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))))::integer 
                            else
-                               date_part(''month'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer 
+                           		(case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
+                                    date_part(''month'' ::text, age('''||v_parametros.fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
+                                else
+		                              date_part(''month'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer                                 
+                                end )
+
                            end) as mes_quinquenio
                            
                            
@@ -418,7 +463,11 @@ BEGIN
                            (case when ff.fecha_quinquenio is null then
                                 date_part(''day'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))))::integer 
                            else
-	                            date_part(''day'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer 
+                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
+                                      date_part(''day'' ::text, age('''||v_parametros.fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
+                                else
+		                             date_part(''day'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer 
+                                end )
                            end ) as dias_quinquenio
                            , esclim.haber_basico as basico_limite, esclim.codigo as nivel_limite
                         from plani.tfuncionario_planilla fp
@@ -441,11 +490,15 @@ BEGIN
                         inner join segu.tpersona pers on pers.id_persona=ff.id_persona
                         inner join orga.tuo uo on uo.id_uo=uofun.id_uo
                     	inner join orga.vuo_gerencia ger on ger.id_uo=uofun.id_uo
-						inner join orga.vuo_presu cen on cen.id_uo=uofun.id_uo
+						inner join orga.vuo_centro cen on cen.id_uo=uofun.id_uo
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion=per.id_gestion
-                        where '||v_condicion||'
+                        where
+                        
+                         (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))  <= '''||v_parametros.fecha||''' and
+                        
+                        '||v_condicion||'
                        
                         order by '||v_ordenar;
              raise notice 'aaa%',v_consulta;
@@ -688,7 +741,7 @@ BEGIN
             
             if (v_parametros.tipo_reporte='dependientes') then
              
-              v_consulta:='SELECT p.id_persona, p.matricula, p.historia_clinica, fun.codigo, p.fecha_nacimiento,
+              v_consulta:='SELECT p.id_persona, p.matricula, p.historia_clinica,  trim (both ''FUNODTPR'' from fun.codigo) as codigo, p.fecha_nacimiento,
               plani.f_get_fecha_primer_contrato_empleado(repf.id_uo_funcionario, repf.id_funcionario,repf.fecha_asignacion) as fecha_ingreso,
               repf.desc_funcionario2 as nombre_funcionario, pr.relacion, dep.nombre_completo1 as nombre_dep, pdep.fecha_nacimiento as fecha_nacimiento_dep, pdep.matricula as matricula_dep,pdep.historia_clinica as historia_clinica_dep
               , date_part(''year'', age(pdep.fecha_nacimiento))::integer AS edad_dep
@@ -844,7 +897,7 @@ BEGIN
             	)on commit drop;
        
        
-    		for v_registros in (select tf.id_funcionario, tf.codigo,p.ci, p.tipo_documento, p.expedicion, 
+    		for v_registros in (select tf.id_funcionario,  trim (both 'FUNODTPR' from tf.codigo) as codigo,p.ci, p.tipo_documento, p.expedicion, 
                                 fafp.nro_afp, 
                                 p.apellido_paterno, p.apellido_materno, 
                                 split_part(p.nombre,' ',1)::varchar as primer_nombre 
@@ -909,23 +962,23 @@ BEGIN
                                 order by tf.codigo
 				) loop
             
-					for v_parametros in (select tc.codigo, cv.valor from plani.tcolumna_valor cv 
+					for v_registros_det in (select tc.codigo, cv.valor from plani.tcolumna_valor cv 
                     inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
                     where cv.id_funcionario_planilla=v_registros.id_funcionario_planilla
                     and tc.codigo in ('JUB55','JUB65','MAY65','HABBAS','COTIZABLE','LIQPAG','DISPONIBILIDAD',
                     'SUBPRE','SUBNAT','SUBLAC','TOTGAN','TOT_DESC','AFP_PAT'
                     
-                    ,'BONFRONTERA','HOREXT','EXTRA','HORNOC','NOCTURNO','SUELMES',
+                    ,'BONFRONTERA','HOREXT','EXTRA','HORNOC','NOCTURNO','SUELDOMES',
                     'ASIGTRA','ASIGTRA_IT','ASIGESP','ASIGESP_IT','ASIGCAJA','ASIGCAJA_IT','ASIGNACIONES'
                     ))loop
 						
-                    if (v_parametros.codigo='JUB55' and v_parametros.valor=0) then
+                    if (v_registros_det.codigo='JUB55' and v_registros_det.valor=0) then
 							v_estado:='J';
-					elsif (v_parametros.codigo='JUB65' and v_parametros.valor=0) then
+					elsif (v_registros_det.codigo='JUB65' and v_registros_det.valor=0) then
                           	v_estado:='N';
-                    elsif (v_parametros.codigo='MAY65' and v_parametros.valor=0) then
+                    elsif (v_registros_det.codigo='MAY65' and v_registros_det.valor=0) then
                     		v_estado:='M';
-            		elsif (v_registros.fecha_finalizacion is not null) then
+            		elsif (v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_parametros.fecha) then
                        if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
                         	v_estado:='R';
                        	else
@@ -935,7 +988,7 @@ BEGIN
                        v_estado:='A';
                     end if;
                     
-                    if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion< now()) then
+                    if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_parametros.fecha) then
                       if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
                           v_fecha_fin:=v_registros.fecha_finalizacion;
                           v_motivo:=v_registros.observaciones_finalizacion;
@@ -948,52 +1001,52 @@ BEGIN
                       v_motivo:=null;
                     end if;
                     
-                    if (v_parametros.codigo='HABBAS') then
-                      v_sueldo:=v_parametros.valor;
-                    elsif (v_parametros.codigo='COTIZABLE') then
-                      v_cotizable:=v_parametros.valor;
-                    elsif (v_parametros.codigo='LIQPAG') then
-                      v_liquido:=v_parametros.valor;
-                    elsif (v_parametros.codigo='DISPONIBILIDAD') then
-                      v_dispon:=v_parametros.valor;
-                    elsif (v_parametros.codigo='SUBPRE') then
-                      v_subpre:=v_parametros.valor;
-                    elsif (v_parametros.codigo='SUBNAT') then
-                      v_subnat:=v_parametros.valor;
-                    elsif (v_parametros.codigo='SUBLAC') then
-                      v_sublac:=v_parametros.valor;
-                    elsif (v_parametros.codigo='TOTGAN') then
-                      v_totgan:=v_parametros.valor;
-                    elsif (v_parametros.codigo='TOT_DESC') then
-                      v_totdesc:=v_parametros.valor;
-                    elsif (v_parametros.codigo='BONFRONTERA') then
-                    	v_bonofron:=v_parametros.valor;
-                    elsif (v_parametros.codigo='HOREXT') then
-                    	v_horext:=v_parametros.valor;
-                    elsif (v_parametros.codigo='EXTRA') then
-                    	v_bonoext:=v_parametros.valor;
-                    elsif (v_parametros.codigo='HORNOC') then
-                    	v_hornoc:=v_parametros.valor;
-                    elsif (v_parametros.codigo='NOCTURNO') then
-                    	v_bononoc:=v_parametros.valor;
-                    elsif (v_parametros.codigo='SUELMES') then   
-                    	v_suelmes:=v_parametros.valor;                                                                             
-                    elsif (v_parametros.codigo='ASIGTRA') then    
-                    	v_asigtra:=v_parametros.valor;                  
-                    elsif (v_parametros.codigo='ASIGTRA_IT') then  
-                    	v_asigtra_it:=v_parametros.valor;
-                    elsif (v_parametros.codigo='ASIGESP') then  
-                    	v_asigesp:=v_parametros.valor;
-                    elsif (v_parametros.codigo='ASIGESP_IT') then  
-                    	v_asigesp_it:=v_parametros.valor;
-                    elsif (v_parametros.codigo='ASIGCAJA') then 
-                    	v_asigcaja:=v_parametros.valor; 
-                    elsif (v_parametros.codigo='ASIGCAJA_IT') then
-                    	v_asigcaja_it:=v_parametros.valor;  
-                    elsif (v_parametros.codigo='ASIGNACIONES') then                                                                                                                          
-                    	v_asig:=v_parametros.valor;
+                    if (v_registros_det.codigo='HABBAS') then
+                      v_sueldo:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='COTIZABLE') then
+                      v_cotizable:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='LIQPAG') then
+                      v_liquido:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='DISPONIBILIDAD') then
+                      v_dispon:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='SUBPRE') then
+                      v_subpre:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='SUBNAT') then
+                      v_subnat:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='SUBLAC') then
+                      v_sublac:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='TOTGAN') then
+                      v_totgan:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='TOT_DESC') then
+                      v_totdesc:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='BONFRONTERA') then
+                    	v_bonofron:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='HOREXT') then
+                    	v_horext:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='EXTRA') then
+                    	v_bonoext:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='HORNOC') then
+                    	v_hornoc:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='NOCTURNO') then
+                    	v_bononoc:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='SUELDOMES') then   
+                    	v_suelmes:=v_registros_det.valor;                                                                             
+                    elsif (v_registros_det.codigo='ASIGTRA') then    
+                    	v_asigtra:=v_registros_det.valor;                  
+                    elsif (v_registros_det.codigo='ASIGTRA_IT') then  
+                    	v_asigtra_it:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='ASIGESP') then  
+                    	v_asigesp:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='ASIGESP_IT') then  
+                    	v_asigesp_it:=v_registros_det.valor;
+                    elsif (v_registros_det.codigo='ASIGCAJA') then 
+                    	v_asigcaja:=v_registros_det.valor; 
+                    elsif (v_registros_det.codigo='ASIGCAJA_IT') then
+                    	v_asigcaja_it:=v_registros_det.valor;  
+                    elsif (v_registros_det.codigo='ASIGNACIONES') then                                                                                                                          
+                    	v_asig:=v_registros_det.valor;
                     else
-                      v_totgral:=v_parametros.valor; --total_patronal_afp 
+                      v_totgral:=v_registros_det.valor; --total_patronal_afp 
                     end if;
                     
     

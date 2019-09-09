@@ -31,6 +31,8 @@ class ACTFuncionarioReporte extends ACTbase{
 		$rango_fin=$this->objParam->getParametro('rango_fin');
 		$id_afp=$this->objParam->getParametro('id_afp');
 		$id_gestion=$this->objParam->getParametro('id_gestion');
+		//03.09.2019
+		$id_tipo_contrato=$this->objParam->getParametro('id_tipo_contrato');
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()).$titulo);
 
@@ -52,6 +54,8 @@ class ACTFuncionarioReporte extends ACTbase{
 		//para aportes
 		$this->objParam->addParametro('id_afp',$id_afp);
 		$this->objParam->addParametro('id_gestion',$id_gestion);
+		
+		$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
 		
        
         $nombreArchivo.='.pdf';
@@ -90,10 +94,10 @@ class ACTFuncionarioReporte extends ACTbase{
 							if($this->objParam->getParametro('tipo_reporte')=='dependientes' || $this->objParam->getParametro('tipo_reporte')=='dependientes_edad' ){
 								$this->reportePlanillaDep($titulo,$fecha);
 							}else{
-								if($this->objParam->getParametro('tipo_reporte')=='curva_salarial' || $this->objParam->getParametro('tipo_reporte')=='dependientes_edad' ){
+								if($this->objParam->getParametro('tipo_reporte')=='curva_salarial'  ){
 									$this->reporteCurvaSalarial($titulo,$fecha);
 								}else{
-									$this->reportePlanilla($titulo,$fecha); //nomina salarios BC, CT
+									$this->reportePlanilla($titulo,$fecha,$id_tipo_contrato); //nomina salarios BC, CT
 								}
 								
 								
@@ -111,7 +115,7 @@ class ACTFuncionarioReporte extends ACTbase{
 	}
 	
 	
-	function reportePlanilla($tipo_reporte,$fecha)	{
+	function reportePlanilla($tipo_reporte,$fecha,$id_tipo_contrato)	{
 
         $this->objFunc=$this->create('MODFuncionarioReporte');
 
@@ -124,6 +128,7 @@ class ACTFuncionarioReporte extends ACTbase{
 
  		$this->objParam->addParametro('fecha',$fecha);
 		$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+		$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
 
         
             $nombreArchivo.='.pdf';

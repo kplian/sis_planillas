@@ -90,7 +90,43 @@ header("content-type: text/javascript; charset=UTF-8");
 				type:'ComboBox',				
 				id_grupo:0,
 				grid:true
-		},	
+		},	{
+			config: {
+				name: 'id_tipo_contrato',
+				fieldLabel: 'Tipo Contrato',
+				allowBlank: true,
+				emptyText: 'Dejar en blanco para todos...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_organigrama/control/TipoContrato/listarTipoContrato',
+					id: 'id_tipo_contrato',
+					root: 'datos',
+					sortInfo: {
+						field: 'nombre',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_tipo_contrato', 'nombre', 'codigo'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'tipcon.nombre#tipcon.codigo'}
+				}),
+				valueField: 'id_tipo_contrato',
+				displayField: 'nombre',
+				gdisplayField: 'nombre_tipo_contrato',
+				hiddenName: 'id_tipo_contrato',
+				forceSelection: true,
+				typeAhead: false,
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 15,
+				queryDelay: 1000,
+				minChars: 2,
+				
+			},
+			type: 'ComboBox',
+			id_grupo: 0,			
+			form: true
+		},
 		{
 	       		config:{
 	       			name: 'fecha',
@@ -223,7 +259,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			this.ocultarComponente(this.Cmp.id_afp);
 			this.ocultarComponente(this.Cmp.fecha);
 			this.ocultarComponente(this.Cmp.id_gestion);
-			
+			this.ocultarComponente(this.Cmp.id_tipo_contrato);
 			
 			this.Cmp.tipo_reporte.on('select',function(c) {
 				this.ocultarComponente(this.Cmp.id_afp);
@@ -233,7 +269,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.ocultarComponente(this.Cmp.id_gestion);
 				this.Cmp.id_gestion.allowBlank=true;
 				this.Cmp.id_gestion.setValue('');
-				
+				this.Cmp.id_tipo_contrato.allowBlank=true;
 				
 				this.mostrarComponente(this.Cmp.fecha);
 				this.Cmp.fecha.allowBlank=false;
@@ -244,12 +280,16 @@ header("content-type: text/javascript; charset=UTF-8");
 					this.Cmp.rango_inicio.allowBlank=false;
 					this.Cmp.rango_fin.allowBlank=false;
 					
+					this.ocultarComponente(this.Cmp.id_tipo_contrato);
+					
 					
 				}else{  
 					this.ocultarComponente(this.Cmp.rango_fin);
 					this.ocultarComponente(this.Cmp.rango_inicio);
 					this.Cmp.rango_inicio.allowBlank=true;
 					this.Cmp.rango_fin.allowBlank=true;
+					
+					this.mostrarComponente(this.Cmp.id_tipo_contrato);
 					
 					if (c.value=='aporte_afp' || c.value=='fondo_solidario'){
 						this.mostrarComponente(this.Cmp.id_afp);
