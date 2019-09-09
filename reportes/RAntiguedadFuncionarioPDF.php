@@ -118,14 +118,22 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 								
 								
 								if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
-									$this->Cell(20,3.5,$this->datos[$i]['fecha_ingreso'],'',0,'C');
+									$ff=$this->datos[$i]['fecha_ingreso'];
+									$aa=substr($ff, 0,4);
+									$mm=substr($ff, 5,2);
+									$dd=substr($ff, 8,2);
+									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
 									$this->Cell(10,3.5,$this->datos[$i]['antiguedad_ant'],'',0,'R');
 									$this->Cell(15,3.5,$this->datos[$i]['antiguedad_anos'],'',0,'R');		
 									$this->Cell(15,3.5,$this->datos[$i]['antiguedad'],'',1,'R');
 								}else{
+									$ff=$this->datos[$i]['fecha_nacimiento'];
+									$aa=substr($ff, 0,4);
+									$mm=substr($ff, 5,2);
+									$dd=substr($ff, 8,2);
 								
 									$this->Cell(30,3.5,substr ($this->datos[$i]['cargo'],0,18),'',0,'L');
-									$this->Cell(20,3.5,$this->datos[$i]['fecha_nacimiento'],'',0,'C');
+									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
 									$this->Cell(10,3.5,$this->datos[$i]['edad'],'',1,'R');		
 								}	
 								
@@ -154,13 +162,22 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 								$this->Cell(60,3.5,substr ( $this->datos[$i]['desc_funcionario2'], 0, 30),'',0,'L');
 								
 								if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
-									$this->Cell(20,3.5,$this->datos[$i]['fecha_ingreso'],'',0,'C');
+									$ff=$this->datos[$i]['fecha_ingreso'];
+									$aa=substr($ff, 0,4);
+									$mm=substr($ff, 5,2);
+									$dd=substr($ff, 8,2);
+									
+									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
 									$this->Cell(10,3.5,$this->datos[$i]['antiguedad_ant'],'',0,'R');
 									$this->Cell(15,3.5,$this->datos[$i]['antiguedad_anos'],'',0,'R');		
 									$this->Cell(15,3.5,$this->datos[$i]['antiguedad'],'',1,'R');
 								}else{
+									$ff=$this->datos[$i]['fecha_nacimiento'];
+									$aa=substr($ff, 0,4);
+									$mm=substr($ff, 5,2);
+									$dd=substr($ff, 8,2);
 									$this->Cell(30,3.5,substr ($this->datos[$i]['cargo'],0,16),'',0,'L');
-									$this->Cell(20,3.5,$this->datos[$i]['fecha_nacimiento'],'',0,'C');
+									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
 									$this->Cell(10,3.5,$this->datos[$i]['edad'],'',1,'R');		
 									
 								

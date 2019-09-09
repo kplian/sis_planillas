@@ -71,7 +71,8 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
-		$this->setParametro('fecha','fecha','date');	
+		$this->setParametro('fecha','fecha','date');
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -81,7 +82,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('fecha_ingreso','date');
 		$this->captura('codigo_columna','varchar');
 		$this->captura('valor','numeric');
-				$this->captura('tipo_contrato','varchar');	
+		$this->captura('tipo_contrato','varchar');	
 		$this->captura('cargo','text');			
 		$this->captura('nombre_gerencia','varchar');
 		$this->captura('nombre_unidad','varchar');
