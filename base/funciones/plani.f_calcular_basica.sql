@@ -1,15 +1,3 @@
---------------- SQL ---------------
-
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
-  p_id_funcionario_planilla integer,
-  p_fecha_ini date,
-  p_fecha_fin date,
-  p_id_tipo_columna integer,
-  p_codigo varchar,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
   /**************************************************************************
    PLANI
   ***************************************************************************
@@ -34,6 +22,7 @@ $body$
  #25              01/08/2019        Rarteaga            Nuevas colunas para planilla de reintegro mensual
  #35              05/09/2019        RArteaga            Funcion bascia para arastrar el cotizable de las planillas de reintegro REI-PLT
  #36              09/09/2019        RArteaga            Corregir sueldomes cuando la incapacidad temporal lleva cero horas trabajadas
+ #37              10/09/2019        RArteaga            Recuperar horas efectivamente trabaja como colulmna basica
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -122,6 +111,16 @@ $body$
       into v_resultado
       from plani.thoras_trabajadas ht
       where ht.id_funcionario_planilla = p_id_funcionario_planilla;
+      
+    --#37  recupera la horas efectivas trabajdas en elmes para calculo de incapacidad temporal
+    ELSIF (p_codigo = 'HOREFEC') THEN
+    
+      select sum(ht.horas_normales)
+      into v_horas_normales_ht 
+      from plani.thoras_trabajadas ht
+      where ht.id_funcionario_planilla = p_id_funcionario_planilla;
+      
+      v_resultado =  v_horas_normales_ht;
       
     --#2 Sueldo Mes , incluye incapacidad temporal y el tiempo trabajado efectivo
     ELSIF (p_codigo = 'SUELDOMES') THEN
@@ -2151,9 +2150,3 @@ $body$
       raise exception '%',v_resp;
 
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
