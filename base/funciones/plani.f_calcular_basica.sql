@@ -1,3 +1,15 @@
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
+  p_id_funcionario_planilla integer,
+  p_fecha_ini date,
+  p_fecha_fin date,
+  p_id_tipo_columna integer,
+  p_codigo varchar,
+  p_id_columna_valor integer
+)
+RETURNS numeric AS
+$body$
   /**************************************************************************
    PLANI
   ***************************************************************************
@@ -2150,3 +2162,9 @@
       raise exception '%',v_resp;
 
   END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
