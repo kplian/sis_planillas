@@ -408,4 +408,16 @@ VALUES
 
 /***********************************F-DAT-RAC-PLANI-21-17/07/2019****************************************/
 
+
+
+
+/***********************************I-DAT-RAC-PLANI-38-10/09/2019****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "descripcion", "valor")
+VALUES 
+  (E'plani_cbte_independiente', E'Si el cbte se genera N veces independiente al flujo de planilla, SI/NO', E'NO');
+  
+  
+/***********************************F-DAT-RAC-PLANI-38-10/09/2019****************************************/
+
   

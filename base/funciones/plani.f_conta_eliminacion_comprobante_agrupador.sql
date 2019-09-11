@@ -21,6 +21,7 @@ Descripcion  solo rompe la relacion de FK para poder eliminar el cbte
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #7 ETR           20/05/2019        RAC KPLIAN       eliminacion de coprobantes de obligaciones de pago para planilla 
+ #38 ETR          10/09/2019            RAC KPLIAN          considerar si el cbte es independiente del flujo WF de planilla 
 
 */
 
@@ -30,31 +31,42 @@ DECLARE
 	v_nombre_funcion   	text;
 	v_resp				varchar;
     v_registros 		record;
+    v_plani_cbte_independiente varchar;--#38 
     
     
     
 BEGIN
 
 	v_nombre_funcion = 'plani.f_conta_eliminacion_comprobante_agrupador';
-    
-    -- 1) con el id_comprobante identificar el plan de pago
-   
-      select 
-          oa.*
-      into
-          v_registros
-      from  plani.tobligacion_agrupador oa      
-      where  oa.id_int_comprobante = p_id_int_comprobante; 
-    
-     IF v_registros IS NULL THEN
-        raise exception 'El cbte id = %, no tiene ninguna obligacion con agrupador relacionada ',p_id_int_comprobante;
-     END IF;
-    
-     UPDATE plani.tobligacion_agrupador oa SET
-       obs_cbte = 'Eliminado manualmente el cbte id '||p_id_int_comprobante,
-       id_int_comprobante = NULL
-     WHERE oa.id_obligacion_agrupador = v_registros.id_obligacion_agrupador;
+     --#38 recupera configuracion de cbte independite SI/NO
+    v_plani_cbte_independiente = pxp.f_get_variable_global('plani_cbte_independiente');
+    IF v_plani_cbte_independiente = 'NO' THEN   --#38 si la generacion de cbte no es independiente del flujo de planilla, entonces cambiamos el estado wf de la planilla
      
+          -- con el id_comprobante identificar el agrupador
+          select 
+              oa.*
+          into
+              v_registros
+          from  plani.tobligacion_agrupador oa      
+          where  oa.id_int_comprobante = p_id_int_comprobante; 
+        
+        
+         IF v_registros IS NULL THEN
+            raise exception 'El cbte id = %, no tiene ninguna obligacion con agrupador relacionada ',p_id_int_comprobante;
+         END IF;
+        
+         UPDATE plani.tobligacion_agrupador oa SET
+           obs_cbte = COALESCE(obs_cbte,'')||' - Eliminado manualmente el cbte id '||p_id_int_comprobante,
+           id_int_comprobante = NULL
+         WHERE oa.id_obligacion_agrupador = v_registros.id_obligacion_agrupador;
+    ELSE 
+    
+         UPDATE plani.tobligacion_agrupador oa SET
+           obs_cbte = COALESCE(obs_cbte,'')||' - Eliminado manualmente el cbte id '||p_id_int_comprobante,
+           id_int_comprobante = NULL
+         WHERE oa.id_int_comprobante = p_id_int_comprobante;
+    
+    END IF; 
      
                
              
