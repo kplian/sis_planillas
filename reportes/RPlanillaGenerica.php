@@ -64,12 +64,20 @@ class RPlanillaGenerica extends  ReportePDF {
 		}
 		$columnas = 0;
 		
+		
 		foreach($this->datos_detalle as $value) {
 			$this->Cell($value['ancho_columna'],3.5,$value['titulo_reporte_inferior'],'LBR',0,'C');
 			//iniciar ancho de columna, alineacion y formato de numero
 			array_push($this->tablewidths, $value['ancho_columna']); 
-			array_push($this->tablealigns, 'R');
-			array_push($this->tablenumbers, 2);
+			if ($value['sumar_total']=='si'){
+				array_push($this->tablealigns, 'R');
+				array_push($this->tablenumbers, 2);
+			}else{
+				array_push($this->tablealigns, 'L');
+				array_push($this->tablenumbers, 0);
+			}
+			
+			
 			$columnas++;
 			if ($columnas == $this->datos_titulo['cantidad_columnas']) {
 				break;
@@ -149,7 +157,10 @@ class RPlanillaGenerica extends  ReportePDF {
 				if ($this->gerencia != $value['gerencia']) {
 					//generar subtotales
 					$this->SetFont('','B',7);
-	 				$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+					if ($this->ancho_sin_totales>0){
+						$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+					}
+	 				
 					for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 						if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
