@@ -190,7 +190,7 @@ class RPlanillaGenerica extends  ReportePDF {
 			
 		}
 		
-		$this->SetFont('','',5);
+		$this->SetFont('','',6);
 		//Añade al ultimo empleado de la lista
 		$this->UniRow($array_show);
 		//Si cambia la gerencia
@@ -198,21 +198,31 @@ class RPlanillaGenerica extends  ReportePDF {
 		//Añade el ultimo subtotal de la gerencia
 		//generar subtotales
 		$this->SetFont('','B',6);
-		$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
-		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
-			if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
-			else
-				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
-			//reiniciar subtotales
-			$sum_subtotal[$i] = 0;
-		}		
-		$this->ln(10);
-		$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
-		$this->ln(10);
+		if ($this->gerencia!=''){
+			$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
+				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
+				else
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
+				//reiniciar subtotales
+				$sum_subtotal[$i] = 0;
+			}
+			$this->ln(10);
+			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
+			$this->ln(10);
+		
+		}
+		
 		
 		//planilla
-		$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
+		
+		if($this->ancho_sin_totales > 0){
+		
+			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
+		}
+		
+		
 		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 			if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i],2),1,0,'R');
