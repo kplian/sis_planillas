@@ -26,6 +26,7 @@ $body$
                     
    #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
    #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
+   #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
   ***************************************************************************/
 
   DECLARE
@@ -57,6 +58,10 @@ $body$
     v_consulta_externa 		varchar;
     v_columnas_externas		varchar;
     v_consulta_orden	varchar;
+    
+    --12.09.2019
+    v_agrupar_por		varchar;
+    
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -173,6 +178,8 @@ $body$
 							, repo.multilinea,
                             repo.vista_datos_externos,
                             repo.num_columna_multilinea
+                            --#40 - 12.09.2019
+                            ,param.f_get_periodo_literal(plani.id_periodo) as periodo_lite
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
@@ -946,9 +953,25 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     
         v_consulta_orden:=' uo.id_uo,
                             uo.nombre_unidad,';
-        if (v_ordenar_por = 'nombre')then
-          v_ordenar_por = 'uo.id_uo,
-                            uo.nombre_unidad,fun.desc_funcionario2';
+                            
+                           
+                            
+        if (v_ordenar_por = 'nombre')then --#39 - 12.02.2019
+        
+             execute	'select distinct repo.agrupar_por
+           			from plani.tplanilla plani
+					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+           			where '||v_parametros.filtro into v_agrupar_por;
+
+			if (v_agrupar_por='ninguno' ) then
+         			v_consulta_orden:='1,''''::varchar, ';
+                    v_ordenar_por = 'fun.desc_funcionario2'; -- 12.09.2019
+            else
+                v_ordenar_por = 'uo.id_uo,uo.nombre_unidad,fun.desc_funcionario2';
+            end if;
+
+			
         elsif (v_ordenar_por = 'doc_id') then
           v_ordenar_por = 'uo.id_uo,
                             uo.nombre_unidad,fun.ci';

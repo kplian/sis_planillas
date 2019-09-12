@@ -23,7 +23,10 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $ancho_col;
 	var $alto_grupo;
 	var $tipo_ordenacion='';
-	function Header() {  
+	function Header() {
+		
+		
+		  
 		if($this->datos_titulo['ordenar_por']=='centro'){//#17
 			$this->tipo_ordenacion='CENTRO ';
 		}//fin #17
@@ -47,14 +50,17 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->Ln(1);
 		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['depto'],0,1,'R');
 		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['uo'],0,1,'R');
-		$this->Cell($this->ancho_hoja+12,3,'No Patronal: 511-2247',0,1,'R');
+		//$this->Cell($this->ancho_hoja+12,3,'No Patronal: 511-2247',0,1,'R');
+		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
+		$this->Cell($this->ancho_hoja+12, 3, $pagenumtxt, '', 1, 'R');
 		
+				
 		$this->SetFont('','B',12);
 		$this->Cell(0,5,'PLANILLA DE SUELDOS '.$tipo_con,0,1,'C');
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo'].'/'.$this->datos_titulo['gestion'],0,1,'C');
+		$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
 		
-		$this->Cell(0,5, $nro_pla,0,1,'C');
+		//$this->Cell(0,5, $nro_pla,0,1,'C');
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
 		$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
@@ -344,6 +350,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			
 	}
 	
+	
+	
+	
     function subtotales($data, $data_sub){
     	
     	$result=array();
@@ -380,5 +389,10 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 
 		$this->grillaDatos($result,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
     }
+	
+	function Footer(){ 
+		
+	}
+	
 }
 ?>
