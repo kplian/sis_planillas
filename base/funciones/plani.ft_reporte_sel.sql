@@ -1023,10 +1023,14 @@ end
                    v_columnas_externas:='(case when repcol.origen=''columna_planilla'' then repcol.codigo_columna else vista.nombre_col end)::varchar as codigo_columna
                    ,
  					(case when repcol.origen=''columna_planilla'' then round(colval.valor,2)::varchar else  
-                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'') then
-                         substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+1)-2)  )
+                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'' and vista.nombre_col=''cargo'') then
+                         substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+2)+5)  )
                        else
-                         vista.valor_col 
+                         (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''boleta'' and vista.nombre_col=''cargo'') then
+                            substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo)+5)  )
+                         else
+                           vista.valor_col 
+                         end)
                        end)
                      end)::varchar as valor';
                    v_consulta_externa:='left join '|| v_datos_externos.vista_datos_externos || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_funcionario_planilla=fp.id_funcionario_planilla

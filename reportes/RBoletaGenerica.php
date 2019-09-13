@@ -141,7 +141,7 @@ class RBoletaGenerica extends  ReportePDF {
 						
 					   }
 						//cabecera del reporte
-						$this->SetFont('','',6.5);
+						$this->SetFont('','',8);
 						$fecha_rep = date("d/m/Y");
 						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
 						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
@@ -152,9 +152,9 @@ class RBoletaGenerica extends  ReportePDF {
 					    $this->SetFont('','B',10);
 					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
 					    $this->Ln(5);
-					    $this->SetFont('','',6.5);
+					    $this->SetFont('','',10);
 					  
-					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R');
+					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3.5,'R',8);
 						
 						$this->Ln(5);
 					    	
@@ -179,10 +179,10 @@ class RBoletaGenerica extends  ReportePDF {
 						
 						
 						$this->Ln(30);
-						$contador=0;
+						$contador=1;
 					}else{
-						$contador++;
-						if($contador==4){
+						
+						if($contador==4){// echo $this->datos_detalle[$i]['titulo_reporte_superior']; exit;
 							
 							$linea=1;
 							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
@@ -199,7 +199,7 @@ class RBoletaGenerica extends  ReportePDF {
 							array_push($detalle_col_mod,$linea);
 							array_push($detalle_col_mod,'L');  
 							
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							/*array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
 							array_push($detalle_col_mod,0);
 							array_push($detalle_col_mod,'');
 							array_push($detalle_col_mod,'B'); 
@@ -211,7 +211,7 @@ class RBoletaGenerica extends  ReportePDF {
 							array_push($detalle_col_mod,'');
 							array_push($detalle_col_mod,'B'); 
 							array_push($detalle_col_mod,0); 
-						    array_push($detalle_col_mod,'L');
+						    array_push($detalle_col_mod,'L');*/
 						   
 						   
 						}else{
@@ -241,7 +241,7 @@ class RBoletaGenerica extends  ReportePDF {
 							
 						}
 						
-						
+						$contador++;
 						
 					}
 					$id_fun=$this->datos_detalle[$i]['id_funcionario'];
@@ -256,7 +256,7 @@ class RBoletaGenerica extends  ReportePDF {
 						
 					   }
 				 		
-				   		$this->SetFont('','',6.5);
+				   		$this->SetFont('','',8);
 						$fecha_rep = date("d/m/Y");
 						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
 						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
@@ -267,9 +267,9 @@ class RBoletaGenerica extends  ReportePDF {
 					    $this->SetFont('','B',10);
 					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
 					    $this->Ln(5);
-					    $this->SetFont('','',6.5);
+					    $this->SetFont('','',10);
 					   
-					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R');
+					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R',8);
 						$this->Ln(5);		
 				 	
 				   
