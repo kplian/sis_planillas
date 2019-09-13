@@ -178,7 +178,8 @@ class MODReporte extends MODbase{
 		$this->captura('multilinea','varchar');
         $this->captura('vista_datos_externos','varchar');
         $this->captura('num_columna_multilinea','integer');
-		
+		//12.09.2019
+		$this->captura('periodo_lite','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		// echo "****".$this->getConsulta(); exit;
