@@ -1,5 +1,7 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
+//ISSUE			AUTHOR			FECHA				DESCRIPCION
+//#40 			MZM			16/09/2019	        	Inclusion de pie de firma 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -26,10 +28,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	function Header() {
 		
 		
-		  
-		if($this->datos_titulo['ordenar_por']=='centro'){//#17
-			$this->tipo_ordenacion='CENTRO ';
-		}//fin #17
 		
 		$max_fila=2; $this->max_columna=0;
 		$espacio_previo=0;
@@ -63,6 +61,15 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//$this->Cell(0,5, $nro_pla,0,1,'C');
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
+		
+		
+		if($this->datos_titulo['ordenar_por']=='centro' && $this->gerencia!=''){//#17
+				$this->tipo_ordenacion='CENTRO ';
+		 	
+		}//fin #17
+		
+		
+		
 		$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
 		$this->Ln(2);
 		$this->SetFont('','B',8);
@@ -98,10 +105,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			$this->posY=$this->GetY();
 			$this->alto_grupo=$this->posY-$this->alto_grupo;
 	}
-	function datosHeader ($titulo, $detalle) { 
+	function datosHeader ($titulo, $detalle,$firmas) { 
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT;
 		$this->datos_titulo = $titulo;
 		$this->datos_detalle = $detalle;
+		$this->datos_firma=$firmas;
 		//Titulos de columnas inferiores e iniciacion de los arreglos para la tabla
 		$this->ancho_sin_totales = 0;
 		$this->cantidad_columnas_estaticas = 0;
@@ -315,9 +323,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 			}
 			
+		$ultima_ger=$this->gerencia;
+		$ultima_ord=$this->tipo_ordenacion;
+		$this->gerencia='';	
+		$this->tipo_ordenacion='';
 		
 		//Añade al ultimo empleado de la lista
-		$this->UniRow($array_show,false, 0);
+		//$this->UniRow($array_show,false, 0);
 		//Si cambia la gerencia
 		
 		//Añade el ultimo subtotal de la gerencia
@@ -336,15 +348,16 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->ln(2);
 		
 		
-		$this->Cell(80,3,'Sub Total:' . $this->tipo_ordenacion.$this->gerencia.'','',1,'L');
+		
+		
+		$this->Cell(80,3,'Sub Total:' . $ultima_ord.$ultima_ger.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
 		$this->subtotales($detalle_col_mod,$sum_subtotal);
 		
 		$this->SetFont('','B',8);
 		
 	 				
-		
-					
+						
 
 		$this->ln(4);
 		
@@ -356,9 +369,38 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->ln(4);
 		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
+		
+		$dimensionsP = $this->getPageDimensions();
+		if ($this->GetY()+$this->alto_grupo+$dimensionsP['bm']> $dimensionsP['hk']+4){
+						$this->AddPage();
+		}
+		
+		
 		$this->Cell(30,3,'TOTAL FUNCIONARIOS PLANILLA: '.$xxx,'',1,'L');
 		
 		$this->subtotales($detalle_col_mod,$sum_total);			
+		
+		//31.08.2019
+		$this->ln(40);
+		$ancho_firma= (($this->ancho_hoja) / count($this->datos_firma));
+		$ancho_sep=(($this->ancho_hoja) / (count($this->datos_firma)+1));
+		
+		
+		//$this->Cell($ancho_sep/,2,'',0,0,'C');
+		$this->Cell($ancho_firma,2,'________________________________________________________________',0,0,'C');
+		
+		//$this->Cell($ancho_sep/2,2,'',0,0,'C');
+		$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
+		
+	
+		
+		
+		
+		$this->Cell($ancho_firma,3,$this->datos_firma[0]['abreviatura_titulo'].' '.$this->datos_firma[0]['nombre_empleado_firma'],'',0,'C');
+		$this->Cell($ancho_firma,3,$this->datos_firma[1]['abreviatura_titulo'].' '.$this->datos_firma[1]['nombre_empleado_firma'],'',1,'C');
+		$this->SetFont('','B',8);
+		$this->Cell($ancho_firma,3,$this->datos_firma[0]['nombre_cargo_firma'],'',0,'C');
+		$this->Cell($ancho_firma,3,$this->datos_firma[1]['nombre_cargo_firma'],'',1,'C');	
 		
 			
 	}
