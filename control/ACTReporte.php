@@ -5,6 +5,9 @@
  *@author  (admin)
  *@date 17-01-2014 22:07:28
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * 
+ ISSUE			AUTHOR			FECHA				DESCRIPCION	  					
+ * #40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel	
  */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -71,10 +74,10 @@ class ACTReporte extends ACTbase{
         $this->objFunc=$this->create('MODReporte');
         $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
 		
-		if($this->objParam->getParametro('totales')=='si'){
+		//if($this->objParam->getParametro('totales')=='si'){
 			$this->objFunc=$this->create('MODReporte');
-			$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
-		}
+			$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39 
+		//}
 		
         //obtener titulo del reporte
         $titulo = $this->res->datos[0]['titulo_reporte'];
@@ -118,11 +121,11 @@ class ACTReporte extends ACTbase{
             	$this->objReporteFormato=new RPlanillaGenerica($this->objParam);
             }
 			
-			if($this->objParam->getParametro('totales')=='si'){
-				$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos, $this->res3->datos);
-			}else{
-				$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
-			}
+			//if($this->objParam->getParametro('totales')=='si'){
+				$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos, $this->res3->datos);//#40
+			//}else{
+				//$this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos, $this->res3->datos);
+		//	}
 			
             
             //$this->objReporteFormato->renderDatos($this->res2->datos);
