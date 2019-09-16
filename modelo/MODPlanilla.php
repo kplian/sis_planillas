@@ -10,6 +10,7 @@
 
 #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
 #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+#38 ETR             12/09/2019          RAC                 Generar cbte contables 
 
  ***/
 
@@ -655,6 +656,25 @@ class MODPlanilla extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
-			
+	
+	//#38 generar comprobantes
+	function generarCbteContable(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_ime';
+		$this->transaccion='PLA_GENCBTE_IME';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+        $this->setParametro('id_obligacion','id_obligacion','int4');
+		$this->setParametro('tipo','tipo','varchar');
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}		
 }
 ?>

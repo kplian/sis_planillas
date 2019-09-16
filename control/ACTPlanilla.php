@@ -5,6 +5,11 @@
  *@author  (admin)
  *@date 22-01-2014 16:11:04
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * 
+ * 
+    HISTORIAL DE MODIFICACIONES:       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION   
+ #38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
  */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -33,10 +38,14 @@ class ACTPlanilla extends ACTbase{
         } else if($this->objParam->getParametro('pes_estado') == 'suppresu'){
             $this->objParam->addFiltro("plani.estado  in (''suppresu'')");
         } else if($this->objParam->getParametro('pes_estado') == 'vbpresupuestos'){
-            $this->objParam->addFiltro("plani.estado  in (''vbpresupuestos'')");
-        }else if($this->objParam->getParametro('pes_estado') == 'consultas'){
+            $this->objParam->addFiltro("plani.estado  in (''vbpresupuestos'')");        
+		} else if($this->objParam->getParametro('pes_estado') == 'vobo_conta'){  //#38 añade vobo conta
+            $this->objParam->addFiltro("plani.estado   in (''vobo_conta'')");
+        }
+        else if($this->objParam->getParametro('pes_estado') == 'consultas'){
             $this->objParam->addFiltro("plani.estado  not in (''todos'')");
         }
+		
 
         if ($this->objParam->getParametro('id_gestion') != '') {
 
@@ -218,6 +227,12 @@ class ACTPlanilla extends ACTbase{
         /////////////////////
         $this->objFunc=$this->create('MODPlanilla');
         $this->res=$this->objFunc->listarPartidaObjetivo($this->objParam);
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+	#38 +
+	function generarCbteContable(){
+        $this->objFunc=$this->create('MODPlanilla');
+        $this->res=$this->objFunc->generarCbteContable($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
 

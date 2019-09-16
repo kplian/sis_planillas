@@ -5,14 +5,22 @@
 *@author  (jrivera)
 *@date 14-07-2014 20:30:19
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ * 
+ *   HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               14/07/2014       JRIVERA KPLIAN       creacion
+ #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
 */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
 Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
-
+    
 	constructor:function(config){
+		
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.Obligacion.superclass.constructor.call(this,config);
@@ -28,7 +36,26 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                 tooltip: 'Detalle de transferencias en transferencias a empleados'
             }
         );
+        
+       //#38
+       this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Generar Cbte de  Pago</b><br/>Genera el comprobante correspondiente del pago seleccionado'});
+        
 	},
+	
+	
+    savePltGrid: true, //#24 configura el manejo de plantilla para la grilla
+    applyPltGrid: true, //#24
+    bottom_filter: true,//#24
+    tipoStore: 'GroupingStore',//GroupingStore o JsonStore #24
+    remoteGroup: true,//#24
+    groupField: 'desc_agrupador',//#24
+    viewGrid: new Ext.grid.GroupingView({
+            forceFit:false,
+            //groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
+        }), //#24  
+        
+        
+	
 			
 	Atributos:[
 		{
@@ -66,24 +93,36 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true,
+				bottom_filter : true,
 				egrid:true
 		},
+	
 		
 		{
 			config:{
-				name: 'descripcion',
-				fieldLabel: 'descripcion',
+				name: 'desc_tipo_obligacion',
+				fieldLabel: 'Descripción',
 				allowBlank: true,
-				anchor: '100%',
-				gwidth: 250,
-				maxLength:500
+				anchor: '100%',				
+				gwidth: 300,
+				maxLength:500,
+				renderer:function (value, p, record){				
+					if(record.data['desc_tipo_obligacion'] && record.data['desc_tipo_obligacio'] != '' ){
+						return String.format('{0}', record.data['desc_tipo_obligacion']);
+					}
+					else{
+						return String.format('{0}', record.data['descripcion']);
+					}
+					
+				}
 			},
 				type:'TextArea',
-				filters:{pfiltro:'obli.descripcion',type:'string'},
+				filters:{pfiltro:'tipobli.nombre#obli.descripcion',type:'string'},
 				id_grupo:1,
 				grid:true,
 				form:true,
-				egrid:true
+				bottom_filter : true,
+				egrid:false
 		},
 		
 		{
@@ -119,7 +158,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true,
-				egrid:true
+				egrid:false
 		},	
 		
 		{
@@ -148,6 +187,24 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},
+		
+			//#38 desc_agrupador
+		{
+			config:{
+				name: 'desc_agrupador',
+				fieldLabel: 'Agrupado de pago',
+				allowBlank: true,
+				anchor: '100%',
+				gwidth: 250,
+				maxLength:500
+			},
+				type:'TextArea',
+				filters:{pfiltro:'oa.acreedor',type:'string'},
+				id_grupo:1,
+				grid:true,
+				form:true,
+				egrid:true
 		},
 		
 		
@@ -270,6 +327,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
+		'id_obligacion_agrupador','desc_agrupador','desc_tipo_obligacion' //#38++
 		
 	],
 	sortInfo:{
@@ -277,8 +335,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		direction: 'ASC'
 	},
 	bdel:false,
-	bsave:true,
-	bedit:true,
+	bsave:false,
+	bedit:false,
 	bnew:false,
 	south:{
 		  url:'../../../sis_planillas/vista/obligacion_columna/ObligacionColumna.php',
@@ -286,6 +344,32 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		  height:'50%',
 		  cls:'ObligacionColumna'
 	},
+	
+	
+    onBtnPag: function(){
+    	var rec=this.sm.getSelected();
+     	if(confirm('¿Está seguro de generar el comprobante de pago para: '+ rec.data.descripcion + '?. Si tiene agrupador de segenerá el cbte para todos los miembros del grupo')) {            
+            if(rec){
+	            Phx.CP.loadingShow();
+	            Ext.Ajax.request({
+	                url:'../../sis_planillas/control/Planilla/generarCbteContable',
+	                params: { id_planilla: undefined, tipo:'pago', id_obligacion: rec.data.id_obligacion },
+	                success: this.successGenCbte,
+	                failure: this.conexionFailure,
+	                timeout: this.timeout,
+	                scope:this
+	            }); 
+            }
+            else{
+            	alert('no selecciono ningun registro');
+            }
+       }
+     },
+     
+    successGenCbte: function(resp){
+            Phx.CP.loadingHide();
+            this.reload();
+    },
 	
 	onBtnDetalle: function(){
 			var rec = {maestro: this.sm.getSelected().data};
@@ -308,7 +392,15 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     		this.getBoton('btnDetalle').enable();
     	} else {
     		this.getBoton('btnDetalle').disable();
-    	}     
+    	} 
+    	
+    	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si'){
+           	this.getBoton('SolPag').enable();
+        }
+        else{
+           this.getBoton('SolPag').disable();
+        }
+                
              
         Phx.vista.Obligacion.superclass.preparaMenu.call(this);
     },

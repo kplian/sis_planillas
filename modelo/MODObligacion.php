@@ -5,8 +5,15 @@
 *@author  (jrivera)
 *@date 14-07-2014 20:30:19
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
 
+ * 
+ *   HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               14/07/2014       JRIVERA KPLIAN       creacion
+ #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
+ * */
 class MODObligacion extends MODbase{
 	
 	function __construct(CTParametro $pParam){
@@ -18,9 +25,15 @@ class MODObligacion extends MODbase{
 		$this->procedimiento='plani.ft_obligacion_sel';
 		$this->transaccion='PLA_OBLI_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		
+		$this->setParametro('groupBy','groupBy','varchar');	 //#38
+		$this->setParametro('groupDir','groupDir','varchar'); //#38
 				
 		//Definicion de la lista del resultado del query
-		$this->captura('id_obligacion','int4');
+		$this->captura('id_obligacion','int4');		
+		$this->captura('id_obligacion_agrupador','int4');
+		$this->captura('desc_agrupador','text');
 		$this->captura('id_auxiliar','int4');
 		$this->captura('id_cuenta','int4');
 		$this->captura('id_planilla','int4');
@@ -38,7 +51,10 @@ class MODObligacion extends MODbase{
 		$this->captura('id_usuario_mod','int4');
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
-		$this->captura('es_pagable','varchar');
+		$this->captura('es_pagable','varchar');	
+		$this->captura('desc_tipo_obligacion','varchar');	
+		
+		
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
