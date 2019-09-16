@@ -1,60 +1,42 @@
 <?php
 /**
  *@package pXP
- *@file gen-Planilla.php
- *@author  (admin)
- *@date 22-01-2014 16:11:04
+ *@file PlanillaVbConta.php
+ *@author  (rac kplian)
+ *@date 11-09-2019 1
  *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  * 
     HISTORIAL DE MODIFICACIONES:       
  ISSUE            FECHA:              AUTOR                 DESCRIPCION   
- * 
- #0              22/01/2014        GUY KPLIAN      creacion 
- #38             11/09/2019        RAC KPLIAN      muestra columnas tipo contrato y cbte dividido  
+ #38             11/09/2019        RAC KPLIAN      creacion de cbte de debengado o de pago  independiente al wf de la planilla
  */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
-    Phx.vista.PlanillaVb=Ext.extend(Phx.gridInterfaz,{
+    Phx.vista.PlanillaVbConta=Ext.extend(Phx.gridInterfaz,{
 
         bnew: false,
         bedit: false,
         bdel: false,
         btest: false,
         bsave: false,
-
+        nombreVista: 'PlanillaVbConta',
         constructor:function(config){
 
             this.maestro=config.maestro;
             //llama al constructor de la clase padre
-            Phx.vista.PlanillaVb.superclass.constructor.call(this,config);
+            Phx.vista.PlanillaVbConta.superclass.constructor.call(this,config);
             this.init();
-
-            if(this.nombreVista == 'planillavbpoa') {
-                this.store.baseParams.pes_estado = 'vbpoa';
-
-            }else if(this.nombreVista == 'planillavbsuppre'){
-                this.store.baseParams.pes_estado = 'suppresu';
-            }else if(this.nombreVista == 'planillavbpresupuesto'){
-                this.store.baseParams.pes_estado = 'vbpresupuestos';
-            }else if(this.nombreVista == 'planillavbrh'){
-                this.store.baseParams.pes_estado = 'vbrh';
-            }
-            this.store.baseParams.tipo_interfaz =  this.nombreVista;
-
             this.iniciarEventos();
+            
 
-
-            this.load({params: {start: 0, limit: this.tam_pag}});
-
-
-            this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
+            this.addButton('ant_estado',{grupo:[0,1],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
             this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
-            this.addButton('diagrama_gantt',{grupo:[0,1,2],text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
+            this.addButton('diagrama_gantt',{grupo:[0,1],text:'Gant',iconCls: 'bgantt',disabled:true,handler:diagramGantt,tooltip: '<b>Diagrama Gantt de proceso macro</b>'});
 
             this.addButton('btnChequeoDocumentosWf',
-                {	grupo:[0,1,2],
+                {	grupo:[0,1],
                     text: 'Documentos',
                     iconCls: 'bchecklist',
                     disabled: true,
@@ -64,7 +46,7 @@ header("content-type: text/javascript; charset=UTF-8");
             );
             
             this.addButton('btnPresupuestos',
-            {	grupo:[0,1,2],
+            {	grupo:[0,1],
                 iconCls: 'bstats',
                 disabled: false,  
                 text:'Presupuestos',
@@ -86,7 +68,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         );
         this.addButton('btnObligaciones',
-            {	grupo:[0,1,2],
+            {	grupo:[0,1],
                 iconCls: 'bmoney',
                 text:'Obligaciones',
                 disabled: true,                
@@ -95,31 +77,17 @@ header("content-type: text/javascript; charset=UTF-8");
             }
         );
         
-        
-            if(this.nombreVista == 'planillavbpoa') {
-                this.addButton('obs_poa', {
-                    grupo: [0, 1],
-                    text: 'Datos POA',
-                    iconCls: 'bdocuments',
-                    disabled: true,
-                    handler: this.initObs,
-                    tooltip: '<b>Código de actividad POA</b>'
-                });
-                this.crearFormObs();
-            }
-
-            this.addButton('btnObs',{
-                grupo:[0,1,2,3,4,5],
+        this.addButton('btnObs',{
+                grupo:[0,1],
                 text :'Obs Wf.',
                 iconCls : 'bchecklist',
                 disabled: true,
                 handler : this.onOpenObs,
                 tooltip : '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
-            });
+         });
 
 
-
-            function diagramGantt(){
+         function diagramGantt(){
                 var data=this.sm.getSelected().data.id_proceso_wf;
                 Phx.CP.loadingShow();
                 Ext.Ajax.request({
@@ -133,7 +101,7 @@ header("content-type: text/javascript; charset=UTF-8");
             }
 
             this.addButton('btnHoras',
-                {	grupo:[0,1,2],
+                {	grupo:[0,1],
                     iconCls: 'bclock',
                     text:'Horas',
                     disabled: true,
@@ -143,7 +111,7 @@ header("content-type: text/javascript; charset=UTF-8");
             );
 
             this.addButton('btnColumnas',
-                {	grupo:[0,1,2],
+                {	grupo:[0,1],
                     iconCls: 'bcalculator',
                     disabled: false,
                     text:'Columnas',
@@ -155,24 +123,67 @@ header("content-type: text/javascript; charset=UTF-8");
                         handler: this.onButtonColumnasDetalle,
                         tooltip: 'Detalle de Columnas por Empleado',
                         scope: this
-                    }, {
-                        text: 'Subir Columnas desde CSV',
-                        id: 'btnColumnasCsv-' + this.idContenedor,
-                        handler: this.onButtonColumnasCsv,
-                        tooltip: 'Subir Columnas desde archivo Csv',
-                        scope: this
-                    }, {
-                        text: 'Generar descuento cheque',
-                        id: 'btnGenerarCheque-' + this.idContenedor,
-                        handler: this.onButtonGenerarCheque,
-                        tooltip: 'Generar descuento de cheque a partir de la diferencia entre la planilla Sigma y ERP',
-                        scope: this
                     }]
                 }
             );
+            
+            this.addButton('SolDev',{text:'Generar  Cbte Devengado', iconCls: 'bpagar',disabled: true, handler: this.onBtnDev ,tooltip: '<b>Solicitar Devengado</b><br/>Genera en cotabilidad el comprobante Correspondiente, devengado  '});
+            this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
+       
+            
+            this.store.baseParams.tipo_interfaz =  this.nombreVista;            
+            this.store.baseParams.pes_estado = 'vobo_conta';
+            this.load({params: {start: 0, limit: this.tam_pag}});            
+            this.finCons = true;
         },
         
-        onButtonHorasDetalle : function() {
+        
+        onBtnDev: function(){
+        	if(confirm('¿Está seguro de generar un nuevo comprobante de devegado?')){
+	            var rec=this.sm.getSelected();
+	            if(rec){
+		            Phx.CP.loadingShow();
+		            Ext.Ajax.request({
+		                url:'../../sis_planillas/control/Planilla/generarCbteContable',
+		                params: { id_planilla: rec.data.id_planilla, tipo:'devengado', id_obligacion: undefined},
+		                success: this.successGenCbte,
+		                failure: this.conexionFailure,
+		                timeout: this.timeout,
+		                scope:this
+		            }); 
+	            }
+	            else{
+	            	alert('no selecciono ningun registro');
+	            }
+          }
+         },
+         
+         onBtnPag: function() {
+         	if(confirm('¿Está seguro de generar todos los comprobantes de pago de uan sola vez?')) {
+	            var rec=this.sm.getSelected();
+	            if(rec){
+		            Phx.CP.loadingShow();
+		            Ext.Ajax.request({
+		                url:'../../sis_planillas/control/Planilla/generarCbteContable',
+		                params: { id_planilla: rec.data.id_planilla, tipo:'pagogrupo', id_obligacion: undefined},
+		                success: this.successGenCbte,
+		                failure: this.conexionFailure,
+		                timeout: this.timeout,
+		                scope:this
+		            }); 
+	            }
+	            else{
+	            	alert('no selecciono ningun registro');
+	            }
+           }
+         },
+         
+         successGenCbte: function(resp) {
+            Phx.CP.loadingHide();
+            this.reload();
+         },
+        
+         onButtonHorasDetalle : function() {
             var rec = {maestro: this.sm.getSelected().data};
 
             Phx.CP.loadWindows('../../../sis_planillas/vista/horas_trabajadas/HorasTrabajadas.php',
@@ -218,6 +229,25 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.idContenedor,
                 'FuncionarioPlanillaColumna');
         },
+        
+        gruposBarraTareas:[
+						    {name:'vobo_conta',title:'<H1 align="center"><i class="fa fa-eye"></i> En Contabilidad</h1>',grupo:0,height:0},
+                            {name:'planilla_finalizada',title:'<H1 align="center"><i class="fa fa-eye"></i> Finalizadas</h1>',grupo:1,height:0}
+                       
+                       ],
+    
+    
+	    actualizarSegunTab: function(name, indice){
+	        if(this.finCons) {        	 
+	             this.store.baseParams.pes_estado = name;                           
+	             this.load({params:{start:0, limit:this.tam_pag}});
+	        }
+	    },
+	    beditGroups: [0],
+	    bdelGroups:  [0],
+	    bactGroups:  [0,1,2],
+	    btestGroups: [0],
+	    bexcelGroups: [0,1,2],
 
         Atributos:[
             {
@@ -495,8 +525,6 @@ header("content-type: text/javascript; charset=UTF-8");
                 form:true
             },
 
-
-
             {
                 config:{
                     name: 'estado_reg',
@@ -647,7 +675,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.ocultarComponente(this.Cmp.id_uo);
             this.ocultarComponente(this.Cmp.id_periodo);
             this.ocultarComponente(this.Cmp.id_gestion);
-            Phx.vista.PlanillaVb.superclass.onButtonEdit.call(this);
+            Phx.vista.PlanillaVbConta.superclass.onButtonEdit.call(this);
 
         },
         onButtonAjax : function (params){
@@ -703,17 +731,19 @@ header("content-type: text/javascript; charset=UTF-8");
         preparaMenu:function()
         {	var rec = this.sm.getSelected();
             this.desactivarMenu();
-            Phx.vista.PlanillaVb.superclass.preparaMenu.call(this);
+            Phx.vista.PlanillaVbConta.superclass.preparaMenu.call(this);
 
             this.getBoton('btnHoras').enable();
+            
+            
 
             if (rec.data.estado == 'registro_funcionarios') {
                 this.getBoton('ant_estado').disable();
                 this.getBoton('sig_estado').enable();
 
-            } else if (rec.data.estado == 'comprobante_generado' ||
-                rec.data.estado == 'planilla_finalizada') {
-                this.getBoton('ant_estado').disable();
+            } else if (rec.data.estado == 'planilla_finalizada') {
+                       	
+                this.getBoton('ant_estado').enable();
                 this.getBoton('sig_estado').disable();
 
 
@@ -731,13 +761,21 @@ header("content-type: text/javascript; charset=UTF-8");
             if(this.nombreVista == 'planillavbpoa') {
                 this.getBoton('obs_poa').enable();
             }
-
+            
+            if(rec.data.estado == 'vobo_conta'){
+            	this.getBoton('SolDev').enable();
+            	this.getBoton('SolPag').enable();
+            }
+            else{
+            	this.getBoton('SolDev').disable();
+            	this.getBoton('SolPag').disable();
+            }
+            
             this.getBoton('btnObs').enable();
             this.getBoton('btnChequeoDocumentosWf').enable();
 
             //MANEJO DEL BOTON DE GESTION DE PRESUPUESTOS
-            this.getBoton('diagrama_gantt').enable();
-            
+            this.getBoton('diagrama_gantt').enable();            
             this.getBoton('btnPresupuestos').enable();           
             this.getBoton('btnObligaciones').enable(); 
 
@@ -745,14 +783,10 @@ header("content-type: text/javascript; charset=UTF-8");
         liberaMenu:function()
         {
             this.desactivarMenu();
-            Phx.vista.PlanillaVb.superclass.liberaMenu.call(this);
+            Phx.vista.PlanillaVbConta.superclass.liberaMenu.call(this);
 
         },
         desactivarMenu:function() {
-
-            if(this.nombreVista == 'planillavbpoa') {
-                this.getBoton('obs_poa').disable();
-            }
             this.getBoton('diagrama_gantt').disable();
             this.getBoton('ant_estado').disable();
             this.getBoton('sig_estado').disable();
@@ -786,9 +820,6 @@ header("content-type: text/javascript; charset=UTF-8");
                     id_estado_wf:rec.data.id_estado_wf,
                     id_proceso_wf:rec.data.id_proceso_wf,
                     fecha_ini:rec.data.fecha_tentativa,
-                    //url_verificacion:'../../sis_tesoreria/control/PlanPago/siguienteEstadoPlanPago'
-
-
 
                 }}, this.idContenedor,'FormEstadoWf',
                 {
@@ -878,140 +909,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.reload();
         },
 
-        crearFormObs:function(){
-
-            var titulo;
-            if(this.nombreVista == 'planillavbpoa') {
-                titulo = 'Datos POA';
-                this.formObs = new Ext.form.FormPanel({
-                    baseCls: 'x-plain',
-                    autoDestroy: true,
-                    border: false,
-                    layout: 'form',
-                    autoHeight: true,
-                    items: [
-                        {
-                            name: 'codigo_poa',
-                            xtype: 'awesomecombo',
-                            fieldLabel: 'Código POA',
-                            allowBlank: false,
-                            emptyText : 'Actividad...',
-                            store : new Ext.data.JsonStore({
-                                url : '../../sis_presupuestos/control/Objetivo/listarObjetivo',
-                                id : 'codigo',
-                                root : 'datos',
-                                sortInfo : {
-                                    field : 'codigo',
-                                    direction : 'ASC'
-                                },
-                                totalProperty : 'total',
-                                fields : ['codigo', 'descripcion','sw_transaccional','detalle_descripcion'],
-                                remoteSort : true,
-                                baseParams : {
-                                    par_filtro : 'obj.codigo#obj.descripcion'
-                                }
-                            }),
-                            valueField : 'codigo',
-                            displayField : 'detalle_descripcion',
-                            forceSelection : true,
-                            typeAhead : false,
-                            triggerAction : 'all',
-                            lazyRender : true,
-                            mode : 'remote',
-                            pageSize : 10,
-                            queryDelay : 1000,
-                            gwidth : 150,
-                            minChars : 2,
-                            anchor: '100%',
-                            enableMultiSelect:true
-                        },
-
-                        {
-                            name: 'obs_poa',
-                            xtype: 'textarea',
-                            fieldLabel: 'Obs POA',
-                            allowBlank: true,
-                            grow: true,
-                            growMin : '80%',
-                            value:'',
-                            anchor: '100%',
-                            maxLength:500
-                        }]
-                });
-            }
-
-            this.wObs = new Ext.Window({
-                title: titulo,
-                collapsible: true,
-                maximizable: true,
-                autoDestroy: true,
-                width: 400,
-                height: 290,
-                layout: 'fit',
-                plain: true,
-                bodyStyle: 'padding:5px;',
-                buttonAlign: 'center',
-                items: this.formObs,
-                modal:true,
-                closeAction: 'hide',
-                buttons: [{
-                    text: 'Guardar',
-                    handler: this.submitObs,
-                    scope: this
-
-                },
-                    {
-                        text: 'Cancelar',
-                        handler:function(){this.wObs.hide()},
-                        scope:this
-                    }]
-            });
-
-            if(this.nombreVista == 'planillavbpoa') {
-                this.cmbObsPoa = this.formObs.getForm().findField('obs_poa');
-                this.cmbCodigoPoa = this.formObs.getForm().findField('codigo_poa');
-            }
-        },
-
-        initObs:function(){
-            var d= this.sm.getSelected().data;
-            console.log('initObs', d);
-            if(this.nombreVista == 'planillavbpoa') {
-                this.cmbObsPoa.setValue(d.obs_poa);
-                this.cmbCodigoPoa.store.baseParams.id_gestion = d.id_gestion;
-                this.cmbCodigoPoa.store.baseParams.sw_transaccional = 'movimiento';
-
-                /*if(d.codigo_poa == '' || d.codigo_poa == undefined){
-
-
-                    Ext.Ajax.request({
-                        url:'../../sis_planillas/control/Planilla/listarPartidaObjetivo',
-                        params:{
-                            id_proceso_wf : d.id_proceso_wf,
-                            id_planilla : d.id_planilla
-                        },
-                        success:function(resp){
-                            var reg =  Ext.decode(Ext.util.Format.trim(resp.responseText));
-                            this.cmbGestion.setValue(reg.ROOT.datos.id_gestion);
-                            this.cmbGestion.setRawValue(reg.ROOT.datos.gestion);
-                            this.store.baseParams.id_gestion=this.cmbGestion.getValue();
-                        },
-                        failure: this.conexionFailure,
-                        timeout:this.timeout,
-                        scope:this
-                    });
-                }else{*/
-                    this.cmbCodigoPoa.setValue(d.codigo_poa);
-                //}
-
-
-            } /*else {
-                this.cmbObsPres.setValue(d.obs_presupuestos);
-            }*/
-            this.wObs.show()
-        },
-        
-         onButtonPresupuestoEmpleado : function() {
+        onButtonPresupuestoEmpleado : function() {
 	    	var rec = {maestro: this.sm.getSelected().data};
 							      
 	            Phx.CP.loadWindows('../../../sis_planillas/vista/presupuesto_empleado/PresupuestoEmpleado.php',
@@ -1045,7 +943,7 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
                     'Obligaciones',
                     {
-                        width:'90%',
+                        width: '90%',
                         height:'90%'
                     },
                     rec,
@@ -1053,7 +951,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     'Obligacion');
     },
 
-        submitObs:function(){
+     submitObs:function() {
             Phx.CP.loadingShow();
             var data = this.getSelectedData(), url, params;
 

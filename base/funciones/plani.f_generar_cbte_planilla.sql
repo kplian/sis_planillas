@@ -11,11 +11,6 @@ CREATE OR REPLACE FUNCTION plani.f_generar_cbte_planilla (
 RETURNS boolean AS
 $body$
 /*
-*
-*  Autor:   JRR
-*  DESC:    funcion que actualiza los estados despues del registro de un siguiente en planilla
-*  Fecha:   17/10/2014
-*
  ***************************************************************************************************   
     
 
@@ -23,7 +18,7 @@ $body$
        
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
- #38             10/09/2019        RAC KPLIAN      creacion de cbte de debengado o de pago  independiente al wf de la planilla
+ #38             10/09/2019        RAC KPLIAN      creacion de cbte de devengado o de pago  independiente al wf de la planilla
 */
 
 DECLARE
@@ -38,29 +33,44 @@ DECLARE
     v_id_int_comprobante_2       integer;
     v_plani_cbte_independiente   varchar;
     v_id_int_comprobante_obli    integer;
-    
    
-
-
-
 BEGIN
 
     v_nombre_funcion = 'plani.f_generar_cbte_planilla';
     
-     select 
-            pla.*, 
-            pe.fecha_ini, 
-            pe.fecha_fin,
-            tp.calculo_horas,
-            tp.funcion_calculo_horas, 
-            tp.codigo, 
-            tp.tipo_presu_cc 
-    into v_planilla
-    from plani.tplanilla pla
-    inner join plani.ttipo_planilla tp
-          on tp.id_tipo_planilla = pla.id_tipo_planilla
-    left join param.tperiodo pe on pe.id_periodo = pla.id_periodo
-    where id_planilla = p_id_planilla;
+    IF p_id_planilla IS NOT NULL THEN
+         select 
+                pla.*, 
+                pe.fecha_ini, 
+                pe.fecha_fin,
+                tp.calculo_horas,
+                tp.funcion_calculo_horas, 
+                tp.codigo, 
+                tp.tipo_presu_cc 
+        into v_planilla
+        from plani.tplanilla pla
+        inner join plani.ttipo_planilla tp
+              on tp.id_tipo_planilla = pla.id_tipo_planilla
+        left join param.tperiodo pe on pe.id_periodo = pla.id_periodo
+        where id_planilla = p_id_planilla;
+   ELSE
+       select 
+                pla.*, 
+                pe.fecha_ini, 
+                pe.fecha_fin,
+                tp.calculo_horas,
+                tp.funcion_calculo_horas, 
+                tp.codigo, 
+                tp.tipo_presu_cc 
+        into v_planilla
+        from plani.tplanilla pla
+        inner join plani.tobligacion obl on obl.id_planilla = pla.id_planilla
+        inner join plani.ttipo_planilla tp
+              on tp.id_tipo_planilla = pla.id_tipo_planilla
+        left join param.tperiodo pe on pe.id_periodo = pla.id_periodo
+        where obl.id_obligacion = p_id_obligacion;
+   
+   END IF;
     
     
     --recupera configuracion
@@ -81,12 +91,12 @@ BEGIN
         
         IF   v_planilla.dividir_comprobante = 'no' THEN
              -- generar comprobante de devengado
-             v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',v_planilla.id_estado_wf, p_id_usuario, p_id_usuario_ai, p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla);
+             v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA',NULL, p_id_usuario, p_id_usuario_ai, p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla);
         ELSE
             
             --si se divide el cbte llama a las planillas  DIARIOPLA_C1 y DIARIOPLA_C2
-            v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA_C1',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE,  v_planilla.nro_planilla);   --Diario Presupeustario
-            v_id_int_comprobante_2 =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA_C2',p_id_estado_wf,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla); --Diario contable 
+            v_id_int_comprobante =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA_C1',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE,  v_planilla.nro_planilla);   --Diario Presupeustario
+            v_id_int_comprobante_2 =   conta.f_gen_comprobante (v_planilla.id_planilla,'DIARIOPLA_C2',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla); --Diario contable 
           
         END IF;
         
@@ -132,7 +142,7 @@ BEGIN
                                    where oa.id_planilla = v_planilla.id_planilla --#1                                    
                             ) loop
                                
-                  v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion_agrupador,'PAGOPLAAG',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
+                  v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion_agrupador,'PAGOPLAAG',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla);
                 
                  update  plani.tobligacion_agrupador set
                    id_int_comprobante =  v_id_int_comprobante_obli
@@ -166,6 +176,7 @@ BEGIN
             raise exception 'Esta obligacion esta configurada como no pagable';
           END IF;
           
+          
           IF v_registros.id_obligacion_agrupador is null THEN 
              --  es una obligacion  sin agrupador
              v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion,'PAGOPLA',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL, FALSE, v_planilla.nro_planilla);
@@ -176,8 +187,16 @@ BEGIN
           
           ELSE
             
-            v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion_agrupador,'PAGOPLAAG',NULL,p_id_usuario,p_id_usuario_ai,p_usuario_ai, NULL);
-                
+            v_id_int_comprobante_obli = conta.f_gen_comprobante (v_registros.id_obligacion_agrupador,
+                                                                 'PAGOPLAAG',
+                                                                 NULL,
+                                                                 p_id_usuario,
+                                                                 p_id_usuario_ai,
+                                                                 p_usuario_ai, 
+                                                                 NULL, 
+                                                                 FALSE, 
+                                                                 v_planilla.nro_planilla);
+                    
             update  plani.tobligacion_agrupador set
               id_int_comprobante =  v_id_int_comprobante_obli
             where  id_obligacion_agrupador =  v_registros.id_obligacion_agrupador;

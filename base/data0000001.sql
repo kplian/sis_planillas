@@ -420,4 +420,12 @@ VALUES
   
 /***********************************F-DAT-RAC-PLANI-38-10/09/2019****************************************/
 
+
+
+/***********************************I-DAT-RAC-PLANI-38-16/09/2019****************************************/
+select pxp.f_insert_tgui ('VoBo Planillas (Conta)', 'VoBo Planillas (Conta)', 'PLAVOBOCTA', 'si', 3, 'sis_planillas/vista/planilla/PlanillaVbConta.php', 2, '', 'PlanillaVbConta', 'PLANI');
+select pxp.f_insert_testructura_gui ('PLAVOBOCTA', 'PLANI');
+/***********************************F-DAT-RAC-PLANI-38-16/09/2019****************************************/
+
+
   
