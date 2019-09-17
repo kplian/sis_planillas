@@ -11,6 +11,7 @@
  * 
  #0              22/01/2014        GUY KPLIAN      creacion 
  #38             11/09/2019        RAC KPLIAN      muestra columnas tipo contrato y cbte dividido  
+ #42    ETR      17-09-2019        RAC KPLIAN      exluir estados vobo_conta y finalizado de la interface de vobo planilla 
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -23,6 +24,7 @@ header("content-type: text/javascript; charset=UTF-8");
         bdel: false,
         btest: false,
         bsave: false,
+        nombreVista: 'PlanillaVb',//#42
 
         constructor:function(config){
 
