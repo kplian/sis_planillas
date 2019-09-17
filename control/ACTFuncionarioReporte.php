@@ -5,7 +5,7 @@
  de la Vista para envio y ejecucion de los metodos del Modelo referidas a la tabla tfuncionario 
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
-   
+ #41	etr				16.09.2091			MZM					ADICION DE TIPO CONTRATO A FILTRO EN RESERVAS  
  */
 require_once(dirname(__FILE__).'/../reportes/RAntiguedadFuncionarioPDF.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaEmpleado.php');
@@ -83,7 +83,7 @@ class ACTFuncionarioReporte extends ACTbase{
 				   
 			}else{
 				if($this->objParam->getParametro('tipo_reporte')=='aporte_afp' || $this->objParam->getParametro('tipo_reporte')=='fondo_solidario' ){ 
-					$this->reportePlanillaAFP($titulo,$fecha,$id_afp); //nomina salarios BC, CT
+					$this->reportePlanillaAFP($titulo,$fecha,$id_afp,$id_tipo_contrato ); //nomina salarios BC, CT
 				}else{
 					if($this->objParam->getParametro('tipo_reporte')=='personal_ret' || $this->objParam->getParametro('tipo_reporte')=='personal_inc' ){
 						$this->reportePlanillaPersonal($titulo,$id_gestion); //nomina salarios BC, CT
@@ -153,7 +153,7 @@ class ACTFuncionarioReporte extends ACTbase{
     }
 	
 	
-	function reportePlanillaAFP($tipo_reporte,$fecha,$id_afp)	{
+	function reportePlanillaAFP($tipo_reporte,$fecha,$id_afp,$id_tipo_contrato)	{
 
         $this->objFunc=$this->create('MODFuncionarioReporte');
 

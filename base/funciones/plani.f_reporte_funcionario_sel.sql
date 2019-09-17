@@ -251,7 +251,8 @@ BEGIN
 				inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
 				and tcol.codigo = colval.codigo_columna';
         v_ordenar:='fun.desc_funcionario2 ';
-        v_condicion:=' plani.id_periodo='||v_id_periodo||'  ';  --uo.orden_centro 0 quitar
+        
+	    v_condicion:=' plani.id_periodo='||v_id_periodo||'  ';  --uo.orden_centro 0 quitar
         
         --03.09.2019: adicion de id_tipo_contrato
         if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
@@ -260,6 +261,7 @@ BEGIN
           end if;
         end if;
         -- fin 03.09.2019
+       
        
         
         v_cols:='tcol.codigo,round(colval.valor,2),';
@@ -277,9 +279,17 @@ BEGIN
                 		v_col:=v_col||' and tcol.codigo in (''CACSELFIJO'') and colval.valor>0';
                  elseif(v_parametros.tipo_reporte='reserva_beneficios') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
+		
                 elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
-					v_condicion:='  plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
+					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
+                    v_ordenar:=v_ordenar||',per.periodo ';
+                     if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+                        if(v_parametros.id_tipo_contrato>0) then
+                          v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+                        end if;
+        			 end if;
+                    
                     
                 else 
                     create temp  table tt_totplan(id_funcionario integer,
@@ -407,7 +417,7 @@ BEGIN
         end if;    
             
        -- else
-        
+
           
                  v_consulta:='select
                             fun.id_funcionario,
@@ -494,11 +504,12 @@ BEGIN
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion=per.id_gestion
-                        where
+                        where 
                         
                          (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))  <= '''||v_parametros.fecha||''' and
                         
                         '||v_condicion||'
+                       
                        
                         order by '||v_ordenar;
              raise notice 'aaa%',v_consulta;
@@ -508,8 +519,15 @@ BEGIN
         end;
      elsif(p_transaccion='PLA_DATAPORTE_SEL')then
  		begin 
-        v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
-        
+           v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+           v_condicion:=' and 0=0';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+          		if(v_parametros.id_tipo_contrato>0) then
+        			v_condicion := 'and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+                
+          		end if;
+        	end if;
+           
         
                SELECT
                   per.fecha_ini,
@@ -534,11 +552,12 @@ BEGIN
                   from plani.tfuncionario_planilla fp
                   inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
                   inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
+                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                   and f.id_uo_funcionario=fp.id_uo_funcionario
-                  where p.id_periodo=v_id_periodo and f.codigo_tipo_contrato='PLA'
+                  where p.id_periodo=v_id_periodo
                             ) loop
                       
-                    
+
                     if ( v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin) then
 						v_antiguedad_anos:=( SELECT EXTRACT(DAY FROM age(date (v_registros.fecha_finalizacion),date(v_fecha_ini) ) ) );
                     else
@@ -547,12 +566,12 @@ BEGIN
                     
                     if(v_registros.fecha_ingreso between v_fecha_ini and v_fecha_fin) then
                     
-                    	v_antiguedad:=(select to_date(v_fecha_fin,'dd/mm/yyyy')-to_date(v_registros.fecha_ingreso,'dd/mm/yyyy'));		
+                    	v_antiguedad:=( SELECT EXTRACT(DAY FROM age(date (v_fecha_fin),date(v_registros.fecha_ingreso) ) ) );
                     else
                     	v_antiguedad:=0;
                     end if;
                     
-                        
+
 
               		insert into tt_func 
               		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_antiguedad_anos  );
@@ -594,10 +613,11 @@ BEGIN
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
                          inner join plani.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar
-                         where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''TOTGAN'') and rep.codigo_tipo_contrato=''PLA''
-                         and rep.id_afp='||v_parametros.id_afp||'
-                         order by rep.tipo_jubilado desc, rep.desc_funcionario2';
+                         where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''TOTGAN'') 
+                         and rep.id_afp='||v_parametros.id_afp||v_condicion||'
                          
+                         order by rep.desc_funcionario2';
+                            
                          return v_consulta;
         end; 
     elsif (p_transaccion='PLA_DATPERSON_SEL') then

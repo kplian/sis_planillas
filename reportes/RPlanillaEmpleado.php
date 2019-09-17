@@ -2,7 +2,8 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
+ #30    ETR            30/07/2019           MZM                 Creacion
+ #41	ETR				16.09.2019			MZM		 			Modificacion a reporte reserva detalle para q liste 3 registros historicos, adicion de tipo contrato en titulo y formateo de number
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -38,6 +39,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 			if($this->objParam->getParametro('tipo_reporte')=='no_sindicato' || $this->objParam->getParametro('tipo_reporte')=='aporte_sindicato' || $this->objParam->getParametro('tipo_reporte')=='aporte_cacsel'){
 				if ($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
 					$this->Cell(0,5,'NOMINA DE PERSONAL NO SINDICALIZADO',0,1,'C');
+					
 				}else{ if ( $this->objParam->getParametro('tipo_reporte')=='aporte_cacsel'){
 					$this->Cell(0,5,'APORTE PORCENTUAL CACSEL',0,1,'C');
 				}else{
@@ -46,9 +48,17 @@ class RPlanillaEmpleado extends  ReportePDF {
 					
 				}
 				
+				if($cadena_nomina!=''){
+						$this->Cell(0,5,$cadena_nomina,0,1,'C');	
+				}
+				
 			}else{
 				if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$this->Cell(0,5,'PLANILLA DE RESERVA PARA BENEFICIOS SOCIALES',0,1,'C');
+					if($cadena_nomina!=''){ //#41
+						$this->Cell(0,5,$cadena_nomina,0,1,'C');	
+					}
+					
 				}else{
 					$this->Cell(0,5,'NOMINA DE SALARIOS '.$cadena_nomina,0,1,'C');
 				}
@@ -209,12 +219,50 @@ class RPlanillaEmpleado extends  ReportePDF {
 		$num=1;
 		$val=0;
 		
+		$tot_bs=0;
+		$tot_sus=0;
+		
+		
+		$contador_reserva3=0;
+		
 		if( $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
+			$num=0;
 			//var_dump($this->datos); exit;
 				for ($i=0; $i<count($this->datos);$i++){
 					$cont++;
 					if($id_funcionario!=$this->datos[$i]['id_funcionario']){ 
-						      
+						     
+						     if($num==3){//#41
+						     	
+						     }else{
+						      	while($id_funcionario!=0 && $num<4 ){ 
+						      	  $num++;
+							  	  $cont++;
+							      $array_datos[$cont][0]='';
+								  $array_datos[$cont][1]='';
+								  $array_datos[$cont][2]=$this->datos[$i-1]['cargo'];
+								  $array_datos[$cont][3]='';
+								  $array_datos[$cont][4]=$this->datos[$i-1]['nivel'];
+								  $array_datos[$cont][5]= $this->datos[$i-1]['valor'];
+								  $array_datos[$cont][7]='';
+								  $array_datos[$cont][8]='';
+								  $array_datos[$cont][9]=$this->datos[$i-1]['nombre_gerencia'];
+								  $array_datos[$cont][10]=$this->datos[$i-1]['nombre_unidad'];
+								  $array_datos[$cont][11]=$this->datos[$i-1]['ci'].'  '.$this->datos[$i-1]['expedicion'];
+								  $array_datos[$cont][12]=$this->datos[$i-1]['distrito'];							 
+								  $array_datos[$cont][13]='';
+								  $array_datos[$cont][14]=$this->datos[$i-1]['anos_quinquenio'];
+								  $array_datos[$cont][15]=$this->datos[$i-1]['mes_quinquenio'];
+								  $array_datos[$cont][16]=$this->datos[$i-1]['dias_quinquenio'];
+								  
+								  $val=$val+$this->datos[$i-1]['valor'];
+								  
+								  $array_datos[$cont][17]=$val; 
+								  $array_datos[$cont][18]=number_format($num,2);
+						      	}
+						      }
+
+
 						      $val=0;
 							  $num=1; 
 					 	  	  $array_datos[$cont][0]=$this->datos[$i]['codigo_empleado'];
@@ -247,6 +295,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 							  $array_datos[$cont][18]=number_format($num,2);
 							 
 							  $val=$this->datos[$i]['valor'];
+							  
 							 
 					}else{
 						
@@ -277,6 +326,35 @@ class RPlanillaEmpleado extends  ReportePDF {
 					$id_funcionario=$this->datos[$i]['id_funcionario'];
 				}
 
+
+				//para el ultimo registro #41
+				while($num!=0 && $num<3 ){ 
+						      	  $num++;
+							  	  $cont++;
+							      $array_datos[$cont][0]='';
+								  $array_datos[$cont][1]='';
+								  $array_datos[$cont][2]=$this->datos[$i-1]['cargo'];
+								  $array_datos[$cont][3]='';
+								  $array_datos[$cont][4]=$this->datos[$i-1]['nivel'];
+								  $array_datos[$cont][5]= $this->datos[$i-1]['valor'];
+								  $array_datos[$cont][7]='';
+								  $array_datos[$cont][8]='';
+								  $array_datos[$cont][9]=$this->datos[$i-1]['nombre_gerencia'];
+								  $array_datos[$cont][10]=$this->datos[$i-1]['nombre_unidad'];
+								  $array_datos[$cont][11]=$this->datos[$i-1]['ci'].'  '.$this->datos[$i-1]['expedicion'];
+								  $array_datos[$cont][12]=$this->datos[$i-1]['distrito'];							 
+								  $array_datos[$cont][13]='';
+								  $array_datos[$cont][14]=$this->datos[$i-1]['anos_quinquenio'];
+								  $array_datos[$cont][15]=$this->datos[$i-1]['mes_quinquenio'];
+								  $array_datos[$cont][16]=$this->datos[$i-1]['dias_quinquenio'];
+								  
+								  $val=$val+$this->datos[$i-1]['valor'];
+								  
+								  $array_datos[$cont][17]=$val; 
+								  $array_datos[$cont][18]=number_format($num,2);
+						      }
+
+
  
 		}else{
 			
@@ -286,7 +364,8 @@ class RPlanillaEmpleado extends  ReportePDF {
 				$numE=0;
 				for ($i=0; $i<count($this->datos)+2;$i++){
 									
-				    if($id_funcionario!=$this->datos[$i]['id_funcionario'] ){ 
+				    if($id_funcionario!=$this->datos[$i]['id_funcionario'] ){
+				    	
 							  $cont++;
 					 	  	  $array_datos[$cont][0]=$this->datos[$i-1]['codigo_empleado'];
 							  $array_datos[$cont][1]=$this->datos[$i-1]['nombre_empleado'];
@@ -384,11 +463,15 @@ class RPlanillaEmpleado extends  ReportePDF {
 				
 					if($code!='' && $i!=0 && $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
 					//echo $i.'---'.$array_datos[1][17].'---'.$array_datos[1][18]; exit;
+					$numE++; //#41
 					   if($array_datos[$i-1][18]>0 ){
 						   	$this->Cell(148,3.5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18],2,',','.'),'',0,'R');	
 							$this->Cell(25,3.5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast,2,',','.'),'',0,'R');
 							$this->Cell(25,3.5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast/$this->datos[0]['tc'],2,',','.'),'',1,'R');
 							$this->Ln(3);
+						
+							$tot_bs=$tot_bs+($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast);
+							$tot_sus=$tot_sus+($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast/$this->datos[0]['tc']);
 						
 					   }
 					    
@@ -399,13 +482,13 @@ class RPlanillaEmpleado extends  ReportePDF {
 					$dias=(($array_datos[$i][14]*360)+($array_datos[$i][15]*30)+($array_datos[$i][16]));
 					//$dias=number_format($dias,2,',','.');
 					if($dias>0){
-						$this->Cell(18,3.5,$array_datos[$i][0],'',0,'L');
+						$this->Cell(18,3.5,$array_datos[$i][0],'',0,'C');
 						$this->Cell(65,3.5,substr ( $array_datos[$i][1], 0, 32),'',0,'L');
 						$this->Cell(20,3.5,$array_datos[$i][13],'',0,'L');	
 						if($code==''){
 							$this->Cell(20,3.5,'','',0,'R');
 						}else{
-							$this->Cell(20,3.5,number_format($dias,2,',','.'),'',0,'R');
+							$this->Cell(20,3.5,number_format($dias,0,',','.'),'',0,'R');
 						}
 						
 							
@@ -417,14 +500,37 @@ class RPlanillaEmpleado extends  ReportePDF {
 							$this->Cell(25,3.5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
 							$this->Cell(25,3.5,number_format(($array_datos[$i][5]/360*$dias),2,',','.'),'',0,'R');	
 							$this->Cell(25,3.5,number_format($array_datos[$i][5]/360*$dias/$this->datos[0]['tc'],2,',','.'),'',1,'R');
+							
+							$tot_bs=$tot_bs+($array_datos[$i][5]/360*$dias);
+							$tot_sus=$tot_sus+($array_datos[$i][5]/360*$dias/$this->datos[0]['tc']);
 						}
 					 
 					}	
 					
 					
-					
-					
 				}	
+
+              
+               if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
+				$this->Cell(148,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18],2,',','.'),'',0,'R');
+				$this->Cell(25,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast,2,',','.'),'',0,'R');
+				$this->Cell(25,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast/$this->datos[0]['tc'],2,',','.'),'',1,'R');
+				$tot_bs=$tot_bs+($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast);
+				$tot_sus=$tot_sus+($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast/$this->datos[0]['tc']);
+			   }			
+
+				//#41
+				$this->SetLineWidth(0.2);
+		 	 	$this->SetDrawColor(0,0,0);
+				$this->Cell(0,0,'','B',1);
+				$this->SetFont('','B',8);
+			if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
+				$this->Cell(18,3.5,$numE,'',0,'C');
+			}else{
+				$this->Cell(18,3.5,number_format($cont,0,',','.'),'',0,'C');
+			}
+				$this->Cell(155,3.5,number_format($tot_bs,2,',','.'),'',0,'R');
+				$this->Cell(25,3.5,number_format($tot_sus,2,',','.'),'',1,'R');		
 				
 		}else{
 			
