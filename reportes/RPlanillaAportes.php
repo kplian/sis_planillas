@@ -3,7 +3,8 @@
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
-*/
+  #41	ETR				16.09.2019			MZM					OMISION DE SALTO DE PAGINA POR TIPO DE APORTANTE: MENOR 65, MAYOR 65, JUB55, JUB65
+ * */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
 	var $ancho_hoja;
@@ -270,7 +271,7 @@ class RPlanillaAportes extends  ReportePDF {
 		   $code=$array_datos[0][14]; 
 			for ($i=0; $i<$cont;$i++){
 			  	
-				if($code!=$array_datos[$i][14])	{
+				/*if($code!=$array_datos[$i][14])	{
 					  $this->AddPage();
 					  $this->SetX(5);
 					  $this->Cell(5,3.5,$array_datos[$i][0],'',0,'R');
@@ -299,22 +300,22 @@ class RPlanillaAportes extends  ReportePDF {
 					  //-------
 					  $this->Cell(8,3.5,$array_datos[$i][12],'',0,'R');
 					  //-----
-					  $this->Cell(15,3.5,$array_datos[$i][13],'',0,'R');
+					  $this->Cell(15,3.5,number_format($array_datos[$i][13],2,',','.'),'',0,'R');
 					 if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					
-						  $this->Cell(15,3.5,$array_datos[$i][15],'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
 						  //---
-						  $this->Cell(15,3.5,$array_datos[$i][16],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][17],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],'',1,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][17],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',1,'R');
 					  }else{
-					  	  $this->Cell(17,3.5,$array_datos[$i][15],'',0,'R');
+					  	  $this->Cell(17,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
 						  //---
-						  $this->Cell(17,3.5,$array_datos[$i][16],'',0,'R');
-						  $this->Cell(17,3.5,$array_datos[$i][17],'',1,'R');
+						  $this->Cell(17,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
+						  $this->Cell(17,3.5,number_format($array_datos[$i][17],2,',','.'),'',1,'R');
 					  }				
-				}else{
+				}else{*/
 										
 					
 					  $this->Cell(5,3.5,$array_datos[$i][0],'',0,'R');
@@ -343,27 +344,26 @@ class RPlanillaAportes extends  ReportePDF {
 					  //-------
 					  $this->Cell(8,3.5,$array_datos[$i][12],'',0,'R');
 					  //-----
-					  $this->Cell(15,3.5,$array_datos[$i][13],'',0,'R');
+					  $this->Cell(15,3.5,number_format($array_datos[$i][13],2,',','.'),'',0,'R');
 					  //----
 					  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					
-						  $this->Cell(15,3.5,$array_datos[$i][15],'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
 						  //---
-						  $this->Cell(15,3.5,$array_datos[$i][16],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][17],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],'',0,'R');
-						  $this->Cell(15,3.5,$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],'',1,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][17],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',0,'R');
+						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',1,'R');
 					  }else{
-					  	  $this->Cell(17,3.5,$array_datos[$i][15],'',0,'R');
+					  	  $this->Cell(17,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
 						  //---
-						  $this->Cell(17,3.5,$array_datos[$i][16],'',0,'R');
-						  $this->Cell(17,3.5,$array_datos[$i][17],'',1,'R');
+						  $this->Cell(17,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
+						  $this->Cell(17,3.5,number_format($array_datos[$i][17],2,',','.'),'',1,'R');
 					  }
-			  }
-				$code=$array_datos[$i][14];	
+			 // }
+				//$code=$array_datos[$i][14];	
 					
-					
-				}	
+					}	
 				
 		
 		

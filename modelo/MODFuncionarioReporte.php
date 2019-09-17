@@ -10,7 +10,7 @@
        
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
-  
+ #41	ETR				16.09.2019			MZM					ADICION DE FILTRO TIPO_CONTRATO
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -72,7 +72,7 @@ class MODFuncionarioReporte extends MODbase{
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');
-		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	//#41
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -121,6 +121,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');
 		$this->setParametro('id_afp','id_afp','integer');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -156,7 +157,7 @@ class MODFuncionarioReporte extends MODbase{
 	}
 
 
-	function listarDatosPersonal(){ 
+	function listarDatosPersonal(){
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.f_reporte_funcionario_sel';
 		$this->transaccion='PLA_DATPERSON_SEL';
