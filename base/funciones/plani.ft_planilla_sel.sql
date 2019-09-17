@@ -21,6 +21,7 @@ $body$
    #13                    7-6-2019            MMV ETR                Incluir campos tipo_contrato y dividir_comprobante
    #25    ETR             07/08/2019            RAC                  Registrar  calcular_reintegro_rciva
    #28    ETR             22-08-2019            RAC                  añade alias para correcta ordenacion por tipo planilla
+   #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla  
  ***************************************************************************/
 
 
@@ -68,17 +69,28 @@ $body$
     if(p_transaccion='PLA_PLANI_SEL')then
 
       begin
+      
+        v_filtro = '';--#42
+        
         IF p_administrador !=1 THEN
+          
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
-            then  '-1'
+                                                    then  '-1'
                                                else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
                                                end) || ') and ';
-        else
-          v_filtro = '';
         END IF;
 
         IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
-            v_filtro = '';
+                   
+          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
+             
+             IF v_filtro != '' THEN
+               v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             ELSE
+               v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             END IF;
+          END IF;
+            
         END IF;
 
         --Sentencia de la consulta
@@ -149,13 +161,27 @@ $body$
       begin
         --Sentencia de la consulta de conteo de registros
 
+         v_filtro = '';--#42
+        
         IF p_administrador !=1 THEN
+          
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
-            then  '-1'
+                                                    then  '-1'
                                                else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
                                                end) || ') and ';
-        else
-          v_filtro = '';
+        END IF;
+
+        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
+                   
+          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
+             
+             IF v_filtro != '' THEN
+               v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             ELSE
+               v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             END IF;
+          END IF;
+            
         END IF;
 
 
