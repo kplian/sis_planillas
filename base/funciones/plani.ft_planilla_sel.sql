@@ -70,7 +70,7 @@ $body$
 
       begin
       
-        v_filtro = '0 = 0 ';--#42
+        v_filtro = '';--#42
         
         IF p_administrador !=1 THEN
           
@@ -80,10 +80,17 @@ $body$
                                                end) || ') and ';
         END IF;
 
-        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN           
+        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
+                   
           IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
-             v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
-          END IF;  
+             
+             IF v_filtro != '' THEN
+               v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             ELSE
+               v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             END IF;
+          END IF;
+            
         END IF;
 
         --Sentencia de la consulta
@@ -154,20 +161,27 @@ $body$
       begin
         --Sentencia de la consulta de conteo de registros
 
-         v_filtro = '0 = 0 ';--#42
+         v_filtro = '';--#42
         
-         IF p_administrador !=1 THEN
+        IF p_administrador !=1 THEN
           
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
                                                else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
                                                end) || ') and ';
-         END IF;
+        END IF;
 
-        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN           
+        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
+                   
           IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
-             v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
-          END IF;  
+             
+             IF v_filtro != '' THEN
+               v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             ELSE
+               v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
+             END IF;
+          END IF;
+            
         END IF;
 
 
