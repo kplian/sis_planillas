@@ -1,8 +1,13 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_obligacion_ime" (	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+--------------- SQL ---------------
 
+CREATE OR REPLACE FUNCTION plani.ft_obligacion_ime (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_obligacion_ime
@@ -11,11 +16,15 @@ $BODY$
  FECHA:	        14-07-2014 20:30:19
  COMENTARIOS:	
 ***************************************************************************
- HISTORIAL DE MODIFICACIONES:
 
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+ 
+ 
+    HISTORIAL DE MODIFICACIONES:
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #0               14/07/2014       JRIVERA KPLIAN       creacion
+ #38              10/09/2019       RAC KPLIAN           metodo para verificar si existen cbte de pago para la planilla	
 ***************************************************************************/
 
 DECLARE
@@ -26,8 +35,9 @@ DECLARE
 	v_resp		            varchar;
 	v_nombre_funcion        text;
 	v_mensaje_error         text;
-	v_id_obligacion	integer;
+	v_id_obligacion	        integer;
 	v_obligacion			record;
+    v_existe_cbte_pago      varchar; --#38
 			    
 BEGIN
 
@@ -157,6 +167,43 @@ BEGIN
             return v_resp;
 
 		end;
+        
+    /*********************************    
+ 	#TRANSACCION:  'PLA_EXCBTE_PAG'
+ 	#DESCRIPCION:	Pregunta Existe algun cbte de pago para la planilla
+ 	#AUTOR:		rarteaga	
+ 	#FECHA:		18-09-2019
+	***********************************/
+
+	elsif(p_transaccion='PLA_EXCBTE_PAG')then  --#38 
+
+		begin
+			
+            IF EXISTS(
+                      SELECT 1
+                      FROM plani.tobligacion ob
+                      INNER JOIN plani.tobligacion_agrupador oa ON oa.id_obligacion_agrupador = ob.id_obligacion_agrupador
+                      WHERE ob.id_planilla = v_parametros.id_planilla
+                      AND (   ob.id_int_comprobante IS NOT NULL  
+                           OR oa.id_int_comprobante IS NOT NULL)) THEN
+                 
+                  v_existe_cbte_pago = 'si';       
+                           
+            ELSE
+                  v_existe_cbte_pago = 'no';
+            
+            END IF;
+            
+        
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','verificacion de cbte de pago en planilla'); 
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar); 
+            v_resp = pxp.f_agrega_clave(v_resp,'existe_cbte_pago',v_existe_cbte_pago);
+              
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;    
          
 	else
      
@@ -174,7 +221,9 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_obligacion_ime"(integer, integer, character varying, character varying) OWNER TO postgres;

@@ -54,28 +54,30 @@ BEGIN
             --Sentencia de la consulta
 			v_consulta:='select
             
-						obli.id_obligacion,
-                        obli.id_obligacion_agrupador,
-                        COALESCE(oa.acreedor, ''Ninguno'')::text as desc_agrupador ,
-						obli.id_auxiliar,
-						obli.id_cuenta,
-						obli.id_planilla,
-						obli.id_tipo_obligacion,
-						obli.monto_obligacion,
-						obli.acreedor,
-						obli.estado_reg,
-						obli.tipo_pago,
-						obli.descripcion,
-						obli.id_usuario_reg,
-						obli.usuario_ai,
-						obli.fecha_reg,
-						obli.id_usuario_ai,
-						obli.fecha_mod,
-						obli.id_usuario_mod,
-						usu1.cuenta as usr_reg,
-						usu2.cuenta as usr_mod,
-						tipobli.es_pagable,
-                        tipobli.descripcion as desc_tipo_obligacion                        	
+                          obli.id_obligacion,
+                          obli.id_obligacion_agrupador, --#38
+                          COALESCE(oa.acreedor, ''Ninguno'')::text as desc_agrupador , --#38
+                          obli.id_auxiliar,
+                          obli.id_cuenta,
+                          obli.id_planilla,
+                          obli.id_tipo_obligacion,
+                          obli.monto_obligacion,
+                          obli.acreedor,
+                          obli.estado_reg,
+                          obli.tipo_pago,
+                          obli.descripcion,
+                          obli.id_usuario_reg,
+                          obli.usuario_ai,
+                          obli.fecha_reg,
+                          obli.id_usuario_ai,
+                          obli.fecha_mod,
+                          obli.id_usuario_mod,
+                          usu1.cuenta as usr_reg,
+                          usu2.cuenta as usr_mod,
+                          tipobli.es_pagable,
+                          tipobli.descripcion as desc_tipo_obligacion,   --#38
+                          obli.id_int_comprobante,                       --#38
+                          oa.id_int_comprobante as id_int_comprobante_agrupador --#38                        	
 						from plani.tobligacion obli
 						inner join plani.ttipo_obligacion tipobli  on tipobli.id_tipo_obligacion = obli.id_tipo_obligacion
 						inner join segu.tusuario usu1 on usu1.id_usuario = obli.id_usuario_reg

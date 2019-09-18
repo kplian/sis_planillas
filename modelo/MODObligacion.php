@@ -7,12 +7,10 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
 
  * 
- *   HISTORIAL DE MODIFICACIONES:
-       
- ISSUE            FECHA:              AUTOR                 DESCRIPCION
-   
- #0               14/07/2014       JRIVERA KPLIAN       creacion
- #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
+ *   
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
  * */
 class MODObligacion extends MODbase{
 	
@@ -32,8 +30,8 @@ class MODObligacion extends MODbase{
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_obligacion','int4');		
-		$this->captura('id_obligacion_agrupador','int4');
-		$this->captura('desc_agrupador','text');
+		$this->captura('id_obligacion_agrupador','int4');//#38
+		$this->captura('desc_agrupador','text');//#38
 		$this->captura('id_auxiliar','int4');
 		$this->captura('id_cuenta','int4');
 		$this->captura('id_planilla','int4');
@@ -52,9 +50,11 @@ class MODObligacion extends MODbase{
 		$this->captura('usr_reg','varchar');
 		$this->captura('usr_mod','varchar');
 		$this->captura('es_pagable','varchar');	
-		$this->captura('desc_tipo_obligacion','varchar');	
+		$this->captura('desc_tipo_obligacion','varchar');//#38
+		$this->captura('id_int_comprobante','int4');	//#38
+		$this->captura('id_int_comprobante_agrupador','int4');	//#38
 		
-		
+			
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -125,6 +125,26 @@ class MODObligacion extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	
+	//#38 añade metodo para validar si existe algun cbte de pago generado para la planilla
+	function existenCbteDePago(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_obligacion_ime';
+		$this->transaccion='PLA_EXCBTE_PAG';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
 			
 }
 ?>
