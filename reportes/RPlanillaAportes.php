@@ -4,7 +4,9 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
   #41	ETR				16.09.2019			MZM					OMISION DE SALTO DE PAGINA POR TIPO DE APORTANTE: MENOR 65, MAYOR 65, JUB55, JUB65
- * */
+ *#44	ETR				18.09.2019			MZM					Adicion de totales para columnas numericas
+ * 
+ */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
 	var $ancho_hoja;
@@ -376,7 +378,7 @@ class RPlanillaAportes extends  ReportePDF {
 				//$code=$array_datos[$i][14];	
 				
 			}
- 			//totales
+ 			//totales #44
  			$this->SetFont('','B',7);
  			$this->SetLineWidth(0.2);
 	 	 	$this->SetDrawColor(0,0,0);
