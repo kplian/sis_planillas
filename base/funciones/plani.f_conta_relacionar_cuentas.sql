@@ -22,7 +22,7 @@ $body$
  #0               17/10/2014        JRR KPLIAN        Creación
  #1 ETR           24/01/2019        RAC KPLIAN        agrega cuenta contable, relaciones contables debe y haber configurables
  #10 ETR          29/05/2019        RAC KPLIAN        Considerar catalogos para obligaciones de planilla 
-
+ #43 ETR          18/09/2019        RAC KPLIAN        Validacion de auxiliares al generar obligaciones
 */
 DECLARE
   v_registros		record;
@@ -37,6 +37,7 @@ DECLARE
   v_id_relacion             integer;
   v_id_auxiliar             integer;
   v_id_auxiliar_haber       integer;
+  v_desc_funcionario        text; --#43
   
 BEGIN
 	v_nombre_funcion = 'plani.f_conta_relacionar_cuentas';
@@ -102,16 +103,45 @@ BEGIN
         IF v_registros.tipo_obligacion = 'una_obligacion_x_empleado'  THEN
           
            select 
-               f.id_auxiliar into v_id_auxiliar
+               f.id_auxiliar , f.codigo
+             into 
+                v_id_auxiliar, v_desc_funcionario
            from  orga.tfuncionario f
            where f.id_funcionario =   v_registros.id_funcionario;
            
            v_id_auxiliar_haber = v_id_auxiliar; 
            
+           
+           --#43 si no encuentra auxiliar directamente configurado en funcion busca por codigo de empleado
+           IF v_id_auxiliar IS NULL THEN
+              SELECT aux.id_auxiliar 
+              INTO v_id_auxiliar
+              FROM conta.tauxiliar aux 
+              WHERE aux.codigo_auxiliar = v_desc_funcionario ; 
+           
+           END IF;
+           
+           --#43 si el auxiliar es nulo
+           IF v_id_auxiliar IS NULL THEN
+              raise exception 'no se encontro el auxiliar para el funcionario: %',  v_desc_funcionario;
+           END IF;
+           
+           --#43 validar auxiliar
+           IF  NOT EXISTS(SELECT 1
+                         FROM conta.tauxiliar aux
+                         WHERE aux.id_auxiliar = v_id_auxiliar) THEN
+                    
+               raise exception 'no se encontro el auxiliar id:% , para el funcionario: %', v_id_auxiliar, v_desc_funcionario;
+                     
+           END IF;
+          
+           
         ELSE
            v_id_auxiliar = v_config.ps_id_auxiliar;
            v_id_auxiliar_haber = v_config_haber.ps_id_auxiliar;
         END IF;
+        
+        
         
         
          update plani.tobligacion SET
