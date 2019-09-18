@@ -32,7 +32,7 @@ class ACTPlanilla extends ACTbase{
         } else if ($this->objParam->getParametro('pes_estado') == 'planilla_finalizada') {
             $this->objParam->addFiltro("plani.estado  in (''planilla_finalizada'')");
         } else if ($this->objParam->getParametro('pes_estado') == 'comprobante_generado') {
-            $this->objParam->addFiltro("plani.estado  in (''comprobante_generado'',''suppresu'',''vbpresupuestos'')");
+            $this->objParam->addFiltro("plani.estado  in (''comprobante_generado'',''suppresu'',''vbpresupuestos'',''vobo_conta'')");//#38 anhade vobo_conta
         } else if($this->objParam->getParametro('pes_estado') == 'vbpoa'){
             $this->objParam->addFiltro("plani.estado  in (''vbpoa'')");
         } else if($this->objParam->getParametro('pes_estado') == 'suppresu'){

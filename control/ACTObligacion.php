@@ -5,6 +5,11 @@
 *@author  (jrivera)
 *@date 14-07-2014 20:30:19
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * 
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
+ 
 */
 
 class ACTObligacion extends ACTbase{    
@@ -41,6 +46,12 @@ class ACTObligacion extends ACTbase{
 	function eliminarObligacion(){
 			$this->objFunc=$this->create('MODObligacion');	
 		$this->res=$this->objFunc->eliminarObligacion($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	//#38 verifica si existe algun cbte de pago para la planilla
+	function existenCbteDePago(){
+		$this->objFunc=$this->create('MODObligacion');	
+		$this->res=$this->objFunc->existenCbteDePago($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 			

@@ -11,6 +11,7 @@
 #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
 #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
 #38 ETR             12/09/2019          RAC                 Generar cbte contables 
+#43 ETR             18/09/2019          RAC                 añade datos de comprobante a la consulta
 
  ***/
 
@@ -63,6 +64,8 @@ class MODPlanilla extends MODbase{
 		$this->captura('tipo_contrato','varchar'); //#5
 		$this->captura('id_tipo_contrato','integer'); //#5
 		$this->captura('calcular_reintegro_rciva','varchar'); //#25
+		$this->captura('id_int_comprobante','int4');//#43
+		$this->captura('id_int_comprobante_2','int4');//#43
 		
 		
 		//Ejecuta la instruccion

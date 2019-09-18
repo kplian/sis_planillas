@@ -39,6 +39,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
         
        //#38
        this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Generar Cbte de  Pago</b><br/>Genera el comprobante correspondiente del pago seleccionado'});
+       this.addButton('SolTodosPag',{text:'Solicitar Todos los Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnTodosPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
         
 	},
 	
@@ -206,7 +207,38 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				form:true,
 				egrid:true
 		},
+		//#38 ++  inicio
+		{	config:{
+				name: 'id_int_comprobante',
+				fieldLabel: 'ID Cbte',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:300
+			},
+			type:'TextField',
+			filters:{pfiltro:'obli.id_int_comprobante',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
 		
+		{
+			config:{
+				name: 'id_int_comprobante_agrupador',
+				fieldLabel: 'ID Cbte Agru',
+				allowBlank: true,
+				anchor: '80%',
+				gwidth: 100,
+				maxLength:300
+			},
+			type:'TextField',
+			filters:{pfiltro:'oa.id_int_comprobante',type:'string'},
+			id_grupo:1,
+			grid:true,
+			form:false
+		},
+		//#38 ++  fin
 		
 		{
 			config:{
@@ -327,7 +359,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		'id_obligacion_agrupador','desc_agrupador','desc_tipo_obligacion' //#38++
+		'id_obligacion_agrupador','desc_agrupador','desc_tipo_obligacion','id_int_comprobante','id_int_comprobante_agrupador' //#38++
 		
 	],
 	sortInfo:{
@@ -348,23 +380,104 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	
     onBtnPag: function(){
     	var rec=this.sm.getSelected();
-     	if(confirm('¿Está seguro de generar el comprobante de pago para: '+ rec.data.descripcion + '?. Si tiene agrupador de segenerá el cbte para todos los miembros del grupo')) {            
-            if(rec){
-	            Phx.CP.loadingShow();
-	            Ext.Ajax.request({
-	                url:'../../sis_planillas/control/Planilla/generarCbteContable',
-	                params: { id_planilla: undefined, tipo:'pago', id_obligacion: rec.data.id_obligacion },
-	                success: this.successGenCbte,
-	                failure: this.conexionFailure,
-	                timeout: this.timeout,
-	                scope:this
-	            }); 
-            }
-            else{
-            	alert('no selecciono ningun registro');
-            }
-       }
+    	var confirmado = true;
+    	if(rec){
+	     	if(confirm('¿Está seguro de generar el comprobante de pago para: '+ rec.data.descripcion + '?. Si tiene agrupador de segenerá el cbte para todos los miembros del grupo')) {            
+	           
+		            
+		            //si ya existe un cbte de devegado pedimos confirmacion
+        	   	   var ids_cbts = ''
+        	   	   if(rec.data.id_int_comprobante || rec.data.id_int_comprobante_agrupador){
+        	   	  	
+	        	   	  	 if(rec.data.id_int_comprobante){
+	        	   	  	 	ids_cbts = rec.data.id_int_comprobante;
+	        	   	  	 } 
+	        	   	  	 if(rec.data.id_int_comprobante_agrupador){
+	        	   	  	 	ids_cbts =  rec.data.id_int_comprobante_agrupador
+	        	   	  	 }
+	        	   	  	
+	        	   	  	if(confirm('¿Previamente fueron  generados los cbte de pago id: '+ ids_cbts+' ,continuamos?')){
+	        	   	  		confirmado = true;
+	        	   	  	}
+	        	   	  	else{
+	        	   	  		confirmado = false;
+	        	   	  	}        	   	  	
+	        	   	} 
+		            if(confirmado) {
+		                Phx.CP.loadingShow();
+			            Ext.Ajax.request({
+			                url:'../../sis_planillas/control/Planilla/generarCbteContable',
+			                params: { id_planilla: undefined, tipo:'pago', id_obligacion: rec.data.id_obligacion },
+			                success: this.successGenCbte,
+			                failure: this.conexionFailure,
+			                timeout: this.timeout,
+			                scope:this
+			            });
+			       }
+	            
+	         }
+		 }
+         else {
+           alert('no selecciono ningun registro');
+         }
      },
+     
+     onBtnTodosPag: function() {
+         	
+         	if(confirm('¿Está seguro de generar todos los comprobantes de pago de uan sola vez?')) {
+	            var rec=this.sm.getSelected();
+	            if(rec){
+		            Phx.CP.loadingShow();
+		            //preguntamos si existe algun comprobante de pago
+		            Ext.Ajax.request({
+		                url:'../../sis_planillas/control/Obligacion/existenCbteDePago',
+		                params: { id_planilla: rec.data.id_planilla },
+		                success: this.regresoVerficacionCbte,
+		                failure: this.conexionFailure,
+		                timeout: this.timeout,
+		                scope:this
+		            }); 
+	            }
+	            else{
+	            	alert('no selecciono ningun registro');
+	            }
+           }
+     },
+     
+     regresoVerficacionCbte: function(resp){
+            Phx.CP.loadingHide();
+            // si existen  algun cbte generado pedimos confirmación al usuario
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+			if (reg.ROOT.error) {
+				Ext.Msg.alert('Error', 'Validación no realizada: ' + reg.ROOT.error)
+			} else {
+				if(reg.ROOT.datos.existe_cbte_pago == 'si'){
+					//pedimos  confirmacion del usuario
+					if(confirm('¿Previamente ya fueron  generados algunos cbte de pago ,continuamos?')){
+	        	   	  	this.generarTodosPag()
+	        	   	 }
+				}
+				else{
+					// si no existen cbte inicia la generacion
+					this.generarTodosPag()
+				}
+			}
+           
+    },
+     
+    generarTodosPag: function(){
+    	
+    	Phx.CP.loadingShow();
+        Ext.Ajax.request({
+            url:'../../sis_planillas/control/Planilla/generarCbteContable',
+            params: { id_planilla: this.maestro.id_planilla, tipo:'pagogrupo', id_obligacion: undefined},
+            success: this.successGenCbte,
+            failure: this.conexionFailure,
+            timeout: this.timeout,
+            scope:this
+        });
+     	
+    },
      
     successGenCbte: function(resp){
             Phx.CP.loadingHide();
@@ -394,11 +507,15 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     		this.getBoton('btnDetalle').disable();
     	} 
     	
-    	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si'){
+    	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
            	this.getBoton('SolPag').enable();
+           	this.getBoton('SolTodosPag').enable();
+           	
         }
         else{
            this.getBoton('SolPag').disable();
+           	this.getBoton('SolTodosPag').disable();
+           	
         }
                 
              

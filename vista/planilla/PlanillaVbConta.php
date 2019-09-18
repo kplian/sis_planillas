@@ -128,8 +128,7 @@ header("content-type: text/javascript; charset=UTF-8");
             );
             
             this.addButton('SolDev',{text:'Generar  Cbte Devengado', iconCls: 'bpagar',disabled: true, handler: this.onBtnDev ,tooltip: '<b>Solicitar Devengado</b><br/>Genera en cotabilidad el comprobante Correspondiente, devengado  '});
-            this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
-       
+            
             
             this.store.baseParams.tipo_interfaz =  this.nombreVista;            
             this.store.baseParams.pes_estado = 'vobo_conta';
@@ -138,45 +137,54 @@ header("content-type: text/javascript; charset=UTF-8");
         },
         
         
-        onBtnDev: function(){
-        	if(confirm('¿Está seguro de generar un nuevo comprobante de devegado?')){
-	            var rec=this.sm.getSelected();
-	            if(rec){
-		            Phx.CP.loadingShow();
-		            Ext.Ajax.request({
-		                url:'../../sis_planillas/control/Planilla/generarCbteContable',
-		                params: { id_planilla: rec.data.id_planilla, tipo:'devengado', id_obligacion: undefined},
-		                success: this.successGenCbte,
-		                failure: this.conexionFailure,
-		                timeout: this.timeout,
-		                scope:this
-		            }); 
-	            }
-	            else{
-	            	alert('no selecciono ningun registro');
-	            }
-          }
+        onBtnDev: function() {
+        	
+        	var rec=this.sm.getSelected();
+        	var confirmado = true;
+        	if(rec) {
+        	   if(confirm('¿Está seguro de generar un nuevo comprobante de devegado?')){        	   	
+        	   	  //si ya existe un cbte de devegado pedimos confirmacion
+        	   	  var ids_cbts = ''
+        	   	  if(rec.data.id_int_comprobante || rec.data.id_int_comprobante_2){
+        	   	  	
+        	   	  	 if(rec.data.id_int_comprobante){
+        	   	  	 	ids_cbts = rec.data.id_int_comprobante;
+        	   	  	 } 
+        	   	  	 if(rec.data.id_int_comprobante_2){
+        	   	  	 	ids_cbts = ids_cbts + ', ' + rec.data.id_int_comprobante
+        	   	  	 }
+        	   	  	
+        	   	  	if(confirm('¿Previamente fueron  generados los cbtes de devengado id: '+ ids_cbts+' ,continuamos?')){
+        	   	  		confirmado = true;
+        	   	  	}
+        	   	  	else{
+        	   	  		confirmado = false;
+        	   	  	}        	   	  	
+        	   	  } 
+        	   	   
+        	   	   
+        	   	  if(confirmado) {	            	           
+			            Phx.CP.loadingShow();
+			            Ext.Ajax.request({
+			                url:'../../sis_planillas/control/Planilla/generarCbteContable',
+			                params: { id_planilla: rec.data.id_planilla, tipo:'devengado', id_obligacion: undefined},
+			                success: this.successGenCbte,
+			                failure: this.conexionFailure,
+			                timeout: this.timeout,
+			                scope:this
+			            }); 
+		           }
+	            
+                }
+             
+             }
+	         else{
+	            alert('no selecciono ningun registro');
+	         }
          },
          
-         onBtnPag: function() {
-         	if(confirm('¿Está seguro de generar todos los comprobantes de pago de uan sola vez?')) {
-	            var rec=this.sm.getSelected();
-	            if(rec){
-		            Phx.CP.loadingShow();
-		            Ext.Ajax.request({
-		                url:'../../sis_planillas/control/Planilla/generarCbteContable',
-		                params: { id_planilla: rec.data.id_planilla, tipo:'pagogrupo', id_obligacion: undefined},
-		                success: this.successGenCbte,
-		                failure: this.conexionFailure,
-		                timeout: this.timeout,
-		                scope:this
-		            }); 
-	            }
-	            else{
-	            	alert('no selecciono ningun registro');
-	            }
-           }
-         },
+         
+         
          
          successGenCbte: function(resp) {
             Phx.CP.loadingHide();
@@ -641,7 +649,7 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'usr_reg', type: 'string'},
             {name:'usr_mod', type: 'string'},
             {name:'codigo_poa', type: 'string'},
-            {name:'obs_poa', type: 'string'},'id_tipo_contrato','tipo_contrato','dividir_comprobante'
+            {name:'obs_poa', type: 'string'},'id_tipo_contrato','tipo_contrato','dividir_comprobante','id_int_comprobante','id_int_comprobante_2'
 
         ],
         sortInfo:{
@@ -764,11 +772,9 @@ header("content-type: text/javascript; charset=UTF-8");
             
             if(rec.data.estado == 'vobo_conta'){
             	this.getBoton('SolDev').enable();
-            	this.getBoton('SolPag').enable();
             }
             else{
             	this.getBoton('SolDev').disable();
-            	this.getBoton('SolPag').disable();
             }
             
             this.getBoton('btnObs').enable();
@@ -938,7 +944,7 @@ header("content-type: text/javascript; charset=UTF-8");
 	    },
 	        
          onButtonObligacionesDetalle : function () {
-    		var rec = {maestro: this.sm.getSelected().data};
+    		var rec = {maestro: this.sm.getSelected().data, vistaPadre: this.nombreVista };
 						      
             Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
                     'Obligaciones',
