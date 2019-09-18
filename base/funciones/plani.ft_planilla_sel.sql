@@ -21,7 +21,9 @@ $body$
    #13                    7-6-2019            MMV ETR                Incluir campos tipo_contrato y dividir_comprobante
    #25    ETR             07/08/2019            RAC                  Registrar  calcular_reintegro_rciva
    #28    ETR             22-08-2019            RAC                  añade alias para correcta ordenacion por tipo planilla
-   #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla  
+   #38    ETR             18/09/2019            RAC                  incluir informacion de comprobantes para validaciones
+   #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla 
+   #43    ETR             18-09-2019            RAC                  retornar datos de comprobante para validaciones
  ***************************************************************************/
 
 
@@ -128,17 +130,19 @@ $body$
                         plani.dividir_comprobante, --#13
                         tc.nombre as tipo_contrato ,--#13
                         plani.id_tipo_contrato,
-                        plani.calcular_reintegro_rciva
-                        from plani.tplanilla plani
-                        inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
-                        left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
-                        inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
-                        left join param.tperiodo per on per.id_periodo = plani.id_periodo
-                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
-                        left join orga.tuo uo on uo.id_uo = plani.id_uo
-                        inner join param.tdepto depto on depto.id_depto = plani.id_depto
-                        left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato --#13
-                        where  ' || v_filtro;
+                        plani.calcular_reintegro_rciva,
+                        plani.id_int_comprobante,   --#43
+                        plani.id_int_comprobante_2  --#43
+                  from plani.tplanilla plani
+                  inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
+                  left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
+                  inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
+                  left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                  inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
+                  left join orga.tuo uo on uo.id_uo = plani.id_uo
+                  inner join param.tdepto depto on depto.id_depto = plani.id_depto
+                  left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato --#13
+                  where  ' || v_filtro;
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
