@@ -17,7 +17,7 @@ $body$
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
- #
+ #45	ETR				19.09.2019		    MZM					Adicion de filtro en reporte fondo_solidario
  ***************************************************************************/
 
 DECLARE
@@ -279,11 +279,10 @@ BEGIN
                 		v_col:=v_col||' and tcol.codigo in (''CACSELFIJO'') and colval.valor>0';
                  elseif(v_parametros.tipo_reporte='reserva_beneficios') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
-		
+
                 elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
 					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
-                    v_ordenar:=v_ordenar||',per.periodo ';
                      if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                         if(v_parametros.id_tipo_contrato>0) then
                           v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
@@ -504,7 +503,7 @@ BEGIN
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion=per.id_gestion
-                        where 
+                        where
                         
                          (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))  <= '''||v_parametros.fecha||''' and
                         
@@ -528,6 +527,10 @@ BEGIN
           		end if;
         	end if;
            
+            --19.09.2019#45
+            if(v_parametros.tipo_reporte='fondo_solidario') then
+               v_condicion:=v_condicion||' and cv.valor>=13000';
+            end if;
         
                SELECT
                   per.fecha_ini,
@@ -616,7 +619,7 @@ BEGIN
                          where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''TOTGAN'') 
                          and rep.id_afp='||v_parametros.id_afp||v_condicion||'
                          
-                         order by rep.desc_funcionario2';
+                         order by  rep.desc_funcionario2';
                             
                          return v_consulta;
         end; 
