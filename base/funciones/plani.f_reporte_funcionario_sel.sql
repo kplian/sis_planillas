@@ -283,6 +283,7 @@ BEGIN
                 elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
 					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min;
+                    v_ordenar:=v_ordenar||',per.periodo ';
                      if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                         if(v_parametros.id_tipo_contrato>0) then
                           v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
@@ -545,39 +546,49 @@ BEGIN
           create temp table tt_func(
               id_funcionario integer,
               fecha_ingreso date,
-              dias_ingreso	integer,
-              dias_retiro	integer
-            )on commit drop;
+              dias	integer,
+              dias_incap	integer,
+              var1	numeric,
+              var2	numeric,
+              var3	numeric --#45
+              
+            )on commit drop; 
 
             for v_registros in (
                   select fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso 
-                  , f.fecha_finalizacion
+                  , f.fecha_finalizacion, cv.valor, (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='HORDIA'
+                  and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  ) as hordia,
+                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='INCAP_DIAS'
+                  and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  ) as incap
+                  ,
+                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR1'
+                  and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  ) as var1,
+                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR2'
+                  and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  ) as var2,
+                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR3'
+                  and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  ) as var3 --#45
                   from plani.tfuncionario_planilla fp
                   inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
                   inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+                  inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  and cv.codigo_columna in ('HOREFEC')
                   and f.id_uo_funcionario=fp.id_uo_funcionario
                   where p.id_periodo=v_id_periodo
-                            ) loop
+                            ) loop 
                       
-
-                    if ( v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin) then
-						v_antiguedad_anos:=( SELECT EXTRACT(DAY FROM age(date (v_registros.fecha_finalizacion),date(v_fecha_ini) ) ) );
-                    else
-                    	v_antiguedad_anos:=0;
-                    end if;
-                    
-                    if(v_registros.fecha_ingreso between v_fecha_ini and v_fecha_fin) then
-                    
-                    	v_antiguedad:=( SELECT EXTRACT(DAY FROM age(date (v_fecha_fin),date(v_registros.fecha_ingreso) ) ) );
-                    else
-                    	v_antiguedad:=0;
-                    end if;
+      			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
+                  
                     
 
 
               		insert into tt_func 
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_antiguedad_anos  );
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3 );
            
             end loop;
               
@@ -604,7 +615,7 @@ BEGIN
                          
    
     
-   						 tt.dias_ingreso, tt.dias_retiro
+   						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
 
                          from plani.tplanilla p
                          inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
@@ -616,10 +627,10 @@ BEGIN
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
                          inner join plani.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar
-                         where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''TOTGAN'') 
+                         where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''COTIZABLE'') 
                          and rep.id_afp='||v_parametros.id_afp||v_condicion||'
                          
-                         order by  rep.desc_funcionario2';
+                         order by  rep.desc_funcionario2'; 
                             
                          return v_consulta;
         end; 
