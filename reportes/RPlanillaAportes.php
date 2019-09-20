@@ -5,7 +5,7 @@
  #30    ETR            30/07/2019           MZM                 Creacion 
   #41	ETR				16.09.2019			MZM					OMISION DE SALTO DE PAGINA POR TIPO DE APORTANTE: MENOR 65, MAYOR 65, JUB55, JUB65
  *#44	ETR				18.09.2019			MZM					Adicion de totales para columnas numericas
- * 
+ *#45	ETR				19.06.2019			MZM					Adicion de incap en dias_cotizable, cambio de var1, var2, var3
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -189,8 +189,7 @@ class RPlanillaAportes extends  ReportePDF {
 					 
 						$novedad='';
 						$fecha_novedad='';
-						$dias=30;     
-						      $val=0;
+						$val=0;
 							  $n=1;
 					 	  	  $array_datos[$cont][0]=$cont+1;
 							  $array_datos[$cont][1]=$this->datos[$i]['ci'];
@@ -204,15 +203,35 @@ class RPlanillaAportes extends  ReportePDF {
 							  $array_datos[$cont][9]=$this->datos[$i]['departamento'];
 							  if($this->datos[$i]['fecha_ingreso']!=''){
 							  	  $novedad='I';
-								  $fecha_novedad=$this->datos[$i]['fecha_ingreso'];
-								  $dias=$this->datos[$i]['dias_ingreso'];
+								  if($this->datos[$i]['dias_incap']>0){//#45
+								  	$novedad='I/S';
+								  }
+								  
+								  $aa=substr($this->datos[$i]['fecha_ingreso'], 0,4);
+							  	  $mm=substr($this->datos[$i]['fecha_ingreso'], 5,2);
+							      $dd=substr($this->datos[$i]['fecha_ingreso'], 8,2);
+								  $fecha_novedad=$dd.'/'.$mm.'/'.$aa;//#45
+								  
 							  }
 							  if($this->datos[$i]['fecha_finalizacion']!=''){
 							  	  $novedad='R';
-								  $fecha_novedad=$this->datos[$i]['fecha_finalizacion'];
-								  $dias=$this->datos[$i]['dias_retiro'];
+								  if($this->datos[$i]['dias_incap']>0){//#45
+								  	$novedad='R/S';
+								  }
+								  
+								  $aa=substr($this->datos[$i]['fecha_finalizacion'], 0,4);
+							  	  $mm=substr($this->datos[$i]['fecha_finalizacion'], 5,2);
+							      $dd=substr($this->datos[$i]['fecha_finalizacion'], 8,2);
+								  $fecha_novedad=$dd.'/'.$mm.'/'.$aa;//#45
+								  
 							  }
 							  
+							   if($this->datos[$i]['fecha_ingreso']==''){//#45
+								   	if($this->datos[$i]['dias_incap']>0){
+									  	$novedad='S';
+									}
+							   }
+							  $dias=$this->datos[$i]['dias'];
 							  $array_datos[$cont][10]=$novedad;
 							  $array_datos[$cont][11]=$fecha_novedad;
 							  $array_datos[$cont][12]=$dias;
@@ -232,31 +251,22 @@ class RPlanillaAportes extends  ReportePDF {
 								  			}
 								  		}
 								  }
-							  }else{
+							  }else{//#45
 							  	$array_datos[$cont][13]=round($this->datos[$i]['valor'],2);
-							  	if($this->datos[$i]['valor']>13000){
-							  		$array_datos[$cont][15]=round($this->datos[$i]['valor']-13000,2);
 							  	
-							  	}else{
-							  		$array_datos[$cont][15]=0.00;
+							  		$array_datos[$cont][15]=round($this->datos[$i]['var1'],2);
 							  	
-							  	}
+							  
 							  	
-							  	if($this->datos[$i]['valor']>25000){
-							  		$array_datos[$cont][16]=round($this->datos[$i]['valor']-25000,2);
 							  	
-							  	}else{
-							  		$array_datos[$cont][16]=0.00;
+							  		$array_datos[$cont][16]=round($this->datos[$i]['var2'],2);
 							  	
-							  	}
 							  	
-							  	if($this->datos[$i]['valor']>35000){
-							  		$array_datos[$cont][17]=round($this->datos[$i]['valor']-35000,2);
 							  	
-							  	}else{
-							  		$array_datos[$cont][17]=0.00;
 							  	
-							  	}
+							  		$array_datos[$cont][17]=round($this->datos[$i]['var3'],2);
+							  	
+							  	
 							  	
 							  }  
 							  $array_datos[$cont][14]=$this->datos[$i]['tipo_jubilado'];

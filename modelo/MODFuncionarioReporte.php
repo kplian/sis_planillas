@@ -10,7 +10,8 @@
        
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
- #41	ETR				16.09.2019			MZM					ADICION DE FILTRO TIPO_CONTRATO
+  #41	ETR				16.09.2019			MZM					ADICION DE FILTRO TIPO_CONTRATO
+  #45	ETR				19.09.2019			MZM					adicion de campo para reporte afp
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -144,9 +145,12 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('nombre_afp','varchar');
 		$this->captura('id_afp','integer');
 		$this->captura('periodo','varchar');
-		$this->captura('dias_ingreso','integer');
-		$this->captura('dias_retiro','integer');
-		
+		$this->captura('dias','integer');
+		$this->captura('dias_incap','integer');
+		$this->captura('var1','numeric');//#45
+		$this->captura('var2','numeric');//#45
+		$this->captura('var3','numeric');//#45
+				
 		//Ejecuta la instruccion
 		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
