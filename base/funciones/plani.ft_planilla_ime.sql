@@ -19,7 +19,8 @@ $body$
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
-#34 ETR             03/09/2019          RAC                 nro de tramite de planillas que sea el nro de planilla        
+#34 ETR             03/09/2019          RAC                 nro de tramite de planillas que sea el nro de planilla 
+#38                 10/09/2019         RAC KPLIAN           creacion de cbte de debengado o de pago  independiente al wf de la planilla       
 ***************************************************************************/
 
 DECLARE
@@ -74,6 +75,7 @@ DECLARE
 
     v_index				integer;
     v_items				varchar;
+    v_retgen            boolean; --#38
 
 
 BEGIN
@@ -595,6 +597,7 @@ BEGIN
                                                              v_parametros_ad,
                                                              v_tipo_noti,
                                                              v_titulo);
+                                                           
 
           IF  plani.f_fun_inicio_planilla_wf(p_id_usuario,
            									v_parametros._id_usuario_ai,
@@ -757,6 +760,35 @@ BEGIN
         --Devuelve la respuesta
         return v_resp;
         end;
+    
+    
+    /*********************************
+ 	#TRANSACCION:  'PLA_PLANI_MOD'
+ 	#DESCRIPCION:	generar cbte contable independiente de WF
+ 	#AUTOR:		rac
+ 	#FECHA:		12-09-2019 
+	***********************************/
+
+	elsif(p_transaccion='PLA_GENCBTE_IME')then
+
+		begin
+			
+            v_retgen =    plani.f_generar_cbte_planilla( p_id_usuario, 
+                                                         v_parametros._id_usuario_ai,
+                                                         v_parametros._nombre_usuario_ai, 
+                                                         v_parametros.id_planilla, 
+                                                         v_parametros.id_obligacion, 
+                                                         v_parametros.tipo);
+        
+			--Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+		end;
+        
 	else
 
     	raise exception 'Transaccion inexistente: %',p_transaccion;
