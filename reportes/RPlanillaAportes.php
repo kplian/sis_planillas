@@ -5,7 +5,8 @@
  #30    ETR            30/07/2019           MZM                 Creacion 
   #41	ETR				16.09.2019			MZM					OMISION DE SALTO DE PAGINA POR TIPO DE APORTANTE: MENOR 65, MAYOR 65, JUB55, JUB65
  *#44	ETR				18.09.2019			MZM					Adicion de totales para columnas numericas
- *#45	ETR				19.06.2019			MZM					Adicion de incap en dias_cotizable, cambio de var1, var2, var3
+ *#45	ETR				19.09.2019			MZM					Adicion de incap en dias_cotizable, cambio de var1, var2, var3
+  #45	ETR				20.09.2019			MZM					Reposicion de calculo para valores 13000, 25000 y 35000
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -254,17 +255,31 @@ class RPlanillaAportes extends  ReportePDF {
 							  }else{//#45
 							  	$array_datos[$cont][13]=round($this->datos[$i]['valor'],2);
 							  	
-							  		$array_datos[$cont][15]=round($this->datos[$i]['var1'],2);
+							  	if($this->datos[$i]['valor']>13000){//#45
+							  		     $array_datos[$cont][15]=round($this->datos[$i]['valor']-13000,2);
+							  	
+							  	}else{
+							  		$array_datos[$cont][15]=0.00;
+							  		
+							  	}
 							  	
 							  
+							  	if($this->datos[$i]['valor']>25000){//#45
+							  		$array_datos[$cont][16]=round($this->datos[$i]['valor']-25000,2);
 							  	
+							  	}else{
+							  		$array_datos[$cont][16]=0.00;
 							  	
-							  		$array_datos[$cont][16]=round($this->datos[$i]['var2'],2);
+							  	}
 							  	
+							  	if($this->datos[$i]['valor']>35000){//#45
+							  		$array_datos[$cont][17]=round($this->datos[$i]['valor']-35000,2);
+							  		
 							  	
+							  	}else{
+							  		$array_datos[$cont][17]=0.00;
 							  	
-							  	
-							  		$array_datos[$cont][17]=round($this->datos[$i]['var3'],2);
+							  	}
 							  	
 							  	
 							  	
