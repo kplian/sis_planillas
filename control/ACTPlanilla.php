@@ -10,6 +10,7 @@
     HISTORIAL DE MODIFICACIONES:       
  ISSUE            FECHA:              AUTOR                 DESCRIPCION   
  #38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
+ #47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
  */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -17,7 +18,7 @@ require_once(dirname(__FILE__).'/../reportes/RPrimaXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RSegAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RCertificacionPresupuestaria.php');
-
+require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestaria.php');
 class ACTPlanilla extends ACTbase{
 
     function listarPlanilla(){
@@ -235,7 +236,41 @@ class ACTPlanilla extends ACTbase{
         $this->res=$this->objFunc->generarCbteContable($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-
+	//#47
+	function listaVerPresu(){
+		if($this->objParam->getParametro('id_planilla')!=''){
+			$this->objParam->addFiltro("conpre.id_planilla =".$this->objParam->getParametro('id_planilla'));
+		}
+		$this->objFunc=$this->create('MODPlanilla');		
+		$cbteHeader = $this->objFunc->listaVerPresu($this->objParam);					
+		if($cbteHeader->getTipo() == 'EXITO'){										
+			return $cbteHeader;			
+		}
+		else{
+			$cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+			exit;
+		}			
+	}
+	//#47
+	function reporteVerifPresu(){
+        $nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria]').'.pdf';	
+		$dataSource = $this->listaVerPresu();
+		$orientacion = 'P';		
+		$tamano = 'LETTER';
+		$titulo = 'Consolidado';		
+		$this->objParam->addParametro('orientacion',$orientacion);
+		$this->objParam->addParametro('tamano',$tamano);		
+		$this->objParam->addParametro('titulo_archivo',$titulo);	
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		$reporte = new RVerificacionPresupuestaria($this->objParam);  
+		$reporte->datosHeader($dataSource->getDatos());		
+		$reporte->generarReporte();
+		$reporte->output($reporte->url_archivo,'F');
+		$this->mensajeExito=new Mensaje();
+		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
+		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
+		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}	
 }
 
 ?>
