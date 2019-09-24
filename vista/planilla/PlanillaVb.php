@@ -11,7 +11,8 @@
  * 
  #0              22/01/2014        GUY KPLIAN      creacion 
  #38             11/09/2019        RAC KPLIAN      muestra columnas tipo contrato y cbte dividido  
- #42    ETR      17-09-2019        RAC KPLIAN      exluir estados vobo_conta y finalizado de la interface de vobo planilla 
+ #42    ETR      17-09-2019        RAC KPLIAN      exluir estados vobo_conta y finalizado de la interface de vobo planilla
+ #49    ETR      17-09-2019        manuel guerra   agregar boton de reporte de verificacion presupuestaria  
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -83,6 +84,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     id: 'btnPresupuestosCons-' + this.idContenedor,
                     handler: this.onButtonPresupuestosConsolidado,
                     tooltip: 'Presupuestos Consolidados por Columnas' ,
+                    scope: this
+                },//#47
+                {   
+                    text: 'Verificacion Presupuestaria',
+                    id: 'btnVerPre-' + this.idContenedor,
+                    handler: this.onVerPre,
+                    tooltip: 'Verificacion Presupuestaria' ,
                     scope: this
                 }]                              
             }
@@ -1089,7 +1097,29 @@ header("content-type: text/javascript; charset=UTF-8");
                 scope:this
             });
 
-        }
+        },
+        //#49
+		onVerPre : function() {
+			var rec = this.getSelectedData();		
+			if(rec)
+			{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
+					params:{
+						'id_planilla':rec.id_planilla
+					},
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});		
+			}
+			else
+			{
+				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+			}
+		},
 
     })
 </script>

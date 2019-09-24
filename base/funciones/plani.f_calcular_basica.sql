@@ -35,6 +35,7 @@ $body$
  #35              05/09/2019        RArteaga            Funcion bascia para arastrar el cotizable de las planillas de reintegro REI-PLT
  #36              09/09/2019        RArteaga            Corregir sueldomes cuando la incapacidad temporal lleva cero horas trabajadas
  #37              10/09/2019        RArteaga            Recuperar horas efectivamente trabaja como colulmna basica
+ #48              24/09/2019        RArteaga            bug en calculo de haber básico para planillas en meses que no han cerrado
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -200,8 +201,10 @@ $body$
                                                       from orga.tuo_funcionario uofun
                                                         inner join orga.tcargo car on uofun.id_cargo = car.id_cargo
                                                         inner join orga.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
-                                                      where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario),p_fecha_fin);
-
+                                                      where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario),p_fecha_ini);
+      --#48 cambio el farametro fecha_fin por fecha_ini                                                
+      --OJO las escala no deben variar a medio mes siempe al primer dia del mes
+     
     --Horas Trabajadas
     ELSIF (p_codigo = 'HORNORM') THEN
           
