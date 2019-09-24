@@ -24,6 +24,7 @@ $body$
    #38    ETR             18/09/2019            RAC                  incluir informacion de comprobantes para validaciones
    #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla 
    #43    ETR             18-09-2019            RAC                  retornar datos de comprobante para validaciones
+   #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
  ***************************************************************************/
 
 
@@ -1219,6 +1220,86 @@ $body$
         RAISE NOTICE 'v_consulta %',v_consulta;
         return v_consulta;
 
+        end;
+        
+     /*********************************
+     #TRANSACCION:  'PLA_VERPRE_SEL'
+     #DESCRIPCION:    Reporte Verificacion Presupuestaria Planillas
+     #AUTOR:        manu #47
+     #FECHA:        14-02-2018 15:00
+    ***********************************/
+
+    elsif(p_transaccion='PLA_VERPRE_SEL')then
+
+        begin
+        v_consulta = 'WITH det_partida as
+                      (
+                        SELECT
+                        conpre.id_planilla,
+                        conpre.id_consolidado,
+                        max(conc.id_partida) as id_partida_max
+                        FROM plani.tconsolidado_columna   conc
+                        INNER JOIN plani.tconsolidado conpre on conpre.id_consolidado = conc.id_consolidado
+                        WHERE';
+		v_consulta:=v_consulta||v_parametros.filtro;                        
+        v_consulta:=v_consulta||'group by                      
+                        conpre.id_planilla,
+                        conpre.id_consolidado      
+                      ),
+                      base_query as
+                      (
+                        select                    
+                        conpre.id_planilla,                      
+                        conpre.tipo_consolidado,
+                        cct.codigo_techo,
+                        cct.descripcion_techo,
+                        sum(concol.valor) as suma,
+                        sum(concol.valor_ejecutado) as suma_ejecutado ,
+                        max(conpre.id_presupuesto )   as id_presupuesto,
+                        max(dp.id_partida_max) as id_partida_max,
+                        pla.nro_planilla
+                        from plani.tconsolidado conpre
+                        inner join plani.tplanilla pla on pla.id_planilla = conpre.id_planilla
+                        inner join param.vcentro_costo cc  on cc.id_centro_costo = conpre.id_presupuesto
+                        inner join param.vtipo_cc_techo cct on cct.id_tipo_cc = cc.id_tipo_cc
+                        inner join plani.tconsolidado_columna concol  on concol.id_consolidado = conpre.id_consolidado
+                        inner join det_partida dp on dp.id_consolidado = conpre.id_consolidado
+                        WHERE';
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||'group by                      
+                        conpre.id_planilla,
+                        conpre.tipo_consolidado,
+                        cct.codigo_techo,
+                        cct.descripcion_techo,
+                        pla.nro_planilla  
+                      )
+                      select
+                      id_planilla,                      
+                      tipo_consolidado,
+                      codigo_techo,
+                      descripcion_techo,
+                      suma::numeric,
+                      (select veripre_vali[1] 
+                      from pre.f_verificar_presupuesto_individual(
+                          nro_planilla,
+                          NULL,
+                          bq.id_presupuesto,
+                          bq.id_partida_max,
+                          bq.suma,
+                          bq.suma,  
+                          ''comprometido'')as veripre_vali)::varchar as veripre_vali,
+                     (select veripre_vali[2] 
+                      from pre.f_verificar_presupuesto_individual(
+                          nro_planilla,
+                          NULL,
+                          bq.id_presupuesto,
+                          bq.id_partida_max,
+                          bq.suma,
+                          bq.suma,  
+                          ''comprometido'')as veripre_vali)::numeric as veripre_dispo        
+                      from base_query bq';                          
+        --Devuelve la respuesta
+        return v_consulta;
         end;
 
     else

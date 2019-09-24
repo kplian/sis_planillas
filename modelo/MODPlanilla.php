@@ -12,7 +12,7 @@
 #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
 #38 ETR             12/09/2019          RAC                 Generar cbte contables 
 #43 ETR             18/09/2019          RAC                 añade datos de comprobante a la consulta
-
+#47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
  ***/
 
 class MODPlanilla extends MODbase{
@@ -678,6 +678,29 @@ class MODPlanilla extends MODbase{
 
 		//Devuelve la respuesta
 		return $this->respuesta;
-	}		
+	}
+	//#47
+	function listaVerPresu(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_VERPRE_SEL';
+		$this->tipo_procedimiento='SEL';
+		$this->setCount(false);
+		$this->setParametro('id_planilla','id_planilla','int4');		
+		//Define los parametros para la funcion
+		$this->captura('id_planilla','int4');
+        $this->captura('tipo_consolidado','varchar');
+		$this->captura('codigo_techo','varchar');
+		$this->captura('descripcion_techo','varchar');
+        $this->captura('suma','numeric');
+		$this->captura('veripre_vali','varchar');
+		$this->captura('veripre_dispo','numeric');
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}			
 }
 ?>

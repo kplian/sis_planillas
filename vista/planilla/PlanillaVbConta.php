@@ -9,6 +9,7 @@
     HISTORIAL DE MODIFICACIONES:       
  ISSUE            FECHA:              AUTOR                 DESCRIPCION   
  #38             11/09/2019        RAC KPLIAN      creacion de cbte de debengado o de pago  independiente al wf de la planilla
+ #47    ETR      24-09-2019        Manuel Guerra        reporte de verificacion presupuestaria
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -64,7 +65,16 @@ header("content-type: text/javascript; charset=UTF-8");
                     handler: this.onButtonPresupuestosConsolidado,
                     tooltip: 'Presupuestos Consolidados por Columnas' ,
                     scope: this
-                }]                              
+                },
+                //#47
+                {   
+                    text: 'Verificacion Presupuestaria',
+                    id: 'btnVerPre-' + this.idContenedor,
+                    handler: this.onVerPre,
+                    tooltip: 'Verificacion Presupuestaria' ,
+                    scope: this
+                },
+                ]                              
             }
         );
         this.addButton('btnObligaciones',
@@ -85,8 +95,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 handler : this.onOpenObs,
                 tooltip : '<b>Observaciones</b><br/><b>Observaciones del WF</b>'
          });
-
-
+		//
          function diagramGantt(){
                 var data=this.sm.getSelected().data.id_proceso_wf;
                 Phx.CP.loadingShow();
@@ -182,10 +191,7 @@ header("content-type: text/javascript; charset=UTF-8");
 	            alert('no selecciono ningun registro');
 	         }
          },
-         
-         
-         
-         
+                            
          successGenCbte: function(resp) {
             Phx.CP.loadingHide();
             this.reload();
@@ -784,6 +790,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').enable();            
             this.getBoton('btnPresupuestos').enable();           
             this.getBoton('btnObligaciones').enable(); 
+            //
+            this.getBoton('btnVerPre').enable();
 
         },
         liberaMenu:function()
@@ -991,7 +999,28 @@ header("content-type: text/javascript; charset=UTF-8");
                 scope:this
             });
 
-        }
-
+       },
+        //#47
+		onVerPre : function() {
+			var rec = this.getSelectedData();		
+			if(rec)
+			{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
+					params:{
+						'id_planilla':rec.id_planilla
+					},
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});		
+			}
+			else
+			{
+				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+			}
+		},
     })
 </script>
