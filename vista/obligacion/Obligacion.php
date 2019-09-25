@@ -13,7 +13,8 @@
  #0               14/07/2014       JRIVERA KPLIAN       creacion
  #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
  #46			  23.09.2019		MZM					Adicion de opcion para abono en cuenta
- * */
+ 														Omision de extension txt
+ * * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -511,6 +512,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	},
 	onBtnRepAbono: function(){//#46
 			var rec=this.sm.getSelected();
+			
+					
 				   
           Ext.Ajax.request({
 				url:'../../sis_planillas/control/Obligacion/listarAbonoCuenta',
@@ -530,7 +533,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
 	        
 	        var texto = objRes.datos;
-	        window.open('../../../reportes_generados/'+texto+'.txt')
+	        window.open('../../../reportes_generados/'+texto)//#46
 		},//#46
 	preparaMenu:function()
     {	

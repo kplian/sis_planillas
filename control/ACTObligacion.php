@@ -9,7 +9,8 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
-#46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas 
+#46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas
+ * 															omision de extension txt 
 */
 
 class ACTObligacion extends ACTbase{    
@@ -75,7 +76,7 @@ class ACTObligacion extends ACTbase{
 		$periodo=$datos[0]['periodo'];
 		
 		$id_obligacion=$this->objParam->getParametro('id_obligacion');
-		//echo $tipo.'per:'.$periodo.' ges:'.$gestion.' id_obli:'.$id_obligacion; exit;
+		
 		$nombre_archivo = 'B03'.$periodo.".CTD";
 		
 		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= undefined ){
@@ -84,10 +85,10 @@ class ACTObligacion extends ACTbase{
 			}else{
 				$nombre_archivo = 'B03'.$periodo."2.CTD";
 			}
-			
 		}
 		
-		$MiDocumento = fopen("../../../reportes_generados/".$nombre_archivo.".txt", "w+");
+		
+		$MiDocumento = fopen("../../../reportes_generados/".$nombre_archivo, "w+");//#46
 		
 		
 		$Escribo=$datos[0]['total'];
