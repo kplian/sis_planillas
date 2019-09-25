@@ -36,6 +36,8 @@ $body$
  #36              09/09/2019        RArteaga            Corregir sueldomes cuando la incapacidad temporal lleva cero horas trabajadas
  #37              10/09/2019        RArteaga            Recuperar horas efectivamente trabaja como colulmna basica
  #48              24/09/2019        RArteaga            bug en calculo de haber básico para planillas en meses que no han cerrado
+ #51              25/09/2019        RArteaga            Incluir en planilla de retroactivos el reintegro por asignación por sitio de trabajo con incapacidad temporal de la columna  El código es ASIGTRA_I
+ #52              25/09/2019        RArteaga            Funcion abasiso para calculo de factor nocturno
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -246,7 +248,16 @@ $body$
         INNER JOIN orga.tcargo car on uofun.id_cargo = car.id_cargo
         LEFT JOIN orga.ttipo_cargo tcar ON tcar.id_tipo_cargo = car.id_tipo_cargo
         WHERE uofun.id_uo_funcionario = v_planilla.id_uo_funcionario;
-      
+     
+     --#52 calculo del factor de horas norcturas 
+    ELSIF (p_codigo = 'FACNOCT') THEN
+    
+        SELECT  COALESCE(tcar.factor_nocturno) 
+        INTO v_resultado
+        FROM orga.tuo_funcionario uofun
+        INNER JOIN orga.tcargo car on uofun.id_cargo = car.id_cargo
+        LEFT JOIN orga.ttipo_cargo tcar ON tcar.id_tipo_cargo = car.id_tipo_cargo
+        WHERE uofun.id_uo_funcionario = v_planilla.id_uo_funcionario; 
     
     
     ELSIF (p_codigo = 'DIALEY') THEN  -- Dias dados por ley
@@ -1003,10 +1014,6 @@ $body$
                 
         v_resultado = v_resultado - v_bono_ant_original;
         
-        /*
-        IF v_planilla.id_funcionario  =  320 THEN
-          raise exception '%,%,% , -- % -- %', v_fecha_ini, p_fecha_ini, p_fecha_fin, v_bono_ant_original, v_resultado;
-        END IF;*/
                 
     --#25 PRMBANT   reintegro mensual de bono de antiguedad
     
@@ -1040,7 +1047,28 @@ $body$
             and  p.id_periodo =  v_planilla.id_periodo   
             and  cv.codigo_columna = 'FACTORANTI';
             
-     -- raise exception '%', v_resultado;       
+    --#51 PRMASIGTRA   reintegro por asignación por sitio de trabajo
+     
+     ELSIF (p_codigo = 'PRMASIGTRA') THEN  
+    
+          --recuperar sueldo segun escala salarial
+          
+          v_reintegro_sueldoba = plani.f_get_valor_columna_valor('PRMSUELDOBA', p_id_funcionario_planilla); -- recupera el reintegro de sueldo basico
+          
+          select 
+               ( (cval.valor * v_reintegro_sueldoba) / cval_s.valor ) 
+          into
+              v_resultado
+          from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'ASIGTRA_IT'
+            inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
+          where fp.id_funcionario = v_planilla.id_funcionario 
+           and  tp.codigo = 'PLASUE' 
+           and p.id_periodo =  v_planilla.id_periodo         
+           and p.id_gestion = v_planilla.id_gestion;
+    
      
     --#25  cotizable para reintegro mensual
     
