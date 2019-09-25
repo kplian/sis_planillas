@@ -2,6 +2,7 @@
 // Extend the TCPDF class to create custom MultiRow
 //ISSUE			AUTHOR			FECHA				DESCRIPCION
 //#40 			MZM			16/09/2019	        	Inclusion de pie de firma 
+//#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -62,12 +63,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
 		
-		
-		if($this->datos_titulo['ordenar_por']=='centro' && $this->gerencia!=''){//#17
+		//#50
+		/*if($this->datos_titulo['ordenar_por']=='centro' && $this->gerencia!=''){//#17
 				$this->tipo_ordenacion='CENTRO ';
 		 	
 		}//fin #17
-		
+		*/
 		
 		
 		$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
@@ -200,14 +201,21 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 					$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-				
+					
 				 ){
+				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+				 	}else{
+				 		array_push($detalle_col_mod, '');
+				 	}
 				 	
-				 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
 				 	
 				 }
 				else{
-					array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+					
+						array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);	
+					
+					
 				}
 				
 				
@@ -245,14 +253,21 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 							$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 							$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 							$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-						
+						   
 						 ){
 						 	
-						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+				 				array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 	}else{
+						 		array_push($detalle_col_mod, '');
+						 	}
 						 	
 						 }
 						else{
-							array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+							
+								array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);	
+							
+
 						}
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'1');
@@ -275,14 +290,20 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 						$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 						$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-					
+					    
 						 ){
 						 	
-						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 	}else{
+						 		array_push($detalle_col_mod, '');
+						 	}
 						 	
 						 }
 						else{
-							array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);
+							
+							array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);	
+							
 						}
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'0');
@@ -375,8 +396,8 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						$this->AddPage();
 		}
 		
-		
-		$this->Cell(30,3,'TOTAL FUNCIONARIOS PLANILLA: '.$xxx,'',1,'L');
+		//#50
+		$this->Cell(30,3,'TOTAL EMPLEADOS PLANILLA: '.$xxx,'',1,'L');
 		
 		$this->subtotales($detalle_col_mod,$sum_total);			
 		
@@ -423,7 +444,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
     			
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
-				array_push($result, number_format($data_sub[$cc],2,',','.'));
+				
+				if($data_sub[$cc]>0){//#50
+					array_push($result, number_format($data_sub[$cc],2,',','.'));
+				}else{
+					array_push($result, '');
+				}
+				
 				array_push($result,'B');
 				array_push($result,'0');
 				array_push($result,'R');

@@ -2,7 +2,8 @@
 // Extend the TCPDF class to create custom MultiRow
 //ISSUE			AUTHOR			FECHA				DESCRIPCION	  		
 //#33			etr-MZM		02.09.2019				reporte multilinea pro totales
-//#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel	
+//#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel
+//#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0	
  
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
@@ -28,9 +29,10 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $ancho_col;
 	var $alto_grupo;
 	var $tipo_ordenacion='';
-	function Header() {  
+	function Header() {
+		//#50  
 		if($this->datos_titulo['ordenar_por']=='centro'){//#17
-			$this->tipo_ordenacion='CENTRO ';
+			//$this->tipo_ordenacion='CENTRO ';
 		}//fin #17
 		
 		$max_fila=2; $this->max_columna=0;
@@ -188,7 +190,11 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 				
 				 ){
 				 	
-				 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+				 	}else{
+				 		array_push($detalle_col_mod, '');
+				 	}
 				 	
 				 }
 				else{
@@ -223,7 +229,11 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 						
 						 ){
 						 	
-						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 	}else{
+						 		array_push($detalle_col_mod, '');
+						 	}
 						 	
 						 }
 						else{
@@ -249,7 +259,11 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 					
 						 ){
 						 	
-						 	array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));
+						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 	}else{
+						 		array_push($detalle_col_mod, '');
+						 	}
 						 	
 						 }
 						else{
@@ -297,7 +311,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->SetFont('','B',8);
 		$this->ln(10);
 		//$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
-		$this->Cell(80,3,'Sub Total:' . $this->tipo_ordenacion.$this->gerencia.'','',1,'L');
+		//$this->Cell(80,3,'Sub Total:' . $this->tipo_ordenacion.$this->gerencia.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
 		$this->subtotales($detalle_col_mod,$sum_subtotal);
 		
@@ -311,7 +325,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->ln(10);
 		$this->SetFont('','B',8);
 		$xxx=$this->numeracion-1;
-		$this->Cell(30,3,'TOTAL FUNCIONARIOS: '.$xxx,'',1,'L');
+		$this->Cell(30,3,'TOTAL EMPLEADOS PLANILLA: '.$xxx,'',1,'L');
 		$this->SetFont('','',8);
 		$this->subtotales($detalle_col_mod,$sum_total);			
 		
@@ -328,7 +342,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		
 		//$this->Cell($ancho_sep/2,2,'',0,0,'C');
 		$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
-		
+		$this->SetFont('','B',7);//#50
 	
 		
 		
@@ -359,7 +373,11 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
     			
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
-				array_push($result, number_format($data_sub[$cc],2,',','.'));
+				if($data_sub[$cc]>0){//#50
+					array_push($result, number_format($data_sub[$cc],2,',','.'));
+				}else{
+					array_push($result, '');
+				}
 				array_push($result,'');
 				array_push($result,'0');
 				array_push($result,'R');
