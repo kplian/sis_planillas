@@ -1,8 +1,8 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
 //ISSUE			AUTHOR			FECHA				DESCRIPCION
-//#40 			MZM			16/09/2019	        	Inclusion de pie de firma 
-//#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0
+//#40 			MZM			16/09/2019	        	Inclusion de pie de firma
+//#50			MZM			25.09.2019				Ajuste para el titulo del ultimo grupo de grilla y ajuste de espacio entre grilla y subtotal 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -63,7 +63,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
 		
-		//#50
+		
 		/*if($this->datos_titulo['ordenar_por']=='centro' && $this->gerencia!=''){//#17
 				$this->tipo_ordenacion='CENTRO ';
 		 	
@@ -167,10 +167,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$dimensions_h = $this->getPageDimensions();
 						if ($this->GetY()+$this->alto_grupo+$dimensions_h['bm']+3> $dimensions_h['hk']){
 							$this->AddPage();
-							
+							$this->ln(-4);
+						}else{
+							$this->ln(2);
 						}
 					
-					$this->ln(2);
+					
+					
 					$this->Cell(0,0,'Sub Total:'.$this->tipo_ordenacion.$this->gerencia,'',1);
 					$this->Cell(30,3,'# Empl.' . $empleados_gerencia,'',1,'L');
 					
@@ -203,7 +206,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
 					
 				 ){
-				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+				 	if($this->datos_detalle[$i]['valor_columna']>0){
 				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
 				 	}else{
 				 		array_push($detalle_col_mod, '');
@@ -256,7 +259,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						   
 						 ){
 						 	
-						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 	if($this->datos_detalle[$i]['valor_columna']>0){
 				 				array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
@@ -293,7 +296,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					    
 						 ){
 						 	
-						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
+						 	if($this->datos_detalle[$i]['valor_columna']>0){
 						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
@@ -344,10 +347,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 			}
 			
-		$ultima_ger=$this->gerencia;
-		$ultima_ord=$this->tipo_ordenacion;
-		$this->gerencia='';	
-		$this->tipo_ordenacion='';
+		
 		
 		//Añade al ultimo empleado de la lista
 		//$this->UniRow($array_show,false, 0);
@@ -356,8 +356,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//Añade el ultimo subtotal de la gerencia
 		
 		$this->SetFont('','',6);
-		
+		$this->ln(-4);
 		$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
+		$ultima_ger=$this->gerencia;
+		$ultima_ord=$this->tipo_ordenacion;
+		$this->gerencia='TOTAL EMPRESA';	
+		$this->tipo_ordenacion='';
 		
 		$this->SetFont('','B',8);
 					$dimensions_hu = $this->getPageDimensions();
@@ -365,41 +369,32 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 							$this->AddPage();
 							
 						}
-					
-					$this->ln(2);
+		$this->ln(2);
+						
 		
 		
-		
-		
-		$this->Cell(80,3,'Sub Total:' . $ultima_ord.$ultima_ger.'','',1,'L');
+		$this->Cell(80,3,'Sub Total:' .  $ultima_ord.$ultima_ger.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
 		$this->subtotales($detalle_col_mod,$sum_subtotal);
 		
 		$this->SetFont('','B',8);
 		
 	 				
-						
-
-		$this->ln(4);
-		
-		$this->SetLineWidth(1);
- 	 	$this->SetDrawColor(0,0,0);
-		$this->Cell(0,0,'','B',1);
+		$this->AddPage();//#50
 		
 		//planilla
-		$this->ln(4);
+		
+		
+		
+		
+		//$this->ln(2);}
 		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
-		
-		$dimensionsP = $this->getPageDimensions();
-		if ($this->GetY()+$this->alto_grupo+$dimensionsP['bm']> $dimensionsP['hk']+4){
-						$this->AddPage();
-		}
-		
-		//#50
 		$this->Cell(30,3,'TOTAL EMPLEADOS PLANILLA: '.$xxx,'',1,'L');
 		
 		$this->subtotales($detalle_col_mod,$sum_total);			
+		//#50
+		
 		
 		//31.08.2019
 		$this->ln(40);
@@ -445,7 +440,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
 				
-				if($data_sub[$cc]>0){//#50
+				if($data_sub[$cc]>0){
 					array_push($result, number_format($data_sub[$cc],2,',','.'));
 				}else{
 					array_push($result, '');
