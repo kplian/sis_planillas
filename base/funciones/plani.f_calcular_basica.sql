@@ -37,6 +37,7 @@ $body$
  #37              10/09/2019        RArteaga            Recuperar horas efectivamente trabaja como colulmna basica
  #48              24/09/2019        RArteaga            bug en calculo de haber básico para planillas en meses que no han cerrado
  #51              25/09/2019        RArteaga            Incluir en planilla de retroactivos el reintegro por asignación por sitio de trabajo con incapacidad temporal de la columna  El código es ASIGTRA_I
+ #52              25/09/2019        RArteaga            Funcion abasiso para calculo de factor nocturno
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -247,7 +248,16 @@ $body$
         INNER JOIN orga.tcargo car on uofun.id_cargo = car.id_cargo
         LEFT JOIN orga.ttipo_cargo tcar ON tcar.id_tipo_cargo = car.id_tipo_cargo
         WHERE uofun.id_uo_funcionario = v_planilla.id_uo_funcionario;
-      
+     
+     --#52 calculo del factor de horas norcturas 
+    ELSIF (p_codigo = 'FACNOCT') THEN
+    
+        SELECT  COALESCE(tcar.factor_nocturno) 
+        INTO v_resultado
+        FROM orga.tuo_funcionario uofun
+        INNER JOIN orga.tcargo car on uofun.id_cargo = car.id_cargo
+        LEFT JOIN orga.ttipo_cargo tcar ON tcar.id_tipo_cargo = car.id_tipo_cargo
+        WHERE uofun.id_uo_funcionario = v_planilla.id_uo_funcionario; 
     
     
     ELSIF (p_codigo = 'DIALEY') THEN  -- Dias dados por ley
