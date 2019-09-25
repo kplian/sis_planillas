@@ -3074,3 +3074,15 @@ AS
                  , a.num_documento::text ]) u(nombre_col, valor_col);
                  
 /***********************************F-DEP-MZM-PLANI-8-26/08/2019****************************************/
+
+/***********************************I-DEP-MZM-PLANI-46-23/09/2019****************************************/
+ALTER TABLE plani.treporte
+  DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
+
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (agrupar_por = 'gerencia' OR agrupar_por = 'gerencia_presupuesto' OR agrupar_por = 'ninguno' or agrupar_por='distrito');
+
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN tipo_abono VARCHAR(2);
+
+/***********************************F-DEP-MZM-PLANI-46-23/09/2019****************************************/

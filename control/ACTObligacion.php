@@ -9,7 +9,7 @@
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
- 
+#46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas 
 */
 
 class ACTObligacion extends ACTbase{    
@@ -53,6 +53,62 @@ class ACTObligacion extends ACTbase{
 		$this->objFunc=$this->create('MODObligacion');	
 		$this->res=$this->objFunc->existenCbteDePago($this->objParam);
 		$this->res->imprimirRespuesta($this->res->generarJson());
+	}
+	
+	//#46 listado para abono en cuentas
+	function listarAbonoCuenta(){
+		$this->objParam->defecto('ordenacion','id_obligacion');
+
+		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('id_obligacion') != '') {
+			$this->objParam->addFiltro("detran.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
+		}
+		
+		$this->objFunc=$this->create('MODObligacion');
+			
+		$this->res=$this->objFunc->listarAbonoCuenta($this->objParam);
+		$datos = $this->res->getDatos(); 
+		//$this->res->imprimirRespuesta($this->res->generarJson());
+		
+		
+		$periodo=$datos[0]['periodo'];
+		
+		$id_obligacion=$this->objParam->getParametro('id_obligacion');
+		//echo $tipo.'per:'.$periodo.' ges:'.$gestion.' id_obli:'.$id_obligacion; exit;
+		$nombre_archivo = 'B03'.$periodo.".CTD";
+		
+		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= undefined ){
+			if($this->objParam->getParametro('tipo_contrato')=='Planta' ){
+				$nombre_archivo = 'B03'.$periodo."1.CTD";
+			}else{
+				$nombre_archivo = 'B03'.$periodo."2.CTD";
+			}
+			
+		}
+		
+		$MiDocumento = fopen("../../../reportes_generados/".$nombre_archivo.".txt", "w+");
+		
+		
+		$Escribo=$datos[0]['total'];
+		fwrite($MiDocumento, $Escribo);
+		fwrite($MiDocumento, chr(13).chr(10));
+		foreach ($datos as $dato) {
+			
+			$Escribo = "".$dato['detalle'] ;
+				
+			
+			fwrite($MiDocumento, $Escribo);
+			fwrite($MiDocumento, chr(13).chr(10)); //genera el salto de linea
+			
+
+		}
+		fclose($MiDocumento);
+		
+		$this->res->setDatos($nombre_archivo);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+		
+		
 	}
 			
 }

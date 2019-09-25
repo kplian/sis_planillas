@@ -19,7 +19,7 @@ $body$
  * #3		EndeEtr		05/02/2019		EGS				Se agrego a la consulta campo id_tipo_obligacion_agrupador y codigo_agrupador
    #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
  * #1		EndeEtr		20/02/2019		EGS				se agrego los campos codigo_tipo_relacion_debe,codigo_tipo_relacion_haber	 	
-
+   #46		ETR			19.09.2019		MZM				Adicion de campo tipo_abono para reporte bono en cuenta
 ***************************************************************************/
 
 DECLARE
@@ -65,6 +65,7 @@ BEGIN
                         tipobli.descripcion,         --#1 EGS
                         tipobli.codigo_tipo_relacion_debe,--#1 EGS
                         tipobli.codigo_tipo_relacion_haber--#1 EGS
+                        ,tipobli.tipo_abono --#46
 						from plani.ttipo_obligacion tipobli
 						inner join segu.tusuario usu1 on usu1.id_usuario = tipobli.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tipobli.id_usuario_mod
@@ -121,8 +122,4 @@ EXCEPTION
 			raise exception '%',v_resp;
 END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+LANGUAGE 'plpgsql';

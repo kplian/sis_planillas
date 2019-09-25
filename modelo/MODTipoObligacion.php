@@ -9,7 +9,7 @@
  * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador 
    #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion
  * #1		EndeEtr		20/02/2019		EGS				se agrego los campos codigo_tipo_relacion_debe,codigo_tipo_relacion_haber	 	
- * 
+ * #46		ETR			19.09.2019		MZM				Adicion de campo tipo_abono para reporte abono en cuentas
  * */
 
 class MODTipoObligacion extends MODbase{
@@ -44,6 +44,7 @@ class MODTipoObligacion extends MODbase{
 		$this->captura('descripcion','varchar'); //#1 EGS
 		$this->captura('codigo_tipo_relacion_debe','varchar'); //#1 EGS
 		$this->captura('codigo_tipo_relacion_haber','varchar');	//#1 EGS	
+		$this->captura('tipo_abono','varchar');//#46 MZM				
 				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -71,7 +72,7 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('descripcion','descripcion','varchar');//#1 EGS
 		$this->setParametro('codigo_tipo_relacion_debe','codigo_tipo_relacion_debe','varchar');//#1 EGS
 		$this->setParametro('codigo_tipo_relacion_haber','codigo_tipo_relacion_haber','varchar');//#1 EGS
-				
+		$this->setParametro('tipo_abono','tipo_abono','varchar');//#46 MZM				
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -99,7 +100,7 @@ class MODTipoObligacion extends MODbase{
 		$this->setParametro('descripcion','descripcion','varchar');//#1 EGS
 		$this->setParametro('codigo_tipo_relacion_debe','codigo_tipo_relacion_debe','varchar');//#1 EGS
 		$this->setParametro('codigo_tipo_relacion_haber','codigo_tipo_relacion_haber','varchar');//#1 EGS
-				
+		$this->setParametro('tipo_abono','tipo_abono','varchar');//#46 MZM		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

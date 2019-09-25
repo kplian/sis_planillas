@@ -12,7 +12,8 @@
    
  #0               14/07/2014       JRIVERA KPLIAN       creacion
  #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
-*/
+ #46			  23.09.2019		MZM					Adicion de opcion para abono en cuenta
+ * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -38,6 +39,17 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
         );
         
        //#38
+       
+       this.addButton('btnRepAbono',
+            {
+                text: 'Abono en Cuenta',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.onBtnRepAbono,
+                tooltip: 'Reporte de Abono en cuentas'
+            }
+        );//#46
+       
        this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Generar Cbte de  Pago</b><br/>Genera el comprobante correspondiente del pago seleccionado'});
        this.addButton('SolTodosPag',{text:'Solicitar Todos los Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnTodosPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
         
@@ -497,14 +509,39 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                     this.idContenedor,
                     'DetalleTransferencia');
 	},
+	onBtnRepAbono: function(){//#46
+			var rec=this.sm.getSelected();
+				   
+          Ext.Ajax.request({
+				url:'../../sis_planillas/control/Obligacion/listarAbonoCuenta',
+				params:{'id_obligacion':rec.data.id_obligacion,
+				'tipo_contrato':this.maestro.tipo_contrato,
+				'start':0,'limit':100000},
+				success: this.successGeneracion_txt,
+			
+				failure: this.conexionFailure,
+				timeout:this.timeout,
+				scope:this
+			});
+				
+	},
+	successGeneracion_txt:function(resp){
+			Phx.CP.loadingHide();
+	        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+	        
+	        var texto = objRes.datos;
+	        window.open('../../../reportes_generados/'+texto+'.txt')
+		},//#46
 	preparaMenu:function()
     {	
     	var rec = this.sm.getSelected().data;
     	
     	if (rec.tipo_pago == 'transferencia_empleados') {
     		this.getBoton('btnDetalle').enable();
+    		this.getBoton('btnRepAbono').enable();//#46
     	} else {
     		this.getBoton('btnDetalle').disable();
+    		this.getBoton('btnRepAbono').enable();//#46
     	} 
     	
     	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
@@ -523,7 +560,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     },
     liberaMenu:function()
     {	
-        this.getBoton('btnDetalle').disable();                
+        this.getBoton('btnDetalle').disable();
+        this.getBoton('btnRepAbono').disable();//#46                           
         Phx.vista.Obligacion.superclass.liberaMenu.call(this);
     },
 	}
