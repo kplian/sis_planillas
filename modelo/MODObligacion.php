@@ -10,7 +10,8 @@
  *   
 HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
-#38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
+#38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago
+#46	ETR				23.09.2019			MZM					Listado para reporte abono en cuenta  
  * */
 class MODObligacion extends MODbase{
 	
@@ -144,6 +145,29 @@ class MODObligacion extends MODbase{
 		return $this->respuesta;
 	}
 	
+	//#46
+	function listarAbonoCuenta(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_obligacion_sel';
+		$this->transaccion='PLA_ABOCUE_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+						
+		//Definicion de la lista del resultado del query
+		$this->captura('total','text');		
+		$this->captura('detalle','text');//#46
+		
+		
+		$this->captura('periodo','text');//#46
+		
+				
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 	
 			
 }

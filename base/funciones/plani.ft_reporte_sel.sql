@@ -27,6 +27,7 @@ $body$
    #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
    #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
    #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
+   #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
   ***************************************************************************/
 
   DECLARE
@@ -348,11 +349,11 @@ $body$
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
                         inner join param.tempresa emp on emp.estado_reg = ''activo''
-                        inner join plani.tfuncionario_planilla planifun  on planifun.id_planilla = plani.id_planilla
-                        inner join orga.vfuncionario fun on fun.id_funcionario = planifun.id_funcionario
-				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = planifun.id_uo_funcionario
+                        inner join plani.tfuncionario_planilla fp  on fp.id_planilla = plani.id_planilla
+                        inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
+				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
 				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = planifun.id_funcionario_planilla
+				        left join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
 				        left join orga.tuo_funcionario uofunht on uofunht.id_uo_funcionario = ht.id_uo_funcionario
 				        left join orga.tcargo carht on carht.id_cargo = uofunht.id_cargo
 				        where  ';
@@ -405,14 +406,14 @@ $body$
                             colval.codigo_columna,
                             colval.valor
 
-						from plani.tfuncionario_planilla planifun
-                        inner join plani.tplanilla plani on plani.id_planilla = planifun.id_planilla
+						from plani.tfuncionario_planilla fp
+                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
 						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
-                        inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = planifun.id_funcionario_planilla
+                        inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                         inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte and
                         											repcol.codigo_columna = colval.codigo_columna
 
-				        where planifun.id_funcionario=250 and repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
+				        where fp.id_funcionario=250 and repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
@@ -950,45 +951,47 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     
 		                   
                     
-                    
-        v_consulta_orden:=' uo.id_uo,
-                            uo.nombre_unidad,';
-                            
-                           
-                            
-        if (v_ordenar_por = 'nombre')then --#39 - 12.02.2019
-        
-             execute	'select distinct repo.agrupar_por
+                    --por gerencia
+       
+        execute	'select distinct repo.agrupar_por
            			from plani.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
-           			where '||v_parametros.filtro into v_agrupar_por;
-
-			if (v_agrupar_por='ninguno' ) then
-         			v_consulta_orden:='1,''''::varchar, ';
-                    v_ordenar_por = 'fun.desc_funcionario2'; -- 12.09.2019
-            else
-                v_ordenar_por = 'uo.id_uo,uo.nombre_unidad,fun.desc_funcionario2';
-            end if;
-
-			
+           			where '||v_parametros.filtro into v_agrupar_por;                   
+             
+                   
+        --#50                    
+        if (v_ordenar_por = 'nombre')then --#39 - 12.02.2019
+        	v_ordenar_por = 'fun.desc_funcionario2';
+            		
         elsif (v_ordenar_por = 'doc_id') then
-          v_ordenar_por = 'uo.id_uo,
-                            uo.nombre_unidad,fun.ci';
+          v_ordenar_por = 'fun.ci';
         elsif (v_ordenar_por = 'codigo_cargo') then
-          v_ordenar_por = 'uo.id_uo,
-                            uo.nombre_unidad,car.codigo';
-        --28.06.2019
-        elsif (v_ordenar_por = 'centro') then 
-            
-	             v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
-                 -- fin 28..06.2019 
-         		v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
-	      
-        else
-          v_ordenar_por = 'uo.id_uo,
-                            uo.nombre_unidad,fun.codigo';
+          v_ordenar_por = 'car.codigo';
+       
+        else-- codigo_funcionario
+          		v_ordenar_por ='fun.codigo';
         end if;
+        
+        
+        if (v_agrupar_por='ninguno' ) then
+	        v_consulta_orden:='1,''''::varchar, ';
+           -- v_ordenar_por = 'fun.desc_funcionario2'; -- 12.09.2019
+        elsif(v_agrupar_por='distrito') then
+        	v_consulta_orden:='ofi.id_oficina,ofi.nombre, ';
+            v_ordenar_por ='ofi.orden,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019
+         --28.06.2019
+        elsif (v_agrupar_por = 'centro') then 
+        	v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
+            v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
+                 -- fin 28..06.2019 
+          
+        else --gerencia (id_uo, nombre_unidad)
+         	v_consulta_orden:=' uo.id_uo, uo.nombre_unidad,';
+         	v_ordenar_por =v_consulta_orden||v_ordenar_por; -- 12.09.2019
+        
+        end if; 
+        
 
 		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
           if(length(v_parametros.tipo_contrato)>0) then
@@ -1083,6 +1086,8 @@ end
                             inner join orga.tuo uofuncionario on uofuncionario.id_uo=uofun.id_uo
 
                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
+							--para poder filtrar y ordenar por distrito
+                            inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
                             '||v_consulta_externa||' where '||v_tipo_contrato;
 
             --Definicion de la respuesta
@@ -1126,8 +1131,4 @@ end
       raise exception '%',v_resp;
   END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+LANGUAGE 'plpgsql';

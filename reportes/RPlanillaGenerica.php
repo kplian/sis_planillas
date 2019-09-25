@@ -1,5 +1,6 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
+//#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -163,7 +164,7 @@ class RPlanillaGenerica extends  ReportePDF {
 	 				
 					for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 						if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
+							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,',','.'),1,0,'R');//#50
 						else
 							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 						//reiniciar subtotales
@@ -202,7 +203,7 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
 			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2),1,0,'R');
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,',','.'),1,0,'R');//#50
 				else
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 				//reiniciar subtotales
@@ -225,7 +226,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 			if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i],2),1,0,'R');
+				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i],2,',','.'),1,0,'R');//#50
 			else
 				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 		}
