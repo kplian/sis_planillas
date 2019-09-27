@@ -5,7 +5,12 @@
 *@author  (admin)
 *@date 22-01-2014 16:11:08
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
-*/
+
+ * HISTORIAL DE MODIFICACIONES:
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#0             22-01-2014              GUY              creacion
+#53 ETR        26/09/2019              RAC              listado para Interface que identifica empleado según centro de costo
+ */
 require_once(dirname(__FILE__).'/../reportes/RCambiosPeriodoXLS.php');
 
 class ACTFuncionarioPlanilla extends ACTbase{    
@@ -81,6 +86,33 @@ class ACTFuncionarioPlanilla extends ACTbase{
 										'Se generó con éxito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+	}
+
+
+   //#52  listado de funcionarios por centro de costos
+   function listarFuncionarioPlanillaPorCC(){
+		$this->objParam->defecto('ordenacion','id_funcionario_planilla');
+
+		$this->objParam->defecto('dir_ordenacion','asc');
+		
+		if ($this->objParam->getParametro('id_planilla') != '') {
+			$this->objParam->addFiltro("funplan.id_planilla = ". $this->objParam->getParametro('id_planilla'));
+		}
+		
+		if ($this->objParam->getParametro('id_presupuesto') != '') {
+			$this->objParam->addFiltro("pro.id_presupuesto = ". $this->objParam->getParametro('id_presupuesto'));
+		}
+		
+				
+		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+			$this->objReporte = new Reporte($this->objParam,$this);
+			$this->res = $this->objReporte->generarReporteListado('MODFuncionarioPlanilla','listarFuncionarioPlanillaPorCC');
+		} else{
+			$this->objFunc=$this->create('MODFuncionarioPlanilla');
+			
+			$this->res=$this->objFunc->listarFuncionarioPlanillaPorCC($this->objParam);
+		}
+		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 	
 			

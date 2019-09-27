@@ -8,6 +8,7 @@
 HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
+#53 ETR        26/09/2019               RAC                 listado para Interface que identifica empleado según centro de costo
  */
 
 class MODFuncionarioPlanilla extends MODbase{
@@ -237,6 +238,49 @@ class MODFuncionarioPlanilla extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
+	/*#53   listado de funcionario  por centros de costo*/
+	function listarFuncionarioPlanillaPorCC(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_funcionario_planilla_sel';
+		$this->transaccion='PLA_DETFUNPLAN_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+				
+		//Definicion de la lista del resultado del query
+		$this->captura('id_funcionario_planilla','int4');
+		$this->captura('finiquito','varchar');
+		$this->captura('forzar_cheque','varchar');
+		$this->captura('id_funcionario','int4');
+		$this->captura('id_planilla','int4');
+		$this->captura('id_lugar','int4');
+		$this->captura('id_uo_funcionario','int4');
+		$this->captura('estado_reg','varchar');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+		$this->captura('desc_funcionario2','text');
+		$this->captura('lugar','varchar');
+		$this->captura('afp','varchar');
+		$this->captura('nro_afp','varchar');
+		$this->captura('banco','varchar');
+		$this->captura('nro_cuenta','varchar');	
+		$this->captura('ci','varchar');	
+		$this->captura('desc_cargo','varchar');	
+		$this->captura('tipo_contrato','varchar');
+        $this->captura('desc_codigo','varchar'); 
+		$this->captura('id_presupuesto','int4');
+
+        //Ejecuta la instruccion
+		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
