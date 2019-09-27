@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -25,6 +27,7 @@ $body$
 
  #51            18/07/2019        RAC       bug en ordenacion , se agrgan alias
  #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
+ #53 ETR        26/09/2019        RAC       listado para Interface que identifica empleado según centro de costo
 
 ***************************************************************************/
 
@@ -407,6 +410,103 @@ BEGIN
 
         end;
 
+   /*********************************
+     #TRANSACCION:  'PLA_DETFUNPLAN_SEL'
+     #DESCRIPCION:  #52  listado para Interface que identifica empleado según centro de costo
+     #AUTOR:        admin
+     #FECHA:        22-01-2014 16:11:08
+    ***********************************/
+
+    elsif(p_transaccion='PLA_DETFUNPLAN_SEL')then
+
+        begin
+            --Sentencia de la consulta
+            v_consulta:='select
+                            funplan.id_funcionario_planilla,
+                            funplan.finiquito,
+                            funplan.forzar_cheque,
+                            funplan.id_funcionario,
+                            funplan.id_planilla,
+                            funplan.id_lugar,
+                            funplan.id_uo_funcionario,
+                            funplan.estado_reg,
+                            funplan.id_usuario_reg,
+                            funplan.fecha_reg,
+                            funplan.id_usuario_mod,
+                            funplan.fecha_mod,
+                            usu1.cuenta as usr_reg,
+                            usu2.cuenta as usr_mod,
+                            funcio.desc_funcionario2,
+                            lug.nombre as lugar,
+                            afp.nombre,
+                            fafp.nro_afp,
+                            ins.nombre as banco,
+                            fcb.nro_cuenta,
+                            funcio.ci,
+                            (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
+                            funplan.tipo_contrato,
+                            funcio.codigo as desc_codigo, 
+                            pro.id_presupuesto
+                        from plani.tfuncionario_planilla funplan
+                        inner join plani.tprorrateo pro ON pro.id_funcionario_planilla = funplan.id_funcionario_planilla
+                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+                        inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
+                        inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
+                        inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
+                        left join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        left join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
+                        left join orga.tfuncionario_cuenta_bancaria fcb on
+                            fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
+                        left join param.tinstitucion ins on ins.id_institucion = fcb.id_institucion
+                        where  ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
+    /*********************************
+     #TRANSACCION:  'PLA_DETFUNPLAN_CONT'
+     #DESCRIPCION:  #52  Conteo de registros
+     #AUTOR:        RAC
+     #FECHA:        26-09-2019 16:11:08
+    ***********************************/
+
+    elsif(p_transaccion='PLA_DETFUNPLAN_CONT')then
+
+        begin
+            --Sentencia de la consulta de conteo de registros
+            v_consulta:='select count(funplan.id_funcionario_planilla)
+                        from plani.tfuncionario_planilla funplan
+                        inner join plani.tprorrateo pro ON pro.id_funcionario_planilla = funplan.id_funcionario_planilla
+                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+                        inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
+                        inner join segu.tusuario usu1 on usu1.id_usuario = funplan.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = funplan.id_usuario_mod
+                        inner join orga.vfuncionario funcio on funcio.id_funcionario = funplan.id_funcionario
+                        left join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
+                        left join plani.tafp afp on afp.id_afp = fafp.id_afp
+                        inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
+                        left join orga.tfuncionario_cuenta_bancaria fcb on
+                            fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
+                        left join param.tinstitucion ins on ins.id_institucion = fcb.id_institucion
+                        where ';
+
+            --Definicion de la respuesta
+            v_consulta:=v_consulta||v_parametros.filtro;
+            raise notice '%',  v_consulta;
+            --Devuelve la respuesta
+            return v_consulta;
+
+        end;
+
     else
 
         raise exception 'Transaccion inexistente';
@@ -428,6 +528,3 @@ VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
 COST 100;
-
-ALTER FUNCTION plani.ft_funcionario_planilla_sel (p_administrador integer, p_id_usuario integer, p_tabla varchar, p_transaccion varchar)
-  OWNER TO postgres;
