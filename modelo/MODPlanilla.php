@@ -13,6 +13,7 @@
 #38 ETR             12/09/2019          RAC                 Generar cbte contables 
 #43 ETR             18/09/2019          RAC                 añade datos de comprobante a la consulta
 #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
+#54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria
  ***/
 
 class MODPlanilla extends MODbase{
@@ -692,9 +693,11 @@ class MODPlanilla extends MODbase{
         $this->captura('tipo_consolidado','varchar');
 		$this->captura('codigo_techo','varchar');
 		$this->captura('descripcion_techo','varchar');
+		$this->captura('nro_planilla','varchar');
         $this->captura('suma','numeric');
 		$this->captura('veripre_vali','varchar');
 		$this->captura('veripre_dispo','numeric');
+		$this->captura('estado','varchar');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

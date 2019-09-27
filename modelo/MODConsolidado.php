@@ -5,7 +5,17 @@
 *@author  (jrivera)
 *@date 14-07-2014 19:04:07
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+
+ * 
+ * 
+ *
+ HISTORIAL DE MODIFICACIONES:
+
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+ #0             14/07/2014        GUY       Creacion
+ #53 ETR        26/09/2019        RAC       agregar centro de csoto techo y totalizadores
+ * 
+ * */
 
 class MODConsolidado extends MODbase{
 	
@@ -19,6 +29,8 @@ class MODConsolidado extends MODbase{
 		$this->transaccion='PLA_CONPRE_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 				
+		$this->capturaCount('total_suma','numeric');   //#53
+		$this->capturaCount('total_ejecutado','numeric');   //#53				  
 		//Definicion de la lista del resultado del query
 		$this->captura('id_consolidado','int4');
 		$this->captura('id_cc','int4');
@@ -36,7 +48,10 @@ class MODConsolidado extends MODbase{
 		$this->captura('usr_mod','varchar');
 		$this->captura('codigo_cc','text');
 		$this->captura('suma','numeric');
-		$this->captura('suma_ejecutado','numeric');
+		$this->captura('suma_ejecutado','numeric');		
+		$this->captura('id_tipo_cc_techo','int4');  //#53
+		$this->captura('codigo_techo','VARCHAR'); //#53
+		$this->captura('descripcion_techo','VARCHAR'); //#53
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();

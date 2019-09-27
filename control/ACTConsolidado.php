@@ -5,6 +5,16 @@
 *@author  (jrivera)
 *@date 14-07-2014 19:04:07
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ * 
+ 
+***************************************************************************
+ HISTORIAL DE MODIFICACIONES:
+
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+ #0             14/07/2014        GUY       Creacion
+ #53 ETR        26/09/2019        RAC       agregar centro de csoto techo y totalizadores
+ 
+***************************************************************************
 */
 require_once(dirname(__FILE__).'/../reportes/RDetalleEjecucionXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RContabilizacionXLS.php');
@@ -27,6 +37,21 @@ class ACTConsolidado extends ACTbase{
 			
 			$this->res=$this->objFunc->listarConsolidado($this->objParam);
 		}
+		
+		//#53  añade sumatorias		
+		if($this->objParam->getParametro('resumen') != 'no'){
+			//adicionar una fila al resultado con el summario
+			$temp = Array();
+			$temp['suma'] = $this->res->extraData['total_suma'];
+			$temp['suma_ejecutado'] = $this->res->extraData['total_ejecutado'];
+			$temp['glosa'] = 'Sumas iguales';
+			$temp['tipo_reg'] = 'summary';
+			$temp['id_consolidado'] = 0;
+
+			$this->res->total++;
+			$this->res->addLastRecDatos($temp);
+		}
+		
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 				

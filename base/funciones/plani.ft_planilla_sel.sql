@@ -22,9 +22,10 @@ $body$
    #25    ETR             07/08/2019            RAC                  Registrar  calcular_reintegro_rciva
    #28    ETR             22-08-2019            RAC                  añade alias para correcta ordenacion por tipo planilla
    #38    ETR             18/09/2019            RAC                  incluir informacion de comprobantes para validaciones
-   #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla 
+   #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla
    #43    ETR             18-09-2019            RAC                  retornar datos de comprobante para validaciones
    #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
+   #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria
  ***************************************************************************/
 
 
@@ -72,11 +73,11 @@ $body$
     if(p_transaccion='PLA_PLANI_SEL')then
 
       begin
-      
+
         v_filtro = '';--#42
-        
+
         IF p_administrador !=1 THEN
-          
+
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
                                                else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
@@ -84,16 +85,16 @@ $body$
         END IF;
 
         IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
-                   
-          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
-             
+
+          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42
+
              IF v_filtro != '' THEN
                v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
              ELSE
                v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
              END IF;
           END IF;
-            
+
         END IF;
 
         --Sentencia de la consulta
@@ -167,9 +168,9 @@ $body$
         --Sentencia de la consulta de conteo de registros
 
          v_filtro = '';--#42
-        
+
         IF p_administrador !=1 THEN
-          
+
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
                                                else param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA')
@@ -177,16 +178,16 @@ $body$
         END IF;
 
         IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
-                   
-          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42          
-             
+
+          IF  v_parametros.tipo_interfaz in ('PlanillaVb') THEN   --#42
+
              IF v_filtro != '' THEN
                v_filtro = v_filtro||' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
              ELSE
                v_filtro = ' (lower(plani.estado) not in  (''vobo_conta'',''planilla_finalizada'')) and ';
              END IF;
           END IF;
-            
+
         END IF;
 
 
@@ -1221,18 +1222,19 @@ $body$
         return v_consulta;
 
         end;
-        
+
      /*********************************
      #TRANSACCION:  'PLA_VERPRE_SEL'
      #DESCRIPCION:    Reporte Verificacion Presupuestaria Planillas
-     #AUTOR:        manu #47
+     #AUTOR:        manu #47 #54
      #FECHA:        14-02-2018 15:00
     ***********************************/
 
     elsif(p_transaccion='PLA_VERPRE_SEL')then
 
         begin
-        v_consulta = 'WITH det_partida as
+        v_consulta = 'WITH final AS(
+                      WITH det_partida as
                       (
                         SELECT
                         conpre.id_planilla,
@@ -1241,21 +1243,21 @@ $body$
                         FROM plani.tconsolidado_columna   conc
                         INNER JOIN plani.tconsolidado conpre on conpre.id_consolidado = conc.id_consolidado
                         WHERE';
-		v_consulta:=v_consulta||v_parametros.filtro;                        
-        v_consulta:=v_consulta||'group by                      
+		v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||'group by
                         conpre.id_planilla,
-                        conpre.id_consolidado      
+                        conpre.id_consolidado
                       ),
                       base_query as
                       (
-                        select                    
-                        conpre.id_planilla,                      
+                        select
+                        conpre.id_planilla,
                         conpre.tipo_consolidado,
                         cct.codigo_techo,
                         cct.descripcion_techo,
                         sum(concol.valor) as suma,
                         sum(concol.valor_ejecutado) as suma_ejecutado ,
-                        max(conpre.id_presupuesto )   as id_presupuesto,
+                        max(conpre.id_presupuesto ) as id_presupuesto,
                         max(dp.id_partida_max) as id_partida_max,
                         pla.nro_planilla
                         from plani.tconsolidado conpre
@@ -1266,38 +1268,44 @@ $body$
                         inner join det_partida dp on dp.id_consolidado = conpre.id_consolidado
                         WHERE';
         v_consulta:=v_consulta||v_parametros.filtro;
-        v_consulta:=v_consulta||'group by                      
+        v_consulta:=v_consulta||'group by
                         conpre.id_planilla,
                         conpre.tipo_consolidado,
                         cct.codigo_techo,
                         cct.descripcion_techo,
-                        pla.nro_planilla  
+                        pla.nro_planilla
                       )
                       select
-                      id_planilla,                      
+                      id_planilla,
                       tipo_consolidado,
                       codigo_techo,
                       descripcion_techo,
+                      nro_planilla,
                       suma::numeric,
-                      (select veripre_vali[1] 
+                      (select veripre_vali
                       from pre.f_verificar_presupuesto_individual(
                           nro_planilla,
                           NULL,
                           bq.id_presupuesto,
                           bq.id_partida_max,
                           bq.suma,
-                          bq.suma,  
-                          ''comprometido'')as veripre_vali)::varchar as veripre_vali,
-                     (select veripre_vali[2] 
-                      from pre.f_verificar_presupuesto_individual(
-                          nro_planilla,
-                          NULL,
-                          bq.id_presupuesto,
-                          bq.id_partida_max,
                           bq.suma,
-                          bq.suma,  
-                          ''comprometido'')as veripre_vali)::numeric as veripre_dispo        
-                      from base_query bq';                          
+                          ''comprometido'',
+                          false)as veripre_vali)
+                      from base_query bq
+                      )
+                      select
+                      final.id_planilla,
+                      final.tipo_consolidado,
+                      final.codigo_techo,
+                      final.descripcion_techo,
+                      final.nro_planilla,
+                      final.suma,
+                      final.veripre_vali[1]::varchar as veripre_vali,
+                      final.veripre_vali[2]::numeric as veripre_dispo,
+                      final.veripre_vali[5]::varchar as estado
+                      from final
+                      ';
         --Devuelve la respuesta
         return v_consulta;
         end;
