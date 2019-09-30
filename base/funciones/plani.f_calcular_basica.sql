@@ -38,6 +38,7 @@ $body$
  #48              24/09/2019        RArteaga            bug en calculo de haber básico para planillas en meses que no han cerrado
  #51              25/09/2019        RArteaga            Incluir en planilla de retroactivos el reintegro por asignación por sitio de trabajo con incapacidad temporal de la columna  El código es ASIGTRA_I
  #52              25/09/2019        RArteaga            Funcion abasiso para calculo de factor nocturno
+ #55              27/09/2019        RArteaga            funciones basicas para recuperar Ufv inicial y final
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -637,6 +638,39 @@ $body$
       v_fecha_fin:=(select pxp.f_ultimo_dia_habil_mes(p_fecha_fin));
 
       v_resultado = param.f_get_factor_actualizacion_ufv(v_fecha_ini, v_fecha_fin);
+      
+    --#55  recupera tipo de cambio ufv inicial
+     ELSIF (p_codigo = 'UFV_INI') THEN
+     
+     
+      v_fecha_ini:=(select pxp.f_ultimo_dia_habil_mes((p_fecha_ini- interval '1 day')::date));
+      
+      select oficial
+      into v_resultado
+      from param.ttipo_cambio tc
+      inner join param.tmoneda m on m.id_moneda = tc.id_moneda
+      where m.codigo = 'UFV' and tc.fecha = v_fecha_ini and 
+            tc.estado_reg = 'activo' and m.estado_reg = 'activo';
+      
+      IF v_resultado IS NULL THEN
+        raise exception 'no existe tipo de cambio para la fecha %',v_fecha_ini;
+      END IF;
+      
+     --#55  recupera tipo de cambio ufv final
+     ELSIF (p_codigo = 'UFV_FIN') THEN
+          
+      v_fecha_fin:=(select pxp.f_ultimo_dia_habil_mes(p_fecha_fin));
+      
+      select oficial
+      into v_resultado
+      from param.ttipo_cambio tc
+      inner join param.tmoneda m on m.id_moneda = tc.id_moneda
+      where m.codigo = 'UFV' and tc.fecha = v_fecha_fin and 
+            tc.estado_reg = 'activo' and m.estado_reg = 'activo';
+      
+      IF v_resultado IS NULL THEN
+        raise exception 'no existe tipo de cambio para la fecha %',v_fecha_fin;
+      END IF; 
 
     --Saldo del periodo anterior del dependiente
     ELSIF (p_codigo = 'SALDOPERIANTDEP') THEN
