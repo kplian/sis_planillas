@@ -23,7 +23,7 @@ $body$
  #1 ETR           07/02/2019        RAC KPLIAN       Genera agrupadores de obligacion para todas las obligaciones segun configuracion , Agergar id_funcionario  en obligaciones por funcionario
  #7 ETR           22/05/2019        RAC KPLIAN       Aumntar logica para considerar columnas del tipo si_contable   
  #10 ETR          30/05/2019        RAC KPLIAN       Condiferar obligacion del tipo AFP, donde el mismo tipo de agrupador se divide por cada AFP                                        
-                                                        
+ #57 ETR          30/09/2019        JRR		     Anadir que se guarde el id_funcionario para obligaciones de pago de empleado que no tienen cuenta bancaria                                                              
 */
 
 DECLARE
