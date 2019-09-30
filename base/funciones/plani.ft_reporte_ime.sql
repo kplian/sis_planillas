@@ -22,6 +22,7 @@ $body$
  #ISSUE				FECHA				AUTOR				DESCRIPCION
  #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinealas operaciones basicas (inserciones, modificaciones, eliminaciones) de la tabla 'plani.treporte',en procedimiento REPODET_SEL	
  #32	ETR			02.09.2019			MZM				Adicion de relacion id_pie_firma 
+ #58	ETR			30.09.2019			MZM				Adicion de campo mostrar_ufv
 ***************************************************************************/
 
 DECLARE
@@ -74,6 +75,7 @@ BEGIN
             num_columna_multilinea
             --#32 - 31.08.2019
             ,id_pie_firma
+            ,mostrar_ufv --#58
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.numerar,
@@ -99,6 +101,7 @@ BEGIN
             v_parametros.num_columna_multilinea				
             --#32 - 31.08.2019
             ,v_parametros.id_pie_firma
+            ,v_parametros.mostrar_ufv --#58
 			)RETURNING id_reporte into v_id_reporte;
 			
 			v_resp = plani.f_reporte_calcular_ancho_utilizado(v_id_reporte);
@@ -144,6 +147,7 @@ BEGIN
             num_columna_multilinea=v_parametros.num_columna_multilinea
             --#32 - 31.08.2019
             ,id_pie_firma=v_parametros.id_pie_firma
+            ,mostrar_ufv=v_parametros.mostrar_ufv --#58
 			where id_reporte=v_parametros.id_reporte;
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte);   
 			--Definicion de la respuesta
@@ -195,8 +199,4 @@ EXCEPTION
 				        
 END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+LANGUAGE 'plpgsql';

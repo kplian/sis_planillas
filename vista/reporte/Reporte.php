@@ -8,6 +8,7 @@
 issue 	empresa		autor	fecha	detalle
  *17	etr			MZM		28.06.2019	Adicion de opcion centro en combo ordenar_por
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
+ * #58	etr			MZM		30.09.2019	Adicion de campo mostrar_ufv
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -242,18 +243,18 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 120,
-				store:['gerencia','gerencia_presupuesto']
+				store:['gerencia','gerencia_presupuesto','distrito','centro','ninguno']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['gerencia','gerencia_presupuesto'],	
+	       				 options: ['gerencia','gerencia_presupuesto','distrito','centro','ninguno'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,
 				form:true
 		},		
-		{
+				{
 			config:{
 				name: 'ordenar_por',
 				fieldLabel: 'ordenar_por',
@@ -264,12 +265,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 120,
-				store:['nombre','doc_id','codigo_cargo','codigo_empleado','centro'] //#17
+				store:['nombre','doc_id','codigo_cargo','codigo_empleado'] //#17
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado','centro'], //#17	
+	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado'], //#17 	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -364,12 +365,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['planilla','boleta','archivo_texto']
+				store:['planilla','boleta','archivo_texto','formato_especifico']
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['planilla','boleta','archivo_texto'],	
+	       				 options: ['planilla','boleta','archivo_texto','formato_especifico'],	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -466,6 +467,28 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 			filters: {pfiltro: 'tpie_firma.nombre',type: 'string'},
 			grid: true,
 			form: true
+		},
+		{//#58
+			config:{
+				name: 'mostrar_ufv',
+				fieldLabel: 'Mostrar UFV',
+				allowBlank:false,
+				emptyText:'Mostrar UFV...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 80,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		}
 	],
 	tam_pag:50,	
@@ -503,6 +526,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		//#32
 		{name:'id_pie_firma', type: 'numeric'},
 		{name:'nombre', type: 'varchar'}
+		,{name:'mostrar_ufv', type: 'string'}//#58
 		
 	],
 	sortInfo:{

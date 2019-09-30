@@ -3086,3 +3086,11 @@ ALTER TABLE plani.ttipo_obligacion
   ADD COLUMN tipo_abono VARCHAR(2);
 
 /***********************************F-DEP-MZM-PLANI-46-23/09/2019****************************************/
+/***********************************I-DEP-MZM-PLANI-58-30/09/2019****************************************/
+
+ALTER TABLE plani.treporte
+  ADD COLUMN mostrar_ufv VARCHAR(2);
+
+ALTER TABLE plani.treporte
+  ALTER COLUMN mostrar_ufv SET DEFAULT 'no';
+ /***********************************F-DEP-MZM-PLANI-58-30/09/2019****************************************/
