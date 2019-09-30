@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION wf.ft_obligacion_sel (
+CREATE OR REPLACE FUNCTION plani.ft_obligacion_sel (
   p_administrador integer,
   p_id_usuario integer,
   p_tabla varchar,
@@ -206,15 +206,15 @@ BEGIN
         
         END;
         
-      elsif (p_transaccion='PLA_REPOBANC_SEL') THEN
-	    BEGIN --#56
+      elsif (p_transaccion='PLA_REPOBANC_SEL') THEN --#56
+	    BEGIN
 	    	v_consulta:='
-                   
+                    
 with oficina as (
 select id_oficina , param.f_get_id_lugar_tipo(id_lugar,''departamento'') as id_lugar
     from orga.toficina
 )
-select l.nombre,sum(df.monto_transferencia), upper( param.f_get_periodo_literal(pla.id_periodo)) as periodo_lite, ins.nombre as banco, o.tipo_pago
+select l.nombre,sum(df.monto_transferencia), upper( param.f_get_periodo_literal(pla.id_periodo)) as periodo_lite, ins.nombre as banco, o.tipo_pago, tc.nombre
 from plani.tdetalle_transferencia df
 inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
 inner join plani.tplanilla pla on pla.id_planilla = o.id_planilla
@@ -230,7 +230,7 @@ where ';
 
                         
              v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' group by l.nombre, pla.id_periodo, ins.nombre, o.tipo_pago
+			v_consulta:=v_consulta||' group by l.nombre, pla.id_periodo, ins.nombre, o.tipo_pago, tc.nombre
             order by l.nombre '; 
 		    return v_consulta;
         

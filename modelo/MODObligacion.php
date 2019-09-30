@@ -190,6 +190,7 @@ class MODObligacion extends MODbase{
 		$this->captura('periodo','text');
 		$this->captura('banco','varchar');
 		$this->captura('tipo_pago','varchar');
+		$this->captura('tipo_contrato','varchar');//#56
 		
 		
 		//Ejecuta la instruccion
