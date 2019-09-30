@@ -10,9 +10,10 @@ HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
 #46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas
- * 															omision de extension txt 
+ * 															omision de extension txt
+56 ETR				30.09.2019			MZM					Listado de resumen de saldos 
 */
-
+require_once(dirname(__FILE__).'/../reportes/RRelacionSaldos.php'); //#56
 class ACTObligacion extends ACTbase{    
 			
 	function listarObligacion(){
@@ -111,6 +112,46 @@ class ACTObligacion extends ACTbase{
 		
 		
 	}
+
+
+
+
+
+function reporteBancos()	{ //#56
+
+        if ($this->objParam->getParametro('id_obligacion') != '') {
+            $this->objParam->addFiltro("o.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
+        }
+
+      
+        $this->objFunc=$this->create('MODObligacion');
+
+        $this->res=$this->objFunc->listarReporteBancos($this->objParam);
+
+        //obtener titulo del reporte
+        $titulo = 'RESUMEN - RELACION DE SALDOS';
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+        $nombreArchivo.='.pdf';
+        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        //Instancia la clase de pdf
+        $this->objReporteFormato=new RRelacionSaldos($this->objParam);
+        
+        
+		$this->objReporteFormato->setDatos($this->res->datos);
+			$this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+ 
+			$this->mensajeExito=new Mensaje();
+        	$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+	        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+	        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());	
+
+    }
+
 			
 }
 

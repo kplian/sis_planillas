@@ -13,7 +13,7 @@
  #0               14/07/2014       JRIVERA KPLIAN       creacion
  #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
  #46			  23.09.2019		MZM					Adicion de opcion para abono en cuenta
- 														Omision de extension txt
+ #56			  30.09.2019		MZM					Listado resumen de saldos 
  * * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -50,6 +50,17 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                 tooltip: 'Reporte de Abono en cuentas'
             }
         );//#46
+        //#56
+        this.addButton('btnRepBancos',
+            {
+                text: 'Resumen Relacion de Saldos',
+                iconCls: 'blist',
+                disabled: true,
+                handler: this.onBtnRepBancos,
+                tooltip: 'Resumen Relacion de Saldos'
+            }
+        );//#56
+        
        
        this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Generar Cbte de  Pago</b><br/>Genera el comprobante correspondiente del pago seleccionado'});
        this.addButton('SolTodosPag',{text:'Solicitar Todos los Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnTodosPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
@@ -535,6 +546,25 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	        var texto = objRes.datos;
 	        window.open('../../../reportes_generados/'+texto)//#46
 		},//#46
+		
+		
+	onBtnRepBancos: function(){//#56
+			var data=this.sm.getSelected().data;
+			
+			Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_planillas/control/Obligacion/reporteBancos',
+                params:{'id_obligacion' : data.id_obligacion
+                		},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });  
+				
+	},
+	
+	
 	preparaMenu:function()
     {	
     	var rec = this.sm.getSelected().data;
@@ -542,9 +572,11 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     	if (rec.tipo_pago == 'transferencia_empleados') {
     		this.getBoton('btnDetalle').enable();
     		this.getBoton('btnRepAbono').enable();//#46
+    		this.getBoton('btnRepBancos').enable();//#56
     	} else {
     		this.getBoton('btnDetalle').disable();
     		this.getBoton('btnRepAbono').enable();//#46
+    		this.getBoton('btnRepBancos').enable();//#56
     	} 
     	
     	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
@@ -564,7 +596,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     liberaMenu:function()
     {	
         this.getBoton('btnDetalle').disable();
-        this.getBoton('btnRepAbono').disable();//#46                           
+        this.getBoton('btnRepAbono').disable();//#46     
+        this.getBoton('btnRepBancos').disable();//#56                      
         Phx.vista.Obligacion.superclass.liberaMenu.call(this);
     },
 	}
