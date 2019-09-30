@@ -39,6 +39,7 @@ $body$
  #51              25/09/2019        RArteaga            Incluir en planilla de retroactivos el reintegro por asignación por sitio de trabajo con incapacidad temporal de la columna  El código es ASIGTRA_I
  #52              25/09/2019        RArteaga            Funcion abasiso para calculo de factor nocturno
  #55              27/09/2019        RArteaga            funciones basicas para recuperar Ufv inicial y final
+ #59              30/09/2019        RArteaga            Sueldo según escala menos incapacidad temporal para calculo de horas extra, nocturna y disponibilidad
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -141,9 +142,6 @@ $body$
     --#2 Sueldo Mes , incluye incapacidad temporal y el tiempo trabajado efectivo
     ELSIF (p_codigo = 'SUELDOMES') THEN
       
-      
-      
-      v_factor_tiempo = plani.f_get_valor_columna_valor('FACTIEMPO', p_id_funcionario_planilla)::numeric; --#2 ++
     
       select sum(ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes)), --#14  corrige calculo de sueldo basico
              sum(ht.horas_normales)
@@ -165,7 +163,38 @@ $body$
       v_resultado = (v_auxiliar - v_costo_horas_incapcidad) + --sueldo segun horas efectvamente trabajadas trabajadas
                    (v_costo_horas_incapcidad * v_factor_incapcidad_cubierto_empresa);  -- el monto  que paga la empresa por incapacidad temporal
                    
-                   
+    
+    --#59 ultimo sueldo segun escala menos incapacidad temporal, 
+    ELSIF (p_codigo = 'SUELSCL') THEN
+    
+      --ultimos sueldo segun escala asignada al trabajador
+      v_auxiliar = orga.f_get_haber_basico_a_fecha(( select es.id_escala_salarial
+                                                        from orga.tuo_funcionario uofun
+                                                          inner join orga.tcargo car on uofun.id_cargo = car.id_cargo
+                                                          inner join orga.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
+                                                        where uofun.id_uo_funcionario = v_planilla.id_uo_funcionario),p_fecha_ini);
+      
+      select --sum(ht.sueldo * (ht.horas_normales/v_cantidad_horas_mes)), 
+             sum(ht.horas_normales)
+      into --v_auxiliar,
+           v_horas_normales_ht -- horas normales de hoja de tiempo
+      from plani.thoras_trabajadas ht
+      where ht.id_funcionario_planilla = p_id_funcionario_planilla;
+      
+      
+      --el costo por todas las hroas de incapacidad
+      v_costo_horas_incapcidad = (v_auxiliar/v_cantidad_horas_mes) *   -- utilia la horas normales segun hoja de tiempo
+                                 ( plani.f_get_valor_columna_valor('INCAP_DIAS', p_id_funcionario_planilla)::numeric * 
+                                 (v_cantidad_horas_mes/30));  --el costo por todas las hroas de incapacidad
+      
+      v_factor_incapcidad_cubierto_empresa = 1 - plani.f_get_valor_columna_valor('INCAP_PORC', p_id_funcionario_planilla)::numeric;--porcentaje de incapcidad que cubre la empresa
+      
+     
+    
+      v_resultado = (v_auxiliar - v_costo_horas_incapcidad) + --sueldo segun horas efectvamente trabajadas trabajadas
+                   (v_costo_horas_incapcidad * v_factor_incapcidad_cubierto_empresa);  -- el monto  que paga la empresa por incapacidad temporal
+            
+                     
     --#25 PRMSUELDOBA  - sueldo para reintegro mensual
     
     ELSIF (p_codigo = 'PRMSUELDOBA') THEN  
