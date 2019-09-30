@@ -3076,18 +3076,27 @@ AS
 /***********************************F-DEP-MZM-PLANI-8-26/08/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-40-12/09/2019****************************************/
+/*
 ALTER TABLE plani.treporte
   DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
 
 ALTER TABLE plani.treporte
-  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) or agrupar_por='ninguno');
+  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) or agrupar_por='ninguno');*/
 /***********************************F-DEP-MZM-PLANI-40-12/09/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-46-23/09/2019****************************************/
+/*
 ALTER TABLE plani.treporte
   DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__agrupar_por CHECK (agrupar_por = 'gerencia' OR agrupar_por = 'gerencia_presupuesto' OR agrupar_por = 'ninguno' or agrupar_por='distrito');
+
+
+  ALTER TABLE plani.treporte
+  DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;*/
+
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) OR ((agrupar_por)::text = 'ninguno'::text) OR ((agrupar_por)::text = 'distrito'::text) OR ((agrupar_por)::text = 'centro'::text));
 
 /***********************************F-DEP-MZM-PLANI-46-23/09/2019****************************************/
