@@ -225,7 +225,8 @@ BEGIN
                     tipo_pago,
                     acreedor,
                     descripcion,
-                    monto_obligacion
+                    monto_obligacion,
+		    id_funcionario
                   )
                   VALUES (
                     p_id_usuario,
@@ -235,7 +236,8 @@ BEGIN
                     'cheque',
                     v_obligaciones.nombre_funcionario,
                     v_obligaciones.nombre_funcionario || ' cheque de pago a empleado que no tiene cuenta bancaria',
-                    v_obligaciones.valor
+                    v_obligaciones.valor,
+		    v_obligaciones.id_funcionario
                   ) returning id_obligacion into v_id_obligacion;
 
                 --inserta el detalle de obligaciones
