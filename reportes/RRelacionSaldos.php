@@ -37,8 +37,12 @@ class RRelacionSaldos extends  ReportePDF {
 			$this->SetFont('','',8);
 			$this->Cell(5, 7, '', '', 0, 'L');
 			$this->Cell(10, 7, $pagenumtxt, '', 1, 'L');
+			$this->SetFont('','B',10);
 			
-						$this->SetFont('','B',10);
+			if($this->datos[0]['tipo_contrato']!=''){//#56
+				$this->Cell(0, 7, '('.$this->datos[0]['tipo_contrato'].')', '', 1, 'C');	
+			}
+			
 			
 			$this->Cell(90,5,'Correspondiente a: ',0,0,'R');
 			$this->SetFont('','',10);

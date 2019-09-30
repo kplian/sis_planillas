@@ -206,27 +206,31 @@ BEGIN
         
         END;
         
-      elsif (p_transaccion='PLA_REPOBANC_SEL') THEN
+      elsif (p_transaccion='PLA_REPOBANC_SEL') THEN --#56
 	    BEGIN
 	    	v_consulta:='
-                    select l.nombre,sum(df.monto_transferencia), upper( param.f_get_periodo_literal(pla.id_periodo)) as periodo_lite, ins.nombre as banco, o.tipo_pago
-                    from plani.tdetalle_transferencia df
-                    inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
-                    and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
-                    inner join plani.tplanilla pla on pla.id_planilla = o.id_planilla
-                    inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
-                    fp.id_planilla = pla.id_planilla
-                    inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
-                    inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
-                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
-                    inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
-                    inner join param.tlugar l on ofi.id_lugar = l.id_lugar
-                    inner join param.tinstitucion ins on ins.id_institucion=df.id_institucion
-                    where '; 
+                    
+with oficina as (
+select id_oficina , param.f_get_id_lugar_tipo(id_lugar,''departamento'') as id_lugar
+    from orga.toficina
+)
+select l.nombre,sum(df.monto_transferencia), upper( param.f_get_periodo_literal(pla.id_periodo)) as periodo_lite, ins.nombre as banco, o.tipo_pago, tc.nombre
+from plani.tdetalle_transferencia df
+inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
+inner join plani.tplanilla pla on pla.id_planilla = o.id_planilla
+inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
+fp.id_planilla = pla.id_planilla
+inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
+inner join oficina ofi on ofi.id_oficina = c.id_oficina
+inner join param.tlugar l on ofi.id_lugar = l.id_lugar
+inner join param.tinstitucion ins on ins.id_institucion=df.id_institucion
+where '; 
 
                         
              v_consulta:=v_consulta||v_parametros.filtro;
-			v_consulta:=v_consulta||' group by l.nombre, pla.id_periodo, ins.nombre, o.tipo_pago
+			v_consulta:=v_consulta||' group by l.nombre, pla.id_periodo, ins.nombre, o.tipo_pago, tc.nombre
             order by l.nombre '; 
 		    return v_consulta;
         
