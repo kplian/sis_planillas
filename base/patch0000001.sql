@@ -1061,12 +1061,14 @@ ALTER TABLE plani.treporte
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 /***********************************F-SCP-MZM-PLANI-32-02/09/2019****************************************/    
+/***********************************I-SCP-MZM-PLANI-58-30/09/2019****************************************/
 
+ALTER TABLE plani.ttipo_obligacion
+  ADD COLUMN tipo_abono VARCHAR(2);
 
-/***********************************I-SCP-MZM-PLANI-40-12/09/2019****************************************/    
 ALTER TABLE plani.treporte
-  DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
+  ADD COLUMN mostrar_ufv VARCHAR(2);
 
 ALTER TABLE plani.treporte
-  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) or agrupar_por='ninguno');
-/***********************************F-SCP-MZM-PLANI-40-12/09/2019****************************************/  
+  ALTER COLUMN mostrar_ufv SET DEFAULT 'no';
+ /***********************************F-SCP-MZM-PLANI-58-30/09/2019****************************************/

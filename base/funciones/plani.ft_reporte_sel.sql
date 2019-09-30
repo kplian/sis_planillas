@@ -28,6 +28,7 @@ $body$
    #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
    #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
    #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
+   #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
   ***************************************************************************/
 
   DECLARE
@@ -108,6 +109,8 @@ $body$
                         --#32 - 31.08.2019
                         ,repo.id_pie_firma,
                         pie.nombre as nombre_pie_firma
+                        --#58
+                        ,repo.mostrar_ufv
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repo.id_usuario_mod
@@ -181,6 +184,21 @@ $body$
                             repo.num_columna_multilinea
                             --#40 - 12.09.2019
                             ,param.f_get_periodo_literal(plani.id_periodo) as periodo_lite
+                            --#58
+                            ,repo.mostrar_ufv,
+                            (select cv.valor from plani.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
+                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                            and fp.id_planilla=plani.id_planilla 
+                            and tc.codigo=''UFV_INI''
+                            limit 1
+                            ) as ufv_ini,
+                            (select cv.valor from plani.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
+                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                            and fp.id_planilla=plani.id_planilla 
+                            and tc.codigo=''UFV_FIN''
+                            limit 1
+                            ) as ufv_fin
+                            
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo

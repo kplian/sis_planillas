@@ -9,17 +9,44 @@ class RPlanillaGenerica extends  ReportePDF {
 	var $numeracion;
 	var $ancho_sin_totales;
 	var $cantidad_columnas_estaticas;
+	
 	function Header() {
 		//cabecera del reporte
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja, 5, 30, 10);
+		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
-		$this->Cell(30,3,$this->datos_titulo['depto'],0,1);
-		$this->Cell(30,3,$this->datos_titulo['uo'],0,1);
-		$this->SetFont('','BU',12);
-		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] . ' ('.$this->datos_detalle[0]['nombre'].') Al Mes De  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion'],0,1,'C');
+		$this->Ln(1);
+		$this->Cell($this->ancho_hoja+20,3,$this->datos_titulo['depto'],0,1,'R');
+		$this->Cell($this->ancho_hoja+20,3,$this->datos_titulo['uo'],0,1,'R');
+		
+		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
+		$this->Cell($this->ancho_hoja+20, 3, $pagenumtxt, '', 1, 'R');
+		
+		$this->SetFont('','B',12);
+		$tipo_con='';
+		
+		if ($this->datos_detalle[0]['nombre']!=''){
+			$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+		}
+		
+		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] .$tipo_con.'',0,1,'C');
+		
+		//Al Mes De  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion']
 		
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'No ' . $this->datos_titulo['nro_planilla'],0,1,'C');
+		$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+		
+		
+		if ($this->datos_titulo['mostrar_ufv']=='si'){
+			$this->SetFont('','B',7);
+			$this->Cell($this->ancho_hoja,3.5,'U.F.V. Anterior: ' ,0,0,'R');
+			$this->SetFont('','U',7);
+			$this->Cell(10,3.5,number_format($this->datos_titulo['ufv_ini'],6,',','.'),0,1,'L');
+			$this->SetFont('','B',7);
+			$this->Cell($this->ancho_hoja,3.5,'U.F.V. Actual: ' ,0,0,'R');
+			$this->SetFont('','U',7);
+			$this->Cell(10,3.5,number_format($this->datos_titulo['ufv_fin'],6,',','.'),0,1,'L');
+			
+		}
 		$this->SetFont('','B',10);
 		$this->Cell(0,5,$this->gerencia,0,1,'L');
 		$this->Ln(2);
@@ -87,7 +114,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->ln();	
 
 	}
-	function datosHeader ($titulo, $detalle) {
+	function datosHeader ($titulo, $detalle) { 
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
 		$this->datos_titulo = $titulo;
 		$this->datos_detalle = $detalle;
@@ -129,7 +156,13 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->ancho_sin_totales += 10;
 			$this->cantidad_columnas_estaticas++;
 		}
-		$this->SetMargins(5, 36, 5);
+		if ($this->datos_titulo['mostrar_ufv'] == 'si') {
+			$this->SetMargins(5, 47, 5); //**********++ 
+		}else{
+			$this->SetMargins(5, 40, 5); //**********++ 
+		}
+		
+		
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
@@ -172,7 +205,7 @@ class RPlanillaGenerica extends  ReportePDF {
 					}
 	 	 			
 					$this->ln(10);
-					$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
+					$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 					//crear nueva pagina y cambiar de gerencia
 					$this->gerencia = $value['gerencia'];
 					$empleados_gerencia = 0;
@@ -198,9 +231,12 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		//Añade el ultimo subtotal de la gerencia
 		//generar subtotales
-		$this->SetFont('','B',6);
+		$this->SetFont('','B',7);
 		if ($this->gerencia!=''){
-			$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+			
+			if ($this->ancho_sin_totales>0){
+				$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+			}
 			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,',','.'),1,0,'R');//#50
@@ -210,7 +246,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				$sum_subtotal[$i] = 0;
 			}
 			$this->ln(10);
-			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL FUNCIONARIOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
+			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 			$this->ln(10);
 		
 		}
@@ -231,7 +267,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 		}
 		$this->ln(10);
-		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL FUNCIONARIOS PLANILLA: '.$this->numeracion,'',0,'L');
+		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',0,'L');
 			
 	}
 	function iniciarArrayShow($detalle) {
@@ -248,6 +284,42 @@ class RPlanillaGenerica extends  ReportePDF {
 			array_push($res_array, $detalle['codigo_cargo']);
 		return $res_array;
 	}
-    
+    function Footer(){ 
+		$this->setY(-15);
+		$ormargins = $this->getOriginalMargins();
+		$this->SetTextColor(0, 0, 0);
+		//set style for cell border
+		$line_width = 0.85 / $this->getScaleFactor();
+		$this->SetLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+		$ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
+		$this->Ln(2);
+		$cur_y = $this->GetY();
+		//$this->Cell($ancho, 0, 'Generado por XPHS', 'T', 0, 'L');
+		$this->Cell($ancho, 0, 'Usuario: '.$_SESSION['_LOGIN'], '', 0, 'L');
+		//$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
+		//$this->Cell($ancho, 0, $pagenumtxt, '', 0, 'C');
+		$this->Cell($ancho, 0, $_SESSION['_REP_NOMBRE_SISTEMA'], '', 0, 'R');
+		$this->Ln();
+		$fecha_rep = date("d-m-Y H:i:s");
+		$this->Cell($ancho, 0, "Fecha Impresion : ".$fecha_rep, '', 0, 'L');
+		$this->Ln($line_width);
+		$this->Ln();
+		$barcode = $this->getBarcode();
+		$style = array(
+					'position' => $this->rtl?'R':'L',
+					'align' => $this->rtl?'R':'L',
+					'stretch' => false,
+					'fitwidth' => true,
+					'cellfitalign' => '',
+					'border' => false,
+					'padding' => 0,
+					'fgcolor' => array(0,0,0),
+					'bgcolor' => false,
+					'text' => false,
+					'position' => 'R'
+				);
+				$this->write1DBarcode($barcode, 'C128B', $ancho*2, $cur_y + $line_width+5, '', (($this->getFooterMargin() / 3) - $line_width), 0.3, $style, '');
+			
+	}
 }
 ?>

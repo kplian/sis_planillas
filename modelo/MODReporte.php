@@ -50,7 +50,7 @@ class MODReporte extends MODbase{
 		$this->captura('id_pie_reporte','integer');
 		$this->captura('nombre','varchar');
 		
-		
+		$this->captura('mostrar_ufv','varchar');//#58
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		$this->ejecutarConsulta();
@@ -87,7 +87,7 @@ class MODReporte extends MODbase{
 		//#32 - 31.08.2019
 		$this->setParametro('id_pie_firma','id_pie_firma','integer');
 		
-
+		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -124,6 +124,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('num_columna_multilinea','num_columna_multilinea','integer');
 		//#32 - 31.08.2019
 		$this->setParametro('id_pie_firma','id_pie_firma','integer');
+		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -180,11 +181,13 @@ class MODReporte extends MODbase{
         $this->captura('num_columna_multilinea','integer');
 		//12.09.2019
 		$this->captura('periodo_lite','varchar');
+		//#58
+		$this->captura('mostrar_ufv','varchar');
+		$this->captura('ufv_ini','numeric');
+		$this->captura('ufv_fin','numeric');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		// echo "****".$this->getConsulta(); exit;
-	
-		
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
