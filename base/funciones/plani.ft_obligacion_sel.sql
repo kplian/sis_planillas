@@ -21,7 +21,7 @@ $body$
  #0               14/07/2014       JRIVERA KPLIAN       creacion
  #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
  #46			  23.09.2019		MZM					Adicion de funcion para listado de abono en cuenta
-
+ #56			  30.09.2019		MZM					Adicion de funcion para reporte resumen de saldos
 */
 
 DECLARE
@@ -184,7 +184,56 @@ BEGIN
                         v_consulta:=v_consulta||v_parametros.filtro;
 		    return v_consulta;
         
-        END;				
+        END;			
+    elsif (p_transaccion='PLA_REPOBANC_COUNT') THEN
+	    BEGIN
+	    	v_consulta:='select count(*) from plani.tdetalle_transferencia df
+                    inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
+                    and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
+                    inner join plani.tplanilla pla on pla.id_planilla = o.id_planilla
+                    inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
+                    fp.id_planilla = pla.id_planilla
+                    inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                    inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
+                    inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
+                    inner join param.tlugar l on ofi.id_lugar = l.id_lugar
+                    inner join param.tinstitucion ins on ins.id_institucion=df.id_institucion
+                    where '; 
+                        
+                    v_consulta:=v_consulta||v_parametros.filtro;
+		    return v_consulta;
+        
+        END;
+        
+      elsif (p_transaccion='PLA_REPOBANC_SEL') THEN
+	    BEGIN
+	    	v_consulta:='
+                    select l.nombre,sum(df.monto_transferencia), upper( param.f_get_periodo_literal(pla.id_periodo)) as periodo_lite, ins.nombre as banco, o.tipo_pago
+                    from plani.tdetalle_transferencia df
+                    inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
+                    and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
+                    inner join plani.tplanilla pla on pla.id_planilla = o.id_planilla
+                    inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
+                    fp.id_planilla = pla.id_planilla
+                    inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
+                    inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
+                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
+                    inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
+                    inner join param.tlugar l on ofi.id_lugar = l.id_lugar
+                    inner join param.tinstitucion ins on ins.id_institucion=df.id_institucion
+                    where '; 
+
+                        
+             v_consulta:=v_consulta||v_parametros.filtro;
+			v_consulta:=v_consulta||' group by l.nombre, pla.id_periodo, ins.nombre, o.tipo_pago
+            order by l.nombre '; 
+		    return v_consulta;
+        
+        END;   
+        	    
+        
+        	
 	else
 					     
 		raise exception 'Transaccion inexistente';
@@ -201,4 +250,8 @@ EXCEPTION
 			raise exception '%',v_resp;
 END;
 $body$
-LANGUAGE 'plpgsql';
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;

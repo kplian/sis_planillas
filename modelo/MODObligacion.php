@@ -12,6 +12,7 @@ HISTORIAL DE MODIFICACIONES:
 #ISSUE				FECHA				AUTOR				DESCRIPCION
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago
 #46	ETR				23.09.2019			MZM					Listado para reporte abono en cuenta  
+#56	ETR				30.09.2019			MZM					Listado resumen de saldos
  * */
 class MODObligacion extends MODbase{
 	
@@ -169,6 +170,36 @@ class MODObligacion extends MODbase{
 		return $this->respuesta;
 	}
 	
+		
+		
+		//#56
+		function listarReporteBancos(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_obligacion_sel';
+		$this->transaccion='PLA_REPOBANC_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('id_obligacion','id_obligacion','int4');
+		
+						
+		
+		//Datos de la planilla
+		$this->captura('nombre','varchar');
+		$this->captura('importe','numeric');
+		$this->captura('periodo','text');
+		$this->captura('banco','varchar');
+		$this->captura('tipo_pago','varchar');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();		
+	
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>
