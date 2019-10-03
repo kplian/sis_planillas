@@ -9,6 +9,7 @@ HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
 #53 ETR        26/09/2019               RAC                 listado para Interface que identifica empleado según centro de costo
+#61 ETR        01/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
  */
 
 class MODFuncionarioPlanilla extends MODbase{
@@ -246,7 +247,7 @@ class MODFuncionarioPlanilla extends MODbase{
 	
 	
 	/*#53   listado de funcionario  por centros de costo*/
-	function listarFuncionarioPlanillaPorCC(){
+	function listarFuncionarioPlanillaPorCC() {
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_funcionario_planilla_sel';
 		$this->transaccion='PLA_DETFUNPLAN_SEL';
@@ -283,6 +284,25 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
+    
+    #61 sincronizar bancos y afps
+    function sincBancosAfp(){
+		//Definicion de variables para ejecucion del procedimiento
+		$this->procedimiento='plani.ft_funcionario_planilla_ime';
+		$this->transaccion='PLA_SINBANAFP_IME';
+		$this->tipo_procedimiento='IME';
+				
+		//Define los parametros para la funcion
+		$this->setParametro('id_planilla','id_planilla','int4');
+
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

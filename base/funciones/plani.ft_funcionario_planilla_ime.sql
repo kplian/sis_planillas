@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_ime (
   p_administrador integer,
   p_id_usuario integer,
@@ -14,10 +16,11 @@ $body$
    FECHA:	        22-01-2014 16:11:08
    COMENTARIOS:
   ***************************************************************************
+
    HISTORIAL DE MODIFICACIONES:
-   DESCRIPCION:
-   AUTOR:
-   FECHA:
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#29 ETR        22-01-2014               GUY          Creacion
+#61 ETR        02/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
   ***************************************************************************/
 
   DECLARE
@@ -36,6 +39,9 @@ $body$
     v_id_columna_valor		integer;
     v_detalle				record;
     v_estado_planilla		varchar;
+    v_id_afp                integer; --#61
+    v_id_cuenta_bancaria    integer; --#61
+    v_registros             record;  --#61
 
   BEGIN
 
@@ -133,6 +139,75 @@ $body$
         return v_resp;
 
       end;
+      
+    /*********************************
+     #TRANSACCION:  'PLA_SINBANAFP_IME'
+     #DESCRIPCION:	#61 ,  sincronizacion de banco y afp despues de creada la palnilla
+     #AUTOR:		rac
+     #FECHA:		02-10-2019
+    ***********************************/
+
+    elsif(p_transaccion='PLA_SINBANAFP_IME')then
+
+      begin
+        
+        select p.estado 
+        into   v_estado_planilla
+        from plani.tplanilla p  
+        where p.id_planilla = v_parametros.id_planilla;
+
+        if (v_estado_planilla not in('registro_funcionarios','registro_horas','calculo_columnas'))then
+          raise exception 'No es posible sincronizar bancos y afp con la planilla en este estado. Intentelo retrocediento la planilla a un estado anterior';
+        end if;
+        
+        FOR v_registros in ( 
+                            SELECT
+                              fp.id_funcionario,
+                              fp.id_afp,
+                              fp.id_cuenta_bancaria,
+                              fp.id_funcionario_planilla,
+                              pl.fecha_planilla
+                            FROM plani.tfuncionario_planilla fp
+                            JOIN plani.tplanilla pl ON pl.id_planilla = fp.id_planilla
+                            WHERE fp.id_planilla = v_parametros.id_planilla
+                            AND  ( fp.id_cuenta_bancaria is null OR fp.id_afp is NULL)) LOOP
+        
+            --recuepra afp y  planilla a la fecha de la planilla
+            IF v_registros.id_cuenta_bancaria IS NULL  THEN
+               
+               v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_registros.fecha_planilla);
+               UPDATE plani.tfuncionario_planilla fp SET
+                  id_cuenta_bancaria = v_id_cuenta_bancaria                   
+               WHERE fp.id_funcionario_planilla =  v_registros.id_funcionario_planilla;
+            
+            END IF;
+            
+             IF v_registros.id_afp IS NULL   THEN
+               
+               v_id_afp = plani.f_get_afp( v_registros.id_funcionario, v_registros.fecha_planilla);
+               UPDATE plani.tfuncionario_planilla fp SET
+                  id_afp = v_id_afp                   
+               WHERE fp.id_funcionario_planilla =  v_registros.id_funcionario_planilla;
+            
+            END IF;
+            
+            
+        
+        END LOOP;
+        
+            
+        
+
+        --Definicion de la respuesta
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje','sincronizacion de banco y afp para la planilla');
+        v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+
+        --Devuelve la respuesta
+        return v_resp;
+
+      end; 
+      
+      
 
     else
 
