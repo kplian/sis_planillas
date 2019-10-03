@@ -7,7 +7,8 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
 HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
-#29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
+#29 ETR        20/08/2019               MMV          Columna Codigo Funcionario
+#62 ETR        01/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -29,6 +30,17 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
                 tooltip: 'Boleta de Pago'                
             }
         );	
+        
+        this.addButton('btnSincBancos',
+            {	grupo:[0,1,2],
+                iconCls: 'bmoney',
+                text:'Sinc Banco y Afp',
+                disabled: true,                
+                handler: this.onSincBancosAfp,
+                tooltip: 'Busca y AFP  bancos para los empleados que no tienan estos datos al crear la planilla'                
+            }
+        );
+        
 	},
 			
 	Atributos:[
@@ -397,9 +409,27 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
                 timeout:this.timeout,
                 scope:this
             });         
+    },
+    onSincBancosAfp: function(){
+    	
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_planillas/control/FuncionarioPlanilla/sincBancosAfp',
+                params:{'id_planilla' : this.maestro.id_planilla},
+                success: function(resp){
+                    Phx.CP.loadingHide();
+                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                    if(!reg.ROOT.error){
+                        this.reload();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+    	
     } 
-	}
-)
+})
 </script>
 		
 		

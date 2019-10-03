@@ -13,6 +13,7 @@
  #38             11/09/2019        RAC KPLIAN      muestra columnas tipo contrato y cbte dividido  
  #42    ETR      17-09-2019        RAC KPLIAN      exluir estados vobo_conta y finalizado de la interface de vobo planilla
  #49    ETR      17-09-2019        manuel guerra   agregar boton de reporte de verificacion presupuestaria  
+ #61    ETR      01-10-2019        RAC KPLIAN      Nueva interface de empleados por planilla, en interface de visto bueno conta y planillas 
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -1120,6 +1121,13 @@ header("content-type: text/javascript; charset=UTF-8");
 				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
 			}
 		},
+		//#61
+		south:{
+		  url:'../../../sis_planillas/vista/funcionario_planilla/FuncionarioPlanilla.php',
+		  title:'Funcionarios', 
+		  height:'50%',
+		  cls:'FuncionarioPlanilla'
+	    }, 
 
     })
 </script>

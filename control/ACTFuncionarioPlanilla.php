@@ -10,6 +10,7 @@
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #0             22-01-2014              GUY              creacion
 #53 ETR        26/09/2019              RAC              listado para Interface que identifica empleado según centro de costo
+#61 ETR        01/10/2019              RAC              Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
  */
 require_once(dirname(__FILE__).'/../reportes/RCambiosPeriodoXLS.php');
 
@@ -114,6 +115,13 @@ class ACTFuncionarioPlanilla extends ACTbase{
 		}
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
+   
+   //#61 
+   function sincBancosAfp(){
+		$this->objFunc=$this->create('MODFuncionarioPlanilla');	
+		$this->res=$this->objFunc->sincBancosAfp($this->objParam);
+		$this->res->imprimirRespuesta($this->res->generarJson());
+   }
 	
 			
 }
