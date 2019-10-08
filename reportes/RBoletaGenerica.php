@@ -1,6 +1,10 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
-class RBoletaGenerica extends  ReportePDF {
+/*
+ * issue 	empresa		autor	fecha	detalle
+ * #62		etr			MZM		08.10.2019	omision de 0 en boleta d epago
+ * */
+class RBoletaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
 	var $ancho_hoja;
@@ -23,7 +27,7 @@ class RBoletaGenerica extends  ReportePDF {
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT;
 	}
 	function generarReporte() { 
-		//var_dump($this->datos_titulo); exit;
+		
 		
 		$this->setFontSubsetting(false);
 		//$this->AddPage();
@@ -149,12 +153,18 @@ class RBoletaGenerica extends  ReportePDF {
 						$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 15, $this->GetY()-15, 30, 15);
 						$this->SetFont('','B',15);
 					    $this->Cell(0,5,$this->datos_titulo['titulo_reporte'],0,1,'C');
-					    $this->SetFont('','B',10);
-					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+						
+						$this->SetFont('','B',10);
+						$tipo_bol='Sueldo';
+						if(strpos ( $this->datos_titulo['titulo_reporte'] , 'REINTEGRO')> 0 ){
+							$tipo_bol='Reintegro';
+						}
+						
+					    $this->Cell(0,5, $tipo_bol.' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					  
-					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3.5,'R',8);
+					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3.5,'R',9);
 						
 						$this->Ln(5);
 					    	
@@ -217,8 +227,13 @@ class RBoletaGenerica extends  ReportePDF {
 						}else{
 							$linea=0;
 							if($contador> 4){
-								$cadena=number_format($cadena,2,',','.');
+								
 								$alineacion='R';
+								if($cadena>0){//#62
+									$cadena=number_format($cadena,2,',','.');
+								}else{
+									$cadena='';
+								}
 							}else{
 								$alineacion='L';
 							}
@@ -228,10 +243,12 @@ class RBoletaGenerica extends  ReportePDF {
 								array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
 								array_push($detalle_col_mod,'B'); 
 								array_push($detalle_col_mod,0); 
-								array_push($detalle_col_mod,'R');
+								array_push($detalle_col_mod,'R');//30.09.2019
 								
 								array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
 								array_push($detalle_col_mod,0);
+								
+								//******************
 								array_push($detalle_col_mod,$cadena);
 								array_push($detalle_col_mod,'');
 								array_push($detalle_col_mod,$linea);
@@ -269,7 +286,7 @@ class RBoletaGenerica extends  ReportePDF {
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					   
-					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3,'R',8);
+					    $this->grillaDatos($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3.5,'R',9); 
 						$this->Ln(5);		
 				 	
 				   

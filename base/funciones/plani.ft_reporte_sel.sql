@@ -29,6 +29,7 @@ $body$
    #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
    #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
    #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
+   #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
   ***************************************************************************/
 
   DECLARE
@@ -111,6 +112,7 @@ $body$
                         pie.nombre as nombre_pie_firma
                         --#58
                         ,repo.mostrar_ufv
+                        ,repo.incluir_retirados --#60
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = repo.id_usuario_mod
@@ -198,7 +200,7 @@ $body$
                             and tc.codigo=''UFV_FIN''
                             limit 1
                             ) as ufv_fin
-                            
+
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo

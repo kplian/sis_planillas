@@ -1072,3 +1072,12 @@ ALTER TABLE plani.treporte
 ALTER TABLE plani.treporte
   ALTER COLUMN mostrar_ufv SET DEFAULT 'no';
  /***********************************F-SCP-MZM-PLANI-58-30/09/2019****************************************/
+
+ 
+/***********************************I-SCP-MZM-PLANI-60-01/10/2019****************************************/
+ALTER TABLE plani.treporte
+  ADD COLUMN incluir_retirados VARCHAR(2);
+
+ALTER TABLE plani.treporte
+  ALTER COLUMN incluir_retirados SET DEFAULT 'no';
+/***********************************F-SCP-MZM-PLANI-60-01/10/2019****************************************/  

@@ -173,7 +173,7 @@ class MODObligacion extends MODbase{
 		
 		
 		//#56
-		function listarReporteBancos(){
+		function listarReporteBancos(){ 
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_obligacion_sel';
 		$this->transaccion='PLA_REPOBANC_SEL';
@@ -189,10 +189,43 @@ class MODObligacion extends MODbase{
 		$this->captura('importe','numeric');
 		$this->captura('periodo','text');
 		$this->captura('banco','varchar');
-		$this->captura('tipo_pago','varchar');
+		$this->captura('tipo_pago','text');
 		$this->captura('tipo_contrato','varchar');//#56
+		//$this->captura('desc_funcionario2','text');//#60
+		//$this->captura('nro_cuenta','varchar');//#60
+		$this->captura('orden','numeric');//#60
+		//Ejecuta la instruccion
+		$this->armarConsulta();		
+	
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 		
 		
+		function listarReporteBancosDet(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_obligacion_sel';
+		$this->transaccion='PLA_REPOBANCDET_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('id_obligacion','id_obligacion','int4');
+		
+						
+		
+		//Datos de la planilla
+		$this->captura('det_nombre','varchar');
+		$this->captura('det_importe','numeric');
+		$this->captura('det_periodo','text');
+		$this->captura('det_banco','varchar');
+		$this->captura('det_tipo_pago','text');
+		$this->captura('det_tipo_contrato','varchar');//#56
+		$this->captura('det_desc_funcionario2','text');//#60
+		$this->captura('det_nro_cuenta','varchar');//#60
+		$this->captura('det_orden','numeric');//#60
+		$this->captura('codigo','text');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
 	

@@ -97,6 +97,46 @@ header("content-type: text/javascript; charset=UTF-8");
 			id_grupo: 0,			
 			form: true
 		},	
+		
+		
+		{
+			config: {
+				name: 'id_reporte',
+				fieldLabel: 'Tipo Reporte',
+				typeAhead: false,
+				forceSelection: false,
+				hiddenName: 'id_reporte',
+				allowBlank: false,
+				emptyText: 'Reportes Disponibles...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_planillas/control/Reporte/listarReporte',
+					id: 'id_reporte',
+					root: 'datos',
+					sortInfo: {
+						field: 'titulo_reporte',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_reporte', 'titulo_reporte','tipo_reporte','multilinea','control_reporte'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams: {par_filtro: 'repo.titulo_reporte'}
+				}),
+				valueField: 'id_reporte',
+				displayField: 'titulo_reporte',				
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 20,
+				queryDelay: 200,
+				listWidth:280,
+				minChars: 2,
+				disabled : true
+			},
+			type: 'ComboBox',
+			id_grupo: 0,			
+			form: true
+		},	
 		{
 			config: {
 				name: 'id_tipo_contrato',
@@ -134,45 +174,6 @@ header("content-type: text/javascript; charset=UTF-8");
 			id_grupo: 0,			
 			form: true
 		},
-		
-		{
-			config: {
-				name: 'id_reporte',
-				fieldLabel: 'Tipo Reporte',
-				typeAhead: false,
-				forceSelection: false,
-				hiddenName: 'id_reporte',
-				allowBlank: false,
-				emptyText: 'Reportes Disponibles...',
-				store: new Ext.data.JsonStore({
-					url: '../../sis_planillas/control/Reporte/listarReporte',
-					id: 'id_reporte',
-					root: 'datos',
-					sortInfo: {
-						field: 'titulo_reporte',
-						direction: 'ASC'
-					},
-					totalProperty: 'total',
-					fields: ['id_reporte', 'titulo_reporte','tipo_reporte','multilinea'],
-					// turn on remote sorting
-					remoteSort: true,
-					baseParams: {par_filtro: 'repo.titulo_reporte'}
-				}),
-				valueField: 'id_reporte',
-				displayField: 'titulo_reporte',				
-				triggerAction: 'all',
-				lazyRender: true,
-				mode: 'remote',
-				pageSize: 20,
-				queryDelay: 200,
-				listWidth:280,
-				minChars: 2,
-				disabled : true
-			},
-			type: 'ComboBox',
-			id_grupo: 0,			
-			form: true
-		},	
 		{
    			config:{
        		    name:'id_uo',
@@ -245,6 +246,184 @@ header("content-type: text/javascript; charset=UTF-8");
 				type:'ComboBox',				
 				id_grupo:0,
 				grid:true
+		},
+		//{//******************
+			/*config:{
+				name: 'tipo_reporte_local',
+				fieldLabel: 'Tipo de Reporte',
+				allowBlank:false,
+				emptyText:'Tipo...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+	       		width: 400,	
+				gwidth: 250,
+				store:[
+				['lista_empleados','1:Lista Alfabetica Empleados']
+				,['lista_codigo','2:Lista Cod. Empleado']
+				,['directorio_emp','3:Directorio Empleados']
+				,['directorio_emp_group','4:Directorio Empleados por cargo']
+				,['empleado_centro','5:Empleado x Centro']
+				,['empleado_distrito','6:Empleado x Distrito']
+				,['empleado_edad','7:Clasificacion del personal-Edad']
+				,['empleado_antiguedad','8:Antiguedad de los empleados']
+				,['nomina_salario','9:Nomina Salarios BC']
+				,['nomina_salario1','10:Nomina Salarios CT']
+				,['no_sindicato','11:Nomina Personal no Sindicalizado']
+				//,['bono_empleado','12:Bonos asignados a los empleados']
+				,['planilla_tributaria','13:Planilla Tributaria']
+				,['nacimiento_mes','*14:Fecha Nac x Mes']
+				,['nacimiento_ano','*15:Fecha Nac x Año']
+				,['reserva_beneficios2','16:Beneficios Sociales - Resumen']
+				,['reserva_beneficios3','17:Beneficios Sociales - Detalle']
+				,['reserva_beneficios','18:Beneficios Sociales - 1 Mes']
+				
+				,['aporte_afp','19:Aporte AFP - Personal Vigente']
+				,['personal_ret','21:Personal Retirado']
+				,['personal_inc','22:Personal Incorporado']
+				,['curva_salarial','25:Curva Salarial']
+				,['aporte_cacsel','26:Aporte Porcentual CACSEL']
+				,['aporte_sindicato','27:Aporte Porcentual Sindicato']
+				,['dependientes','34:Nomina Dependientes']
+				,['dependientes_edad','35:Grupo Familiar']
+				,['fondo_solidario','36:Aporte AFP - Fondo Solidario']
+				]
+			},
+				type:'ComboBox',				
+				id_grupo:0,
+				grid:true
+		},*/
+		{
+	       		config:{
+	       			name: 'fecha',
+	       			fieldLabel: "A fecha",
+	       			gwidth: 120,	       			
+	       			allowBlank:false,	
+	       			maxLength:100,
+	       			minLength:1,
+	       			format:'d/m/Y',
+	       			//anchor:'30%',
+	       			renderer:function (value,p,record){return value?value.dateFormat('d/m/Y'):''}
+				},
+	       		type:'DateField',
+				filters:{pfiltro:'rfu.fecha_asignacion',type:'date'},
+	       		id_grupo:0,
+	       		grid:true,
+	       		form:true
+	       },
+		
+		
+		 {
+	       		config:{
+	       			name: 'rango_inicio',
+	       			fieldLabel: "Rango Inicial(años)",
+	       			gwidth: 200,	       			
+	       			allowBlank:true,	
+	       			maxLength:150,
+	       			minLength:1
+	       			//anchor:'30%'
+	       		},
+	       		type:'NumberField',
+				id_grupo:0,
+	       		grid:true,
+	       		form:true
+	       },
+	      {
+	       		config:{
+	       			name: 'rango_fin',
+	       			fieldLabel: "Rango incremento(años)",
+	       			gwidth: 200,	       			
+	       			allowBlank:true,	
+	       			maxLength:150,
+	       			minLength:1
+	       			//,anchor:'30%'
+	       		},
+	       		type:'NumberField',
+				id_grupo:0,
+	       		grid:true,
+	       		form:true
+	      },
+	      {
+			config: {
+				name: 'id_afp',
+				fieldLabel: 'AFP',
+				typeAhead: false,
+				forceSelection: false,
+				hiddenName: 'id_afp',
+				allowBlank: false,
+				emptyText: 'Afp...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_planillas/control/Afp/listarAfp',
+					id: 'id_afp',
+					root: 'datos',
+					sortInfo: {
+						field: 'id_afp',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_afp', 'nombre', 'codigo'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams: {par_filtro: 'afp.nombre#afp.codigo'}
+				}),
+				valueField: 'id_afp',
+				displayField: 'nombre',
+				gdisplayField: 'nombre',
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 20,
+				queryDelay: 200,
+				listWidth:280,
+				minChars: 2,
+				gwidth: 170,
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo}</p><strong>{nombre}</strong> </div></tpl>'
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {
+				pfiltro: 'afppar.nombre',
+				type: 'string'
+			},
+			grid: true,
+			form: true
+		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'control_reporte'
+			},
+			type:'Field',
+			form:true 
+		},
+		{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'periodicidad'
+			},
+			type:'Field',
+			form:true 
+		},{
+			config:{//#01/10/2019
+				name: 'personal_activo',
+				fieldLabel: 'Estado',
+				allowBlank:false,
+				emptyText:'Estado...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['Solo Personal Activo','Solo Personal Retirado','Personal Activo y Retirado']
+			},
+				type:'ComboBox',				
+				id_grupo:0,
+				grid:true
 		}
 		],
 		title : 'Generar Reporte',
@@ -258,7 +437,28 @@ header("content-type: text/javascript; charset=UTF-8");
 			this.init();
 			
 			this.ocultarComponente(this.Cmp.totales);
+			//********
+						this.ocultarComponente(this.Cmp.rango_fin);
+						this.ocultarComponente(this.Cmp.rango_inicio);
+						this.ocultarComponente(this.Cmp.id_afp);
+						this.ocultarComponente(this.Cmp.fecha);
+						this.ocultarComponente(this.Cmp.personal_activo);
+						//this.ocultarComponente(this.Cmp.id_gestion);
+												
+			//********
 			this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
+				this.ocultarComponente(this.Cmp.fecha);
+				this.ocultarComponente(this.Cmp.rango_fin);
+				this.ocultarComponente(this.Cmp.rango_inicio);
+				this.ocultarComponente(this.Cmp.id_afp);
+				this.ocultarComponente(this.Cmp.totales);
+				this.mostrarComponente(this.Cmp.formato_reporte);
+				this.mostrarComponente(this.Cmp.id_uo);
+				this.mostrarComponente(this.Cmp.id_tipo_contrato);
+				this.mostrarComponente(this.Cmp.id_gestion);
+				this.ocultarComponente(this.Cmp.personal_activo);
+								
+				this.Cmp.periodicidad.setValue(r.data.periodicidad);
 				if (r.data.periodicidad == 'anual') {
 					this.ocultarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = true;
@@ -272,6 +472,14 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_reporte.reset();
 				this.Cmp.id_reporte.store.baseParams.id_tipo_planilla = r.data.id_tipo_planilla;
 				this.Cmp.id_reporte.modificado = true;
+				
+				
+				if(r.data.codigo=='PLANRE' ){
+					this.mostrarComponente(this.Cmp.personal_activo);
+				}else{
+					this.ocultarComponente(this.Cmp.personal_activo);		
+				}
+				
 			},this);
 			
 			this.Cmp.id_gestion.on('select',function(c,r,i){
@@ -287,13 +495,143 @@ header("content-type: text/javascript; charset=UTF-8");
 			
 			this.Cmp.id_reporte.on('select',function(c,r,i){ //#33
 				this.Cmp.tipo_reporte.setValue(r.data.tipo_reporte);
-				if(r.data.tipo_reporte=='planilla' && r.data.multilinea=='si' ){
-					this.mostrarComponente(this.Cmp.totales);
-					this.Cmp.totales.allowBlank = false;	
+				this.Cmp.control_reporte.setValue(r.data.control_reporte);
+				//***************
+				if(r.data.tipo_reporte=='formato_especifico'){
+					  //***************************     
+					    this.ocultarComponente(this.Cmp.totales);
+						this.ocultarComponente(this.Cmp.formato_reporte);
+						this.ocultarComponente(this.Cmp.id_uo);
+						
+						
+						if(r.data.control_reporte=='relacion_saldos' || r.data.control_reporte=='relacion_saldos_det'){
+							this.mostrarComponente(this.Cmp.id_gestion);
+							this.mostrarComponente(this.Cmp.id_periodo);
+							this.Cmp.id_gestion.allowBlank=false;
+							this.Cmp.id_periodo.allowBlank=false;
+							
+							this.ocultarComponente(this.Cmp.fecha);
+							this.Cmp.fecha.allowBlank=true;
+						}else{
+							
+							if(r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc'){
+									this.mostrarComponente(this.Cmp.id_gestion);
+									this.Cmp.id_gestion.allowBlank=false;
+									
+									
+									this.ocultarComponente(this.Cmp.fecha);
+									this.Cmp.fecha.allowBlank=true;
+									this.Cmp.fecha.setValue('');
+									
+									this.ocultarComponente(this.Cmp.id_periodo);
+									this.Cmp.id_periodo.allowBlank=true;
+									this.Cmp.id_periodo.setValue('');
+								}else{
+									this.ocultarComponente(this.Cmp.id_gestion);
+									this.ocultarComponente(this.Cmp.id_periodo);
+									this.Cmp.id_gestion.allowBlank=true;
+									this.Cmp.id_gestion.setValue('');
+									
+									this.Cmp.id_periodo.allowBlank=true;
+									this.Cmp.id_periodo.setValue('');
+									
+									
+									this.mostrarComponente(this.Cmp.fecha);
+									this.Cmp.fecha.allowBlank=false;
+									
+								}
+							
+							
+						}
+						
+						
+						this.Cmp.formato_reporte.allowBlank=true;
+						this.Cmp.formato_reporte.setValue('');
+						this.Cmp.id_uo.allowBlank=true;
+						this.Cmp.id_uo.setValue('');
+						
+						
+						
+							this.ocultarComponente(this.Cmp.id_afp);
+							this.Cmp.id_afp.allowBlank=true;
+							this.Cmp.id_afp.setValue('');
+							
+							
+							
+							
+							
+							this.Cmp.id_tipo_contrato.allowBlank=true;
+							
+							
+							if (r.data.control_reporte=='empleado_edad' || r.data.control_reporte=='empleado_antiguedad' || c.value=='dependientes_edad'){
+								
+								this.mostrarComponente(this.Cmp.rango_fin);
+								this.mostrarComponente(this.Cmp.rango_inicio);
+								this.Cmp.rango_inicio.allowBlank=false;
+								this.Cmp.rango_fin.allowBlank=false;
+								
+								this.ocultarComponente(this.Cmp.id_tipo_contrato);
+								
+								
+							}else{  
+								this.ocultarComponente(this.Cmp.rango_fin);
+								this.ocultarComponente(this.Cmp.rango_inicio);
+								this.Cmp.rango_inicio.allowBlank=true;
+								this.Cmp.rango_fin.allowBlank=true;
+								
+								this.mostrarComponente(this.Cmp.id_tipo_contrato);
+								
+								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
+									this.mostrarComponente(this.Cmp.id_afp);
+									this.Cmp.id_afp.allowBlank=false;
+								
+								}
+								
+								
+								
+								
+							}
+							
+							
+							
+						//},this);
+					
+					
+					  //***************************
 				}else{
+					
+					
+					if (this.Cmp.periodicidad == 'anual') {
+						this.ocultarComponente(this.Cmp.id_periodo);
+						this.Cmp.id_periodo.allowBlank = true;
+						this.Cmp.id_periodo.reset();					
+					} else {
+						this.mostrarComponente(this.Cmp.id_periodo);
+						this.Cmp.id_periodo.allowBlank = false;		
+		
+					}
+					
+					this.ocultarComponente(this.Cmp.fecha);
+					this.ocultarComponente(this.Cmp.rango_fin);
+					this.ocultarComponente(this.Cmp.rango_inicio);
+					this.ocultarComponente(this.Cmp.id_afp);
+					
 					this.ocultarComponente(this.Cmp.totales);
-					this.Cmp.totales.setValue('no');
+					this.mostrarComponente(this.Cmp.formato_reporte);
+					this.mostrarComponente(this.Cmp.id_uo);
+					
+					this.mostrarComponente(this.Cmp.id_gestion);
+					if(r.data.tipo_reporte=='planilla' && r.data.multilinea=='si' ){
+						this.mostrarComponente(this.Cmp.totales);
+						this.Cmp.totales.allowBlank = false;	
+					}else{
+						this.ocultarComponente(this.Cmp.totales);
+						this.Cmp.totales.setValue('no');
+					}
 				}
+				
+				
+				
 			},this);			
 			
 			

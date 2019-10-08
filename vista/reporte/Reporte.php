@@ -9,6 +9,7 @@ issue 	empresa		autor	fecha	detalle
  *17	etr			MZM		28.06.2019	Adicion de opcion centro en combo ordenar_por
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
  * #58	etr			MZM		30.09.2019	Adicion de campo mostrar_ufv
+ * #60	etr			MZM		01.10.2019	Adicion de campo incluir_retirados
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -120,8 +121,28 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				filters:{pfiltro:'repo.ancho_utilizado',type:'numeric'},
 				grid:true,
 				form:false
-		},
-		
+		},{
+			config:{
+				name: 'tipo_reporte',
+				fieldLabel: 'Tipo de Reporte',
+				allowBlank:false,
+				emptyText:'Tipo hoja...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['planilla','boleta','archivo_texto','formato_especifico']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['planilla','boleta','archivo_texto','formato_especifico'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},			
 		{
 			config:{
 				name: 'numerar',
@@ -354,28 +375,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:false
 		},
-		{
-			config:{
-				name: 'tipo_reporte',
-				fieldLabel: 'Tipo de Reporte',
-				allowBlank:false,
-				emptyText:'Tipo hoja...',
-	       		typeAhead: true,
-	       		triggerAction: 'all',
-	       		lazyRender:true,
-	       		mode: 'local',
-				gwidth: 150,
-				store:['planilla','boleta','archivo_texto','formato_especifico']
-			},
-				type:'ComboBox',
-				filters:{	
-	       		         type: 'list',
-	       				 options: ['planilla','boleta','archivo_texto','formato_especifico'],	
-	       		 	},
-				id_grupo:1,
-				grid:true,
-				form:true
-		},	
+		
 		{
 			config:{
 				name: 'multilinea',
@@ -489,6 +489,28 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:true
+		},
+		{//#60
+			config:{
+				name: 'incluir_retirados',
+				fieldLabel: 'Incluir Retirados',
+				allowBlank:false,
+				emptyText:'Incluir Retirados...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 80,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		}
 	],
 	tam_pag:50,	
@@ -527,6 +549,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_pie_firma', type: 'numeric'},
 		{name:'nombre', type: 'varchar'}
 		,{name:'mostrar_ufv', type: 'string'}//#58
+		,{name:'incluir_retirados', type: 'string'}//#60
 		
 	],
 	sortInfo:{
