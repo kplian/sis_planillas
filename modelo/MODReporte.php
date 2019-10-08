@@ -6,6 +6,7 @@
 *@date 17-01-2014 22:07:28
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
+ * #60	etr			MZM		08.10.2019	Adicion de campo incluir_retirados
 **/
 
 class MODReporte extends MODbase{
@@ -51,6 +52,7 @@ class MODReporte extends MODbase{
 		$this->captura('nombre','varchar');
 		
 		$this->captura('mostrar_ufv','varchar');//#58
+		$this->captura('incluir_retirados','varchar');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		$this->ejecutarConsulta();
@@ -88,6 +90,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('id_pie_firma','id_pie_firma','integer');
 		
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
+		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -125,6 +128,7 @@ class MODReporte extends MODbase{
 		//#32 - 31.08.2019
 		$this->setParametro('id_pie_firma','id_pie_firma','integer');
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
+		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
