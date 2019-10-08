@@ -140,7 +140,7 @@ function reporteBancos()	{ //#56
         $this->objReporteFormato=new RRelacionSaldos($this->objParam);
         
         
-		$this->objReporteFormato->setDatos($this->res->datos);
+		$this->objReporteFormato->setDatos($this->res->datos,$this->res->datos);
 			$this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
  
