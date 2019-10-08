@@ -133,12 +133,13 @@ class RRelacionSaldos extends  ReportePDF {
 					
 					if($tipo_contrato!='' && $tipo_contrato!=$this->tipo_contratoP){
 						$this->AddPage();
+						$this->setX($this->getX()-5);
 					}
 					
 					if($ciudad!=$this->datos[$i]['nombre']){
-						if($ciudad==''){
+						//if($ciudad=='' && $ciudad!=$this->datos[$i]['nombre']){ //#56
 							$this->Cell(5,5,'','',0,'L');
-						}
+						//}
 						
 						$this->SetFont('','B',8);
 						$this->Cell(25,5,'Ciudad','LBTR',0,'L');	 
@@ -151,7 +152,7 @@ class RRelacionSaldos extends  ReportePDF {
 						$this->Cell(80,5,'Banco','LBTR',0,'C');	 
 						$this->Cell(3.5,5,'','',0,'L');
 						$this->Cell(30,5,'Monto Bs.','LBTR',1,'C');	  
-						//$this->Cell(5,5,'','',0,'L');
+						//$this->Cell(5,5,'','',0,'L'); //#56
 						$this->Ln(1);	
 						
 					}
@@ -161,7 +162,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(80,5,$this->datos[$i]['banco'],'',0,'L');	 
 					$this->Cell(3.5,5,'','',0,'L');
 					$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,',','.'),'',1,'R');
-					$this->Cell(5,5,'','',0,'L');
+					//$this->Cell(5,5,'','',0,'L');
 					$total=$total+$this->datos[$i]['importe'];
 					$ciudad=$this->datos[$i]['nombre'];
 					$tipo_contrato= $this->datos[$i]['tipo_contrato'];
