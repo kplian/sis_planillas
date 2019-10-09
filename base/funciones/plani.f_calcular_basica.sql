@@ -40,6 +40,7 @@ $body$
  #52              25/09/2019        RArteaga            Funcion abasiso para calculo de factor nocturno
  #55              27/09/2019        RArteaga            funciones basicas para recuperar Ufv inicial y final
  #59              30/09/2019        RArteaga            Sueldo según escala menos incapacidad temporal para calculo de horas extra, nocturna y disponibilidad
+ #63              22-02-2019        Rarteaga  KPLIAN    cambio de logica de la claculo de dias aguinaldo, DIASAGUI
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2191,30 +2192,21 @@ $body$
 
       end if;
 
-    ELSIF(p_codigo = 'DIASAGUI') THEN
-        select sum(case when ht.horas_normales_contrato > ht.horas_normales THEN
-        ht.horas_normales_contrato - ht.horas_normales  ELSE 0 END)
-      into v_resultado
-      from plani.tfuncionario_planilla fp
-        inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-        inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
-        inner join param.tperiodo per on per.id_periodo=p.id_periodo
-        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
-                                              and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
-                                              and p.id_gestion=v_planilla.id_gestion and ht.estado_reg = 'activo' and
-                                              fp.id_funcionario = v_planilla.id_funcionario;
-      /*v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date;
-
-      if (v_planilla.fecha_finalizacion is null or v_planilla.fecha_finalizacion > v_fecha_fin_planilla) then
+    ELSIF(p_codigo = 'DIASAGUI') THEN  --#63
+      
+      --determina la fecha fin del empleado
+      v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date;
+       if (   v_planilla.fecha_finalizacion is null 
+          or v_planilla.fecha_finalizacion > v_fecha_fin_planilla) then
+        
         v_fecha_fin =   v_fecha_fin_planilla;
       else
         v_fecha_fin =   v_planilla.fecha_finalizacion;
       end if;
-      v_resultado =     (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_planilla.fecha_asignacion,
-                                                 v_fecha_fin) * 8) - v_resultado;
-      v_resultado = v_resultado / 8; */
-      v_resultado = plani.f_get_dias_aguinaldo_v2(v_planilla.id_funcionario, v_planilla.id_gestion);
-      --v_resultado = v_resultado / 8;
+      
+      --recupera los dias segun ultimo contrato hasta la fecha de finalizacion
+      v_resultado =  plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_planilla.fecha_asignacion, v_fecha_fin);
+     
     ELSIF(p_codigo = 'TIENEPRE') THEN
       v_resultado = 0;
       if (exists(
