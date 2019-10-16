@@ -56,7 +56,8 @@ BEGIN
            p.id_usuario_reg,
            p.fecha_planilla,
            ges.gestion,
-           p.id_gestion
+           p.id_gestion,
+           p.id_tipo_contrato
     into 
       v_planilla
     from plani.tplanilla p
