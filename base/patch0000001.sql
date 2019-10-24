@@ -1081,3 +1081,22 @@ ALTER TABLE plani.treporte
 ALTER TABLE plani.treporte
   ALTER COLUMN incluir_retirados SET DEFAULT 'no';
 /***********************************F-SCP-MZM-PLANI-60-01/10/2019****************************************/  
+
+/***********************************I-SCP-MZM-PLANI-65-10/10/2019****************************************/
+ALTER TABLE plani.treporte
+  ADD COLUMN id_moneda_reporte INTEGER;
+/***********************************F-SCP-MZM-PLANI-65-10/10/2019****************************************/  
+
+
+/***********************************I-SCP-RAC-PLANI-68-24/10/2019****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN calcular_prima_rciva VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tplanilla.calcular_prima_rciva
+IS 'si o no, incluye columnas marcadas para arrastrar el rc-iva de la planilal de prima de personal vigente';
+
+/***********************************F-SCP-RAC-PLANI-68-24/10/2019****************************************/
+

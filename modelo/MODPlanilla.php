@@ -12,8 +12,9 @@
 #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
 #38 ETR             12/09/2019          RAC                 Generar cbte contables 
 #43 ETR             18/09/2019          RAC                 añade datos de comprobante a la consulta
-#47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
-#54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria
+#47 ETR             24-09-2019          Manuel Guerra       reporte de verificacion presupuestaria
+#54 ETR             24-09-2019          Manuel Guerra       mejora en consulta y reporte de verificación presupuestaria
+ #68 ETR            24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
  ***/
 
 class MODPlanilla extends MODbase{
@@ -67,6 +68,7 @@ class MODPlanilla extends MODbase{
 		$this->captura('calcular_reintegro_rciva','varchar'); //#25
 		$this->captura('id_int_comprobante','int4');//#43
 		$this->captura('id_int_comprobante_2','int4');//#43
+		$this->captura('calcular_prima_rciva','varchar'); //#68
 		
 		
 		//Ejecuta la instruccion
@@ -364,6 +366,9 @@ class MODPlanilla extends MODbase{
 		$this->setParametro('dividir_comprobante','dividir_comprobante','varchar');
         $this->setParametro('id_tipo_contrato','id_tipo_contrato','int4'); //#5
         $this->setParametro('calcular_reintegro_rciva','calcular_reintegro_rciva','varchar'); //#25
+        $this->setParametro('calcular_prima_rciva','calcular_prima_rciva','varchar'); //#68
+        
+        
         
         
 
@@ -398,6 +403,7 @@ class MODPlanilla extends MODbase{
         $this->setParametro('dividir_comprobante','dividir_comprobante','varchar');
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4'); //#5
 		$this->setParametro('calcular_reintegro_rciva','calcular_reintegro_rciva','varchar'); //#25
+		$this->setParametro('calcular_prima_rciva','calcular_prima_rciva','varchar'); //#68
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
