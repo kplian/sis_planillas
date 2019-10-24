@@ -3,7 +3,7 @@
 /*
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
- 
+ #66	ETR				16.10.2019			MZM					Adicion de total a reporte 
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -17,16 +17,26 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	function Header() {
 		//cabecera del reporte
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 8, 30, 12);
+		$this->SetFont('','B',8);
+		$this->SetY(10);
+		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
+		$this->Cell($this->ancho_hoja+200, 3, $pagenumtxt, '', 1, 'R');
+		
 		$this->SetFont('','B',15);
 		$this->SetY(20);
+		//15.10.2019
+		$tipo_cto=$this->objParam->getParametro('nombre_tipo_contrato');
+		if($tipo_cto!=''){
+			$tipo_cto='('.$tipo_cto.')';
+		}
 		
 		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
-			$this->Cell(0,5,'ANTIGUEDAD DE LOS EMPLEADOS',0,1,'C');
+			$this->Cell(0,5,'ANTIGUEDAD DE LOS EMPLEADOS '.$tipo_cto,0,1,'C');
 			$this->etiqueta='Antiguedad';
 		}else{
 			
 			
-				$this->Cell(0,5,'CLASIFICACION DEL PERSONAL POR EDADES',0,1,'C');
+				$this->Cell(0,5,'CLASIFICACION DEL PERSONAL POR EDADES '.$tipo_cto,0,1,'C');
 				$this->etiqueta='Edad';
 			
 		}
@@ -45,7 +55,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 			$this->Cell(20,3.5,'Fecha','LTR',0,'C');
 			$this->Cell(10,3.5,'Antig','LTR',0,'C');
 			$this->Cell(30,3.5,'T.Antiguedad','LTR',1,'C');
-		}else{
+		}else{ 
 			$this->Cell(30,3.5,'Cargo','LTR',0,'C');
 			$this->Cell(20,3.5,'Fecha','LTR',0,'C');
 			$this->Cell(10,3.5,'Edad','LTR',1,'C');
@@ -83,6 +93,12 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$this->SetMargins(15,$this->alto_header+2, 5);
 		$array_fem; $contf=1;
 		$array_mas; $contm=0; 
+		
+		//15.10.2019
+		$totalf=0;
+		$totalm=0;
+		$totala=0;
+		$totald=0;
 		
 		
 		$rango_ini=$this->objParam->getParametro('rango_ini');
@@ -140,6 +156,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 								
 								$contf++;
 								
+								
 						}else{
 								$this->SetFont('','',8);
 								if ($this->datos[$i]['genero']!=$genero){
@@ -185,11 +202,21 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 									
 								}
 								$contf++;
-							
+								
+								
 						
 						}
 						$genero=$this->datos[$i]['genero'];
 						$rango=$this->datos[$i]['rango'];
+						//#66
+					if($this->datos[$i]['genero']=='femenino'){
+						$totalf++;
+					}else{
+						$totalm++;
+					}
+						
+					$totala=$totala+$this->datos[$i]['antiguedad_anos'];
+					$totald=$totald+$this->datos[$i]['antiguedad'];
 				
 			}
 						$this->SetFont('','B',8);
@@ -198,12 +225,61 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 						$this->Ln(2);
 
 		
+		
+		//#66
+		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
+			$this->Ln(2);
+			$this->SetFont('','B',8);
+							$this->Cell(70,3.5,'Total Hombres: '.$totalm,'',0,'L');
+							$this->Cell(70,3.5,'Total Mujeres: '.$totalf,'',0,'L');
+							$this->Cell(38,3.5,'Antiguedad Media: '.round($totala/($totalm+$totalf),0),'',0,'L');
+							$this->Cell(25,3.5,''.round($totald/($totalm+$totalf),0),'',1,'L');
+							$this->Ln(2);
+			
+			}
+		
 		} 
 
 		
 	
 		
-		
+		function Footer(){ 
+		$this->setY(-15);
+		$ormargins = $this->getOriginalMargins();
+		$this->SetTextColor(0, 0, 0);
+		//set style for cell border
+		$line_width = 0.85 / $this->getScaleFactor();
+		$this->SetLineStyle(array('width' => $line_width, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 0, 0)));
+		$ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
+		$this->Ln(2);
+		$cur_y = $this->GetY();
+		//$this->Cell($ancho, 0, 'Generado por XPHS', 'T', 0, 'L');
+		$this->Cell($ancho, 0, 'Usuario: '.$_SESSION['_LOGIN'], '', 0, 'L');
+		//$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
+		//$this->Cell($ancho, 0, $pagenumtxt, '', 0, 'C');
+		$this->Cell($ancho, 0, $_SESSION['_REP_NOMBRE_SISTEMA'], '', 0, 'R');
+		$this->Ln();
+		$fecha_rep = date("d-m-Y H:i:s");
+		$this->Cell($ancho, 0, "Fecha Impresion : ".$fecha_rep, '', 0, 'L');
+		$this->Ln($line_width);
+		$this->Ln();
+		$barcode = $this->getBarcode();
+		$style = array(
+					'position' => $this->rtl?'R':'L',
+					'align' => $this->rtl?'R':'L',
+					'stretch' => false,
+					'fitwidth' => true,
+					'cellfitalign' => '',
+					'border' => false,
+					'padding' => 0,
+					'fgcolor' => array(0,0,0),
+					'bgcolor' => false,
+					'text' => false,
+					'position' => 'R'
+				);
+				$this->write1DBarcode($barcode, 'C128B', $ancho*2, $cur_y + $line_width+5, '', (($this->getFooterMargin() / 3) - $line_width), 0.3, $style, '');
+			
+	}
 		
 			
 	

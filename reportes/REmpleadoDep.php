@@ -2,7 +2,8 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
+ #30    ETR            30/07/2019           MZM                 Creacion
+ #66	ETR				15.10.2019			MZM					Adicion de tipo contrato 
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -19,10 +20,16 @@ class REmpleadoDep extends  ReportePDF {
 		
 		$this->Ln(15);	
 		$this->SetFont('','B',12);
+		//#66
+		$nombre_tc=$this->objParam->getParametro('nombre_tipo_contrato');
+		if($nombre_tc!=''){
+			$nombre_tc=' ('.$nombre_tc.')';
+		}
+		
 		if($this->objParam->getParametro('tipo_reporte')=='dependientes'){	
-			$this->Cell(0,5,'NOMINA DE PERSONAL Y DEPENDIENTES',0,1,'C');
+			$this->Cell(0,5,'NOMINA DE PERSONAL Y DEPENDIENTES'.$nombre_tc,0,1,'C');//#66
 		}else{
-			$this->Cell(0,5,'GRUPO FAMILIAR DE LOS TRABAJADORES',0,1,'C');
+			$this->Cell(0,5,'GRUPO FAMILIAR DE LOS TRABAJADORES'.$nombre_tc,0,1,'C');//#66
 			$this->SetFont('','B',10);
 			$this->Cell(0,5,'Clasificación de los hijos según edades',0,1,'C');
 		}
