@@ -25,7 +25,9 @@ $body$
    #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla
    #43    ETR             18-09-2019            RAC                  retornar datos de comprobante para validaciones
    #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
-   #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria
+   #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria 
+   #68    ETR             24/10/2019            RAC                  Registrar  calcular_prima_rciva
+   
  ***************************************************************************/
 
 
@@ -134,7 +136,8 @@ $body$
                         plani.id_tipo_contrato,
                         plani.calcular_reintegro_rciva,
                         plani.id_int_comprobante,   --#43
-                        plani.id_int_comprobante_2  --#43
+                        plani.id_int_comprobante_2,  --#43
+                        plani.calcular_prima_rciva  --#68
                   from plani.tplanilla plani
                   inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
                   left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
