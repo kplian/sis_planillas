@@ -8,8 +8,9 @@
  *HISTORIAL DE MODIFICACIONES:
  *#ISSUE				FECHA				AUTOR				DESCRIPCION
  #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
- #25	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
- #26	   ETR				20/08/2019			kplian MMV			corrección de bug combo tipo contrato button new
+ #25 ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+ #26 ETR				20/08/2019			kplian MMV			corrección de bug combo tipo contrato button new
+ #68 ETR                24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
 
  */
 
@@ -412,7 +413,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 config:{
                     name: 'calcular_reintegro_rciva',
                     fieldLabel: 'Incluir Reintegro RC-IVA',
-                    qtip: 'Procesa la columnas de reintegreo rc-iva',
+                    qtip: 'Procesa la columnas de reintegreo rc-iva de la gestion (Deben tener cuidado de no incluir dos veces en diferentes planillas de la misma gestión para no duplicar el descuento)',
                     allowBlank: true,
                     width: 80,
                     gwidth: 80,
@@ -424,11 +425,36 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 },
                 type:'ComboBox',
                 id_grupo:1,
-                filters:{pfiltro:'plani.apertura_cb',type:'string'},
+                filters:{pfiltro:'plani.calcular_reintegro_rciva',type:'string'},
                 valorInicial: 'no',
                 grid:true,
                 form:true
           },
+          
+         //#68 calcular_prima_rciva
+         {
+                config:{
+                    name: 'calcular_prima_rciva',
+                    fieldLabel: 'Incluir Primas RC-IVA',
+                    qtip: 'Procesa la columnas de prima rc-iva (solo de la planilla de prima del persona vigente)',
+                    allowBlank: true,
+                    width: 80,
+                    gwidth: 80,
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    store:['si','no']
+                },
+                type:'ComboBox',
+                id_grupo:1,
+                filters:{pfiltro:'plani.calcular_prima_rciva',type:'string'},
+                valorInicial: 'no',
+                grid:true,
+                form:true
+          },
+          
+          
    	      {
 			config:{
 				name: 'observaciones',
@@ -559,7 +585,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
         {name:'dividir_comprobante', type: 'string'},
-        {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato'
+        {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato','calcular_prima_rciva'
 
 	],
 	sortInfo:{
