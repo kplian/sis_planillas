@@ -24,6 +24,7 @@ $body$
  #32	ETR			02.09.2019			MZM				Adicion de relacion id_pie_firma 
  #58	ETR			30.09.2019			MZM				Adicion de campo mostrar_ufv
  #60	ETR			01.10.2019			MZM				Adicion de campo incluir_retirados para reporte de reintegros
+ #65	ETR			10.10.2019			MZM				Adicion de campo id_moneda_reporte
 ***************************************************************************/
 
 DECLARE
@@ -78,6 +79,7 @@ BEGIN
             ,id_pie_firma
             ,mostrar_ufv --#58
             ,incluir_retirados --#60
+            ,id_moneda_reporte--#65
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.numerar,
@@ -105,6 +107,7 @@ BEGIN
             ,v_parametros.id_pie_firma
             ,v_parametros.mostrar_ufv --#58
             ,v_parametros.incluir_retirados --#60
+            ,v_parametros.id_moneda_reporte --#65
 			)RETURNING id_reporte into v_id_reporte;
 			
 			v_resp = plani.f_reporte_calcular_ancho_utilizado(v_id_reporte);
@@ -152,6 +155,7 @@ BEGIN
             ,id_pie_firma=v_parametros.id_pie_firma
             ,mostrar_ufv=v_parametros.mostrar_ufv --#58
             ,incluir_retirados=v_parametros.incluir_retirados --#60
+            ,id_moneda_reporte=v_parametros.id_moneda_reporte --#65
 			where id_reporte=v_parametros.id_reporte;
             v_resp = plani.f_reporte_calcular_ancho_utilizado(v_parametros.id_reporte);   
 			--Definicion de la respuesta

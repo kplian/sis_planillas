@@ -10,6 +10,7 @@ issue 	empresa		autor	fecha	detalle
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
  * #58	etr			MZM		30.09.2019	Adicion de campo mostrar_ufv
  * #60	etr			MZM		01.10.2019	Adicion de campo incluir_retirados
+ * #65	ETR			MZM		10.10.2019	Adicion de cmpo id_moneda_reporte
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -512,6 +513,29 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		}
+		,//#65
+		{
+			config : {
+				name : 'id_moneda_reporte',
+				origen : 'MONEDA',
+				allowBlank : false,
+				fieldLabel : 'Moneda del Reporte',
+				gdisplayField : 'codigo', //mapea al store del grid
+				gwidth : 100,
+				anchor: '80%',
+				renderer : function(value, p, record) {
+					return String.format('{0}', record.data['codigo']);
+				}
+			},
+			type : 'ComboRec',
+			id_grupo : 2,
+			filters : {
+				pfiltro : 'mon.moneda',
+				type : 'string'
+			},
+			grid : true,
+			form : true
+		} 
 	],
 	tam_pag:50,	
 	title:'Reportes de Planilla',
@@ -550,6 +574,8 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		{name:'nombre', type: 'varchar'}
 		,{name:'mostrar_ufv', type: 'string'}//#58
 		,{name:'incluir_retirados', type: 'string'}//#60
+		,{name:'id_moneda_reporte', type: 'numeric'}//#65
+		,{name:'codigo', type: 'string'}//#65
 		
 	],
 	sortInfo:{

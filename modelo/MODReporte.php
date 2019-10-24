@@ -7,6 +7,7 @@
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
  * #60	etr			MZM		08.10.2019	Adicion de campo incluir_retirados
+ * #65	ETR			MZM		10.10.2019	Adicion de 2 campos para q en reportes de listado solo se muestren los q tengan valor diferente a 0
 **/
 
 class MODReporte extends MODbase{
@@ -53,6 +54,9 @@ class MODReporte extends MODbase{
 		
 		$this->captura('mostrar_ufv','varchar');//#58
 		$this->captura('incluir_retirados','varchar');//#60
+		//#65
+		$this->captura('id_moneda_reporte','integer');//#65
+		$this->captura('codigo','varchar');//#65
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		$this->ejecutarConsulta();
@@ -91,6 +95,7 @@ class MODReporte extends MODbase{
 		
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
+		$this->setParametro('id_moneda_reporte','id_moneda_reporte','integer');//#65
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -129,6 +134,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('id_pie_firma','id_pie_firma','integer');
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
+		$this->setParametro('id_moneda_reporte','id_moneda_reporte','integer');//#65
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -189,9 +195,14 @@ class MODReporte extends MODbase{
 		$this->captura('mostrar_ufv','varchar');
 		$this->captura('ufv_ini','numeric');
 		$this->captura('ufv_fin','numeric');
+		
+		$this->captura('tc','numeric');//#65
+		$this->captura('cant_columnas_totalizan','integer');//#65
+		$this->captura('tipo_reporte','varchar');//#65
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
-		// echo "****".$this->getConsulta(); exit;
+		//echo $this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -314,7 +325,7 @@ class MODReporte extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		
-		//echo "****".$this->getConsulta(); exit;
+		
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
