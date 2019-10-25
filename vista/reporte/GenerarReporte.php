@@ -6,6 +6,7 @@
  *@date    07/08/2013
  *@description Reporte Material Entregado/Recibido
  * #33	etr			MZM		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
+ * #66	etr			MZM		24.10.2019	inclusion de opcion de reporte con control_reporte
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -504,7 +505,8 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.ocultarComponente(this.Cmp.id_uo);
 						
 						
-						if(r.data.control_reporte=='relacion_saldos' || r.data.control_reporte=='relacion_saldos_det'){
+						
+						if(r.data.control_reporte=='relacion_saldos' || r.data.control_reporte=='relacion_saldos_det' || r.data.control_reporte=='profesiones' || r.data.control_reporte=='directorio_empleados' || r.data.control_reporte=='nacimiento_ano' || r.data.control_reporte=='nacimiento_mes'){//#66
 							this.mostrarComponente(this.Cmp.id_gestion);
 							this.mostrarComponente(this.Cmp.id_periodo);
 							this.Cmp.id_gestion.allowBlank=false;
@@ -514,10 +516,15 @@ header("content-type: text/javascript; charset=UTF-8");
 							this.Cmp.fecha.allowBlank=true;
 						}else{
 							
-							if(r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc'){
-									this.mostrarComponente(this.Cmp.id_gestion);
-									this.Cmp.id_gestion.allowBlank=false;
-									
+							if(r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc' || r.data.control_reporte=='asignacion_cargos'|| r.data.control_reporte=='movimiento_personal'|| r.data.control_reporte=='frecuencia_cargos' || r.data.control_reporte=='lista_cargos' ){//#66
+									if(r.data.control_reporte!='frecuencia_cargos' &&  r.data.control_reporte!='lista_cargos'){
+										this.mostrarComponente(this.Cmp.id_gestion);
+										this.Cmp.id_gestion.allowBlank=false;
+									}else{
+										this.ocultarComponente(this.Cmp.id_gestion);
+										this.Cmp.id_gestion.allowBlank=true;
+										this.Cmp.id_gestion.setValue('');
+									}
 									
 									this.ocultarComponente(this.Cmp.fecha);
 									this.Cmp.fecha.allowBlank=true;
@@ -570,7 +577,7 @@ header("content-type: text/javascript; charset=UTF-8");
 								this.Cmp.rango_inicio.allowBlank=false;
 								this.Cmp.rango_fin.allowBlank=false;
 								
-								this.ocultarComponente(this.Cmp.id_tipo_contrato);
+								//this.ocultarComponente(this.Cmp.id_tipo_contrato);
 								
 								
 							}else{  
@@ -579,7 +586,7 @@ header("content-type: text/javascript; charset=UTF-8");
 								this.Cmp.rango_inicio.allowBlank=true;
 								this.Cmp.rango_fin.allowBlank=true;
 								
-								this.mostrarComponente(this.Cmp.id_tipo_contrato);
+								//this.mostrarComponente(this.Cmp.id_tipo_contrato);
 								
 								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
 									this.mostrarComponente(this.Cmp.id_afp);
@@ -600,7 +607,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					  //***************************
 				}else{
 					
-					
+					//this.mostrarComponente(this.Cmp.id_tipo_contrato);
 					if (this.Cmp.periodicidad == 'anual') {
 						this.ocultarComponente(this.Cmp.id_periodo);
 						this.Cmp.id_periodo.allowBlank = true;

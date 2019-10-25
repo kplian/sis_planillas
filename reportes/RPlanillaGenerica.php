@@ -1,6 +1,8 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0
+//#56			MZM			08.10.2019				Ajuste a titutlo de reporte
+//#65			MZM			16.10.2019				Inclusion de TC para reporte en $us
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -24,7 +26,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->SetFont('','B',12);
 		$tipo_con='';
 		
-		if ($this->datos_detalle[0]['nombre']!=''){
+		if ($this->objParam->getParametro('id_tipo_contrato')!=''){//01.10.2019
 			$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
 		}
 		
@@ -182,56 +184,120 @@ class RPlanillaGenerica extends  ReportePDF {
 		}
 		$columnas = 0;
 		
-		foreach ($this->datos_detalle as $value) {		
-			if ($id_funcionario != $value['id_funcionario']) {
-				$this->SetFont('','',6);
-				$this->UniRow($array_show);
-				$columnas = 0;
-				//Si cambia la gerencia
-				if ($this->gerencia != $value['gerencia']) {
-					//generar subtotales
-					$this->SetFont('','B',7);
-					if ($this->ancho_sin_totales>0){
-						$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+		foreach ($this->datos_detalle as $value) {
+			
+		
+			if ($id_funcionario != $value['id_funcionario']  ) {
+				
+				if($this->datos_titulo['cant_columnas_totalizan']==1){
+					
+					if($array_show[((count($array_show))-1)]!=0){ 
+						$this->SetFont('','',6);
+						$this->UniRow($array_show);
+						$this->numeracion++;
+						$empleados_gerencia++;
 					}
-	 				
-					for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
-						if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,',','.'),1,0,'R');//#50
-						else
-							$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
-						//reiniciar subtotales
-						$sum_subtotal[$i] = 0;
+					else{
+						
 					}
-	 	 			
-					$this->ln(10);
-					$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
-					//crear nueva pagina y cambiar de gerencia
-					$this->gerencia = $value['gerencia'];
-					$empleados_gerencia = 0;
-					$this->AddPage();
-				} 
-				$this->numeracion++;
-				$empleados_gerencia++;
-				$array_show = $this->iniciarArrayShow($value);
-				$id_funcionario = $value['id_funcionario'];
+						$columnas = 0;
+						//Si cambia la gerencia
+						if ($this->gerencia != $value['gerencia']) {
+							//generar subtotales
+							$this->SetFont('','B',7);
+							if ($this->ancho_sin_totales>0){
+								$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+							}
+			 				
+							for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
+								if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
+									$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
+									
+								else
+									$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
+								//reiniciar subtotales
+								$sum_subtotal[$i] = 0;
+							}
+			 	 			
+							$this->ln(10);
+							$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
+							//crear nueva pagina y cambiar de gerencia
+							$this->gerencia = $value['gerencia'];
+							$empleados_gerencia = 0;
+							$this->AddPage();
+						} 
+						
+						$array_show = $this->iniciarArrayShow($value);
+						
+						$id_funcionario = $value['id_funcionario'];
+					
+				}else{
+						$this->SetFont('','',6);
+						$this->UniRow($array_show);
+						$columnas = 0;
+						//Si cambia la gerencia
+						if ($this->gerencia != $value['gerencia']) {
+							//generar subtotales
+							$this->SetFont('','B',7);
+							if ($this->ancho_sin_totales>0){
+								$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+							}
+			 				
+							for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
+								if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
+									$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
+								else
+									$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
+								//reiniciar subtotales
+								$sum_subtotal[$i] = 0;
+							}
+			 	 			
+							$this->ln(10);
+							$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
+							//crear nueva pagina y cambiar de gerencia
+							$this->gerencia = $value['gerencia'];
+							$empleados_gerencia = 0;
+							$this->AddPage();
+						} 
+						$this->numeracion++;
+						$empleados_gerencia++;
+						$array_show = $this->iniciarArrayShow($value);
+						$id_funcionario = $value['id_funcionario'];
+				}
+				
 			//si no es un nuevo funcionario hacer push al arreglo con el dato recibido
 			} 
-			array_push($array_show, $value['valor_columna']);
-			$sum_subtotal[$columnas] += $value['valor_columna'];
-			$sum_total[$columnas] += $value['valor_columna'];
-			$columnas++;				
 			
+//#65 
+	  		if($value['sumar_total']=='si'){ 
+	  			array_push($array_show, $value['valor_columna']/$this->datos_titulo['tc']); 
+				
+				
+	  		}else{
+	  			array_push($array_show, $value['valor_columna']);
+	  		}
+	  				
+				$sum_subtotal[$columnas] += $value['valor_columna'];
+				$sum_total[$columnas] += $value['valor_columna'];
+				$columnas++;	
+	  		
 		}
 		
 		$this->SetFont('','',6);
 		//Añade al ultimo empleado de la lista
-		$this->UniRow($array_show);
+		
+		if($array_show[((count($array_show))-1)]!=0){
+			$this->UniRow($array_show);
+			$this->numeracion++; //------------***********
+			$empleados_gerencia++;
+		}
+		
 		//Si cambia la gerencia
 		
 		//Añade el ultimo subtotal de la gerencia
 		//generar subtotales
 		$this->SetFont('','B',7);
+		
 		if ($this->gerencia!=''){
 			
 			if ($this->ancho_sin_totales>0){
@@ -239,13 +305,14 @@ class RPlanillaGenerica extends  ReportePDF {
 			}
 			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,',','.'),1,0,'R');//#50
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
 				else
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 				//reiniciar subtotales
 				$sum_subtotal[$i] = 0;
 			}
 			$this->ln(10);
+			$empleados_gerencia=$empleados_gerencia-1;
 			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 			$this->ln(10);
 		
@@ -257,17 +324,18 @@ class RPlanillaGenerica extends  ReportePDF {
 		if($this->ancho_sin_totales > 0){
 		
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
+			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
+				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
+				else
+					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
+			}
+			$this->ln(8);
 		}
 		
-		
-		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
-			if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
-				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i],2,',','.'),1,0,'R');//#50
-			else
-				$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
-		}
-		$this->ln(10);
-		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',0,'L');
+		$this->ln(2);
+		$this->numeracion=$this->numeracion-1;
+		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.(($this->numeracion)),'',0,'L');
 			
 	}
 	function iniciarArrayShow($detalle) {

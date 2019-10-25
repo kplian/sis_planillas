@@ -30,6 +30,7 @@ $body$
    #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
    #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
    #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
+   #65		ETR			10.10.2019			MZM					Adicion de campo id_moneda_reporte en treporte
   ***************************************************************************/
 
   DECLARE
@@ -60,11 +61,14 @@ $body$
     v_datos_externos		record;
     v_consulta_externa 		varchar;
     v_columnas_externas		varchar;
-    v_consulta_orden	varchar;
+    v_consulta_orden		varchar;
     
     --12.09.2019
-    v_agrupar_por		varchar;
+    v_agrupar_por			varchar;
     
+    --#65
+    v_tc					numeric;
+    v_filtro_tc				varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -113,8 +117,11 @@ $body$
                         --#58
                         ,repo.mostrar_ufv
                         ,repo.incluir_retirados --#60
+                        ,repo.id_moneda_reporte --#65
+                        ,moneda.codigo --#65
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
+                        inner join param.tmoneda moneda on moneda.id_moneda=repo.id_moneda_reporte
 						left join segu.tusuario usu2 on usu2.id_usuario = repo.id_usuario_mod
                         left join param.tpie_firma pie on pie.id_pie_firma=repo.id_pie_firma
 				        where  ';
@@ -200,7 +207,12 @@ $body$
                             and tc.codigo=''UFV_FIN''
                             limit 1
                             ) as ufv_fin
+							,
 
+                            (param.f_get_tipo_cambio(repo.id_moneda_reporte,plani.fecha_planilla,''O'')) as tc --#65
+                           ,(select count(*) from plani.treporte_columna  where id_reporte=repo.id_reporte
+                            and sumar_total=''si'')::integer as cant_columnas_totalizan --#65
+                            ,repo.tipo_reporte
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
@@ -1033,6 +1045,9 @@ else  repo.ancho_total
 end
 )
         as ancho_col
+        
+      
+        
            			from plani.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
@@ -1112,6 +1127,9 @@ end
 
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
+            
+                    
+            
             v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
             raise notice 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
