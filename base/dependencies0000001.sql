@@ -3301,4 +3301,4 @@ FROM (
          'horas_comp'::text], ARRAY[a.nombre_funcionario,
          a.codigo_funcionario::text, a.horas_normales || ''::text, a.horas_comp
          || ''::text]) u(nombre_col, valor_col);
-/***********************************F-DEP-MZM-PLANI-69-28/10/2019****************************************/
+/***********************************F-DEP-MZM-PLANI-69-29/10/2019****************************************/
