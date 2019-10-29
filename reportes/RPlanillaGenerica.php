@@ -3,6 +3,7 @@
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0
 //#56			MZM			08.10.2019				Ajuste a titutlo de reporte
 //#65			MZM			16.10.2019				Inclusion de TC para reporte en $us
+//#69			MZM			29.10.2019				Ajuste para reporte Hras trabajadas
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -99,14 +100,19 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->Cell($value['ancho_columna'],3.5,$value['titulo_reporte_inferior'],'LBR',0,'C');
 			//iniciar ancho de columna, alineacion y formato de numero
 			array_push($this->tablewidths, $value['ancho_columna']); 
-			if ($value['sumar_total']=='si'){
-				array_push($this->tablealigns, 'R');
-				array_push($this->tablenumbers, 2);
-			}else{
-				array_push($this->tablealigns, 'L');
-				array_push($this->tablenumbers, 0);
-			}
 			
+			if($value['sumar_total']=='si' ){
+	  			array_push($this->tablealigns, 'R');
+				array_push($this->tablenumbers, 2); 
+	  			
+				
+	  		}else{
+	  			
+	  				array_push($this->tablealigns, 'L');
+					array_push($this->tablenumbers, 0);
+	  			
+	  			
+	  		}
 			
 			$columnas++;
 			if ($columnas == $this->datos_titulo['cantidad_columnas']) {
@@ -224,7 +230,17 @@ class RPlanillaGenerica extends  ReportePDF {
 							//crear nueva pagina y cambiar de gerencia
 							$this->gerencia = $value['gerencia'];
 							$empleados_gerencia = 0;
-							$this->AddPage();
+							
+							if($this->datos_titulo['titulo_reporte']!='TOTAL HORAS TRABAJADAS'){//#69
+								$this->AddPage();	
+							}else{
+								$this->Ln(8);
+								$this->SetFont('','B',10);
+								$this->Cell(30,3,''.$this->gerencia . '' ,'',1,'L');
+							
+								
+							}
+							
 						} 
 						
 						$array_show = $this->iniciarArrayShow($value);
@@ -257,7 +273,13 @@ class RPlanillaGenerica extends  ReportePDF {
 							//crear nueva pagina y cambiar de gerencia
 							$this->gerencia = $value['gerencia'];
 							$empleados_gerencia = 0;
-							$this->AddPage();
+							if($this->datos_titulo['titulo_reporte']!='TOTAL HORAS TRABAJADAS'){//#69
+								$this->AddPage();	
+							}else{
+								$this->Ln(8);
+								$this->SetFont('','B',10);
+								$this->Cell(30,3,''.$this->gerencia . '' ,'',1,'L');
+							}
 						} 
 						$this->numeracion++;
 						$empleados_gerencia++;
@@ -269,12 +291,12 @@ class RPlanillaGenerica extends  ReportePDF {
 			} 
 			
 //#65 
-	  		if($value['sumar_total']=='si'){ 
-	  			array_push($array_show, $value['valor_columna']/$this->datos_titulo['tc']); 
-				
-				
+	  		if($value['sumar_total']=='si'){
+	  			
+	  				array_push($array_show, $value['valor_columna']/$this->datos_titulo['tc']); 
 	  		}else{
-	  			array_push($array_show, $value['valor_columna']);
+	  			
+	  				array_push($array_show, $value['valor_columna']);
 	  		}
 	  				
 				$sum_subtotal[$columnas] += $value['valor_columna'];

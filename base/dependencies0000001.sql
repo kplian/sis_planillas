@@ -3254,3 +3254,51 @@ FROM (
          ''::text, a.codigo_rciva::text, a.tipo_documento::text,
          a.num_documento, a.distrito::text]) u(nombre_col, valor_col);
 /***********************************F-DEP-MZM-PLANI-66-15/10/2019****************************************/
+
+/***********************************I-DEP-MZM-PLANI-69-29/10/2019****************************************/
+CREATE VIEW plani.vdatos_horas_funcionario (
+    id_funcionario,
+    id_funcionario_planilla,
+    nombre_col,
+    valor_col)
+AS
+SELECT a.id_funcionario,
+    a.id_funcionario_planilla,
+    u.nombre_col,
+    u.valor_col
+FROM (
+    SELECT fun.id_funcionario,
+            fp.id_funcionario_planilla,
+            fun.cargo_codigo AS codigo_funcionario,
+            "substring"(fun.desc_funcionario2, 1, 58) AS nombre_funcionario,
+            (
+        SELECT sum(th.total_normal) AS sum
+        FROM asis.vtotales_horas th
+        WHERE th.id_funcionario = fun.id_funcionario AND th.id_periodo =
+            pl.id_periodo AND th.estado::text = 'aprobado'::text
+        ) AS horas_normales,
+            (
+        SELECT sum(de.total_comp) AS sum
+        FROM asis.tmes_trabajo_det de
+                     JOIN asis.tmes_trabajo ta ON ta.id_mes_trabajo = de.id_mes_trabajo
+        WHERE ta.id_funcionario = fun.id_funcionario AND ta.id_periodo =
+            pl.id_periodo AND ta.estado::text = 'aprobado'::text
+        ) AS horas_comp
+    FROM orga.vfuncionario_cargo_lugar fun
+             JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
+             JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+                 tfun.id_funcionario AND fp.id_uo_funcionario = fun.id_uo_funcionario
+             JOIN plani.tplanilla pl ON pl.id_planilla = fp.id_planilla AND
+                 (pl.id_tipo_planilla IN (
+        SELECT ttipo_planilla.id_tipo_planilla
+        FROM plani.ttipo_planilla
+        WHERE ttipo_planilla.codigo::text = 'PLASUE'::text
+        )) AND pl.estado::text <> 'borrador'::text AND pl.estado::text <>
+            'registro_funcionarios'::text
+    ) a
+     CROSS JOIN LATERAL UNNEST(ARRAY['nombre_funcionario'::text,
+         'codigo_funcionario'::text, 'horas_normales'::text,
+         'horas_comp'::text], ARRAY[a.nombre_funcionario,
+         a.codigo_funcionario::text, a.horas_normales || ''::text, a.horas_comp
+         || ''::text]) u(nombre_col, valor_col);
+/***********************************F-DEP-MZM-PLANI-69-29/10/2019****************************************/
