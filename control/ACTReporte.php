@@ -1008,9 +1008,9 @@ function reporteBancosDet()	{ //#56
 		
 		
 		
-		if ($this->objParam->getParametro('id_tipo_contrato')!= '') { 
+		/*if ($this->objParam->getParametro('id_tipo_contrato')!= '') { 
             $this->objParam->addFiltro("tc.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
-        }
+        }*/ //#56
 		
 				
 		if ($this->objParam->getParametro('id_gestion') != '') {
