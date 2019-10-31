@@ -14,6 +14,7 @@
  #38              10/09/2019       RAC KPLIAN           considerar si el cbte es independiente del flujo WF de planilla
  #46			  23.09.2019		MZM					Adicion de opcion para abono en cuenta
  #56			  30.09.2019		MZM					Listado resumen de saldos 
+ #56			  31.10.2019		MZM					Cambio en llamado de Obligacion a Reporte
  * * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -553,8 +554,8 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 			
 			Phx.CP.loadingShow();
             Ext.Ajax.request({
-                url:'../../sis_planillas/control/Obligacion/reporteBancos',
-                params:{'id_obligacion' : data.id_obligacion
+                url:'../../sis_planillas/control/Reporte/reporteBancos', //#56
+                params:{'id_obligacion' : data.id_obligacion, 'control_reporte':'relacion_saldos'
                 		},
                 success:this.successExport,
                 failure: this.conexionFailure,

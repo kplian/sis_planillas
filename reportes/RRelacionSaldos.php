@@ -50,14 +50,10 @@ class RRelacionSaldos extends  ReportePDF {
 		
 		$this->SetFont('','B',15);
 		
-		    if($this->bandera=='detalle'){
-		    	$this->Cell(0,7,'RELACION DE SALDOS','',1,'C');
-		    }else{
-		    	$this->Cell(0,7,'RESUMEN - RELACION DE SALDOS','',1,'C');
+		    
+		   	$this->Cell(0,7,strtoupper($this->detalle[0]['titulo_reporte']),'',1,'C');
 			
-		    }
-			
-			
+		   
 			$this->SetFont('','B',10);
 			
 			
@@ -100,8 +96,9 @@ class RRelacionSaldos extends  ReportePDF {
 
 }
 	function setDatos($datos,$detalle) {
-		$this->datos = $datos;
-		$this->detalle = $detalle;
+		
+		$this->datos = $detalle;
+		$this->detalle = $datos;
 		$this->tipo_contratoP= $this->datos[0]['tipo_contrato'];
 		$this->tipo_pagoP= $this->datos[0]['tipo_pago'];
 		

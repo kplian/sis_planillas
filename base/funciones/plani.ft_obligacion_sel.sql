@@ -23,6 +23,7 @@ $body$
  #46			  23.09.2019		MZM					Adicion de funcion para listado de abono en cuenta
  #56			  30.09.2019		MZM					Adicion de funcion para reporte resumen de saldos
  #56			  08.10.2019		MZM					Adicion de funcion para reporte detalle de saldos
+ #56			  31.10.2019		MZM					inclusion de join con treporte para que funcione tanto desde la vista de obligaciones como desde generacion de reportes
 */
 
 DECLARE
@@ -192,6 +193,7 @@ BEGIN
                     inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
                     and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
                     inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                    inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                     inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
                     fp.id_planilla = plani.id_planilla
                     inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
@@ -220,6 +222,7 @@ BEGIN
                         inner join param.tinstitucion ins on ins.id_institucion = df.id_institucion
                         inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
                         inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
@@ -239,6 +242,7 @@ BEGIN
                         from plani.tobligacion o 
                         inner join plani.ttipo_obligacion tob on o.id_tipo_obligacion = tob.id_tipo_obligacion 
                         inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario = o.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo inner 
@@ -260,7 +264,7 @@ BEGIN
         
       elsif (p_transaccion='PLA_REPOBANCDET_SEL') THEN --#56
 	     BEGIN   
-        
+      
 	    	v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar ,
 						upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
 						''Banco'' as tipo_pago,  tc.nombre as tipo_contrato, fun.desc_funcionario2,df.nro_cuenta 
@@ -269,6 +273,7 @@ BEGIN
                         inner join param.tinstitucion ins on ins.id_institucion = df.id_institucion
                         inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
                         inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
@@ -288,6 +293,7 @@ BEGIN
                         from plani.tobligacion o 
                         inner join plani.ttipo_obligacion tob on o.id_tipo_obligacion = tob.id_tipo_obligacion 
                         inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario = o.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo inner 
@@ -319,6 +325,7 @@ BEGIN
                     inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
                     and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
                     inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                    inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
                     inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and
                     fp.id_planilla = plani.id_planilla
                     inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario

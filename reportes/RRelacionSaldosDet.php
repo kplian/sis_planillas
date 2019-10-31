@@ -25,9 +25,6 @@ class RRelacionSaldosDet extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
 		
-		
-		
-		
 		$ormargins = $this->getOriginalMargins();
 		$ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
 		$this->SetY(10);
@@ -51,7 +48,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 		$this->SetFont('','B',15);
 		
 		   
-		    $this->Cell(0,7,'RELACION DE SALDOS','',1,'C');
+		    $this->Cell(0,7, strtoupper($this->datos[0]['titulo_reporte']),'',1,'C');//#56
 		    
 			
 			$this->SetFont('','B',10);
@@ -110,8 +107,9 @@ class RRelacionSaldosDet extends  ReportePDF {
 
 }
 	function setDatos($datos,$detalle) {
+		
 		$this->datos = $datos;
-		$this->detalle = $datos;
+		$this->detalle = $detalle;
 		
 		$this->tipo_contrato=$this->detalle[0]['det_tipo_contrato'];
 		$this->tipo_pago= $this->detalle[0]['det_tipo_pago'];
