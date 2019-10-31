@@ -11,7 +11,8 @@ HISTORIAL DE MODIFICACIONES:
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago 
 #46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas
  * 															omision de extension txt
-56 ETR				30.09.2019			MZM					Listado de resumen de saldos 
+#56 ETR				30.09.2019			MZM					Listado de resumen de saldos
+#56 ETR				10.10.2019			MZM					Inclusion de filtro en cabecera de reporte  
 */
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldos.php'); //#56
 class ACTObligacion extends ACTbase{    
@@ -114,12 +115,9 @@ class ACTObligacion extends ACTbase{
 	}
 
 
-
-
-
 function reporteBancos()	{ //#56
 
-        if ($this->objParam->getParametro('id_obligacion') != '') {
+        if ($this->objParam->getParametro('id_obligacion') != '') {//#56
             $this->objParam->addFiltro("o.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
         }
 
