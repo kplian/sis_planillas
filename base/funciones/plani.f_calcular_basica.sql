@@ -41,6 +41,7 @@ $body$
  #55              27/09/2019        RArteaga            funciones basicas para recuperar Ufv inicial y final
  #59              30/09/2019        RArteaga            Sueldo según escala menos incapacidad temporal para calculo de horas extra, nocturna y disponibilidad
  #63              22-02-2019        Rarteaga  KPLIAN    cambio de logica de la claculo de dias aguinaldo, DIASAGUI
+ #68              17-10-2019        RARTEAGA  KPLIAN    refactorizacion planilla de primas
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -77,7 +78,6 @@ $body$
     v_periodo_array_aux     integer[];
 
     v_contador                integer;
-    v_fecha_aux                date = '31/12/2017'::date;
     v_dias_total            integer = 0;
     v_dias_asignacion        integer = 0;
     v_aux_2                    integer = 0;
@@ -95,14 +95,13 @@ $body$
     v_reintegro_sueldoba                  numeric; --#24
     v_bono_ant_original                   numeric; --#25
     v_horas_normales_ht                   integer; --#36
+    v_gestion_de_pago                     record; --#68
 
 
   BEGIN
     v_nombre_funcion = 'plani.f_calcular_basica';
     v_resultado = 0;
    
-    
-
     select p.*,fp.id_funcionario,tp.periodicidad,tp.codigo,
            uofun.fecha_asignacion,uofun.fecha_finalizacion,ges.gestion,
            per.fecha_ini as fecha_ini_periodo,per.fecha_fin as fecha_fin_periodo,fp.id_uo_funcionario,
@@ -833,7 +832,7 @@ $body$
     
     
     
-      --#25 calcular la suma de reintegro de RC-IVA para la planilla deonce se cobrara el impuesto 
+      --#25 calcular la suma de reintegro de RC-IVA para la planilla donde se cobrara el impuesto 
          
       ELSIF (p_codigo = 'REI-RCIVA') THEN  
     
@@ -848,12 +847,51 @@ $body$
             inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
             inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMIMPRCIVA'
           where fp.id_funcionario = v_planilla.id_funcionario 
-           and  tp.codigo = 'PLANRE'                  
+           and  tp.codigo = 'PLANRE'    
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade validacion dele stado de planillas              
            and p.id_gestion = v_planilla.id_gestion;
         ELSE
           v_resultado := 0;
         END IF;
         
+      --#68 calcular la suma de prima de RC-IVA para la planilla donde se cobrara el impuesto 
+         
+      ELSIF (p_codigo = 'PRI-RCIVA') THEN  --#68 
+    
+         IF  v_planilla.calcular_prima_rciva = 'si'  THEN  -- si la planilla esta configurada  hace el calculo del RC-IVA acumulado en planilla de primas
+          
+          -- NOTA, la gestion de la prima es la gestion pasada
+          -- ejemplo abril 2019 se paga la prima 2018
+          -- en la planlla mensual de abrils 2019 cobraremos el RCV-IVA correpndiente a la ultima prima pagada
+         
+          --recupera la columna IMPDET , impuesto determinado de la planilla de prima de empleados vigentes PLAPRI
+          --para la gestion anterior a nuestra planilla
+          
+          select 
+           ges.fecha_ini,
+           ges.fecha_fin
+          into v_gestion_de_pago
+          from  param.tgestion ges
+          where ges.id_gestion  = v_planilla.id_gestion;  
+            
+            select 
+                 (cval.valor) 
+            into
+                v_resultado
+            from plani.tplanilla p
+              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+              inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+              inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'IMPDET'
+            where fp.id_funcionario = v_planilla.id_funcionario 
+             and  tp.codigo = 'PLAPRI'     
+             and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')             
+             and p.fecha_planilla BETWEEN v_gestion_de_pago.fecha_ini and v_gestion_de_pago.fecha_fin; --buscamos la planilla de prima paga en la gestion donde haremos el descuento
+             
+             
+        ELSE
+          v_resultado := 0;
+        END IF;
+      
       --#35 calcular la suma de total de reintegro pagado, en las planillas de reintegro mensual previas           
       ELSIF (p_codigo = 'REI-PLT') THEN  
     
@@ -868,7 +906,8 @@ $body$
             inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
             inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMCOTIZABLE'
           where fp.id_funcionario = v_planilla.id_funcionario 
-           and  tp.codigo = 'PLANRE'                  
+           and  tp.codigo = 'PLANRE' 
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas                 
            and p.id_gestion = v_planilla.id_gestion;
         ELSE
           v_resultado := 0;
@@ -894,6 +933,7 @@ $body$
             inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
           where fp.id_funcionario = v_planilla.id_funcionario 
            and  tp.codigo = 'PLASUE' 
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas           
            and p.id_periodo =  v_planilla.id_periodo         
            and p.id_gestion = v_planilla.id_gestion;
      
@@ -915,7 +955,8 @@ $body$
             inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'NOCTURNO'
             inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
           where fp.id_funcionario = v_planilla.id_funcionario 
-           and  tp.codigo = 'PLASUE' 
+           and  tp.codigo = 'PLASUE'
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas 
            and p.id_periodo =  v_planilla.id_periodo         
            and p.id_gestion = v_planilla.id_gestion;
      
@@ -938,6 +979,7 @@ $body$
             inner join plani.tcolumna_valor cval_s ON  cval_s.id_funcionario_planilla = fp.id_funcionario_planilla and cval_s.codigo_columna = 'SUELDOMES'
           where fp.id_funcionario = v_planilla.id_funcionario 
            and  tp.codigo = 'PLASUE' 
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas 
            and p.id_periodo =  v_planilla.id_periodo         
            and p.id_gestion = v_planilla.id_gestion;      
            
@@ -984,6 +1026,7 @@ $body$
         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla
       where    fp.id_funcionario = v_planilla.id_funcionario 
           and  tp.codigo = 'PLASUE' 
+          and  p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas 
           and  ht.estado_reg = 'activo' 
           and  p.id_gestion = v_planilla.id_gestion 
           and  p.id_periodo =  v_planilla.id_periodo  
@@ -1247,7 +1290,8 @@ $body$
             
             
           where fp.id_funcionario = v_planilla.id_funcionario 
-           and  tp.codigo = 'PLASUE'          
+           and  tp.codigo = 'PLASUE'
+           and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas           
            and p.id_gestion = v_planilla.id_gestion;
 
          
@@ -1596,59 +1640,85 @@ $body$
       end if;
 
     ELSIF(p_codigo = 'PROMPRI1') THEN
-
-      for v_registros in  select pe.periodo, fp.id_funcionario_planilla
+      
+      -- lista las planillas de sueldo del empleado de manera descendiente, de la ultima  hacia la primeras
+      for v_registros in (select  pe.periodo, 
+                                  fp.id_funcionario_planilla
                           from plani.tfuncionario_planilla fp
                           inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-                          inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario and fun.id_funcionario = v_planilla.id_funcionario
+                          inner join orga.tfuncionario fun on     fun.id_funcionario = fp.id_funcionario 
+                                                              and fun.id_funcionario = v_planilla.id_funcionario
                           inner join plani.tplanilla p on p.id_planilla = fp.id_planilla
                           inner join param.tperiodo pe on pe.id_periodo = p.id_periodo
-                          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla and tp.codigo = 'PLASUE' and p.estado not in (
-                            'registros_horas', 'registro_funcionarios', 'calculo_columnas', 'anulado') and p.id_gestion = v_planilla.id_gestion
-                          group by fp.id_funcionario_planilla, pe.periodo
-                          order by  pe.periodo desc loop
+                          inner join plani.ttipo_planilla tp on     tp.id_tipo_planilla = p.id_tipo_planilla 
+                                                                and tp.codigo = 'PLASUE' 
+                                                                and p.estado not in ('registros_horas', 'registro_funcionarios', 'calculo_columnas', 'anulado') 
+                                                                and p.id_gestion = v_planilla.id_gestion
+                          group by  fp.id_funcionario_planilla, 
+                                    pe.periodo
+                          order by  pe.periodo desc) loop
 
-        select count(tht.id_funcionario_planilla), sum(tht.horas_normales)
-        into  v_contador, v_horas_normales
-        from plani.thoras_trabajadas tht
-        where tht.id_funcionario_planilla = v_registros.id_funcionario_planilla;
-
-        if v_registros.periodo = v_periodo_aux and v_horas_normales = v_cantidad_horas_mes then
-            v_periodo_total =  v_periodo_total + 1;
-            v_periodo_aux = v_periodo_aux - 1;
-            v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
-            if v_periodo_total = 3 then
-                exit;
+        
+            -- cuenta cuantos cargos distintos en el mes y suma las horas del mes del empleado
+            select 
+                  count(tht.id_funcionario_planilla), 
+                  sum(tht.horas_normales)
+            into  
+                  v_contador, 
+                  v_horas_normales
+            from plani.thoras_trabajadas tht
+            where tht.id_funcionario_planilla = v_registros.id_funcionario_planilla;
+            
+            -- v_periodo_aux es 12 ( = diciembre),   
+            -- y si el empleado tiene el total de horas trabajadas segun carga horaria
+            -- si a trabajado todo el año
+            if v_registros.periodo = v_periodo_aux and v_horas_normales = v_cantidad_horas_mes then
+                
+                v_periodo_total =  v_periodo_total + 1;
+                v_periodo_aux = v_periodo_aux - 1;
+                
+                v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
+                
+                if v_periodo_total = 3 then
+                    exit;
+                end if;
+                
+            else  -- si no a tabajado todo el año
+            
+                if v_horas_normales = v_cantidad_horas_mes then
+                  v_periodo_total = 1;
+                  v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
+                  v_periodo_aux = v_registros.periodo - 1;
+                end if;
+                
             end if;
-        else
-            if v_horas_normales = v_cantidad_horas_mes then
-              v_periodo_total = 1;
-              v_periodo_array[v_periodo_total] = ARRAY[v_registros.periodo, v_contador];
-              v_periodo_aux = v_registros.periodo - 1;
-            end if;
-        end if;
 
       end loop;
 
       v_periodo_array_aux = v_periodo_array[1]::integer[];
 
-      select fp.id_funcionario_planilla, ht.id_uo_funcionario
-      into v_id_funcionario_planilla_mes, v_id_uo_funcionario
+      -- obtiene el funcionario de la planilla  del primes mes completo
+      select 
+           fp.id_funcionario_planilla, 
+           ht.id_uo_funcionario
+      into 
+           v_id_funcionario_planilla_mes, 
+           v_id_uo_funcionario
       from plani.tfuncionario_planilla fp
       inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
-      inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+      inner join orga.tfuncionario fun on     fun.id_funcionario = fp.id_funcionario
                                           and fun.id_funcionario = v_planilla.id_funcionario
       inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
       inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
-      inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
-                                            and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
-                                            and p.id_gestion=v_planilla.id_gestion and
-                                            pe.periodo = v_periodo_array_aux[1]
-      --group by fp.id_funcionario_planilla,pe.periodo, ht.id_uo_funcionario
-      --having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+      inner join plani.ttipo_planilla tp on      tp.id_tipo_planilla=p.id_tipo_planilla
+                                            and tp.codigo ='PLASUE' 
+                                            and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
+                                            and p.id_gestion=v_planilla.id_gestion 
+                                            and pe.periodo = v_periodo_array_aux[1]
       order by  pe.periodo desc
       limit 1;
-
+      
+      --recupera la fecha de fin fr asignacion del funcionario
       select tuo.fecha_finalizacion
       into v_fecha_fin
       from orga.tuo_funcionario tuo
@@ -1656,15 +1726,19 @@ $body$
 
       if  v_periodo_array_aux[1] >= 8 and (v_fecha_fin > '31/07/2017'::date or v_fecha_fin is null) then
 
-        SELECT sum(COALESCE(cv.valor,0)) into v_aux
+        SELECT sum(COALESCE(cv.valor,0)) 
+        into v_aux
         from plani.tcolumna_valor cv
         where id_funcionario_planilla = v_id_funcionario_planilla_mes and
               cv.codigo_columna IN ('BONANT', 'BONFRONTERA') and cv.estado_reg = 'activo';
 
+        
         if v_periodo_array_aux[2] > 1 then
+        
           select sum(coalesce(ht.sueldo, 0))/v_periodo_array_aux[2] into v_resultado
           from plani.thoras_trabajadas ht
           where id_funcionario_planilla = v_id_funcionario_planilla_mes and ht.estado_reg = 'activo';
+          
         else
           select sum(coalesce(ht.sueldo * ht.porcentaje_sueldo/100, 0)) into v_resultado
           from plani.thoras_trabajadas ht
@@ -1672,11 +1746,14 @@ $body$
         end if;
 
         v_resultado = v_resultado + v_aux;
+        
+        
       else
 
           for v_registros in  select tcv.*
                             from plani.tcolumna_valor tcv
                             where tcv.id_funcionario_planilla = v_id_funcionario_planilla_mes and tcv.codigo_columna in ('HORNORM','FACTORANTI') loop
+            
             if v_registros.codigo_columna = 'HORNORM' then
                 v_hor_norm = v_registros.valor;
             elsif v_registros.codigo_columna = 'FACTORANTI' then
@@ -2245,13 +2322,15 @@ $body$
         inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
                                               and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
-                                              and p.id_gestion=v_planilla.id_gestion and
+                                              and p.id_gestion = v_planilla.id_gestion and
                                               pe.periodo != 12 -- nose utliza diciembre por que no es un mes completo
       group by fp.id_funcionario_planilla,pe.periodo
       having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes --conidera la planilla que  cumplio su carga laboral mensual (medio o tiempo completo)
       order by  pe.periodo desc
       limit 1 
       offset 0; --  filtra la primera planilla
+      
+     -- raise exception '% , % , %', v_cantidad_horas_mes, v_planilla.id_gestion , v_planilla.id_funcionario;
       
       --recupera el cotizable del empleado para la priera planilla compelta
       SELECT sum(COALESCE(cv.valor,0)) into v_resultado
@@ -2277,7 +2356,7 @@ $body$
       order by  pe.periodo desc
       limit 1
       offset 1; --filtra la segunda planilla
-
+      
       SELECT sum(COALESCE(cv.valor,0)) into v_resultado
       from plani.tcolumna_valor cv
       where id_funcionario_planilla = v_id_funcionario_planilla_mes and
@@ -2318,7 +2397,101 @@ $body$
 
       end if;
   
+    
+    ----------------------------------------------------------------
+    -- #68  Cotizable apra calculo de promedio en planilla de primas
+    --  la gestion de la planilla debe conincidir con la gestion que se va pagar
+    --  la fecha de pago no necesita esta dentro la gestion de la planilla de prima
+    --  en abril de 2020 pueden pagar la prima de 2019,   lages tion de l aplanilla sera 2019 y la fecha de pago X Abril de 2020
+    --  el calculo es mu parecido a planilla de aguinaldos
+    ---------------------------------------------------------------
+    ELSIF(p_codigo = 'PRICOTI1') THEN --#68 recupera el cotizable del primer mes,
+      
+            --recupera una primera planilla del funcionario donde haya trabajado el todo le mes
+            select fp.id_funcionario_planilla
+            into v_id_funcionario_planilla_mes
+            from plani.tfuncionario_planilla fp
+              inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+              inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                                                  and fun.id_funcionario = v_planilla.id_funcionario
+              inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+              inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+                                                    and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
+                                                    and p.id_gestion=v_planilla.id_gestion -- la gestion de la planilla de prima
+            group by 
+                 fp.id_funcionario_planilla,pe.periodo
+            having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes --conidera la planilla que  cumplio su carga laboral mensual (medio o tiempo completo)
+            order by  pe.periodo desc
+            limit 1 
+            offset 0; --  filtra la primera planilla
+            
+            -- recupera el cotizable del empleado para la primera  planilla compelta
+            SELECT sum(COALESCE(cv.valor,0)) into v_resultado
+            from plani.tcolumna_valor cv
+            where id_funcionario_planilla = v_id_funcionario_planilla_mes and
+                  cv.codigo_columna IN ('COTIZABLE') and cv.estado_reg = 'activo';
 
+    ELSIF(p_codigo = 'PRICOTI2') THEN --#68  recupera el segundo cotizable 
+      
+          select fp.id_funcionario_planilla
+          into v_id_funcionario_planilla_mes
+          from plani.tfuncionario_planilla fp
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                                                and fun.id_funcionario = v_planilla.id_funcionario
+            inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+            inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+                                                  and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
+                                                  and p.id_gestion=v_planilla.id_gestion 
+          group by fp.id_funcionario_planilla, pe.periodo
+          having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+          order by  pe.periodo desc
+          limit 1
+          offset 1; --filtra la segunda planilla
+
+          SELECT sum(COALESCE(cv.valor,0)) into v_resultado
+          from plani.tcolumna_valor cv
+          where id_funcionario_planilla = v_id_funcionario_planilla_mes and
+                cv.codigo_columna IN ('COTIZABLE') and cv.estado_reg = 'activo';
+
+
+    ELSIF(p_codigo = 'PRICOTI3') THEN --#68 recupera el tercer cotizable
+      
+          --raise exception '%,%,%', v_cantidad_horas_mes, v_planilla.id_gestion, v_planilla.id_funcionario;
+          select fp.id_funcionario_planilla
+          into v_id_funcionario_planilla_mes
+          from plani.tfuncionario_planilla fp
+            inner join plani.thoras_trabajadas ht on ht.id_funcionario_planilla = fp.id_funcionario_planilla
+            inner join orga.tfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                                                and fun.id_funcionario = v_planilla.id_funcionario
+            inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+            inner join param.tperiodo pe on pe.id_periodo=p.id_periodo
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+                                                  and tp.codigo ='PLASUE' and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
+                                                  and p.id_gestion=v_planilla.id_gestion 
+          group by fp.id_funcionario_planilla,pe.periodo
+          having sum(ht.horas_normales_contrato) = v_cantidad_horas_mes
+          order by  pe.periodo desc
+          limit 1
+          offset 2; --filtra tercera planilla
+
+          SELECT sum(COALESCE(cv.valor,0)) into v_resultado
+          from plani.tcolumna_valor cv
+          where id_funcionario_planilla = v_id_funcionario_planilla_mes and
+                cv.codigo_columna IN ('COTIZABLE') and cv.estado_reg = 'activo';
+
+          --si no tiene un tercer mes, usamos el valor del segundo sueldo calculado previamente
+     
+          if (v_resultado = 0 or v_resultado is null) then
+            select cv.valor into v_resultado
+            from plani.tcolumna_valor cv
+            where cv.id_funcionario_planilla = p_id_funcionario_planilla and
+                  cv.estado_reg = 'activo' and cv.codigo_columna = 'PRICOTI2';
+
+          end if;
+    
 
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;

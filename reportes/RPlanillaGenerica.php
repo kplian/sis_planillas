@@ -4,6 +4,7 @@
 //#56			MZM			08.10.2019				Ajuste a titutlo de reporte
 //#65			MZM			16.10.2019				Inclusion de TC para reporte en $us
 //#69			MZM			29.10.2019				Ajuste para reporte Hras trabajadas
+//#70			MZM			31.10.2019				adicion de totales cuando no existen columnas fijas
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -346,6 +347,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		if($this->ancho_sin_totales > 0){
 		
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
+		}//#70
 			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
@@ -353,7 +355,7 @@ class RPlanillaGenerica extends  ReportePDF {
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,'',1,0,'R');
 			}
 			$this->ln(8);
-		}
+		
 		
 		$this->ln(2);
 		$this->numeracion=$this->numeracion-1;
