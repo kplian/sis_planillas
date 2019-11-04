@@ -11,6 +11,7 @@
    #56			MZM			02.10.2019				Reporte Resumen Relacion de saldos
  * #66			MZM			15.10.2019				Adicion de filtro id_tipo_contrato en reportes especificos
  * #67			MZM			16.10.2019				Reporte asignacion de cargos
+ * #72			MZM			04.11.2019				Cambio en el orden de defnicion de variable nombre_arhivo para reporte
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -786,8 +787,8 @@ function listarFuncionarioReporte($id_reporte){//#56
  		
         $tamano = 'LEGAL';
         $orientacion = 'L';
-       
-
+        //#72
+		$nombreArchivo=uniqid(md5(session_id()));
         $this->objParam->addParametro('orientacion',$orientacion);
         $this->objParam->addParametro('tamano',$tamano);
         $this->objParam->addParametro('titulo_archivo',$titulo);
@@ -797,7 +798,7 @@ function listarFuncionarioReporte($id_reporte){//#56
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             
 
-$this->objFunc=$this->create('MODReporte');
+		$this->objFunc=$this->create('MODReporte');
 		$this->res=$this->objFunc->listarReporteMaestro($this->objParam);
 
         $this->objFunc=$this->create('MODFuncionarioReporte');
@@ -805,7 +806,7 @@ $this->objFunc=$this->create('MODReporte');
 		
 		$titulo = $this->res->datos[0]['titulo_reporte'];
         //Genera el nombre del archivo (aleatorio + titulo)
-        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+       
 
 		$this->objReporteFormato=new RPlanillaGenericaTrib($this->objParam);
 
