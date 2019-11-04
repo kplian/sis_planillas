@@ -8,8 +8,9 @@
  * 
     HISTORIAL DE MODIFICACIONES:       
  ISSUE            FECHA:              AUTOR                 DESCRIPCION   
- #38             11/09/2019        RAC KPLIAN      creacion de cbte de debengado o de pago  independiente al wf de la planilla
+ #38             11/09/2019        RAC KPLIAN           creacion de cbte de debengado o de pago  independiente al wf de la planilla
  #47    ETR      24-09-2019        Manuel Guerra        reporte de verificacion presupuestaria
+ #74             04-11-2019        Rensi Arteaga        esconde opciones para contadores
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -108,7 +109,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     scope:this
                 });
             }
-
+            /*
             this.addButton('btnHoras',
                 {	grupo:[0,1],
                     iconCls: 'bclock',
@@ -134,7 +135,7 @@ header("content-type: text/javascript; charset=UTF-8");
                         scope: this
                     }]
                 }
-            );
+            );*/
             
             this.addButton('SolDev',{text:'Generar  Cbte Devengado', iconCls: 'bpagar',disabled: true, handler: this.onBtnDev ,tooltip: '<b>Solicitar Devengado</b><br/>Genera en cotabilidad el comprobante Correspondiente, devengado  '});
             
@@ -747,7 +748,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.desactivarMenu();
             Phx.vista.PlanillaVbConta.superclass.preparaMenu.call(this);
 
-            this.getBoton('btnHoras').enable();
+            //this.getBoton('btnHoras').enable();
             
             
 
@@ -954,15 +955,15 @@ header("content-type: text/javascript; charset=UTF-8");
          onButtonObligacionesDetalle : function () {
     		var rec = {maestro: this.sm.getSelected().data, vistaPadre: this.nombreVista };
 						      
-            Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
-                    'Obligaciones',
+            Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/ObligacionConta.php',
+                    'Obligaciones VoBo Conta',
                     {
                         width: '90%',
                         height:'90%'
                     },
                     rec,
                     this.idContenedor,
-                    'Obligacion');
+                    'ObligacionConta');
     },
 
      submitObs:function() {
