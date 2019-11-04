@@ -9,7 +9,8 @@
  * #3		EndeEtr		05/02/2019		EGS				Se agrego el campo id_tipo_obligacion_agrupador
  * #1		EndeEtr		19/02/2019		EGS				Se agrego el campo descripcion	
  * #1		EndeEtr		20/02/2019		EGS				se agrego los campos codigo_tipo_relacion_debe,codigo_tipo_relacion_haber
- * #46		ETR			19.09.2019		MZM				Adicion de campo tipo_abono para reporte abono en cuenta	 	
+ * #46		ETR			19.09.2019		MZM				Adicion de campo tipo_abono para reporte abono en cuenta
+ * #73		ETR			04.11.2019		MZM				Omitir obligatoriedad de tipo_abono		 	
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -313,7 +314,7 @@ Phx.vista.TipoObligacion=Ext.extend(Phx.gridInterfaz,{
 			config:{
 				name: 'tipo_abono',
 				fieldLabel: 'Tipo de Abono',
-				allowBlank:false,
+				allowBlank:true, //#73
 				emptyText:'Tipo Abono...',
 	       		typeAhead: true,
 	       		triggerAction: 'all',
