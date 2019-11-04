@@ -78,7 +78,7 @@ $body$
 
         v_filtro = '';--#42
 
-        IF p_administrador !=1 THEN
+        IF p_administrador !=1  and v_parametros.tipo_interfaz != 'PlanillaVbConta'  THEN
 
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
@@ -172,7 +172,8 @@ $body$
 
          v_filtro = '';--#42
 
-        IF p_administrador !=1 THEN
+        IF p_administrador !=1  and v_parametros.tipo_interfaz != 'PlanillaVbConta'  THEN
+
 
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
