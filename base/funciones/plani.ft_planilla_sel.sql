@@ -60,6 +60,7 @@ $body$
     v_desc_planilla                varchar;
     v_porcentaje                varchar='';
     v_inner_periodo                varchar='';
+    v_aux_tipo_interfaz            varchar = '';
   BEGIN
 
     v_nombre_funcion = 'plani.ft_planilla_sel';
@@ -77,8 +78,12 @@ $body$
       begin
 
         v_filtro = '';--#42
+        
+        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
+          v_aux_tipo_interfaz = v_parametros.tipo_interfaz;
+        END IF;
 
-        IF p_administrador !=1  and v_parametros.tipo_interfaz != 'PlanillaVbConta'  THEN
+        IF p_administrador !=1  and v_aux_tipo_interfaz != 'PlanillaVbConta'  THEN
 
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
                                                     then  '-1'
@@ -171,8 +176,12 @@ $body$
         --Sentencia de la consulta de conteo de registros
 
          v_filtro = '';--#42
+         
+        IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
+          v_aux_tipo_interfaz = v_parametros.tipo_interfaz;
+        END IF;
 
-        IF p_administrador !=1  and v_parametros.tipo_interfaz != 'PlanillaVbConta'  THEN
+        IF p_administrador !=1  and v_aux_tipo_interfaz != 'PlanillaVbConta'  THEN
 
 
           v_filtro = ' plani.id_depto IN (' ||(case when (param.f_get_lista_deptos_x_usuario(p_id_usuario, 'ORGA') = '')
