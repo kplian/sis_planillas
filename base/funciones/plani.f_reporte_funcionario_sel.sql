@@ -21,7 +21,7 @@ $body$
  #66	ETR				15.10.2019			MZM					Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
  #67	ETR				16.10.2019			MZM					Reporte de asignacion de cargos
  #72	ETR				04.11.2019			MZM					Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
- 
+ #75	ETR				05.11.2019			MZM					bug en fecha de tipo_jub 
  ***************************************************************************/
 
 DECLARE
@@ -614,12 +614,12 @@ BEGIN
                       
       			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
                   
-                  --#72  
+                  --#72  --#75
 select tipo_jubilado into v_tipo_jub
                   from plani.tfuncionario_afp
                   where id_funcionario=v_registros.id_funcionario
                   and estado_reg='activo'
-                  and fecha_ini <=v_fecha_ini and fecha_fin is null order by fecha_fin desc ;
+                  and fecha_ini <=v_fecha_fin and fecha_fin is null order by fecha_fin desc ;
                   
                   if(v_tipo_jub is NULL) then
                   select tipo_jubilado into v_tipo_jub
