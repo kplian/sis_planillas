@@ -3302,3 +3302,95 @@ FROM (
          a.codigo_funcionario::text, a.horas_normales || ''::text, a.horas_comp
          || ''::text]) u(nombre_col, valor_col);
 /***********************************F-DEP-MZM-PLANI-69-29/10/2019****************************************/
+
+/***********************************I-DEP-MZM-PLANI-76-06/11/2019****************************************/
+CREATE OR REPLACE VIEW plani.vorden_planilla (
+    ruta,
+    id_uo,
+    id_uo_padre,
+    codigo,
+    nombre_unidad,
+    nivel,
+    orden_centro,
+    nombre_nivel,
+    uo_centro_orden,
+    desc_funcionario2,
+    valor_col,
+    niveln,
+    id_funcionario_planilla,
+    id_periodo,
+    id_tipo_contrato,
+    id_funcionario,
+    id_cargo,
+    id_uo_centro,
+    nombre_uo_centro)
+AS
+ WITH RECURSIVE orden_plani AS (
+SELECT c1.id_uo || '' AS ruta,
+            c1.id_uo,
+            c11.id_uo_padre,
+            c1.codigo,
+            c1.nombre_unidad,
+            1 AS nivel,
+            c1.orden_centro,
+            c111.nombre_nivel || '' AS niveln
+FROM orga.tuo c1
+             JOIN orga.testructura_uo c11 ON c11.id_uo_hijo = c1.id_uo
+             JOIN orga.tnivel_organizacional c111 ON
+                 c111.id_nivel_organizacional = c1.id_nivel_organizacional
+WHERE c1.estado_reg = 'activo' AND c11.id_uo_padre = 0
+UNION
+SELECT pxp.f_iif(c211.numero_nivel < 7, ((c1.ruta || '->') ||
+    c2.id_uo), c1.ruta) AS ruta,
+            c2.id_uo,
+            c21.id_uo_padre,
+            c2.codigo,
+            c2.nombre_unidad,
+            CAST(pxp.f_iif(c211.numero_nivel <= 7, ((c1.nivel + 1) ||
+                '') , (c1.nivel || '')
+                ) as integer) AS nivel,
+            c2.orden_centro,
+            pxp.f_iif(c211.nombre_nivel ilike '%base%',
+                'base' , c211.nombre_nivel) AS niveln
+FROM orga.tuo c2,
+            orga.testructura_uo c21,
+            orga.tnivel_organizacional c211,
+            orden_plani c1
+WHERE c2.estado_reg = 'activo' AND c21.id_uo_hijo = c2.id_uo AND
+    c21.id_uo_padre = c1.id_uo AND c21.id_uo_padre <> 0 AND
+    c211.id_nivel_organizacional = c2.id_nivel_organizacional
+        )
+    SELECT orden_plani.ruta,
+    orden_plani.id_uo,
+    orden_plani.id_uo_padre,
+    orden_plani.codigo,
+    orden_plani.nombre_unidad,
+    orden_plani.nivel,
+    orden_plani.orden_centro,
+    orden_plani.niveln AS nombre_nivel,
+    cen.uo_centro_orden,
+    fun.desc_funcionario2,
+    func.valor_col,
+    orden_plani.niveln,
+    fp.id_funcionario_planilla,
+    plani.id_periodo,
+    plani.id_tipo_contrato,
+    fun.id_funcionario,
+    uofun.id_cargo,
+    cen.id_uo_centro,
+    cen.nombre_uo_centro
+    FROM orden_plani
+     JOIN orga.tuo_funcionario uofun ON uofun.id_uo = orden_plani.id_uo
+     JOIN orga.vuo_centro cen ON cen.id_uo = uofun.id_uo
+     JOIN orga.vfuncionario fun ON fun.id_funcionario = uofun.id_funcionario
+     JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+         fun.id_funcionario AND fp.id_uo_funcionario = uofun.id_uo_funcionario
+     JOIN plani.tplanilla plani ON plani.id_planilla = fp.id_planilla
+     JOIN plani.vdatos_func_planilla func ON func.id_funcionario_planilla =
+         fp.id_funcionario_planilla AND func.nombre_col = 'fecha_ingreso'
+    ORDER BY cen.uo_centro_orden, (pxp.f_iif(orden_plani.orden_centro =
+        cen.uo_centro_orden, (cen.uo_centro_orden || '')
+        , ((cen.uo_centro_orden + 0.1) || '')
+        )), (orden_plani.ruta || orden_plani.nivel), func.valor_col,
+        fun.desc_funcionario2;
+/***********************************F-DEP-MZM-PLANI-76-06/11/2019****************************************/        
