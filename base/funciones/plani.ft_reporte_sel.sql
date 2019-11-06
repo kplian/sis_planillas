@@ -31,6 +31,7 @@ $body$
    #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
    #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
    #65		ETR			10.10.2019			MZM					Adicion de campo id_moneda_reporte en treporte
+   #76		ETR			06.11.2019			MZM					Reconfiguracion de ordenamiento en reporte multilinea
   ***************************************************************************/
 
   DECLARE
@@ -1085,7 +1086,42 @@ end
         end if;
         
 
-		
+		if(v_agrupar_por='centro') then --#76
+    
+    
+         v_consulta_orden:=' nivel.id_uo_centro, nivel.nombre_uo_centro,';
+         v_ordenar_por = ' nivel.uo_centro_orden,
+               (pxp.f_iif(nivel.orden_centro = nivel.uo_centro_orden, (
+               nivel.uo_centro_orden || '''' )  , ((
+               nivel.uo_centro_orden + 0.1) || '''' ) )),
+               (nivel.ruta || nivel.nivel),
+                nivel.valor_col,
+                nivel.desc_funcionario2';
+
+         v_consulta:=' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38), ''''::varchar, car.codigo, fun.ci,
+         
+        '||v_consulta_orden||'
+        repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_superior, repcol.titulo_reporte_inferior,
+         '||v_columnas_externas||'
+        ,tcon.nombre, repcol.espacio_previo
+        
+        from plani.vorden_planilla nivel
+        inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+        inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
+        inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
+        inner join plani.tplanilla plani on plani.id_periodo=nivel.id_periodo and plani.id_planilla=fp.id_planilla
+        inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+        inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
+        left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+        and repcol.codigo_columna = colval.codigo_columna
+        inner join orga.ttipo_contrato tcon on  tcon.id_tipo_contrato=car.id_tipo_contrato
+        
+        '||v_consulta_externa||' where '||v_tipo_contrato;
+         v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
+        
+         return v_consulta;
+	else --#76
 
             --Sentencia de la consulta
             v_consulta:='select
@@ -1134,6 +1170,7 @@ end
             raise notice 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
             return v_consulta;
+         end if; --#76
        --uo.prioridad::integer, uo.id_uo,fun.id_funcionario,
       end;
       
