@@ -269,8 +269,8 @@ BEGIN
      --rensi 09050291, temporalemten un opocion para probar directament obligaciones
      --se agrega comprobante_obligaciones
      elsif (p_codigo_estado  in ('planilla_finalizada','comprobante_obligaciones')) then
-     
-     
+         /*
+         
          if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
             --generar obligacion de apgo sin agrupador
              for v_registros in (    
@@ -314,6 +314,8 @@ BEGIN
             
             
         end if;
+        
+        */
         
      END IF;
 

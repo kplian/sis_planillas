@@ -551,7 +551,7 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
     },
     liberaMenu:function()
     {	
-        this.getBoton('btnDetalle').disable();
+        
         this.getBoton('btnRepAbono').disable();//#46     
         this.getBoton('btnRepBancos').disable();//#56                      
         Phx.vista.ObligacionConta.superclass.liberaMenu.call(this);

@@ -792,7 +792,7 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('btnPresupuestos').enable();           
             this.getBoton('btnObligaciones').enable(); 
             //
-            this.getBoton('btnVerPre').enable();
+            //this.getBoton('btnVerPre').enable();
 
         },
         liberaMenu:function()
