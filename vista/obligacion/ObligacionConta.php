@@ -537,7 +537,7 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
     	var rec = this.sm.getSelected().data;
     	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
            	this.getBoton('SolPag').enable();
-           	this.getBoton('SolTodosPag').enable();
+           	//.getBoton('SolTodosPag').enable();
            	
         }
         else{
@@ -552,8 +552,8 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
     liberaMenu:function()
     {	
         
-        this.getBoton('btnRepAbono').disable();//#46     
-        this.getBoton('btnRepBancos').disable();//#56                      
+        //this.getBoton('btnRepAbono').disable();//#46     
+        //this.getBoton('btnRepBancos').disable();//#56                      
         Phx.vista.ObligacionConta.superclass.liberaMenu.call(this);
     },
 	}
