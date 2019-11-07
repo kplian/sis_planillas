@@ -3394,3 +3394,103 @@ WHERE c2.estado_reg = 'activo' AND c21.id_uo_hijo = c2.id_uo AND
         )), (orden_plani.ruta || orden_plani.nivel), func.valor_col,
         fun.desc_funcionario2;
 /***********************************F-DEP-MZM-PLANI-76-06/11/2019****************************************/        
+
+/***********************************I-DEP-MZM-PLANI-76-07/11/2019****************************************/
+CREATE OR REPLACE VIEW plani.vorden_planilla (
+    ruta,
+    id_uo,
+    id_uo_padre,
+    codigo,
+    nombre_unidad,
+    nivel,
+    orden_centro,
+    nombre_nivel,
+    uo_centro_orden,
+    desc_funcionario2,
+    valor_col,
+    niveln,
+    id_funcionario_planilla,
+    id_periodo,
+    id_tipo_contrato,
+    id_funcionario,
+    id_cargo,
+    id_uo_centro,
+    nombre_uo_centro,
+    oficina,
+    orden_oficina,
+    id_oficina)
+AS
+ WITH RECURSIVE orden_plani AS (
+SELECT c1.id_uo || ''::text AS ruta,
+            c1.id_uo,
+            c11.id_uo_padre,
+            c1.codigo,
+            c1.nombre_unidad,
+            1 AS nivel,
+            c1.orden_centro,
+            c111.nombre_nivel::text || ''::text AS niveln
+FROM orga.tuo c1
+             JOIN orga.testructura_uo c11 ON c11.id_uo_hijo = c1.id_uo
+             JOIN orga.tnivel_organizacional c111 ON
+                 c111.id_nivel_organizacional = c1.id_nivel_organizacional
+WHERE c1.estado_reg::text = 'activo'::text AND c11.id_uo_padre = 0
+UNION
+SELECT pxp.f_iif(c211.numero_nivel >= 8, c1.ruta::character varying, ((c1.ruta
+    || '->'::text) || c2.id_uo)::character varying) AS ruta,
+            c2.id_uo,
+            c21.id_uo_padre,
+            c2.codigo,
+            c2.nombre_unidad,
+            c1.nivel + 1 AS nivel,
+            c2.orden_centro,
+            pxp.f_iif(c211.nombre_nivel::text ~~* '%base%'::text,
+                'base'::character varying, c211.nombre_nivel) AS niveln
+FROM orga.tuo c2,
+            orga.testructura_uo c21,
+            orga.tnivel_organizacional c211,
+            orden_plani c1
+WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
+    c21.id_uo_padre = c1.id_uo AND c21.id_uo_padre <> 0 AND
+    c211.id_nivel_organizacional = c2.id_nivel_organizacional
+        )
+    SELECT orden_plani.ruta,
+    orden_plani.id_uo,
+    orden_plani.id_uo_padre,
+    orden_plani.codigo,
+    orden_plani.nombre_unidad,
+    orden_plani.nivel,
+    orden_plani.orden_centro,
+    orden_plani.niveln AS nombre_nivel,
+    cen.uo_centro_orden,
+    fun.desc_funcionario2,
+    func.valor_col,
+    orden_plani.niveln,
+    fp.id_funcionario_planilla,
+    plani.id_periodo,
+    plani.id_tipo_contrato,
+    fun.id_funcionario,
+    uofun.id_cargo,
+    cen.id_uo_centro,
+    cen.nombre_uo_centro,
+    ofi.nombre AS oficina,
+    ofi.orden AS orden_oficina,
+    ofi.id_oficina
+    FROM orden_plani
+     JOIN orga.tuo_funcionario uofun ON uofun.id_uo = orden_plani.id_uo
+     JOIN orga.vuo_centro cen ON cen.id_uo = uofun.id_uo
+     JOIN orga.vfuncionario fun ON fun.id_funcionario = uofun.id_funcionario
+     JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+         fun.id_funcionario AND fp.id_uo_funcionario = uofun.id_uo_funcionario
+     JOIN plani.tplanilla plani ON plani.id_planilla = fp.id_planilla
+     JOIN plani.vdatos_func_planilla func ON func.id_funcionario_planilla =
+         fp.id_funcionario_planilla AND func.nombre_col = 'fecha_ingreso'::text
+     JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
+     JOIN orga.toficina ofi ON ofi.id_lugar = fp.id_lugar AND ofi.id_lugar =
+         car.id_lugar
+    ORDER BY cen.uo_centro_orden, (pxp.f_iif(orden_plani.orden_centro =
+        cen.uo_centro_orden, (cen.uo_centro_orden || ''::text)::character
+        varying, ((cen.uo_centro_orden + 0.1) || ''::text)::character
+        varying)), orden_plani.ruta, ((orden_plani.ruta || orden_plani.nivel)
+        || orden_plani.id_uo), func.valor_col, fun.desc_funcionario2;
+
+/***********************************F-DEP-MZM-PLANI-76-07/11/2019****************************************/        

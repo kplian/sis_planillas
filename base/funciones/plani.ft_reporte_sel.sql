@@ -24,9 +24,9 @@ $body$
    #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
    					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
                     
-   #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
+   #17		etr			28-06-2019			MZM                 adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
    #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
-   #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
+   #40		ETR			12.09.2019			MZM				    Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
    #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
    #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
    #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
@@ -1086,42 +1086,58 @@ end
         end if;
         
 
-		if(v_agrupar_por='centro') then --#76
+		--#76
+    if(v_agrupar_por='centro' or v_agrupar_por='distrito' ) then --#76
     
-    
-         v_consulta_orden:=' nivel.id_uo_centro, nivel.nombre_uo_centro,';
-         v_ordenar_por = ' nivel.uo_centro_orden,
+   		if( v_agrupar_por='centro') then
+         	v_consulta_orden:=' nivel.id_uo_centro, nivel.nombre_uo_centro,';
+             v_ordenar_por = ' nivel.uo_centro_orden,
                (pxp.f_iif(nivel.orden_centro = nivel.uo_centro_orden, (
                nivel.uo_centro_orden || '''' )  , ((
                nivel.uo_centro_orden + 0.1) || '''' ) )),
-               (nivel.ruta || nivel.nivel),
+               nivel.ruta,
+               ((nivel.ruta || nivel.nivel) || nivel.id_uo),
                 nivel.valor_col,
                 nivel.desc_funcionario2';
+        else --#76
+        	v_consulta_orden:=' nivel.id_oficina, nivel.oficina,';
+             v_ordenar_por = ' nivel.orden_oficina,
+             nivel.oficina,
+               (pxp.f_iif(nivel.orden_centro = nivel.uo_centro_orden, (
+               nivel.uo_centro_orden || '''' )  , ((
+               nivel.uo_centro_orden + 0.1) || '''' ) )),
+               nivel.ruta,
+               ((nivel.ruta || nivel.nivel) || nivel.id_uo),
+                nivel.valor_col,
+                nivel.desc_funcionario2';
+        end if;
+        
 
          v_consulta:=' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38), ''''::varchar, car.codigo, fun.ci,
          
-        '||v_consulta_orden||'
-        repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_superior, repcol.titulo_reporte_inferior,
-         '||v_columnas_externas||'
-        ,tcon.nombre, repcol.espacio_previo
-        
-        from plani.vorden_planilla nivel
-        inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=nivel.id_funcionario_planilla
-        inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
-        inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
-        inner join plani.tplanilla plani on plani.id_periodo=nivel.id_periodo and plani.id_planilla=fp.id_planilla
-        inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
-        inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
-        left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
-        and repcol.codigo_columna = colval.codigo_columna
-        inner join orga.ttipo_contrato tcon on  tcon.id_tipo_contrato=car.id_tipo_contrato
+                      '||v_consulta_orden||'
+                      repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_superior, repcol.titulo_reporte_inferior,
+                      '||v_columnas_externas||'
+                      ,tcon.nombre, repcol.espacio_previo
+                  
+                      from plani.vorden_planilla nivel
+                      inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+                      inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
+                      inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
+                      inner join plani.tplanilla plani on plani.id_periodo=nivel.id_periodo and plani.id_planilla=fp.id_planilla
+                      inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+                      inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
+                      left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                      and repcol.codigo_columna = colval.codigo_columna
+                      inner join orga.ttipo_contrato tcon on
+                      tcon.id_tipo_contrato=car.id_tipo_contrato and nivel.id_oficina=car.id_oficina
         
         '||v_consulta_externa||' where '||v_tipo_contrato;
          v_consulta:=v_consulta||v_parametros.filtro;
         v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
         
          return v_consulta;
-	else --#76
+	else--#76
 
             --Sentencia de la consulta
             v_consulta:='select
