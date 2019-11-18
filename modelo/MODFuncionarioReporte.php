@@ -14,6 +14,7 @@
   #45	ETR				19.09.2019			MZM					adicion de campo para reporte afp
   #66	ETR				15.10.2019			MZM					Adicion de filtro id_tipo_contrato en reportes especificos
   #67	ETR				16.10.2019			MZM					Reporte asignacion de cargos
+ *#77	ETR				15.11.2019			MZM					Ajuste reporte
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -39,6 +40,8 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_agrupacion','tipo_agrupacion','varchar');
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer'); //#66
 		
+		//#77
+		$this->setParametro('id_periodo','id_periodo','integer'); 
 		
 		$this->captura('nombre_uo_pre','varchar');
 		$this->captura('codigo','varchar');
@@ -54,9 +57,11 @@ class MODFuncionarioReporte extends MODbase{
 		 $this->captura('cargo','varchar');
 		 $this->captura('fecha_nacimiento','date');
 		 $this->captura('edad','integer');
+		 
+		 $this->captura('fecha_rep','date');//#77
 		//Ejecuta la funcion
 		$this->armarConsulta();		
-		//echo $this->getConsulta(); exit;
+		//echo 'listarFuncionarioReporte - '.$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//var_dump('hola',$this->respuesta);exit;
@@ -76,6 +81,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	//#41
+		$this->setParametro('id_periodo','id_periodo','integer');	//#77
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -124,7 +130,8 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');
 		$this->setParametro('id_afp','id_afp','integer');	
-		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('id_periodo','id_periodo','integer');	//#77	
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -205,7 +212,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
-		$this->setParametro('fecha','fecha','date');	
+		$this->setParametro('id_periodo','id_periodo','integer');	//#77
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -240,7 +247,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	//#66
-		
+		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		//Datos del empleado
 		if($this->objParam->getParametro('tipo_reporte')=='dependientes'){
 			
@@ -292,6 +299,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('fecha','fecha','date');	
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('id_periodo','id_periodo','integer');
 		
 		//Datos del empleado
 		 $this->captura('codigo','varchar');
@@ -421,7 +429,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
-		//$this->setParametro('id_gestion','id_gestion','integer');
+		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		
 		//Datos del empleado
@@ -449,7 +457,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
-		//$this->setParametro('id_gestion','id_gestion','integer');
+		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		
 		//Datos del empleado
@@ -503,7 +511,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
-		//$this->setParametro('id_gestion','id_gestion','integer');
+		$this->setParametro('id_periodo','id_periodo','integer');//#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		
 		//Datos del empleado

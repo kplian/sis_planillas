@@ -11,6 +11,8 @@ issue 	empresa		autor	fecha	detalle
  * #58	etr			MZM		30.09.2019	Adicion de campo mostrar_ufv
  * #60	etr			MZM		01.10.2019	Adicion de campo incluir_retirados
  * #65	ETR			MZM		10.10.2019	Adicion de cmpo id_moneda_reporte
+ * #71	ETR			MZM		01.11.2019	Refactorizacion para planilla de prima (agrupacion en treporte distrito_banco)
+ * #77	ETR			MZM		14.11.2019	Ajustes varios
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -265,12 +267,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 120,
-				store:['gerencia','gerencia_presupuesto','distrito','centro','ninguno']
+				store:['gerencia','gerencia_presupuesto','distrito','distrito_banco','centro','ninguno'] //#71
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['gerencia','gerencia_presupuesto','distrito','centro','ninguno'],	
+	       				 options: ['gerencia','gerencia_presupuesto','distrito','distrito_banco','centro','ninguno'], //#71	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -536,6 +538,40 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 			grid : true,
 			form : true
 		} 
+		,{//#77
+			config:{
+				name: 'bordes',
+				fieldLabel: 'Bordes',
+				allowBlank:false,
+				emptyText:'Bordes...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 80,
+				store:[0,1]
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: [0,1],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},
+		{
+			config:{
+				name: 'interlineado',
+				fieldLabel: 'Interlineado',
+				minValue:0,
+				gwidth: 120
+			},
+				type:'NumberField',
+				filters:{pfiltro:'repo.interlineado',type:'numeric'},
+				grid:true,
+				form:true
+		}
 	],
 	tam_pag:50,	
 	title:'Reportes de Planilla',
@@ -576,6 +612,8 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 		,{name:'incluir_retirados', type: 'string'}//#60
 		,{name:'id_moneda_reporte', type: 'numeric'}//#65
 		,{name:'codigo', type: 'string'}//#65
+		,{name:'bordes', type: 'string'}//#77
+		,{name:'interlineado', type: 'string'}//#77
 		
 	],
 	sortInfo:{
