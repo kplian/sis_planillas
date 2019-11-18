@@ -324,7 +324,8 @@ class RPlanillaGenerica extends  ReportePDF {
 		//#77
 		$abc=(count($array_show)-1);
 		
-		if($array_show[$abc]!=0){
+		
+		if($array_show[$abc-1]!=''){
 			$this->UniRow($array_show,false, $this->bordes, $this->interlineado);
 			$this->numeracion++; //------------***********
 			$empleados_gerencia++;
