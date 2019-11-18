@@ -3,6 +3,7 @@
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #67	ETR				16.10.2019			MZM		 			Creacion
+ #77	ETR				13.11.2019			MZM					Ajustes varios
 */
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	
@@ -357,8 +358,18 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								
 										$this->Cell(20,5,$this->datos[$i]['codigo'],'LRTB',0,'C');
 										$this->Cell(100,5,mb_strcut($this->datos[$i]['nombre'], 0, 50, "UTF-8"),'LRTB',0,'L');
-										$this->Cell(25,5,$this->datos[$i]['total_masculino'],'LRTB',0,'C');
-										$this->Cell(25,5,$this->datos[$i]['total_femenino'],'LRTB',0,'C');
+										//#77
+										if($this->datos[$i]['total_masculino']>0){
+											$this->Cell(25,5,$this->datos[$i]['total_masculino'],'LRTB',0,'C');
+										}else{
+											$this->Cell(25,5,'','LRTB',0,'C');
+										}
+										
+										if($this->datos[$i]['total_femenino']>0){
+											$this->Cell(25,5,$this->datos[$i]['total_femenino'],'LRTB',0,'C');
+										}else{
+											$this->Cell(25,5,'','LRTB',0,'C');
+										}
 										$this->Cell(25,5,$this->datos[$i]['total_femenino']+$this->datos[$i]['total_masculino'],'LRTB',1,'C');
 										
 									$tot_fem=$tot_fem+$this->datos[$i]['total_femenino'];

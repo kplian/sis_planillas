@@ -4,6 +4,8 @@
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion
  #41	ETR				16.09.2019			MZM		 			Modificacion a reporte reserva detalle para q liste 3 registros historicos, adicion de tipo contrato en titulo y formateo de number
+ #64	ETR				10.10.2019			MZM					Ajuste a reporte Aporte CACSEL
+ #77	ETR				15.11.2019			MZM					Ajuste reportes
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -13,7 +15,9 @@ class RPlanillaEmpleado extends  ReportePDF {
 	var $ancho_sin_totales;
 	var $cantidad_columnas_estaticas;
 	var $alto_header;
-	
+	//#77
+	var $borde;
+	var $interlineado;
 	function Header() {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
@@ -30,6 +34,8 @@ class RPlanillaEmpleado extends  ReportePDF {
 			$cadena_nomina='('.$this->datos[0]['tipo_contrato'].')';
 			
 		}
+		
+		
 		
 		if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
 			$this->Cell(0,5,'NOMINA DE SALARIOS BC '.$cadena_nomina,0,1,'C');
@@ -120,9 +126,9 @@ class RPlanillaEmpleado extends  ReportePDF {
 			if($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
 			
 				if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-					$this->Cell(15,3.5,'S.Basico','LTR',0,'C');
-					$this->Cell(15,3.5,'T.Cotizab','LTR',0,'C');
-					$this->Cell(15,3.5,'Nivel','LTR',0,'C');
+					$this->Cell(17,3.5,'S.Basico','LTR',0,'C');
+					$this->Cell(17,3.5,'T.Cotizab','LTR',0,'C');
+					$this->Cell(11,3.5,'Nivel','LTR',0,'C');
 					$this->Cell(15,3.5,'Basico','LTR',1,'C');
 				}else{
 					$this->Cell(20,3.5,'T.Cotizable','LTR',0,'C');
@@ -180,9 +186,9 @@ class RPlanillaEmpleado extends  ReportePDF {
 				if($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
 				
 					if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-						$this->Cell(15,3.5,'Bs.','LBR',0,'C');
-						$this->Cell(15,3.5,'Bs.','LBR',0,'C');
-						$this->Cell(15,3.5,'Limite','LBR',0,'C');
+						$this->Cell(17,3.5,'Bs.','LBR',0,'C');
+						$this->Cell(17,3.5,'Bs.','LBR',0,'C');
+						$this->Cell(11,3.5,'Limite','LBR',0,'C');
 						$this->Cell(15,3.5,'Limite','LBR',1,'C');
 					}else{
 						$this->Cell(20,3.5,'Bs.','LBR',0,'C');
@@ -221,7 +227,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 		
 		$tot_bs=0;
 		$tot_sus=0;
-		
+		$tot_cot=0;
 		
 		$contador_reserva3=0;
 		
@@ -411,7 +417,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 			}else{ 
 		  			for ($i=0; $i<count($this->datos);$i++){
 		   
-					 	  if($id_funcionario!=$this->datos[$i]['id_funcionario']){
+					 	  if($id_funcionario!=$this->datos[$i]['id_funcionario'] ){
 					 	  	  
 					 	  	  $cont++;
 					 	  	  $array_datos[$cont][0]=$this->datos[$i]['codigo_empleado'];
@@ -442,10 +448,10 @@ class RPlanillaEmpleado extends  ReportePDF {
 							  $array_datos[$cont][16]=$this->datos[$i]['dias_quinquenio'];
 							  //para nomina de salarios BC y CT
 							  $array_datos[$cont][17]=$this->datos[$i]['nivel_limite'];
-							  $array_datos[$cont][18]=number_format($this->datos[$i]['basico_limite'],2,',','.');
+							  $array_datos[$cont][18]=$this->datos[$i]['basico_limite'];
 					 	  }else{   
 					 	  	
-					 	  	  $array_datos[$cont][6]= number_format($this->datos[$i]['valor'],2,',','.');
+					 	  	  $array_datos[$cont][6]= $this->datos[$i]['valor'];
 					 	  }
 							$id_funcionario=$this->datos[$i]['id_funcionario'];
 					}
@@ -470,7 +476,8 @@ class RPlanillaEmpleado extends  ReportePDF {
 							$this->Cell(25,3.5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast/$this->datos[0]['tc'],2,',','.'),'',1,'R');
 							$this->Ln(3);
 						
-							$tot_bs=$tot_bs+($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast);
+                            $tot_cot=$tot_cot+($array_datos[$i-1][17]/$array_datos[$i-1][18]);						
+						 	$tot_bs=$tot_bs+($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast);
 							$tot_sus=$tot_sus+($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast/$this->datos[0]['tc']);
 						
 					   }
@@ -500,7 +507,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 							$this->Cell(25,3.5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
 							$this->Cell(25,3.5,number_format(($array_datos[$i][5]/360*$dias),2,',','.'),'',0,'R');	
 							$this->Cell(25,3.5,number_format($array_datos[$i][5]/360*$dias/$this->datos[0]['tc'],2,',','.'),'',1,'R');
-							
+							$tot_cot=$tot_cot+($array_datos[$i][5]);
 							$tot_bs=$tot_bs+($array_datos[$i][5]/360*$dias);
 							$tot_sus=$tot_sus+($array_datos[$i][5]/360*$dias/$this->datos[0]['tc']);
 						}
@@ -515,6 +522,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 				$this->Cell(148,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18],2,',','.'),'',0,'R');
 				$this->Cell(25,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast,2,',','.'),'',0,'R');
 				$this->Cell(25,3.5,number_format($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast/$this->datos[0]['tc'],2,',','.'),'',1,'R');
+				$tot_cot=$tot_cot+($array_datos[$cont][17]/$array_datos[$cont][18]);
 				$tot_bs=$tot_bs+($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast);
 				$tot_sus=$tot_sus+($array_datos[$cont][17]/$array_datos[$cont][18]/360*$diast/$this->datos[0]['tc']);
 			   }			
@@ -529,7 +537,8 @@ class RPlanillaEmpleado extends  ReportePDF {
 			}else{
 				$this->Cell(18,3.5,number_format($cont,0,',','.'),'',0,'C');
 			}
-				$this->Cell(155,3.5,number_format($tot_bs,2,',','.'),'',0,'R');
+				$this->Cell(130,3.5,number_format($tot_cot,2,',','.'),'',0,'R');
+				$this->Cell(25,3.5,number_format($tot_bs,2,',','.'),'',0,'R');
 				$this->Cell(25,3.5,number_format($tot_sus,2,',','.'),'',1,'R');		
 				
 		}else{
@@ -537,44 +546,83 @@ class RPlanillaEmpleado extends  ReportePDF {
 				
 			if($this->objParam->getParametro('tipo_reporte')=='no_sindicato' || $this->objParam->getParametro('tipo_reporte')=='aporte_sindicato' || $this->objParam->getParametro('tipo_reporte')=='aporte_cacsel' ){
 				//var_dump($array_datos); exit;
+				$total_valor=0;
 				for ($i=0; $i<$cont;$i++){
-					
-					$this->Cell(18,3.5,$array_datos[$i][0],'',0,'L');
-					
-					$this->Cell(60,3.5,substr ( $array_datos[$i][1], 0, 32),'',0,'L');
-					if($this->objParam->getParametro('tipo_reporte')!='aporte_cacsel'){
-						$this->Cell(35,3.5,$array_datos[$i][11],'',0,'L');	
-						$this->Cell(65,3.5,$array_datos[$i][12],'',0,'L');	
+					$total_valor=$total_valor+$array_datos[$i][5];
+					if($array_datos[$i][1]!=''){ //#64
+						$this->Cell(18,3.5,$array_datos[$i][0],'',0,'L');
+						
+						if($this->objParam->getParametro('tipo_reporte')!='aporte_cacsel'){
+							$this->Cell(60,3.5,substr ( $array_datos[$i][1], 0, 32),'',0,'L');
+						}
+						
+						if($this->objParam->getParametro('tipo_reporte')!='aporte_cacsel'){
+							
+							$this->Cell(35,3.5,$array_datos[$i][11],'',0,'L');	
+							$this->Cell(65,3.5,$array_datos[$i][12],'',0,'L');	
+						}else{
+							$this->Cell(160,3.5,substr ( $array_datos[$i][1], 0, 32),'',0,'L');
+						}
+						if($array_datos[$i][5]>0){
+							$this->Cell(20,3.5,number_format($array_datos[$i][5],2,',','.'),'',1,'R');
+						}else{
+							$this->Cell(20,3.5,'','',1,'R');//#64
+						}
 					}
-					$this->Cell(20,3.5,number_format($array_datos[$i][5],2,',','.'),'',1,'R');						
+											
 				}	
-				
+				//#64
 				    $this->Cell(18,3.5,$array_datos[$cont][0],'',0,'L');
-				    $this->Cell(60,3.5,substr ( $array_datos[$cont][1], 0, 32),'',0,'L');
+					if($this->objParam->getParametro('tipo_reporte')!='aporte_cacsel'){
+				    	$this->Cell(60,3.5,substr ( $array_datos[$cont][1], 0, 32),'',0,'L');
+					}
 					if($this->objParam->getParametro('tipo_reporte')!='aporte_cacsel'){
 						$this->Cell(35,3.5,$array_datos[$cont][11],'',0,'L');	
 						$this->Cell(65,3.5,$array_datos[$cont][12],'',0,'L');	
 					}else{
-						$this->Cell(100,3.5,'','',0,'L');	
+						$this->Cell(160,3.5,substr ( $array_datos[$cont][1], 0, 32),'',0,'L');	
 					}
-					$this->Cell(20,3.5,$array_datos[$cont][5],'',1,'R');	
+					if($array_datos[$i][5]>0){
+						$this->Cell(20,3.5,$array_datos[$cont][5],'',1,'R');
+					}else{
+						$this->Cell(20,3.5,'','',1,'R');//#64
+					}	
+				
+				if($this->objParam->getParametro('tipo_reporte')!='no_sindicato'){//#64
+					//para el total
+					$this->SetLineWidth(0.5);
+				 	$this->SetDrawColor(0,0,0);
+					$this->Cell(0,0,'','B',1);
+					$this->Ln(1);
+					$this->SetFont('','B',8);
+					$this->Cell(178,3.5,'Monto Total:','',0,'R');	
+					$this->SetFont('','',8);
+					$this->Cell(20,3.5,number_format($total_valor),'',1,'R');	
+				}
+				
+				
 				
 				
 			}else{//salario BC y CT
 				
-			
+			    //#77
+			    $tot1=0;
+				$tot2=0;
+				$tot3=0;
+				$tot11=0;
+				$tot22=0;
 				for ($i=0; $i<$cont+1;$i++){	
 					     if($array_datos[$i][9]!=$gerencia){
 							 	$this->Ln(2);
 								$this->SetFont('','B',10);
-								$this->Cell(100,3.5,''.$array_datos[$i][9],'',1,'L');
+								$this->Cell(100,5,''.$array_datos[$i][9],'',1,'L');
 								$this->Ln(2);
 								$contf=0; 
 						 }
 								    if(($departamento!=$array_datos[$i][10]) && ($array_datos[$i][10]!=$array_datos[$i][9])){
 							 			$this->Ln(2);
 							 			$this->SetFont('','B',8);
-										$this->Cell(100,3.5,''.$array_datos[$i][10],'',1,'L');
+										$this->Cell(100,5,''.$array_datos[$i][10],'',1,'L');
 										$this->Ln(2);
 										$this->SetFont('','',8);
 							 	
@@ -582,31 +630,36 @@ class RPlanillaEmpleado extends  ReportePDF {
 							 	 
 		
 										$this->SetFont('','',7);
-										$this->Cell(18,3.5,substr ( $array_datos[$i][0], 0, 23),'',0,'L');
+										$this->Cell(18,5,substr ( $array_datos[$i][0], 0, 23),'',0,'L');
 										
 										if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-											$this->Cell(55,3.5,$array_datos[$i][1],'',0,'L');
-											$this->Cell(40,3.5,substr ( $array_datos[$i][2], 0, 24),'',0,'L');
+											$this->Cell(55,5,$array_datos[$i][1],'',0,'L');
+											$this->Cell(40,5,substr ( $array_datos[$i][2], 0, 24),'',0,'L');
 											
-											$this->Cell(15,3.5,$array_datos[$i][3],'',0,'L');
+											$this->Cell(15,5,$array_datos[$i][3],'',0,'L');
 										}else{
 										
-											$this->Cell(60,3.5,substr ( $array_datos[$i][1], 0, 38),'',0,'L');
-											$this->Cell(65,3.5,substr ( $array_datos[$i][2], 0, 40),'',0,'L');
+											$this->Cell(60,5,substr ( $array_datos[$i][1], 0, 38),'',0,'L');
+											$this->Cell(65,5,substr ( $array_datos[$i][2], 0, 40),'',0,'L');
 										}
-										$this->Cell(10,3.5,$array_datos[$i][4],'',0,'R');
-										
+										$this->Cell(10,5,$array_datos[$i][4],'',0,'R');
+									
 										if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-											if($array_datos[$i][5]!=''){	
-												$this->Cell(15,3.5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
-												$this->Cell(15,3.5,$array_datos[$i][6],'',0,'R');
-												$this->Cell(15,3.5,$array_datos[$i][17],'',0,'R');//nomina BC y CT
-												$this->Cell(15,3.5,$array_datos[$i][18],'',1,'R');//nomina BC y CT
+											if($array_datos[$i][5]!=''){
+												$tot1=$tot1+$array_datos[$i][5];
+												$tot2=$tot2+$array_datos[$i][6];
+												$tot3=$tot3+$array_datos[$i][18];
+												$this->Cell(17,5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
+												$this->Cell(17,5,number_format($array_datos[$i][6],2,',','.'),'',0,'R');
+												$this->Cell(11,5,$array_datos[$i][17],'',0,'R');//nomina BC y CT
+												$this->Cell(15,5,number_format($array_datos[$i][18],2,',','.'),'',1,'R');//nomina BC y CT
 											}
 										}else{
 											if($array_datos[$i][5]!=''){
-												$this->Cell(20,3.5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
-												$this->Cell(20,3.5,$array_datos[$i][6],'',1,'R');
+												$tot11=$tot11+$array_datos[$i][5];
+												$tot22=$tot22+$array_datos[$i][6];
+												$this->Cell(20,5,number_format($array_datos[$i][5],2,',','.'),'',0,'R');
+												$this->Cell(20,5,number_format($array_datos[$i][6],2,',','.'),'',1,'R');
 											}
 											
 										
@@ -617,6 +670,25 @@ class RPlanillaEmpleado extends  ReportePDF {
 								$departamento=$array_datos[$i][10];
 						
 					}
+
+					//totales basico y cotizable #77
+					$this->SetFont('','B',7);
+					$this->Ln(2);
+					if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
+						$this->Cell(128,5,'TOTALES','',0,'R');
+						$this->Cell(10,5,'','',0,'R');
+						$this->Cell(17,5,number_format($tot1,2,',','.'),'',0,'R');
+						$this->Cell(17,5,number_format($tot2,2,',','.'),'',0,'R');//nomina BC y CT
+						$this->Cell(26,5,number_format($tot3,2,',','.'),'',1,'R');//nomina BC y CT
+					}else{
+						$this->Cell(153,5,'TOTALES','',0,'R');
+										
+						$this->Cell(20,5,number_format($tot11,2,',','.'),'',0,'R');
+						$this->Cell(20,5,number_format($tot22,2,',','.'),'',0,'R');//nomina BC y CT
+					}
+					
+
+
 				}
 						
 			}

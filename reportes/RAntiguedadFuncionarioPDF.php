@@ -3,7 +3,8 @@
 /*
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
- #66	ETR				16.10.2019			MZM					Adicion de total a reporte 
+ #66	ETR				16.10.2019			MZM					Adicion de total a reporte
+ #77	ETR				15.11.2019			MZM					Ajsute reprote
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -24,7 +25,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		
 		$this->SetFont('','B',15);
 		$this->SetY(20);
-		//15.10.2019
+		//#66
 		$tipo_cto=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($tipo_cto!=''){
 			$tipo_cto='('.$tipo_cto.')';
@@ -43,7 +44,14 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		
 		
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'Al:'.$this->objParam->getParametro('fecha'),0,1,'C');
+		//#77
+		$ar=substr($this->datos[0]['fecha_rep'], 0,4);
+		$mr=substr($this->datos[0]['fecha_rep'], 5,2);
+		$dr=substr($this->datos[0]['fecha_rep'], 8,2);
+		
+		$this->Cell(0,5,'Al: '.$dr.'/'.$mr.'/'.$ar,0,1,'C');
+		
+		
 		$this->Ln(4);			
 		//Titulos de columnas superiores
 		$this->SetFont('','B',7);
@@ -94,7 +102,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$array_fem; $contf=1;
 		$array_mas; $contm=0; 
 		
-		//15.10.2019
+		//#66
 		$totalf=0;
 		$totalm=0;
 		$totala=0;
