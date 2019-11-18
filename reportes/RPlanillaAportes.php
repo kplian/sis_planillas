@@ -304,51 +304,7 @@ class RPlanillaAportes extends  ReportePDF {
 		   $code=$array_datos[0][14]; 
 			for ($i=0; $i<$cont;$i++){
 			  	
-				/*if($code!=$array_datos[$i][14])	{
-					  $this->AddPage();
-					  $this->SetX(5);
-					  $this->Cell(5,3.5,$array_datos[$i][0],'',0,'R');
-					  $this->Cell(7,3.5,$array_datos[$i][1],'',0,'L');
-					  $this->Cell(16,3.5,$array_datos[$i][2],'',0,'R');
-					  $this->Cell(7,3.5,$array_datos[$i][3],'',0,'L');
-					  $this->Cell(16,3.5,$array_datos[$i][4],'',0,'R');
-					  //---------
-					  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-					  
-						  $this->Cell(22,3.5,$array_datos[$i][5],'',0,'L');
-						  $this->Cell(22,3.5,$array_datos[$i][6],'',0,'L');
-						  $this->Cell(17,3.5,$array_datos[$i][7],'',0,'L');
-						  $this->Cell(19,3.5,$array_datos[$i][8],'',0,'L');
-					  }else{
-					  	  $this->Cell(27,3.5,$array_datos[$i][5],'',0,'L');
-						  $this->Cell(27,3.5,$array_datos[$i][6],'',0,'L');
-						  $this->Cell(22,3.5,$array_datos[$i][7],'',0,'L');
-						  $this->Cell(24,3.5,$array_datos[$i][8],'',0,'L');
-					  }
-					  //---------
-					  $this->Cell(21,3.5,$array_datos[$i][9],'',0,'L');
-					  //----
-					  $this->Cell(11,3.5,$array_datos[$i][10],'',0,'L');
-					  $this->Cell(10,3.5,$array_datos[$i][11],'',0,'C');
-					  //-------
-					  $this->Cell(8,3.5,$array_datos[$i][12],'',0,'R');
-					  //-----
-					  $this->Cell(15,3.5,number_format($array_datos[$i][13],2,',','.'),'',0,'R');
-					 if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-					
-						  $this->Cell(15,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
-						  //---
-						  $this->Cell(15,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
-						  $this->Cell(15,3.5,number_format($array_datos[$i][17],2,',','.'),'',0,'R');
-						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',0,'R');
-						  $this->Cell(15,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',1,'R');
-					  }else{
-					  	  $this->Cell(17,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
-						  //---
-						  $this->Cell(17,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
-						  $this->Cell(17,3.5,number_format($array_datos[$i][17],2,',','.'),'',1,'R');
-					  }				
-				}else{*/
+				
 										
 					
 					  $this->Cell(5,3.5,$array_datos[$i][0],'',0,'R');
@@ -399,9 +355,7 @@ class RPlanillaAportes extends  ReportePDF {
 						  $this->Cell(17,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
 						  $this->Cell(17,3.5,number_format($array_datos[$i][17],2,',','.'),'',1,'R');
 					  }
-			 // }
-				//$code=$array_datos[$i][14];	
-				
+			 
 			}
  			//totales #44
  			$this->SetFont('','B',7);

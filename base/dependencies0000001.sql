@@ -3494,3 +3494,263 @@ WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
         || orden_plani.id_uo), func.valor_col, fun.desc_funcionario2;
 
 /***********************************F-DEP-MZM-PLANI-76-07/11/2019****************************************/        
+
+
+/***********************************I-DEP-MZM-PLANI-77-15/11/2019****************************************/
+drop view plani.vorden_planilla;
+CREATE OR REPLACE VIEW plani.vorden_planilla (
+    ruta,
+    id_uo,
+    id_uo_padre,
+    codigo,
+    nombre_unidad,
+    nivel,
+    orden_centro,
+    uo_centro_orden,
+    desc_funcionario2,
+    valor_col,
+    id_funcionario_planilla,
+    id_periodo,
+    id_tipo_contrato,
+    id_funcionario,
+    id_cargo,
+    id_uo_centro,
+    nombre_uo_centro,
+    oficina,
+    orden_oficina,
+    id_oficina,
+    prioridad)
+AS
+ WITH RECURSIVE orden_plani AS (
+SELECT (((1 || '.0'::text) || c1.orden_centro) || '.0'::text) ||
+    c1.orden_centro AS ruta,
+            c1.id_uo,
+            c11.id_uo_padre,
+            c1.codigo,
+            c1.nombre_unidad,
+            1 AS nivel,
+            c1.orden_centro,
+            c1.centro,
+            c1.orden_centro AS uo_orden_centro
+FROM orga.tuo c1
+             JOIN orga.testructura_uo c11 ON c11.id_uo_hijo = c1.id_uo
+             JOIN orga.tnivel_organizacional c111 ON
+                 c111.id_nivel_organizacional = c1.id_nivel_organizacional
+WHERE c1.estado_reg::text = 'activo'::text AND c11.id_uo_padre = 0
+UNION
+SELECT (((((c1.ruta || '->'::text) || c1.nivel) || '.'::text) ||
+    pxp.f_iif(cen2.uo_centro_orden < 100::numeric, ('0'::text ||
+    cen2.uo_centro_orden)::character varying, (cen2.uo_centro_orden ||
+    ''::text)::character varying)::text) || '.'::text) ||
+    pxp.f_iif(c2.orden_centro < 100::numeric, ('0'::text ||
+    c2.orden_centro)::character varying, (c2.orden_centro ||
+    ''::text)::character varying)::text AS ruta,
+            c2.id_uo,
+            c21.id_uo_padre,
+            c2.codigo,
+            c2.nombre_unidad,
+            c1.nivel + 1 AS nivel,
+            c2.orden_centro,
+            c2.centro,
+            cen2.uo_centro_orden AS uo_orden_centro
+FROM orga.tuo c2,
+            orga.testructura_uo c21,
+            orga.tnivel_organizacional c211,
+            orga.vuo_centro cen2,
+            orden_plani c1
+WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
+    c21.id_uo_padre = c1.id_uo AND c21.id_uo_padre <> 0 AND
+    c211.id_nivel_organizacional = c2.id_nivel_organizacional AND
+    cen2.uo_centro_orden = c1.uo_orden_centro
+        )
+    SELECT orden_plani.ruta,
+    orden_plani.id_uo,
+    orden_plani.id_uo_padre,
+    orden_plani.codigo,
+    orden_plani.nombre_unidad,
+    orden_plani.nivel,
+    orden_plani.orden_centro,
+    cen.uo_centro_orden,
+    fun.desc_funcionario2,
+    func.valor_col,
+    fp.id_funcionario_planilla,
+    plani.id_periodo,
+    plani.id_tipo_contrato,
+    fun.id_funcionario,
+    uofun.id_cargo,
+    cen.id_uo_centro,
+    cen.nombre_uo_centro,
+    ofi.nombre AS oficina,
+    ofi.orden AS orden_oficina,
+    ofi.id_oficina,
+    uofun.prioridad
+    FROM orden_plani
+     JOIN orga.tuo_funcionario uofun ON uofun.id_uo = orden_plani.id_uo
+     JOIN orga.vuo_centro cen ON cen.id_uo = uofun.id_uo
+     JOIN orga.vfuncionario fun ON fun.id_funcionario = uofun.id_funcionario
+     JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+         fun.id_funcionario AND fp.id_uo_funcionario = uofun.id_uo_funcionario
+     JOIN plani.tplanilla plani ON plani.id_planilla = fp.id_planilla
+     JOIN plani.vdatos_func_planilla func ON func.id_funcionario_planilla =
+         fp.id_funcionario_planilla AND func.nombre_col = 'fecha_ingreso'::text
+     JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
+     JOIN orga.toficina ofi ON ofi.id_lugar = fp.id_lugar AND ofi.id_oficina =
+         car.id_oficina
+    ORDER BY orden_plani.ruta, uofun.prioridad, func.valor_col, fun.desc_funcionario2;
+    
+
+
+CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
+    id_funcionario,
+    id_funcionario_planilla,
+    nombre_col,
+    valor_col)
+AS
+SELECT a.id_funcionario,
+    a.id_funcionario_planilla,
+    u.nombre_col,
+    u.valor_col
+FROM (
+    SELECT fun.id_funcionario,
+            fp.id_funcionario_planilla,
+            fun.id_uo_funcionario,
+            plani.f_get_fecha_primer_contrato_empleado(fun.id_uo_funcionario,
+                fun.id_funcionario, fun.fecha_asignacion) AS fecha_ingreso,
+            tper.fecha_nacimiento,
+            fun.oficina_nombre AS oficina,
+            fun.descripcion_cargo AS cargo,
+            fun.lugar_nombre AS regional,
+            lug.codigo AS codigo_regional,
+            fun.cargo_codigo AS codigo_funcionario,
+            "substring"(fun.desc_funcionario2, 1, 58) AS nombre_funcionario,
+            esc.codigo AS nivel,
+            fun.id_cargo,
+            fp.id_planilla,
+            pl.id_periodo,
+            pl.id_gestion,
+            (
+        SELECT cv.valor
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo
+            = 'PLASUE' AND tc.codigo = 'SUBPRE'
+        ) AS subpre,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo
+            = 'PLASUE' AND (tc.codigo = ANY (ARRAY['SUBSEP',
+            'SUBNAT']))
+        ) AS subsep,
+            (
+        SELECT cv.valor
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND tp.codigo
+            = 'PLASUE' AND tc.codigo = 'SUBLAC'
+        ) AS sublac,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo
+            = ANY (ARRAY['PLASUB', 'PLASUE'
+            ])) AND (tc.codigo = ANY (ARRAY['SUBSEP',
+            'SUBPRE', 'SUBLAC', 'SUBNAT', 'COTIZABLE']))
+        ) AS total_ganado,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo
+            = ANY (ARRAY['PLASUB', 'PLASUE'
+            ])) AND (tc.codigo = ANY (ARRAY['SUBSEP',
+            'SUBPRE', 'SUBLAC', 'SUBNAT', 'COTIZABLE',
+            'AFP_APPAT', 'AFP_RIEPRO', 'AFP_VIVIE',
+            'PREAGUI', 'PREPRI', 'CAJSAL', 'PREVBS']))
+        ) AS total_gral,
+            (
+        SELECT sum(cv.valor) AS sum
+        FROM plani.tcolumna_valor cv
+                     JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
+                         cv.id_tipo_columna
+                     JOIN plani.tfuncionario_planilla fp_1 ON
+                         fp_1.id_funcionario_planilla = cv.id_funcionario_planilla
+                     JOIN plani.tplanilla p ON p.id_planilla = fp_1.id_planilla
+                     JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                         p.id_tipo_planilla
+        WHERE fp_1.id_uo_funcionario = fun.id_uo_funcionario AND p.id_periodo =
+            pl.id_periodo AND p.id_gestion = pl.id_gestion AND (tp.codigo
+            = ANY (ARRAY['PLASUB', 'PLASUE'
+            ])) AND (tc.codigo = ANY (ARRAY['SUBPRE',
+            'SUBLAC', 'TOT_DESC']))
+        ) AS total_desc,
+            tfun.codigo_rciva,
+            tper.tipo_documento,
+            (tper.ci || ' ') || tper.expedicion AS num_documento,
+            ofi.nombre AS distrito
+    FROM orga.vfuncionario_cargo_lugar fun
+             JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
+             JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+                 tfun.id_funcionario AND fp.id_uo_funcionario = fun.id_uo_funcionario
+             JOIN plani.tplanilla pl ON pl.id_planilla = fp.id_planilla
+             JOIN segu.tpersona tper ON tper.id_persona = tfun.id_persona
+             JOIN param.tlugar lug ON lug.id_lugar = fun.id_lugar
+             JOIN orga.tcargo car ON car.id_cargo = fun.id_cargo
+             JOIN orga.tescala_salarial esc ON esc.id_escala_salarial =
+                 car.id_escala_salarial
+             JOIN orga.toficina ofi ON ofi.id_oficina = car.id_oficina
+    ) a
+     CROSS JOIN LATERAL UNNEST(ARRAY['nombre_funcionario',
+         'codigo_funcionario', 'codigo_regional', 'nivel',
+         'cargo', 'fecha_nacimiento', 'fecha_ingreso',
+         'subpre', 'subsep', 'sublac', 'total_ganado',
+         'total_gral', 'total_desc', 'codigo_rciva',
+         'tipo_documento', 'num_documento', 'distrito',
+         'firma'], ARRAY[a.nombre_funcionario,
+         a.codigo_funcionario, a.codigo_regional, a.nivel ||
+         '', a.cargo, a.fecha_nacimiento || '',
+         a.fecha_ingreso || '', round(a.subpre, 2) || '',
+         round(a.subsep, 2) || '', round(a.sublac, 2) || '',
+         round(a.total_ganado, 2) || '', round(a.total_gral, 2) ||
+         '', round(a.total_desc, 2) || '', a.codigo_rciva,
+         a.tipo_documento, a.num_documento, a.distrito,
+         '_________________________________']) u(nombre_col, valor_col);
+         
+/***********************************F-DEP-MZM-PLANI-77-15/11/2019****************************************/         

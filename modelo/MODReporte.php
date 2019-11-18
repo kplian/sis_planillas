@@ -8,6 +8,8 @@
  * #32	etr			MZM		02.09.2019	Adicion de relacion id_pie_firma y funcion para listar firmas por tipo de reporte
  * #60	etr			MZM		08.10.2019	Adicion de campo incluir_retirados
  * #65	ETR			MZM		10.10.2019	Adicion de 2 campos para q en reportes de listado solo se muestren los q tengan valor diferente a 0
+ * #71	ETR			MZM		31.10.2019	Refactorizacion de campo periodo cuando son anuales, obteniendo el periodo en funcion a la fecha de planilla
+ * #77	ETR			MZM		14.11.2019	Interlineado y bordes de reporte 
 **/
 
 class MODReporte extends MODbase{
@@ -57,6 +59,9 @@ class MODReporte extends MODbase{
 		//#65
 		$this->captura('id_moneda_reporte','integer');//#65
 		$this->captura('codigo','varchar');//#65
+		
+		$this->captura('bordes','integer');//#77
+		$this->captura('interlineado','numeric');//#77
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		$this->ejecutarConsulta();
@@ -96,6 +101,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
 		$this->setParametro('id_moneda_reporte','id_moneda_reporte','integer');//#65
+		
+		$this->setParametro('bordes','bordes','integer');//#77
+		$this->setParametro('interlineado','interlineado','numeric');//#77
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -135,6 +143,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('mostrar_ufv','mostrar_ufv','varchar');//#58
 		$this->setParametro('incluir_retirados','incluir_retirados','varchar');//#60
 		$this->setParametro('id_moneda_reporte','id_moneda_reporte','integer');//#65
+		
+		$this->setParametro('bordes','bordes','integer');//#77
+		$this->setParametro('interlineado','interlineado','numeric');//#77
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
@@ -200,6 +211,10 @@ class MODReporte extends MODbase{
 		$this->captura('cant_columnas_totalizan','integer');//#65
 		$this->captura('tipo_reporte','varchar');//#65
 		
+		$this->captura('id_pie_firma','integer');//#71
+		
+		$this->captura('bordes','integer');//#77
+		$this->captura('interlineado','numeric');//#77
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo $this->getConsulta(); exit;
@@ -276,6 +291,7 @@ class MODReporte extends MODbase{
 		$this->captura('multilinea','varchar');
         $this->captura('vista_datos_externos','varchar');
         $this->captura('num_columna_multilinea','integer');
+		$this->captura('id_periodo','integer');//#71
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
@@ -325,7 +341,7 @@ class MODReporte extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		
-		
+		//echo "****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		

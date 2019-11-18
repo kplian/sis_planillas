@@ -11,7 +11,9 @@
    #56			MZM			02.10.2019				Reporte Resumen Relacion de saldos
  * #66			MZM			15.10.2019				Adicion de filtro id_tipo_contrato en reportes especificos
  * #67			MZM			16.10.2019				Reporte asignacion de cargos
+ * #71			MZM			08.11.2019				Refactorizacion para reportes de planillas anuales
  * #72			MZM			04.11.2019				Cambio en el orden de defnicion de variable nombre_arhivo para reporte
+ * #77			MZM			15.11.2019				Ajuste reportes
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -40,6 +42,16 @@ require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosDet.php'); //#56
 
 
 require_once(dirname(__FILE__).'/../reportes/RPlanillaAsignacionCargos.php'); //#67
+
+
+require_once(dirname(__FILE__).'/../reportes/RPlanillaEmpleadoXls.php'); //#77
+require_once(dirname(__FILE__).'/../reportes/RPlanillaAportesXls.php');//#77
+require_once(dirname(__FILE__).'/../reportes/RPlanillaAsignacionCargosXls.php');//#77
+require_once(dirname(__FILE__).'/../reportes/RPlanillaPersonalXls.php');//#77
+require_once(dirname(__FILE__).'/../reportes/RAntiguedadFuncionarioXls.php');//#77
+require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosXls.php'); //#77
+require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosDetXls.php'); //#77
+require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaTribXls.php');
 
 class ACTReporte extends ACTbase{
 
@@ -95,10 +107,10 @@ class ACTReporte extends ACTbase{
         $this->objFunc=$this->create('MODReporte');
         $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
 		
-		//if($this->objParam->getParametro('totales')=='si'){
-			$this->objFunc=$this->create('MODReporte');
-			$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39 
-		//}
+		
+		$this->objFunc=$this->create('MODReporte');
+		$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39 
+		
 		
         //obtener titulo del reporte
         $titulo = $this->res->datos[0]['titulo_reporte'];
@@ -213,7 +225,7 @@ class ACTReporte extends ACTbase{
             $this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
         }
 		
-		if($id_reporte!=''){
+		if($id_reporte!=''){ 
 			
 			$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
 		}else{	
@@ -245,14 +257,16 @@ class ACTReporte extends ACTbase{
         
 		$filtro_previo=$this->objParam->parametros_consulta['filtro']; 
 		$this->objFunc=$this->create('MODReporte'); 
-		if($this->res->datos[0]['multilinea']=='si'){
+		if($this->res->datos[0]['multilinea']=='si' || $this->res->datos[0]['id_periodo']==''){
 			$i=0;	
 			 $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
 			 $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
              $this->objReporteFormato->generarReporte();
-		}else{
-			for ($i = 0; $i < count($this->res->datos); $i++){  
-			    $this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+		}else{ 
+			for ($i = 0; $i < count($this->res->datos); $i++){
+				
+				$this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+				
 				$this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                 $this->objReporteFormato->generarReporte();
 			}	
@@ -544,10 +558,7 @@ class ACTReporte extends ACTbase{
 //********************
 function listarFuncionarioReporte($id_reporte){//#56
 
-	//echo $this->objParam->getParametro('tipo_reporte').'*****'.$this->objParam->getParametro('control_reporte'); exit;
-       
-        
-		
+	
         //obtener titulo del reporte
         $titulo = $this->objParam->getParametro('control_reporte');
 		$fecha=$this->objParam->getParametro('fecha');
@@ -557,6 +568,12 @@ function listarFuncionarioReporte($id_reporte){//#56
 		$id_gestion=$this->objParam->getParametro('id_gestion');
 		//03.09.2019
 		$id_tipo_contrato=$this->objParam->getParametro('id_tipo_contrato');
+		
+		//#77
+		$id_periodo=$this->objParam->getParametro('id_periodo');
+		$formato_reporte=$this->objParam->getParametro('formato_reporte');
+		
+		
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()).$titulo);
 
@@ -565,9 +582,9 @@ function listarFuncionarioReporte($id_reporte){//#56
        
         $tamano = 'LETTER';
         $orientacion = 'P';
-       if($this->objParam->getParametro('control_reporte')=='aporte_afp'){
-       	$orientacion = 'L';
-       } 
+        if($this->objParam->getParametro('control_reporte')=='aporte_afp'){
+       		$orientacion = 'L';
+       	} 
 
         $this->objParam->addParametro('orientacion',$orientacion);
         $this->objParam->addParametro('tamano',$tamano);
@@ -581,9 +598,23 @@ function listarFuncionarioReporte($id_reporte){//#56
 		$this->objParam->addParametro('tipo_reporte',$this->objParam->getParametro('control_reporte'));//****
 		$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
 		$this->objParam->addParametro('id_reporte',$id_reporte);
-       
+       //#77
+        $this->objParam->addParametro('id_periodo',$id_periodo);
         $nombreArchivo.='.pdf';
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
+		//#77
+		$this->objFunc=$this->create('MODReporte');
+		$this->resM=$this->objFunc->listarReporteMaestro($this->objParam);
+		
+		$titulo_para_reporte=$this->resM->datos[0]['titulo_reporte'];
+		$borde_para_reporte=$this->resM->datos[0]['bordes'];
+		$interlineado_para_reporte=$this->resM->datos[0]['interlineado'];
+		
+		
+		$this->objParam->addParametro('titulo_para_reporte',$titulo_para_reporte);
+		$this->objParam->addParametro('borde_para_reporte',$borde_para_reporte);
+		$this->objParam->addParametro('interlineado_para_reporte',$interlineado_para_reporte);
 		
 		$this->objFunc=$this->create('MODFuncionarioReporte');
         $this->res=$this->objFunc->listarFuncionarioReporte($this->objParam);
@@ -591,11 +622,26 @@ function listarFuncionarioReporte($id_reporte){//#56
             //Instancia la clase de pdf
        
         if($this->objParam->getParametro('control_reporte')=='empleado_antiguedad' ||  $this->objParam->getParametro('control_reporte')=='empleado_edad' ){   
-            $this->objReporteFormato=new RAntiguedadFuncionarioPDF($this->objParam);
-
-			$this->objReporteFormato->setDatos($this->res->datos);
-			$this->objReporteFormato->generarReporte();
-            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+            if($this->objParam->getParametro('formato_reporte')=='pdf'){
+	        	$nombreArchivo.='.pdf';
+	            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+					   
+	            $this->objReporteFormato=new RAntiguedadFuncionarioPDF($this->objParam);
+	
+				$this->objReporteFormato->setDatos($this->res->datos);
+				$this->objReporteFormato->generarReporte();
+	            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+			}else{
+				$titulo ='Reserva';
+	            //Genera el nombre del archivo (aleatorio + titulo)
+	            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+				$nombreArchivo.='.xls';
+				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+	        	$this->objReporteFormato=new RAntiguedadFuncionarioXls($this->objParam);
+	           // $this->objReporteFormato->imprimeDatos();
+	            $this->objReporteFormato->generarReporte($this->res->datos);
+			}
+ 
  
 			$this->mensajeExito=new Mensaje();
         	$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
@@ -607,11 +653,12 @@ function listarFuncionarioReporte($id_reporte){//#56
 		}
 		else{
 			if($this->objParam->getParametro('control_reporte')=='planilla_tributaria' ){
-				$this->reportePlanillaTrib($titulo,$fecha); //nomina salarios BC, CT
+				
+				$this->reportePlanillaTrib($titulo,$fecha); 
 				   
 			}else{
 				if($this->objParam->getParametro('control_reporte')=='aporte_afp' || $this->objParam->getParametro('control_reporte')=='fondo_solidario' ){ 
-					$this->reportePlanillaAFP($titulo,$fecha,$id_afp,$id_tipo_contrato ); //nomina salarios BC, CT
+					$this->reportePlanillaAFP($titulo,$fecha,$id_afp,$id_tipo_contrato,$id_periodo ); //nomina salarios BC, CT //#77
 				}else{
 					if($this->objParam->getParametro('control_reporte')=='personal_ret' || $this->objParam->getParametro('control_reporte')=='personal_inc' ){
 						$this->reportePlanillaPersonal($titulo,$id_gestion); //nomina salarios BC, CT
@@ -623,7 +670,7 @@ function listarFuncionarioReporte($id_reporte){//#56
 								$this->reportePlanillaDep($titulo,$fecha,$id_tipo_contrato);//#66
 							}else{
 								if($this->objParam->getParametro('control_reporte')=='curva_salarial' || $this->objParam->getParametro('control_reporte')=='curva_salarial_centro'   ){
-									$this->reporteCurvaSalarial($titulo,$fecha,$id_tipo_contrato);
+									$this->reporteCurvaSalarial($titulo,$fecha,$id_tipo_contrato,$id_periodo); //#77
 								}else{ 
 									if($this->objParam->getParametro('control_reporte')=='relacion_saldos'  ){//#56
 											$this->reporteBancos($titulo,$fecha);
@@ -635,7 +682,7 @@ function listarFuncionarioReporte($id_reporte){//#56
 											
 												$this->reporteAsignacionCargos($titulo,$id_gestion,$id_tipo_contrato);
 											}else{
-												$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato); //nomina salarios BC, CT	
+												$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77	
 											}
 											
 											
@@ -661,36 +708,44 @@ function listarFuncionarioReporte($id_reporte){//#56
 	}
 	
 	//#56
-	function reportePlanillaFun($tipo_reporte,$fecha,$id_tipo_contrato)	{
+	function reportePlanillaFun($tipo_reporte,$fecha,$id_tipo_contrato,$id_periodo)	{//#77
 
-       
-
-        //Genera el nombre del archivo (aleatorio + titulo)
+		//Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()));
 
  		$this->objParam->addParametro('fecha',$fecha);
 		$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
 		$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
 
+        $this->objParam->addParametro('id_periodo',$id_periodo);//#77
         
-            $nombreArchivo.='.pdf';
-            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			 $this->objFunc=$this->create('MODFuncionarioReporte');
+		$this->objFunc=$this->create('MODFuncionarioReporte');
 
         
         $this->res=$this->objFunc->listarDatosReporteDetalle($this->objParam);
         
             
-           	$this->objReporteFormato=new RPlanillaEmpleado($this->objParam);
-            $this->objReporteFormato->setDatos($this->res->datos);
-            $this->objReporteFormato->generarReporte();
-            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+        	$nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaEmpleado($this->objParam);
+        	$this->objReporteFormato->setDatos($this->res->datos);
+        	$this->objReporteFormato->generarReporte();
+        	$this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        } else{
+        	$titulo ='Reserva';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaEmpleadoXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);
+
+	        
+        }    
+            
         
-
-
-
-
-
         $this->mensajeExito=new Mensaje();
         $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
             'Se generó con éxito el reporte: '.$nombreArchivo,'control');
@@ -700,7 +755,7 @@ function listarFuncionarioReporte($id_reporte){//#56
     }
 	
 	
-	function reportePlanillaAFP($tipo_reporte,$fecha,$id_afp,$id_tipo_contrato)	{
+	function reportePlanillaAFP($tipo_reporte,$fecha,$id_afp,$id_tipo_contrato,$id_periodo)	{ //#77
 
          
 
@@ -710,21 +765,33 @@ function listarFuncionarioReporte($id_reporte){//#56
  		$this->objParam->addParametro('fecha',$fecha);
 		$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
 		$this->objParam->addParametro('id_afp',$id_afp);
+		$this->objParam->addParametro('id_periodo',$id_periodo);//#77
         $this->objParam->addParametro('orientacion','L');
-            $nombreArchivo.='.pdf';
-            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        
             
-			$this->objFunc=$this->create('MODFuncionarioReporte');
+		$this->objFunc=$this->create('MODFuncionarioReporte');
 
         
         $this->res=$this->objFunc->listarDatosAportes($this->objParam);
        
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+	        $nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
            	$this->objReporteFormato=new RPlanillaAportes($this->objParam);
             $this->objReporteFormato->setDatos($this->res->datos);
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
         
-
+		}else{
+			$titulo ='AporteAFP';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaAportesXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);
+		}
 
 
 
@@ -750,20 +817,31 @@ function listarFuncionarioReporte($id_reporte){//#56
 		$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
 		$this->objParam->addParametro('id_gestion',$id_gestion);
         $this->objParam->addParametro('orientacion','L');
-            $nombreArchivo.='.pdf';
-            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             
 			$this->objFunc=$this->create('MODFuncionarioReporte');
 
         
         $this->res=$this->objFunc->listarDatosPersonal($this->objParam);
-       
+		
+       if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
+	        $nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
            	$this->objReporteFormato=new RPlanillaPersonal($this->objParam);
             $this->objReporteFormato->setDatos($this->res->datos);
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
         
-
+	   }else{
+	   		$titulo ='Personal';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaPersonalXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);
+	   }
 
 
 
@@ -776,26 +854,23 @@ function listarFuncionarioReporte($id_reporte){//#56
 
     }
 	
-	function reportePlanillaTrib($tipo_reporte,$fecha)	{
+	function reportePlanillaTrib($tipo_reporte,$id_periodo)	{
 		
 	    $this->objParam->addFiltro("(repo.titulo_reporte ilike ''%tributaria%''
 		)
 		
-		and plani.id_periodo =(select po_id_periodo from param.f_get_periodo_gestion(''".$fecha."''))
-		
-		");
- 		
+		and plani.id_periodo =".$id_periodo." ");
+ 		//(select po_id_periodo from param.f_get_periodo_gestion(''".$fecha."''))
         $tamano = 'LEGAL';
         $orientacion = 'L';
-        //#72
-		$nombreArchivo=uniqid(md5(session_id()));
+       
+
         $this->objParam->addParametro('orientacion',$orientacion);
         $this->objParam->addParametro('tamano',$tamano);
         $this->objParam->addParametro('titulo_archivo',$titulo);
-		$this->objParam->addParametro('fecha',$fecha);
+		$this->objParam->addParametro('id_periodo',$id_periodo);
 		$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
-		$nombreArchivo.='.pdf';
-        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+		
             
 
 		$this->objFunc=$this->create('MODReporte');
@@ -806,18 +881,22 @@ function listarFuncionarioReporte($id_reporte){//#56
 		
 		$titulo = $this->res->datos[0]['titulo_reporte'];
         //Genera el nombre del archivo (aleatorio + titulo)
-       
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+		
+		
+			$nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
+	
+			$this->objReporteFormato=new RPlanillaGenericaTrib($this->objParam);
+	
+	        $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+	            //$this->objReporteFormato->renderDatos($this->res2->datos);
+	        $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
+	        $this->objReporteFormato->generarReporte();
+	        $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
 
-		$this->objReporteFormato=new RPlanillaGenericaTrib($this->objParam);
-
-        $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
-            //$this->objReporteFormato->renderDatos($this->res2->datos);
-        $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
-        $this->objReporteFormato->generarReporte();
-        $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
-
-
-
+		
 
 
         $this->mensajeExito=new Mensaje();
@@ -870,33 +949,11 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
 
 
 
-		function reporteCurvaSalarial($tipo_reporte,$fecha,$id_tipo_contrato)	{
+		function reporteCurvaSalarial($tipo_reporte,$fecha,$id_tipo_contrato,$id_periodo)	{//#77
 
 	      
-
-        	//Genera el nombre del archivo (aleatorio + titulo)
-        	//$nombreArchivo=uniqid(md5(session_id()));
-
- 			//$this->objParam->addParametro('fecha',$fecha);
-			//$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			//$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
-			//$this->objParam->addParametro('datos',$this->res->datos);
-        	//$this->objParam->addParametro('titulo_archivo','titulo');
-			//$nombreArchivo.='.xls';
-			 /* $this->objFunc=$this->create('MODFuncionarioReporte');
-	
-	        
-	        $this->res=$this->objFunc->listarDatosCurva($this->objParam);
-        
-            			
-            $this->objReporteFormato=new RPlanillaCurvaXls($this->objParam);
-			$this->objReporteFormato->imprimeDatos();
-            $this->objReporteFormato->generarReporte();*/
-			
-			
-			
-			 $titulo ='Curva Salarial';
-        //Genera el nombre del archivo (aleatorio + titulo)
+			$titulo ='Curva Salarial';
+            //Genera el nombre del archivo (aleatorio + titulo)
             $nombreArchivo=uniqid(md5(session_id()).$titulo);
 			$nombreArchivo.='.xls';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
@@ -906,6 +963,7 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
 			$this->objParam->addParametro('fecha',$fecha);
 			$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
 			$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
+			$this->objParam->addParametro('id_periodo',$id_periodo); //#77
             //Instancia la clase de excel
             $this->objFunc=$this->create('MODFuncionarioReporte');
 	
@@ -936,10 +994,10 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 		
 		
-		
+		//#71
 		/*if ($this->objParam->getParametro('id_tipo_contrato')!= '') { 
-            $this->objParam->addFiltro("tc.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
-        }*/ //#56
+            $this->objParam->addFiltro("plani.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
+        }*/
 		
 				
 		if ($this->objParam->getParametro('id_gestion') != '') {
@@ -978,12 +1036,31 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
 
         $this->res1=$this->objFunc->listarReporteBancos($this->objParam);
 		
-        //Instancia la clase de pdf
-        $this->objReporteFormato=new RRelacionSaldos($this->objParam);
+		 
+		//#71
+		/*$this->objFunc=$this->create('MODReporte');
+		$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
+		*/
+		if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
+	        $nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+	        //Instancia la clase de pdf
+	        $this->objReporteFormato=new RRelacionSaldos($this->objParam);
         
+            //$this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos,$this->res3->datos);
             $this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos);
 			$this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+		}else{
+			$titulo ='Personal';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RRelacionSaldosXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos,$this->res1->datos);
+		}
  
 			$this->mensajeExito=new Mensaje();
         	$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
@@ -997,7 +1074,7 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
 
 
 function reporteBancosDet()	{ //#56
-
+//echo "reporteBancosDet"; exit;
         //obtener titulo del reporte
         $titulo = 'RELACION DE SALDOS';
         //Genera el nombre del archivo (aleatorio + titulo)
@@ -1008,10 +1085,10 @@ function reporteBancosDet()	{ //#56
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 		
 		
-		
+		//#71
 		/*if ($this->objParam->getParametro('id_tipo_contrato')!= '') { 
-            $this->objParam->addFiltro("tc.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
-        }*/ //#56
+            $this->objParam->addFiltro("plani.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
+        }*/
 		
 				
 		if ($this->objParam->getParametro('id_gestion') != '') {
@@ -1039,15 +1116,26 @@ function reporteBancosDet()	{ //#56
 		$this->objFunc=$this->create('MODObligacion');
 
         $this->res1=$this->objFunc->listarReporteBancosDet($this->objParam);
-		
-        //Instancia la clase de pdf
-        $this->objReporteFormato=new RRelacionSaldosDet($this->objParam);
+		if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
+	        $nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	//Instancia la clase de pdf
+        	$this->objReporteFormato=new RRelacionSaldosDet($this->objParam);
         
         
 		    $this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos);
 			$this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
- 
+		}else{
+			$titulo ='Personal';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RRelacionSaldosDetXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos,$this->res1->datos);
+		}
 			$this->mensajeExito=new Mensaje();
         	$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
             'Se generó con éxito el reporte: '.$nombreArchivo,'control');
@@ -1076,10 +1164,10 @@ function reporteBancosDet()	{ //#56
 		$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
 		
 		//
+		
 		$this->objParam->addParametro('id_periodo',$this->objParam->getParametro('id_periodo'));
 		 
-        $nombreArchivo.='.pdf';
-        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        
             
 		$this->objFunc=$this->create('MODFuncionarioReporte');
 		
@@ -1109,12 +1197,25 @@ function reporteBancosDet()	{ //#56
         }
         
         
-        
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+	        $nombreArchivo.='.pdf';
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+	        
            	$this->objReporteFormato=new RPlanillaAsignacionCargos($this->objParam);
             $this->objReporteFormato->setDatos($this->res->datos);
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
-        
+        }else{
+        	$titulo ='AsignacionCargos';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaAsignacionCargosXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);
+        	
+        }
 
 
 

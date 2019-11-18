@@ -582,12 +582,12 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     	
     	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
            	this.getBoton('SolPag').enable();
-           	this.getBoton('SolTodosPag').enable();
+           	//this.getBoton('SolTodosPag').enable();
            	
         }
         else{
            this.getBoton('SolPag').disable();
-           	this.getBoton('SolTodosPag').disable();
+           	//.getBoton('SolTodosPag').disable();
            	
         }
                 

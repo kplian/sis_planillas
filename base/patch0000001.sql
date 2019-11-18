@@ -1100,3 +1100,369 @@ IS 'si o no, incluye columnas marcadas para arrastrar el rc-iva de la planilal d
 
 /***********************************F-SCP-RAC-PLANI-68-24/10/2019****************************************/
 
+
+/***********************************I-SCP-RAC-PLANI-78-14/11/2019****************************************/
+CREATE SCHEMA planibk;
+
+CREATE TABLE planibk.tplanilla (
+  id_planilla SERIAL,
+  id_planilla_original INTEGER,
+  fecha_backup date default now()::DATE NOT NULL,
+  id_gestion INTEGER NOT NULL,
+  id_depto INTEGER NOT NULL,
+  id_periodo INTEGER,
+  nro_planilla VARCHAR(100) NOT NULL,
+  id_uo INTEGER,
+  id_tipo_planilla INTEGER NOT NULL,
+  observaciones TEXT,
+  id_proceso_macro INTEGER NOT NULL,
+  id_proceso_wf INTEGER,
+  id_estado_wf INTEGER,
+  estado VARCHAR(50) NOT NULL,
+  id_obligacion_pago INTEGER,
+  requiere_calculo VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  fecha_planilla DATE,
+  id_int_comprobante INTEGER,
+  codigo_poa VARCHAR(25),
+  obs_poa TEXT,
+  dividir_comprobante VARCHAR(5) DEFAULT 'no'::character varying,
+  id_tipo_contrato INTEGER,
+  id_int_comprobante_2 INTEGER,
+  calcular_reintegro_rciva VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  calcular_prima_rciva VARCHAR(2) DEFAULT 'no'::character varying NOT NULL,
+  CONSTRAINT tplanilla_pkey PRIMARY KEY(id_planilla),
+  CONSTRAINT fk__tplanilla__id_depto FOREIGN KEY (id_depto)
+    REFERENCES param.tdepto(id_depto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_estado_wf FOREIGN KEY (id_estado_wf)
+    REFERENCES wf.testado_wf(id_estado_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_gestion FOREIGN KEY (id_gestion)
+    REFERENCES param.tgestion(id_gestion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_periodo FOREIGN KEY (id_periodo)
+    REFERENCES param.tperiodo(id_periodo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_proceso_macro FOREIGN KEY (id_proceso_macro)
+    REFERENCES wf.tproceso_macro(id_proceso_macro)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_proceso_wf FOREIGN KEY (id_proceso_wf)
+    REFERENCES wf.tproceso_wf(id_proceso_wf)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
+    REFERENCES plani.ttipo_planilla(id_tipo_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tplanilla__id_uo FOREIGN KEY (id_uo)
+    REFERENCES orga.tuo(id_uo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tplanilla__id_int_comprobante FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+COMMENT ON COLUMN planibk.tplanilla.id_planilla_original
+IS 'id_planilla_original hace referencia a a planilla original de la que se hace copia en equema plani';
+
+
+
+CREATE TABLE planibk.tfuncionario_planilla (
+  id_funcionario_planilla SERIAL,
+  id_funcionario INTEGER NOT NULL,
+  id_planilla INTEGER NOT NULL,
+  id_uo_funcionario INTEGER NOT NULL,
+  id_lugar INTEGER NOT NULL,
+  forzar_cheque VARCHAR(2) NOT NULL,
+  finiquito VARCHAR(2) NOT NULL,
+  id_afp INTEGER,
+  id_cuenta_bancaria INTEGER,
+  tipo_contrato VARCHAR,
+  CONSTRAINT tfuncionario_planilla_pkey PRIMARY KEY(id_funcionario_planilla),
+  CONSTRAINT uk_tfuncionario_planilla__id_funcionario__id_planilla UNIQUE(id_planilla, id_funcionario),
+  CONSTRAINT chk__tfuncionario_planilla__finiquito CHECK (((finiquito)::text = 'si'::text) OR ((finiquito)::text = 'no'::text)),
+  CONSTRAINT chk__tfuncionario_planilla__forzar_cheque CHECK (((forzar_cheque)::text = 'si'::text) OR ((forzar_cheque)::text = 'no'::text)),
+  CONSTRAINT fk__tfuncionario_planilla__id_afp FOREIGN KEY (id_afp)
+    REFERENCES plani.tfuncionario_afp(id_funcionario_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tfuncionario_planilla__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tfuncionario_planilla__id_lugar FOREIGN KEY (id_lugar)
+    REFERENCES param.tlugar(id_lugar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tfuncionario_planilla__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES planibk.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tfuncionario_planilla__id_uo_funcionario FOREIGN KEY (id_uo_funcionario)
+    REFERENCES orga.tuo_funcionario(id_uo_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tfuncionario_planilla__id_cuenta_bancaria FOREIGN KEY (id_cuenta_bancaria)
+    REFERENCES orga.tfuncionario_cuenta_bancaria(id_funcionario_cuenta_bancaria)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+
+
+CREATE TABLE planibk.tcolumna_valor (
+  id_columna_valor SERIAL,
+  id_tipo_columna INTEGER NOT NULL,
+  id_funcionario_planilla INTEGER NOT NULL,
+  codigo_columna VARCHAR(30) NOT NULL,
+  formula VARCHAR(255),
+  valor NUMERIC(18,10) NOT NULL,
+  valor_generado NUMERIC(18,10) NOT NULL,
+  CONSTRAINT tcolumna_valor_pkey PRIMARY KEY(id_columna_valor),
+  CONSTRAINT fk_tcolumna_valor__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
+    REFERENCES planibk.tfuncionario_planilla(id_funcionario_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tcolumna_valor__id_tipo_columna FOREIGN KEY (id_tipo_columna)
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+
+CREATE TABLE planibk.tobligacion_agrupador (
+  id_obligacion_agrupador SERIAL,
+  id_tipo_obligacion_agrupador INTEGER,
+  id_planilla INTEGER,
+  monto_agrupador NUMERIC DEFAULT 0 NOT NULL,
+  acreedor VARCHAR,
+  descripcion VARCHAR,
+  tipo_pago VARCHAR(50),
+  id_int_comprobante INTEGER,
+  obs_cbte VARCHAR,
+  id_afp INTEGER,
+  CONSTRAINT tobligacion_agrupador_pkey PRIMARY KEY(id_obligacion_agrupador),
+  CONSTRAINT tobligacion_agrupador__id_afp_fk FOREIGN KEY (id_afp)
+    REFERENCES plani.tafp(id_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion_agrupador__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion_agrupador__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES planibk.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion_agrupador__it_tipo_ob_agr FOREIGN KEY (id_tipo_obligacion_agrupador)
+    REFERENCES plani.ttipo_obligacion_agrupador(id_tipo_obligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase);
+
+
+
+
+CREATE TABLE planibk.tobligacion (
+  id_obligacion SERIAL,
+  id_tipo_obligacion INTEGER NOT NULL,
+  id_planilla INTEGER NOT NULL,
+  id_cuenta INTEGER,
+  id_auxiliar INTEGER,
+  tipo_pago VARCHAR(50) NOT NULL,
+  acreedor VARCHAR(255) NOT NULL,
+  descripcion VARCHAR(500),
+  monto_obligacion NUMERIC(18,2) NOT NULL,
+  id_plan_pago INTEGER,
+  id_partida INTEGER,
+  id_afp INTEGER,
+  id_obligacion_pago INTEGER,
+  id_int_comprobante INTEGER,
+  id_obligacion_agrupador INTEGER,
+  id_funcionario INTEGER,
+  id_cuenta_haber INTEGER,
+  id_partida_haber INTEGER,
+  id_auxiliar_haber INTEGER,
+  obs_cbte VARCHAR,
+  CONSTRAINT tobligacion_pkey PRIMARY KEY(id_obligacion),
+  CONSTRAINT fk_tobligacion__id_afp FOREIGN KEY (id_afp)
+    REFERENCES plani.tafp(id_afp)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_auxiliar FOREIGN KEY (id_auxiliar)
+    REFERENCES conta.tauxiliar(id_auxiliar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_cuenta FOREIGN KEY (id_cuenta)
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_obligacion_pago FOREIGN KEY (id_obligacion_pago)
+    REFERENCES tes.tobligacion_pago(id_obligacion_pago)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_plan_pago FOREIGN KEY (id_plan_pago)
+    REFERENCES tes.tplan_pago(id_plan_pago)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES planibk.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tobligacion__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion)
+    REFERENCES plani.ttipo_obligacion(id_tipo_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion__id_funcionario_fk FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
+    REFERENCES conta.tint_comprobante(id_int_comprobante)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT tobligacion__id_ogligacion_agrupador_fk FOREIGN KEY (id_obligacion_agrupador)
+    REFERENCES planibk.tobligacion_agrupador(id_obligacion_agrupador)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+CREATE TABLE planibk.tconsolidado (
+  id_consolidado SERIAL,
+  id_planilla INTEGER NOT NULL,
+  id_presupuesto INTEGER,
+  id_cc INTEGER,
+  tipo_consolidado VARCHAR(15) NOT NULL,
+  CONSTRAINT tconsolidado_pkey PRIMARY KEY(id_consolidado),
+  CONSTRAINT fk__tconsolidado__id_cc FOREIGN KEY (id_cc)
+    REFERENCES param.tcentro_costo(id_centro_costo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado__id_planilla FOREIGN KEY (id_planilla)
+    REFERENCES planibk.tplanilla(id_planilla)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado__id_presupuesto FOREIGN KEY (id_presupuesto)
+    REFERENCES pre.tpresupuesto(id_presupuesto)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+
+
+CREATE TABLE planibk.tconsolidado_columna (
+  id_consolidado_columna SERIAL,
+  id_consolidado INTEGER NOT NULL,
+  id_tipo_columna INTEGER NOT NULL,
+  codigo_columna VARCHAR(30) NOT NULL,
+  valor NUMERIC NOT NULL,
+  valor_ejecutado NUMERIC DEFAULT 0,
+  id_partida INTEGER,
+  id_cuenta INTEGER,
+  id_auxiliar INTEGER,
+  tipo_contrato VARCHAR(20) NOT NULL,
+  id_obligacion_det INTEGER,
+  id_int_transaccion INTEGER,
+  CONSTRAINT tconsolidado_columna_pkey PRIMARY KEY(id_consolidado_columna),
+  CONSTRAINT fk__tconsolidado_columna__id_auxiliar FOREIGN KEY (id_auxiliar)
+    REFERENCES conta.tauxiliar(id_auxiliar)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado_columna__id_consolidado FOREIGN KEY (id_consolidado)
+    REFERENCES planibk.tconsolidado(id_consolidado)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado_columna__id_cuenta FOREIGN KEY (id_cuenta)
+    REFERENCES conta.tcuenta(id_cuenta)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado_columna__id_partida FOREIGN KEY (id_partida)
+    REFERENCES pre.tpartida(id_partida)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk__tconsolidado_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna)
+    REFERENCES plani.ttipo_columna(id_tipo_columna)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tconsolidado_columna__id_int_transaccion FOREIGN KEY (id_int_transaccion)
+    REFERENCES conta.tint_transaccion(id_int_transaccion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tconsolidado_columna__id_obligacion_det FOREIGN KEY (id_obligacion_det)
+    REFERENCES tes.tobligacion_det(id_obligacion_det)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+
+WITH (oids = false);
+
+/***********************************F-SCP-RAC-PLANI-78-14/11/2019****************************************/
+
+
+
+/***********************************I-SCP-MZM-PLANI-77-15/11/2019****************************************/
+
+ALTER TABLE plani.treporte
+  ADD COLUMN bordes INTEGER;
+
+ALTER TABLE plani.treporte
+  ADD COLUMN interlineado NUMERIC(5,2);
+/***********************************F-SCP-MZM-PLANI-77-15/11/2019****************************************/

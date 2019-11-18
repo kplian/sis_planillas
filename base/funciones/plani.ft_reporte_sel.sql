@@ -24,14 +24,16 @@ $body$
    #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
    					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
                     
-   #17		etr			28-06-2019			MZM                 adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
+   #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
    #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
-   #40		ETR			12.09.2019			MZM				    Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
+   #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
    #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
    #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
    #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
    #65		ETR			10.10.2019			MZM					Adicion de campo id_moneda_reporte en treporte
+   #71		ETR			31.10.2019			MZM					Refactorizacion para obtncion de periodo para planilla de prima y especificacion de firmas
    #76		ETR			06.11.2019			MZM					Reconfiguracion de ordenamiento en reporte multilinea
+   #77		ETR			13.11.2019			MZM					Ajustes varios reportes
   ***************************************************************************/
 
   DECLARE
@@ -70,6 +72,12 @@ $body$
     --#65
     v_tc					numeric;
     v_filtro_tc				varchar;
+    
+    --
+    
+    
+    
+    
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -120,6 +128,7 @@ $body$
                         ,repo.incluir_retirados --#60
                         ,repo.id_moneda_reporte --#65
                         ,moneda.codigo --#65
+                        ,repo.bordes, repo.interlineado --#77
 						from plani.treporte repo
 						inner join segu.tusuario usu1 on usu1.id_usuario = repo.id_usuario_reg
                         inner join param.tmoneda moneda on moneda.id_moneda=repo.id_moneda_reporte
@@ -182,7 +191,7 @@ $body$
                             repo.mostrar_codigo_cargo,
                             repo.agrupar_por,
                             repo.ordenar_por,
-                            repo.titulo_reporte,
+                            pxp.f_iif(split_part(repo.titulo_reporte,'':'',2)='''',repo.titulo_reporte,split_part(repo.titulo_reporte,'':'',2)  )::varchar as titulo_reporte,
                             plani.nro_planilla,
                             per.periodo,
                             ges.gestion,
@@ -214,6 +223,8 @@ $body$
                            ,(select count(*) from plani.treporte_columna  where id_reporte=repo.id_reporte
                             and sumar_total=''si'')::integer as cant_columnas_totalizan --#65
                             ,repo.tipo_reporte
+                           , repo.id_pie_firma --#71
+                           ,repo.bordes, repo.interlineado --#77
 						from plani.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
@@ -349,7 +360,8 @@ $body$
         v_consulta:='select
                             repo.titulo_reporte,
                             plani.nro_planilla,
-                            param.f_literal_periodo(per.id_periodo),
+                           pxp.f_iif(plani.id_periodo is null, (select pxp.f_obtener_literal_periodo( cast(extract(month from plani.fecha_planilla) as integer) ,30)) ,
+                            param.f_literal_periodo(per.id_periodo)) as periodo, --#71
                             ges.gestion,
                             emp.nit,
                             ent.identificador_caja_salud::varchar as numero_patronal,
@@ -373,7 +385,8 @@ $body$
                             end as cantidad_columnas
 							, repo.multilinea,
                             repo.vista_datos_externos,
-                            repo.num_columna_multilinea
+                            repo.num_columna_multilinea,
+                            plani.id_periodo as id_periodo --#71
 
 						from plani.tplanilla plani
                         inner join param.tdepto dep on  dep.id_depto = plani.id_depto
@@ -410,8 +423,8 @@ $body$
                              repo.multilinea,
                             repo.vista_datos_externos,
                             repo.num_columna_multilinea, repo.id_reporte
-                            limit 3
-                           
+                           ,plani.id_periodo --#71
+                           ,plani.fecha_planilla --#71
 			';
 
 
@@ -446,7 +459,7 @@ $body$
                         inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte and
                         											repcol.codigo_columna = colval.codigo_columna
 
-				        where fp.id_funcionario=250 and repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
+				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
@@ -992,6 +1005,15 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_agrupar_por;                   
              
+        if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
+          if(length(v_parametros.tipo_contrato)>0) then
+        	v_tipo_contrato = 'tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
+          else
+             v_tipo_contrato = '';
+          end if;
+        else
+        	v_tipo_contrato = '';
+      	end if;
                    
         --#50                    
         if (v_ordenar_por = 'nombre')then --#39 - 12.02.2019
@@ -1018,7 +1040,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         	v_consulta_orden:='centro.id_uo_centro, centro.nombre_uo_centro,';
             v_ordenar_por = 'centro.uo_centro_orden, pxp.f_iif(uofuncionario.orden_centro=centro.uo_centro_orden,uofuncionario.orden_centro||'''', (centro.uo_centro_orden+1)||''''),fun.desc_funcionario2';
                  -- fin 28..06.2019 
-          
+        elsif(v_agrupar_por='distrito_banco') then --#71
+        	v_consulta_orden:='ofi.id_oficina,(ofi.nombre ||''*''|| inst.nombre)::varchar , ';
+            v_ordenar_por ='ofi.orden,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
         else --gerencia (id_uo, nombre_unidad)
          	v_consulta_orden:=' uo.id_uo, uo.nombre_unidad,';
          	v_ordenar_por =v_consulta_orden||v_ordenar_por; -- 12.09.2019
@@ -1026,15 +1050,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         end if; 
         
 
-		if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
-          if(length(v_parametros.tipo_contrato)>0) then
-        	v_tipo_contrato = 'tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
-          else
-             v_tipo_contrato = '';
-          end if;
-        else
-        	v_tipo_contrato = '';
-      	end if;
+		
        -- raise exception 'aaa%',v_tipo_contrato;
         --para obtener la vista con la cual hacer join en caso de requerirse
         
@@ -1046,7 +1062,7 @@ else  repo.ancho_total
 end
 )
         as ancho_col
-        
+        ,repo.titulo_reporte
       
         
            			from plani.tplanilla plani
@@ -1062,13 +1078,15 @@ end
                    v_columnas_externas:='(case when repcol.origen=''columna_planilla'' then repcol.codigo_columna else vista.nombre_col end)::varchar as codigo_columna
                    ,
  					(case when repcol.origen=''columna_planilla'' then round(colval.valor,2)::varchar else  
-                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'' and vista.nombre_col=''cargo'') then
+                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'' and vista.nombre_col=''cargo'' ) then
                          substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+2)+5)  )
                        else
                          (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''boleta'' and vista.nombre_col=''cargo'') then
                             substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo)+5)  )
                          else
-                           vista.valor_col 
+                            
+                               vista.valor_col 
+                            
                          end)
                        end)
                      end)::varchar as valor';
@@ -1085,31 +1103,27 @@ end
                             colval.valor::varchar';
         end if;
         
-
-		--#76
-    if(v_agrupar_por='centro' or v_agrupar_por='distrito' ) then --#76
+	--#71
+	if(v_agrupar_por='distrito_banco') then
+		v_consulta_externa:=v_consulta_externa ||' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
+                            inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
+							inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
+                            ';
+    end if;
+    
+    
+    --05.11.2019
+    --#76
+    if((v_agrupar_por='centro' or v_agrupar_por='distrito') and v_datos_externos.titulo_reporte ilike '%multilinea%' ) then 
     
    		if( v_agrupar_por='centro') then
          	v_consulta_orden:=' nivel.id_uo_centro, nivel.nombre_uo_centro,';
-             v_ordenar_por = ' nivel.uo_centro_orden,
-               (pxp.f_iif(nivel.orden_centro = nivel.uo_centro_orden, (
-               nivel.uo_centro_orden || '''' )  , ((
-               nivel.uo_centro_orden + 0.1) || '''' ) )),
-               nivel.ruta,
-               ((nivel.ruta || nivel.nivel) || nivel.id_uo),
-                nivel.valor_col,
-                nivel.desc_funcionario2';
-        else --#76
+             --#77
+             v_ordenar_por='nivel.ruta, nivel.prioridad, nivel.valor_col, nivel.desc_funcionario2';
+        else
         	v_consulta_orden:=' nivel.id_oficina, nivel.oficina,';
-             v_ordenar_por = ' nivel.orden_oficina,
-             nivel.oficina,
-               (pxp.f_iif(nivel.orden_centro = nivel.uo_centro_orden, (
-               nivel.uo_centro_orden || '''' )  , ((
-               nivel.uo_centro_orden + 0.1) || '''' ) )),
-               nivel.ruta,
-               ((nivel.ruta || nivel.nivel) || nivel.id_uo),
-                nivel.valor_col,
-                nivel.desc_funcionario2';
+             --#77
+                v_ordenar_por='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.valor_col, nivel.desc_funcionario2';
         end if;
         
 
@@ -1137,13 +1151,16 @@ end
         v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
         
          return v_consulta;
-	else--#76
+	else
+    
+		
 
             --Sentencia de la consulta
             v_consulta:='select
                                 fun.id_funcionario,
                                 substring(fun.desc_funcionario2 from 1 for 38),
-                                cat.descripcion::varchar,
+                               -- cat.descripcion::varchar,
+                                ''''::varchar as descripcion,
                                 car.codigo,
                                 fun.ci,'||v_consulta_orden||'
                                 repcol.sumar_total,
@@ -1160,13 +1177,11 @@ end
                             left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                             and
                             repcol.codigo_columna = colval.codigo_columna
-                            
-                            
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                             inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-                            left join orga.tcargo_presupuesto cp on car.id_cargo = cp.id_cargo and cp.id_gestion = 15
-                            left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
-                            left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
+                           -- left join orga.tcargo_presupuesto cp on car.id_cargo = cp.id_cargo and cp.id_gestion = 15
+                          --  left join pre.vpresupuesto_cc pre on pre.id_centro_costo = cp.id_centro_costo
+                          --  left join pre.tcategoria_programatica cat on cat.id_categoria_programatica = pre.id_categoria_prog
                             inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                             inner join orga.tuo uo on uo.id_uo = orga.f_get_uo_gerencia(uofun.id_uo, NULL,NULL)
                             inner join orga.vuo_centro centro on centro.id_uo=uofun.id_uo
@@ -1180,17 +1195,18 @@ end
             --Definicion de la respuesta
             v_consulta:=v_consulta||v_parametros.filtro;
             
-                    
+
             
             v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
             raise notice 'v_consulta: %', v_consulta;
             --Devuelve la respuesta
+      
             return v_consulta;
-         end if; --#76
+       end if;
        --uo.prioridad::integer, uo.id_uo,fun.id_funcionario,
       end;
       
-      elsif (p_transaccion='PLA_FIRREP_SEL')then
+  elsif (p_transaccion='PLA_FIRREP_SEL')then
          --para obtener la columna de ordenacion para el reporte #32
          begin
               

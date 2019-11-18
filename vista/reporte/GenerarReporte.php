@@ -7,6 +7,7 @@
  *@description Reporte Material Entregado/Recibido
  * #33	etr			MZM		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
  * #66	etr			MZM		24.10.2019	inclusion de opcion de reporte con control_reporte
+ * #77	ETR			MZM		15.11.2019	Ajuste Reportes
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -501,12 +502,19 @@ header("content-type: text/javascript; charset=UTF-8");
 				if(r.data.tipo_reporte=='formato_especifico'){
 					  //***************************     
 					    this.ocultarComponente(this.Cmp.totales);
-						this.ocultarComponente(this.Cmp.formato_reporte);
+						//this.ocultarComponente(this.Cmp.formato_reporte);
 						this.ocultarComponente(this.Cmp.id_uo);
 						
 						
+						/*if(r.data.control_reporte=='empleado_antiguedad' || r.data.control_reporte=='empleado_edad'){
+							this.ocultarComponente(this.Cmp.formato_reporte);
+						}else{
+							this.mostrarComponente(this.Cmp.formato_reporte);
+						}*/
 						
-						if(r.data.control_reporte=='relacion_saldos' || r.data.control_reporte=='relacion_saldos_det' || r.data.control_reporte=='profesiones' || r.data.control_reporte=='directorio_empleados' || r.data.control_reporte=='nacimiento_ano' || r.data.control_reporte=='nacimiento_mes'){//#66
+						
+						
+						/*if(r.data.control_reporte=='relacion_saldos' || r.data.control_reporte=='relacion_saldos_det' || r.data.control_reporte=='profesiones' || r.data.control_reporte=='directorio_empleados' || r.data.control_reporte=='nacimiento_ano' || r.data.control_reporte=='nacimiento_mes'){//#66
 							this.mostrarComponente(this.Cmp.id_gestion);
 							this.mostrarComponente(this.Cmp.id_periodo);
 							this.Cmp.id_gestion.allowBlank=false;
@@ -549,28 +557,35 @@ header("content-type: text/javascript; charset=UTF-8");
 								}
 							
 							
-						}
+						}*/
 						
 						
-						this.Cmp.formato_reporte.allowBlank=true;
-						this.Cmp.formato_reporte.setValue('');
 						this.Cmp.id_uo.allowBlank=true;
 						this.Cmp.id_uo.setValue('');
 						
+						this.ocultarComponente(this.Cmp.id_afp);
+						this.Cmp.id_afp.allowBlank=true;
+						this.Cmp.id_afp.setValue('');
+						this.Cmp.id_tipo_contrato.allowBlank=true;
+							
+						this.ocultarComponente(this.Cmp.fecha);
+						this.Cmp.fecha.allowBlank=true;
+						this.Cmp.fecha.setValue('');
 						
+						this.mostrarComponente(this.Cmp.id_gestion);
+						this.mostrarComponente(this.Cmp.id_periodo);
+						this.Cmp.id_gestion.allowBlank=false;
+						this.Cmp.id_periodo.allowBlank=false;
 						
-							this.ocultarComponente(this.Cmp.id_afp);
-							this.Cmp.id_afp.allowBlank=true;
-							this.Cmp.id_afp.setValue('');
-							
-							
-							
-							
-							
-							this.Cmp.id_tipo_contrato.allowBlank=true;
-							
-							
-							if (r.data.control_reporte=='empleado_edad' || r.data.control_reporte=='empleado_antiguedad' || c.value=='dependientes_edad'){
+						this.ocultarComponente(this.Cmp.rango_fin);
+						this.ocultarComponente(this.Cmp.rango_inicio);
+						this.Cmp.rango_inicio.allowBlank=true;
+						this.Cmp.rango_fin.allowBlank=true;
+						
+						this.mostrarComponente(this.Cmp.formato_reporte);	
+						this.Cmp.formato_reporte.allowBlank=false;
+						
+						if (r.data.control_reporte=='empleado_edad' || r.data.control_reporte=='empleado_antiguedad' || c.value=='dependientes_edad'){
 								
 								this.mostrarComponente(this.Cmp.rango_fin);
 								this.mostrarComponente(this.Cmp.rango_inicio);
@@ -578,20 +593,41 @@ header("content-type: text/javascript; charset=UTF-8");
 								this.Cmp.rango_fin.allowBlank=false;
 								
 								//this.ocultarComponente(this.Cmp.id_tipo_contrato);
+								//this.ocultarComponente(this.Cmp.formato_reporte);
 								
-								
-							}else{  
-								this.ocultarComponente(this.Cmp.rango_fin);
+						}else{  
+								/*this.ocultarComponente(this.Cmp.rango_fin);
 								this.ocultarComponente(this.Cmp.rango_inicio);
 								this.Cmp.rango_inicio.allowBlank=true;
-								this.Cmp.rango_fin.allowBlank=true;
-								
+								this.Cmp.rango_fin.allowBlank=true;*/
+								this.mostrarComponente(this.Cmp.formato_reporte);
 								//this.mostrarComponente(this.Cmp.id_tipo_contrato);
 								
 								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
 									this.mostrarComponente(this.Cmp.id_afp);
 									this.Cmp.id_afp.allowBlank=false;
 								
+								}else{
+									if(r.data.control_reporte=='reserva_beneficios' || r.data.control_reporte=='reserva_beneficios2' || r.data.control_reporte=='reserva_beneficios3'){
+										this.mostrarComponente(this.Cmp.fecha);
+										this.Cmp.fecha.allowBlank=false;
+										
+										this.ocultarComponente(this.Cmp.id_gestion);
+										this.ocultarComponente(this.Cmp.id_periodo);
+										this.Cmp.id_gestion.allowBlank=true;
+										this.Cmp.id_gestion.setValue('');
+										
+										this.Cmp.id_periodo.allowBlank=true;
+										this.Cmp.id_periodo.setValue('');
+									}else{
+										if(r.data.control_reporte=='asignacion_cargos' || r.data.control_reporte=='movimiento_personal' || r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc' ){
+											this.ocultarComponente(this.Cmp.id_periodo);
+											this.Cmp.id_periodo.allowBlank=true;
+											this.Cmp.id_periodo.setValue('');
+										}
+										
+									}
+									
 								}
 								
 								
@@ -599,7 +635,11 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 							}
 							
-							
+						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes' || r.data.control_reporte=='dependientes_edad'
+){
+							this.ocultarComponente(this.Cmp.formato_reporte);
+						}
+
 							
 						//},this);
 					

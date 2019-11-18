@@ -5,6 +5,7 @@
 //#65			MZM			16.10.2019				Inclusion de TC para reporte en $us
 //#69			MZM			29.10.2019				Ajuste para reporte Hras trabajadas
 //#70			MZM			31.10.2019				adicion de totales cuando no existen columnas fijas
+//#77			MZM			14.11.2019				Ajuste reportes varios
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -13,6 +14,8 @@ class RPlanillaGenerica extends  ReportePDF {
 	var $numeracion;
 	var $ancho_sin_totales;
 	var $cantidad_columnas_estaticas;
+	var $bordes;
+	var $interlineado;
 	
 	function Header() {
 		//cabecera del reporte
@@ -37,7 +40,14 @@ class RPlanillaGenerica extends  ReportePDF {
 		//Al Mes De  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion']
 		
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+		
+		
+		if($this->datos_titulo['periodo']!=''){
+			$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');	
+		}else{
+			$this->Cell(0,5,'GESTION ' . $this->datos_titulo['gestion'],0,1,'C'); // planilla prima 31.10.2019
+		}
+		
 		
 		
 		if ($this->datos_titulo['mostrar_ufv']=='si'){
@@ -172,6 +182,9 @@ class RPlanillaGenerica extends  ReportePDF {
 		}
 		
 		
+		$this->bordes= $this->datos_titulo['bordes'];
+		$this->interlineado=$this->datos_titulo['interlineado'];
+		
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
@@ -200,7 +213,7 @@ class RPlanillaGenerica extends  ReportePDF {
 					
 					if($array_show[((count($array_show))-1)]!=0){ 
 						$this->SetFont('','',6);
-						$this->UniRow($array_show);
+						$this->UniRow($array_show,false, $this->bordes, $this->interlineado);
 						$this->numeracion++;
 						$empleados_gerencia++;
 					}
@@ -250,7 +263,7 @@ class RPlanillaGenerica extends  ReportePDF {
 					
 				}else{
 						$this->SetFont('','',6);
-						$this->UniRow($array_show);
+						$this->UniRow($array_show,false, $this->bordes, $this->interlineado);
 						$columnas = 0;
 						//Si cambia la gerencia
 						if ($this->gerencia != $value['gerencia']) {
@@ -308,9 +321,12 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		$this->SetFont('','',6);
 		//Añade al ultimo empleado de la lista
+		//#77
+		$abc=(count($array_show)-1);
 		
-		if($array_show[((count($array_show))-1)]!=0){
-			$this->UniRow($array_show);
+		
+		if($array_show[$abc-1]!=''){
+			$this->UniRow($array_show,false, $this->bordes, $this->interlineado);
 			$this->numeracion++; //------------***********
 			$empleados_gerencia++;
 		}
@@ -343,11 +359,10 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		
 		//planilla
-		
+		//#70
 		if($this->ancho_sin_totales > 0){
-		
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
-		}//#70
+		}
 			for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
 					$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_total[$i]/$this->datos_titulo['tc'],2,',','.'),1,0,'R');//#50
