@@ -21,7 +21,8 @@ $body$
  #66	ETR				15.10.2019			MZM					Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
  #67	ETR				16.10.2019			MZM					Reporte de asignacion de cargos
  #72	ETR				04.11.2019			MZM					Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
- #75	ETR				05.11.2019			MZM					bug en fecha de tipo_jub 
+ #75	ETR				05.11.2019			MZM					bug en tipo_jub
+ #77	ETR				15.11.2019			MZM					Ajuste reportes
  ***************************************************************************/
 
 DECLARE
@@ -88,6 +89,8 @@ DECLARE
    v_registros_det record;
    
    v_tipo_jub varchar; --#72
+   --#77
+   v_fecha	date;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -98,6 +101,20 @@ BEGIN
     if(p_transaccion='PLA_TOTRANGO_SEL')then
  		begin
            
+        --#77
+        if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+          if(v_parametros.fecha is not null) then
+        	 v_fecha:=v_parametros.fecha;
+          else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+          end if;
+        else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+           
+        end if;
+         
         	create temp table tt_func(
               id_funcionario integer,
               fecha_ingreso date,
@@ -117,7 +134,7 @@ BEGIN
                             
 
               v_fecha_ini_ctto:= (plani.f_get_fecha_primer_contrato_empleado(v_registros.id_funcionario, v_registros.id_funcionario, v_registros.fecha_asignacion));
-              v_antiguedad:=(select v_parametros.fecha - v_fecha_ini_ctto );
+              v_antiguedad:=(select v_fecha - v_fecha_ini_ctto );
               v_antiguedad_anos= round(v_antiguedad/365,0); 
 			  v_antiguedad:=v_antiguedad-(v_antiguedad_anos*365);
 
@@ -139,6 +156,8 @@ BEGIN
               cargo varchar,
               fecha_nacimiento date,
               edad integer
+              --#77
+              ,fecha_rep	date
               
        		)on commit drop;
           
@@ -161,15 +180,15 @@ BEGIN
         	v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
           end if;
         end if;
-          
-          
+        
+       
           while (v_contador< v_bandera) loop
                
               if(v_parametros.tipo_reporte='empleado_edad') then
                v_filtro:='select rfu.nombre_uo_pre,trim (both ''FUNODTPR'' from rfu.codigo) as codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
                       tt.antiguedad_ant,tt.antiguedad_anos,tt.antiguedad, rfu.genero, rfu.fecha_nacimiento, 
                       --rfu.edad
-                        date_part(''year''::text,age('''||v_parametros.fecha||''', rfu.fecha_nacimiento))::integer as edad
+                        date_part(''year''::text,age('''||v_fecha||''', rfu.fecha_nacimiento))::integer as edad
                       
                       ,rfu.nombre_cargo
                       from plani.vrep_funcionario rfu
@@ -182,8 +201,8 @@ BEGIN
                             (rfu.fecha_finalizacion is null or rfu.fecha_finalizacion>now())
                             and 
                             rfu.tipo=''oficial'' and
-                            tt.fecha_ingreso <'''|| v_parametros.fecha ||'''
-                            and date_part(''year''::text,age('''||v_parametros.fecha||''', rfu.fecha_nacimiento))::integer between '|| v_contador||' and '|| v_fin||v_condicion|| '
+                            tt.fecha_ingreso <'''|| v_fecha ||'''
+                            and date_part(''year''::text,age('''||v_fecha||''', rfu.fecha_nacimiento))::integer between '|| v_contador||' and '|| v_fin||v_condicion|| '
                  			order by rfu.genero,rfu.fecha_nacimiento DESC, rfu.desc_funcionario2 ';
               else
                 v_filtro:=' select rfu.nombre_uo_pre,trim (both ''FUNODTPR'' from rfu.codigo) as codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
@@ -198,7 +217,7 @@ BEGIN
                             where
                             (rfu.fecha_finalizacion is null or rfu.fecha_finalizacion>now())
                             and rfu.tipo=''oficial'' and
-                            tt.fecha_ingreso <'''|| v_parametros.fecha ||'''
+                            tt.fecha_ingreso <'''|| v_fecha ||'''
                             and tt.antiguedad_anos between '|| v_contador||' and '|| v_fin||v_condicion|| '
                  			order by rfu.genero,tt.fecha_ingreso DESC, rfu.desc_funcionario2 ';
               end if;
@@ -218,7 +237,10 @@ BEGIN
                       v_registros.genero,
                       v_registros.nombre_cargo,
                       v_registros.fecha_nacimiento,
-                      v_registros.edad);
+                      v_registros.edad
+                      --#77
+                      ,v_fecha
+                      );
                  end loop;
                  v_contador:=v_fin+1;
                  v_fin:=v_contador+v_parametros.rango_fin-1;  
@@ -235,8 +257,27 @@ BEGIN
         
     elsif(p_transaccion='PLA_DATPLAEMP_SEL')then
  		begin     
+        --#77
+        if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+          if(v_parametros.fecha is not null) then
+        	 v_fecha=v_parametros.fecha;
+             v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+          else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+          end if;
+        else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+        end if;
         
-        v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+        
+        
+      
+        
+        
         if(v_parametros.tipo_reporte='reserva_beneficios2') then
            for v_registros in (select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
 							on p.id_periodo=pl.id_periodo
@@ -274,8 +315,10 @@ BEGIN
            end if;
            
            
-    	end if;                    
-        v_tc:=(select round( param.f_get_tipo_cambio((select id_moneda from param.tmoneda where triangulacion='si' limit 1), v_parametros.fecha,'O'),2));
+    	end if;   
+        
+                         
+        v_tc:=(select round( param.f_get_tipo_cambio((select id_moneda from param.tmoneda where triangulacion='si' limit 1), v_fecha,'O'),2));
         v_col:='inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=plani.id_tipo_planilla 
 				inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
 				and tcol.codigo = colval.codigo_columna';
@@ -294,10 +337,17 @@ BEGIN
        
         
         v_cols:='tcol.codigo,round(colval.valor,2),';
-        
+        --#77
+        v_estado:=''; -- para los q se ordenan por organigrama
                 if(v_parametros.tipo_reporte='nomina_salario') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'',''HABBAS'')';
-                    v_ordenar:='cen.uo_centro_orden,fun.desc_funcionario2,tcol.codigo desc';
+                    v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,fun.desc_funcionario2,tcol.codigo desc';
+                    
+                    --#77
+                    v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
+               	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
+                    
                 elseif (v_parametros.tipo_reporte='no_sindicato' or v_parametros.tipo_reporte='aporte_sindicato') then
                 	if(v_parametros.tipo_reporte='no_sindicato') then
                     	v_col:=v_col||' and tcol.codigo in (''APSIND'') and colval.valor=0';
@@ -319,7 +369,7 @@ BEGIN
         			 end if;
                     
                     
-                else 
+                else -- salarios CT
                     create temp  table tt_totplan(id_funcionario integer,
                     total numeric, codigo varchar) on commit drop;
                 
@@ -366,8 +416,14 @@ BEGIN
                 
                     v_col:='inner join tt_totplan tcol on tcol.id_funcionario=fp.id_funcionario 
                     ';
-                    v_ordenar:='cen.uo_centro_orden,fun.desc_funcionario2,tcol.codigo asc';
                     v_cols:='tcol.codigo, round(tcol.total,2),';
+                    
+                    --#77
+                    v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,fun.desc_funcionario2,tcol.codigo desc';
+                   
+                    v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
+               	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
                 end if;
 
         
@@ -398,24 +454,24 @@ BEGIN
                             colval.valor,
                             
                              (case when ff.fecha_quinquenio is null then
-                               date_part('year' ::text, age(v_parametros.fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) ) ))::integer  
+                               date_part('year' ::text, age(v_fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) ) ))::integer  
                             else
-	                            date_part('year' ::text, age(v_parametros.fecha,ff.fecha_quinquenio))::integer                           
+	                            date_part('year' ::text, age(v_fecha,ff.fecha_quinquenio))::integer                           
                             end) AS anos_quinquenio  
 
                            ,
                            (case when ff.fecha_quinquenio is null then
-                              date_part('month' ::text, age(v_parametros.fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) )))::integer 
+                              date_part('month' ::text, age(v_fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) )))::integer 
                            else
-                               date_part('month' ::text, age(v_parametros.fecha,ff.fecha_quinquenio))::integer 
+                               date_part('month' ::text, age(v_fecha,ff.fecha_quinquenio))::integer 
                            end) as mes_quinquenio
                            
                            
                            , 
                            (case when ff.fecha_quinquenio is null then
-                                date_part('day' ::text, age(v_parametros.fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) )))::integer 
+                                date_part('day' ::text, age(v_fecha,(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion) )))::integer 
                            else
-	                            date_part('day' ::text, age(v_parametros.fecha,ff.fecha_quinquenio))::integer 
+	                            date_part('day' ::text, age(v_fecha,ff.fecha_quinquenio))::integer 
                            end ) as dias_quinquenio, v_tc as tc
                             
                             
@@ -449,10 +505,10 @@ BEGIN
           
                  v_consulta:='select
                             fun.id_funcionario,
-                            substring(fun.desc_funcionario2 from 1 for 38),
+                            substring(fun.desc_funcionario2 from 1 for 36),
                             trim (both ''FUNODTPR'' from fun.codigo)::varchar as codigo,
                             fun.ci,
-                            (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)) as fecha_ingreso,
+                            (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))) as fecha_ingreso,
                             '||v_cols||'
                             tcon.nombre,
                             substring(car.nombre from 1 for 50) ,
@@ -463,9 +519,9 @@ BEGIN
                             ,ofi.nombre as distrito, pers.expedicion,'||v_tc||',
 							
                             (case when ff.fecha_quinquenio is null then
-                               (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))
+                               (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))
                              else
-                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
+                               (case when ff.fecha_quinquenio>'''||v_fecha||''' then
                                   (ff.fecha_quinquenio -  interval ''60 month'')::date
                                else
                             		ff.fecha_quinquenio
@@ -475,23 +531,23 @@ BEGIN
                             ,
                             
 							(case when ff.fecha_quinquenio is null then
-                               date_part(''year'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)) ))::integer  
+                               date_part(''year'' ::text, age('''||v_fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))) ))::integer  
                             else
-                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
-                               		date_part(''year'' ::text, age('''||v_parametros.fecha||''', (ff.fecha_quinquenio -  interval ''60 month'')::date ))::integer                           
+                               (case when ff.fecha_quinquenio>'''||v_fecha||''' then
+                               		date_part(''year'' ::text, age('''||v_fecha||''', (ff.fecha_quinquenio -  interval ''60 month'')::date ))::integer                           
                                else
-                               	 date_part(''year'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer                           
+                               	 date_part(''year'' ::text, age('''||v_fecha||''',ff.fecha_quinquenio))::integer                           
                                end)
                             end) AS anos_quinquenio  
 
                            ,
                            (case when ff.fecha_quinquenio is null then
-                              date_part(''month'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))))::integer 
+                              date_part(''month'' ::text, age('''||v_fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))))::integer 
                            else
-                           		(case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
-                                    date_part(''month'' ::text, age('''||v_parametros.fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
+                           		(case when ff.fecha_quinquenio>'''||v_fecha||''' then
+                                    date_part(''month'' ::text, age('''||v_fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
                                 else
-		                              date_part(''month'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer                                 
+		                              date_part(''month'' ::text, age('''||v_fecha||''',ff.fecha_quinquenio))::integer                                 
                                 end )
 
                            end) as mes_quinquenio
@@ -499,12 +555,12 @@ BEGIN
                            
                            , 
                            (case when ff.fecha_quinquenio is null then
-                                date_part(''day'' ::text, age('''||v_parametros.fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))))::integer 
+                                date_part(''day'' ::text, age('''||v_fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))))::integer 
                            else
-                               (case when ff.fecha_quinquenio>'''||v_parametros.fecha||''' then
-                                      date_part(''day'' ::text, age('''||v_parametros.fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
+                               (case when ff.fecha_quinquenio>'''||v_fecha||''' then
+                                      date_part(''day'' ::text, age('''||v_fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
                                 else
-		                             date_part(''day'' ::text, age('''||v_parametros.fecha||''',ff.fecha_quinquenio))::integer 
+		                             date_part(''day'' ::text, age('''||v_fecha||''',ff.fecha_quinquenio))::integer 
                                 end )
                            end ) as dias_quinquenio
                            , esclim.haber_basico as basico_limite, esclim.codigo as nivel_limite
@@ -532,9 +588,10 @@ BEGIN
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion=per.id_gestion
+                        '||v_estado||' --#77
                         where
                         
-                         (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion))  <= '''||v_parametros.fecha||''' and
+                         (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))  <= '''||v_fecha||''' and
                         
                         '||v_condicion||'
                        
@@ -547,7 +604,23 @@ BEGIN
         end;
      elsif(p_transaccion='PLA_DATAPORTE_SEL')then
  		begin 
-           v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+           
+           --#77
+            if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+              if(v_parametros.fecha is not null) then
+                 v_fecha=v_parametros.fecha;
+                 v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+              else
+                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 v_id_periodo:=v_parametros.id_periodo;
+              end if;
+            else
+                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 v_id_periodo:=v_parametros.id_periodo;
+            end if;
+           
            v_condicion:=' and 0=0';
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
           		if(v_parametros.id_tipo_contrato>0) then
@@ -614,20 +687,20 @@ BEGIN
                       
       			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
                   
-                  --#72  --#75
-select tipo_jubilado into v_tipo_jub
+                  --#72  
+				select tipo_jubilado into v_tipo_jub
                   from plani.tfuncionario_afp
                   where id_funcionario=v_registros.id_funcionario
                   and estado_reg='activo'
-                  and fecha_ini <=v_fecha_fin and fecha_fin is null order by fecha_fin desc ;
-                  
-                  if(v_tipo_jub is NULL) then
+                  and v_fecha between fecha_ini and coalesce(fecha_fin,v_fecha) order by fecha_fin desc ;
+                  --#77
+                  /*if(v_tipo_jub is NULL) then
                   select tipo_jubilado into v_tipo_jub
                   from plani.tfuncionario_afp
                   where id_funcionario=v_registros.id_funcionario
                   and estado_reg='activo'
                   and fecha_fin >=v_fecha_fin order by fecha_fin desc ;
-                  end if;
+                  end if;*/
 
               		insert into tt_func 
               		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub );
@@ -733,8 +806,24 @@ select tipo_jubilado into v_tipo_jub
       end;  
     elsif (p_transaccion='PLA_PLATRIB_SEL') then
       begin 
-    		v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
-        	 
+    		
+          --#77
+            if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+              if(v_parametros.fecha is not null) then
+                 v_fecha=v_parametros.fecha;
+                 v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+              else
+                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 v_id_periodo:=v_parametros.id_periodo;
+              end if;
+            else
+                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 v_id_periodo:=v_parametros.id_periodo;
+            end if;     
+      
+      
             SELECT
                   per.fecha_ini,
                   per.fecha_fin
@@ -752,7 +841,7 @@ select tipo_jubilado into v_tipo_jub
             )on commit drop;
 
             for v_registros in (
-                  select fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
+                  select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
                   f.fecha_finalizacion
                   from plani.tfuncionario_planilla fp
                   inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
@@ -815,8 +904,25 @@ select tipo_jubilado into v_tipo_jub
        end;    
     elsif (p_transaccion='PLA_INFDEP_SEL') then
       begin 
-    		v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
-        	    
+    		
+             
+      --#77
+        if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+          if(v_parametros.fecha is not null) then
+        	 v_fecha=v_parametros.fecha;
+             v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+          else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+          end if;
+        else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+        end if;   
+            
+            
              v_condicion:=' and 0=0 ';
              if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
               if(v_parametros.id_tipo_contrato>0) then
@@ -914,7 +1020,22 @@ select tipo_jubilado into v_tipo_jub
       end;
     elsif (p_transaccion='PLA_CURVSAL_SEL') then           
        begin
-          v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+         --#77
+        if pxp.f_existe_parametro(p_tabla , 'fecha')then  
+          if(v_parametros.fecha is not null) then
+        	 v_fecha=v_parametros.fecha;
+             v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+          else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+          end if;
+        else
+             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             v_id_periodo:=v_parametros.id_periodo;
+        end if;
+          
         --#66
         v_condicion:=' and 0=0 ';
         
@@ -1028,7 +1149,7 @@ select tipo_jubilado into v_tipo_jub
                                             order by fecha_asignacion desc limit 1)
                                  ,(select orga.f_get_cargo_x_funcionario_str(tf.id_funcionario,plani.fecha_planilla))) as cargo, 
                                 (plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario))) as fecha_ingreso,
-                                pxp.f_iif(tcon.codigo=''PLA'',''Indefinido'',''Fijo'') as tiempo_contrato,
+                                 pxp.f_iif(tcon.codigo=''PLA'' and uof.fecha_finalizacion is null,''Indefinido'',''Fijo'') as tiempo_contrato,
                                 ofi.nombre as distrito,
                                 (select  codigo_uo_centro from orga.vuo_centro where id_uo= uof.id_uo) as codigo_centro,niv.numero_nivel,
                                 esc.nombre as escala_cargo ,
@@ -1073,6 +1194,8 @@ select tipo_jubilado into v_tipo_jub
                                 inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion
                                 where 
                                 plani.id_periodo='||v_id_periodo||v_condicion||' and 
+            					 plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla) and 
+
                                 tippla.codigo=''PLASUE'' 
                                 order by '||v_ordenar;
 
@@ -1097,7 +1220,7 @@ select tipo_jubilado into v_tipo_jub
                           	v_estado:='N';
                     elsif (v_registros_det.codigo='MAY65' and v_registros_det.valor=0) then
                     		v_estado:='M';
-            		elsif (v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_parametros.fecha) then
+            		elsif (v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
                        if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
                         	v_estado:='R';
                        	else
@@ -1107,7 +1230,7 @@ select tipo_jubilado into v_tipo_jub
                        v_estado:='A';
                     end if;
                     
-                    if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_parametros.fecha) then
+                    if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
                       if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
                           v_fecha_fin:=v_registros.fecha_finalizacion;
                           v_motivo:=v_registros.observaciones_finalizacion;
@@ -1344,24 +1467,39 @@ select tipo_jubilado into v_tipo_jub
    elsif (p_transaccion='PLA_FRECCAR_SEL') then  --#67
        begin  
     
-			  v_condicion:=' and 0=0';
+			--#77
+		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
+        		v_id_periodo:=v_parametros.id_periodo;
+       	   else
+               v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
+               inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
+               where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
+           end if;
+       
+        	  v_condicion:=' and 0=0';
               if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                 if(v_parametros.id_tipo_contrato>0) then
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
               end if;
    
+		     
+             
+             
+   
               v_consulta:='select distinct tc.codigo, tc.nombre, (select count(*) from segu.tpersona pp inner join 
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
               inner join orga.tuo_funcionario uofunn on uofunn.id_funcionario=funn.id_funcionario
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
-
+				and uofunn.estado_reg=''activo''
+                             and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
                where carr.id_tipo_cargo=tc.id_tipo_cargo
               and genero=''femenino'')::integer as femenino , (select count(*) from segu.tpersona pp inner join 
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
               inner join orga.tuo_funcionario uofunn on uofunn.id_funcionario=funn.id_funcionario
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
-
+				and uofunn.estado_reg=''activo''
+                             and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
                where carr.id_tipo_cargo=tc.id_tipo_cargo
               and genero!=''femenino'')::integer as masculino
               from orga.ttipo_cargo tc
@@ -1369,7 +1507,11 @@ select tipo_jubilado into v_tipo_jub
               inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo
               inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
               inner join orga.tfuncionario fun on fun.id_funcionario=uofun.id_funcionario
-              where tc.estado_reg=''activo'' '||v_condicion||'
+              inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_uo_funcionario=uofun.id_uo_funcionario --#77
+              inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+              where tc.estado_reg=''activo'' AND uofun.estado_reg=''activo'' and plani.id_tipo_contrato=tcon.id_tipo_contrato '||v_condicion||'
+              and plani.id_periodo='||v_id_periodo||'
+             
               order by tc.nombre';
               return v_consulta;
       end;
@@ -1436,8 +1578,30 @@ select tipo_jubilado into v_tipo_jub
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
               end if;
+              
+              --#77
+		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
+        		v_id_periodo:=v_parametros.id_periodo;
+       	   else
+               v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
+               inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
+               where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
+           end if;
+       
+       --#77
+       v_estado:='';
+              
        if(v_parametros.tipo_reporte='directorio_empleados') then
-            v_ordenar:='vrep.uo_centro_orden, vrep.desc_funcionario2';
+           -- v_ordenar:='vrep.uo_centro_orden, vrep.desc_funcionario2';
+           --#77
+            v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,vrep.desc_funcionario2';
+                   
+            v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
+               	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
+            
+            
+            
        elsif(v_parametros.tipo_reporte='nacimiento_ano') then
         	v_ordenar:='(SELECT EXTRACT(YEAR FROM vrep.fecha_nacimiento)), vrep.desc_funcionario2';
        elsif(v_parametros.tipo_reporte='nacimiento_mes') then
@@ -1464,6 +1628,8 @@ select tipo_jubilado into v_tipo_jub
                           inner join orga.ttipo_contrato tcon on vrep.codigo_tipo_contrato=tcon.codigo '||v_condicion||' 
                           and uofun.estado_reg=''activo'' and uofun.tipo=''oficial''
                           and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now() )
+                          and plani.fecha_planilla between vrep.fecha_ini_afp and coalesce(vrep.fecha_fin_afp,plani.fecha_planilla)
+                          '||v_estado||'
                           where
                           ';
                            v_consulta:=v_consulta||v_parametros.filtro;
