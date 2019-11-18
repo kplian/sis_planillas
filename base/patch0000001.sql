@@ -1458,4 +1458,11 @@ WITH (oids = false);
 
 
 
+/***********************************I-SCP-MZM-PLANI-77-15/11/2019****************************************/
 
+ALTER TABLE plani.treporte
+  ADD COLUMN bordes INTEGER;
+
+ALTER TABLE plani.treporte
+  ADD COLUMN interlineado NUMERIC(5,2);
+/***********************************F-SCP-MZM-PLANI-77-15/11/2019****************************************/
