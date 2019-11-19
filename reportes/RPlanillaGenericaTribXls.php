@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #77	ETR			   19/11/2019			MZM					Cambio en for
 */
 class RPlanillaGenericaTribXls
 {
@@ -195,8 +196,8 @@ class RPlanillaGenericaTribXls
 				
 				
 	                $this->docexcel->getActiveSheet()->setTitle('RelacionSaldos');
-	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
-	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);//categoria
+	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);//categoria
 	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);//pres
 	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);//pres
 	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);//pres
@@ -259,45 +260,39 @@ class RPlanillaGenericaTribXls
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 				$this->docexcel->getActiveSheet()->mergeCells("A2:X2");
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos['periodo_lite']);
 				 
 				
 				$tipo_contrato='';
 				
-				foreach ($datos_det as $value){
+				$id_funcionario=0; 
+				$columnas=0;
+				foreach ($datos_det as $value){//#77
 
+					if($id_funcionario!=$value['id_funcionario'] ){
+						if($id_funcionario!=0){
+							$fila++;	
+						}
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['gestion']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['periodo']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['codigo_rciva']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nombre']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['apellido_paterno']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['apellido_materno']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['num_ci']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, 'CI');
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['novedad']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['valor']);
+					    $columnas=10;
+						
+					} else{
+			 	  	  
+					   $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow($columnas, $fila, $value['valor']);
+					   $columnas++;
+					}
+					 $id_funcionario=$value['id_funcionario'];
 					
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['gestion']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['periodo']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['codigo_rciva']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['apellido_paterno']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['apellido_materno']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['num_ci']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['CI']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(22, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(23, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(24, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(25, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(26, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(27, $fila, $value['nombre']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $value['nombre']);
 					
-					$fila++;
 				}
 					
                   
@@ -312,7 +307,7 @@ class RPlanillaGenericaTribXls
         $mes = $mes[(date('m', strtotime($fecha))*1)-1];
         return $dia.' de '.$mes.' del '.$anno;
     }
-    function generarReporte($datos,$datos_det){ 
+    function generarReporte($datos,$datos_det){ //echo ($datos['periodo_lite']); exit;
         $this->generarDatos($datos,$datos_det);
         $this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
