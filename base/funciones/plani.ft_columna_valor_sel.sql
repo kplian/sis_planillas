@@ -21,6 +21,14 @@ $body$
  DESCRIPCION:	
  AUTOR:			
  FECHA:		
+ 
+ 
+     HISTORIAL DE MODIFICACIONES:
+
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+
+ #0            27-01-2014        guy      creacion
+ #78 ETR       18/11/2019        RAC      considerar esquema origen de datos para listado de backups, PLA_FUNPLAN_SEL
 ***************************************************************************/
 
 DECLARE
@@ -29,6 +37,7 @@ DECLARE
 	v_parametros  		record;
 	v_nombre_funcion   	text;
 	v_resp				varchar;
+     v_esquema          varchar;  --#78
 			    
 BEGIN
 
@@ -43,6 +52,13 @@ BEGIN
 	***********************************/
 
 	if(p_transaccion='PLA_COLVAL_SEL')then
+    
+        -- #78
+        IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+            v_esquema = v_parametros.esquema;
+        ELSE
+            v_esquema = 'plani';
+        END IF;
      				
     	begin
     		--Sentencia de la consulta
@@ -63,12 +79,12 @@ BEGIN
 						usu2.cuenta as usr_mod,
 						tipcol.nombre,
 						pla.estado
-						from plani.tcolumna_valor colval
+						from '||v_esquema||'.tcolumna_valor colval
 						inner join segu.tusuario usu1 on usu1.id_usuario = colval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = colval.id_usuario_mod
 						inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna = colval.id_tipo_columna
-						inner join plani.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
-						inner join plani.tplanilla pla on pla.id_planilla = funpla.id_planilla
+						inner join '||v_esquema||'.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
+						inner join '||v_esquema||'.tplanilla pla on pla.id_planilla = funpla.id_planilla
 				        where  ';
 			
 			--Definicion de la respuesta
@@ -90,14 +106,21 @@ BEGIN
 	elsif(p_transaccion='PLA_COLVAL_CONT')then
 
 		begin
+        
+            -- #78 cnsidera el parametro esquema para listado de backup
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                v_esquema = v_parametros.esquema;
+            ELSE
+                v_esquema = 'plani';
+            END IF;
 			--Sentencia de la consulta de conteo de registros
 			v_consulta:='select count(id_columna_valor)
-					    from plani.tcolumna_valor colval
+					    from '||v_esquema||'.tcolumna_valor colval
 					    inner join segu.tusuario usu1 on usu1.id_usuario = colval.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = colval.id_usuario_mod
 						inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna = colval.id_tipo_columna
-						inner join plani.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
-						inner join plani.tplanilla pla on pla.id_planilla = funpla.id_planilla
+						inner join '||v_esquema||'.tfuncionario_planilla funpla on funpla.id_funcionario_planilla = colval.id_funcionario_planilla
+						inner join '||v_esquema||'.tplanilla pla on pla.id_planilla = funpla.id_planilla
 					    where ';
 			
 			--Definicion de la respuesta		    

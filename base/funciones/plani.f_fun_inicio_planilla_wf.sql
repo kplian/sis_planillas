@@ -27,6 +27,7 @@ $body$
  #1 ETR           24/01/2019        RAC KPLIAN        quita la validacion automatiza del cbte de devengado     
  #7 ETR           25/05/2019        RAC KPLIAN        Configurar la logica para dividir el cbte de devengado en uno presupeustario y uno solo contable
  #21 ETR          17/07/2019        RAC               Recueprar la carga horaria segun configuracion de tuo_funcionario en de usar HORLAB, para que se considere los empleados de medio tiempo
+ #78 ETR          18/11/2019        RAC               Crear backup al retroceder estado finalizado
 */
 
 DECLARE
@@ -268,10 +269,12 @@ BEGIN
      --elsif (p_codigo_estado  in ('planilla_finalizada')) then
      --rensi 09050291, temporalemten un opocion para probar directament obligaciones
      --se agrega comprobante_obligaciones
-     elsif (p_codigo_estado  in ('planilla_finalizada','comprobante_obligaciones')) then
-         /*
-         
-         if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
+     --#78 genera obligacion en estado comprobante_obligaciones
+     elsif (p_codigo_estado  in ('comprobante_obligaciones')) then
+        
+        
+     
+        if (pxp.f_get_variable_global('plani_generar_comprobante_obligaciones') = 'si') then
             --generar obligacion de apgo sin agrupador
              for v_registros in (    
                                 select *
@@ -315,8 +318,8 @@ BEGIN
             
         end if;
         
-        */
-        
+     elsif (p_codigo_estado  in ('planilla_finalizada')) then   
+        --78  cambio a estado finalizado, aumentar logica si es necesario
      END IF;
 
 

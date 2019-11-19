@@ -14,7 +14,8 @@
 #43 ETR             18/09/2019          RAC                 añade datos de comprobante a la consulta
 #47 ETR             24-09-2019          Manuel Guerra       reporte de verificacion presupuestaria
 #54 ETR             24-09-2019          Manuel Guerra       mejora en consulta y reporte de verificación presupuestaria
- #68 ETR            24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
+#68 ETR             24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
+#78 ETR             18/11/2019          RAC KPLIAN          Listado de backups de planilla  
  ***/
 
 class MODPlanilla extends MODbase{
@@ -710,6 +711,67 @@ class MODPlanilla extends MODbase{
 
 		//Devuelve la respuesta
 		return $this->respuesta;
-	}			
+	}
+	
+	//#78
+	function listarPlanillaBk(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_PLANIBK_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('tipo_interfaz','tipo_interfaz','varchar');
+
+		//Definicion de la lista del resultado del query
+		$this->captura('id_planilla','int4');
+		$this->captura('id_periodo','int4');
+		$this->captura('id_gestion','int4');
+		$this->captura('id_uo','int4');
+		$this->captura('id_tipo_planilla','int4');
+		$this->captura('id_proceso_macro','int4');
+		$this->captura('id_proceso_wf','int4');
+		$this->captura('id_estado_wf','int4');
+		$this->captura('estado_reg','varchar');
+		$this->captura('observaciones','text');
+		$this->captura('nro_planilla','varchar');
+		$this->captura('estado','varchar');
+		$this->captura('fecha_reg','timestamp');
+		$this->captura('id_usuario_reg','int4');
+		$this->captura('id_usuario_mod','int4');
+		$this->captura('fecha_mod','timestamp');
+		$this->captura('usr_reg','varchar');
+		$this->captura('usr_mod','varchar');
+		$this->captura('gestion','int4');
+		$this->captura('periodo','int4');
+		$this->captura('nombre_planilla','varchar');
+		$this->captura('desc_uo','varchar');
+		$this->captura('id_depto','int4');
+		$this->captura('nombre_depto','varchar');
+		$this->captura('calculo_horas','varchar');
+		$this->captura('plani_tiene_presupuestos','varchar');
+		$this->captura('plani_tiene_costos','varchar');	
+		$this->captura('fecha_planilla','date');		
+		$this->captura('codigo_poa','varchar');
+		$this->captura('obs_poa','text');
+		$this->captura('dividir_comprobante','varchar');
+		$this->captura('tipo_contrato','varchar'); 
+		$this->captura('id_tipo_contrato','integer'); 
+		$this->captura('calcular_reintegro_rciva','varchar'); 
+		$this->captura('id_int_comprobante','int4');
+		$this->captura('id_int_comprobante_2','int4');
+		$this->captura('calcular_prima_rciva','varchar');
+		$this->captura('id_planilla_original','int4');
+		$this->captura('fecha_backup','date');
+		
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+				
 }
 ?>
