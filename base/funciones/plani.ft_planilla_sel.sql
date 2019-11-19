@@ -27,6 +27,7 @@ $body$
    #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
    #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria 
    #68    ETR             24/10/2019            RAC                  Registrar  calcular_prima_rciva
+   #78    ETR             18/11/2019            RAC                  Adcionar listado del historico de backup planilla  
    
  ***************************************************************************/
 
@@ -1256,7 +1257,7 @@ $body$
                         FROM plani.tconsolidado_columna   conc
                         INNER JOIN plani.tconsolidado conpre on conpre.id_consolidado = conc.id_consolidado
                         WHERE';
-		v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||v_parametros.filtro;
         v_consulta:=v_consulta||'group by
                         conpre.id_planilla,
                         conpre.id_consolidado
@@ -1322,6 +1323,114 @@ $body$
         --Devuelve la respuesta
         return v_consulta;
         end;
+        
+        
+    
+    /*********************************
+     #TRANSACCION:  'PLA_PLANIBK_SEL'
+     #DESCRIPCION:  #78 listado del historico de backup de planillas
+     #AUTOR:        admin
+     #FECHA:        18-11-2019
+    ***********************************/
+
+    elsif(p_transaccion='PLA_PLANIBK_SEL')then
+
+      begin
+
+        v_filtro = '';
+        
+
+        --Sentencia de la consulta
+        v_consulta:='select
+                        plani.id_planilla,
+                        plani.id_periodo,
+                        plani.id_gestion,
+                        plani.id_uo,
+                        plani.id_tipo_planilla,
+                        plani.id_proceso_macro,
+                        plani.id_proceso_wf,
+                        plani.id_estado_wf,
+                        plani.estado_reg,
+                        plani.observaciones,
+                        plani.nro_planilla,
+                        plani.estado,
+                        plani.fecha_reg,
+                        plani.id_usuario_reg,
+                        plani.id_usuario_mod,
+                        plani.fecha_mod,
+                        usu1.cuenta as usr_reg,
+                        usu2.cuenta as usr_mod,
+                        ges.gestion,
+                        per.periodo,
+                        tippla.codigo as nombre_planilla,  
+                        uo.nombre_unidad as desc_uo,
+                        plani.id_depto,
+                        depto.nombre,
+                        tippla.calculo_horas,
+                        pxp.f_get_variable_global(''plani_tiene_presupuestos''),
+                        pxp.f_get_variable_global(''plani_tiene_costos''),
+                        plani.fecha_planilla,
+                        plani.codigo_poa,
+                        plani.obs_poa,
+                        plani.dividir_comprobante, 
+                        tc.nombre as tipo_contrato ,
+                        plani.id_tipo_contrato,
+                        plani.calcular_reintegro_rciva,
+                        plani.id_int_comprobante,
+                        plani.id_int_comprobante_2,
+                        plani.calcular_prima_rciva ,
+                        plani.id_planilla_original,
+                        plani.fecha_backup
+                  from planibk.tplanilla plani
+                  inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
+                  left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
+                  inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
+                  left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                  inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
+                  left join orga.tuo uo on uo.id_uo = plani.id_uo
+                  inner join param.tdepto depto on depto.id_depto = plani.id_depto
+                  left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato --#13
+                  where  ' || v_filtro;
+
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
+       
+        --Devuelve la respuesta
+        return v_consulta;
+
+      end;
+
+    /*********************************
+     #TRANSACCION:  'PLA_PLANIBK_CONT'
+     #DESCRIPCION:    Conteo de registros
+     #AUTOR:        admin
+     #FECHA:        18-11-2019
+    ***********************************/
+
+    elsif(p_transaccion='PLA_PLANIBK_CONT')then
+
+      begin
+        --Sentencia de la consulta de conteo de registros
+
+         v_filtro = '';
+        v_consulta:='select count(id_planilla)
+                        from planibk.tplanilla plani
+                        inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
+                        inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
+                        left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
+                        left join orga.tuo uo on uo.id_uo = plani.id_uo
+                        left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato 
+                        where ' || v_filtro;
+
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+        --Devuelve la respuesta
+        return v_consulta;
+
+      end;    
 
     else
 

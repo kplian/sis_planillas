@@ -5,6 +5,12 @@
 *@author  (admin)
 *@date 27-01-2014 04:53:54
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
+ * 
+HISTORIAL DE MODIFICACIONES:
+#ISSUE				FECHA				AUTOR				DESCRIPCION
+#0              27-01-2014         RAC              creacion
+#78	ETR			19-11-2019         RAC				considerar esquema para origen de datos
+ * 
 */
 
 class MODColumnaValor extends MODbase{
@@ -18,6 +24,8 @@ class MODColumnaValor extends MODbase{
 		$this->procedimiento='plani.ft_columna_valor_sel';
 		$this->transaccion='PLA_COLVAL_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('esquema','esquema','varchar'); //#78
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_columna_valor','int4');

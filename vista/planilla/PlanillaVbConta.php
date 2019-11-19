@@ -139,6 +139,10 @@ header("content-type: text/javascript; charset=UTF-8");
             
             this.addButton('SolDev',{text:'Generar  Cbte Devengado', iconCls: 'bpagar',disabled: true, handler: this.onBtnDev ,tooltip: '<b>Solicitar Devengado</b><br/>Genera en cotabilidad el comprobante Correspondiente, devengado  '});
             
+            //#78 boton de historico de BK
+            this.addButton('PlaniBk',{text:'Histórico BK', iconCls: 'blist',disabled: true, handler: this.onBtnPlaniHis ,tooltip: '<b>Ver Historicos</b><br/> Muestra los backups generados para la planilla seleccionada  '});
+            
+            
             
             this.store.baseParams.tipo_interfaz =  this.nombreVista;            
             this.store.baseParams.pes_estado = 'vobo_conta';
@@ -146,6 +150,21 @@ header("content-type: text/javascript; charset=UTF-8");
             this.finCons = true;
         },
         
+        //#78
+        onBtnPlaniHis: function() {
+        	
+        	var rec = {maestro: this.sm.getSelected().data, vistaPadre: this.nombreVista };
+            Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/PlanillaHis.php',
+                    'Histórico Bk',
+                    {
+                        width: '90%',
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'PlanillaHis');
+        	
+        },
         
         onBtnDev: function() {
         	
@@ -791,8 +810,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('diagrama_gantt').enable();            
             this.getBoton('btnPresupuestos').enable();           
             this.getBoton('btnObligaciones').enable(); 
-            //
-            //this.getBoton('btnVerPre').enable();
+           
+            this.getBoton('PlaniBk').enable(); //#78
 
         },
         liberaMenu:function()
@@ -807,6 +826,8 @@ header("content-type: text/javascript; charset=UTF-8");
             this.getBoton('sig_estado').disable();
             this.getBoton('btnChequeoDocumentosWf').disable();
             this.getBoton('btnObs').disable();
+            this.getBoton('PlaniBk').disable();//#78
+            
         },
 
         loadCheckDocumentosPlanWf:function() {

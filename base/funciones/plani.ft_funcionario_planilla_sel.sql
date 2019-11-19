@@ -28,7 +28,7 @@ $body$
  #51            18/07/2019        RAC       bug en ordenacion , se agrgan alias
  #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
  #53 ETR        26/09/2019        RAC       listado para Interface que identifica empleado según centro de costo
-
+ #78 ETR        18/11/2019        RAC       considerar esquema origen de datos para listado de backups, PLA_FUNPLAN_SEL
 ***************************************************************************/
 
 DECLARE
@@ -39,6 +39,7 @@ DECLARE
     v_resp                varchar;
     v_fecha_ini            date;
     v_fecha_fin            date;
+    v_esquema              varchar;
 
 BEGIN
 
@@ -55,6 +56,14 @@ BEGIN
     if(p_transaccion='PLA_FUNPLAN_SEL')then
 
         begin
+        
+            -- #78
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+            ELSE
+               v_esquema = 'plani';
+            END IF; 
+        
             --Sentencia de la consulta
             v_consulta:='select
                         funplan.id_funcionario_planilla,
@@ -81,7 +90,7 @@ BEGIN
                         (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
                         funplan.tipo_contrato,
                         funcio.codigo as desc_codigo  --#29
-                        from plani.tfuncionario_planilla funplan
+                        from '||v_esquema||'.tfuncionario_planilla funplan
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
                         inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
@@ -91,8 +100,7 @@ BEGIN
                         left join plani.tfuncionario_afp fafp on fafp.id_funcionario_afp = funplan.id_afp
                         left join plani.tafp afp on afp.id_afp = fafp.id_afp
                         inner join param.tlugar lug on lug.id_lugar = funplan.id_lugar
-                        left join orga.tfuncionario_cuenta_bancaria fcb on
-                            fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
+                        left join orga.tfuncionario_cuenta_bancaria fcb on  fcb.id_funcionario_cuenta_bancaria = funplan.id_cuenta_bancaria
                         left join param.tinstitucion ins on ins.id_institucion = fcb.id_institucion
                         where  ';
 
@@ -114,6 +122,14 @@ BEGIN
     elsif(p_transaccion='PLA_FUNPLAN_CONT')then
 
         begin
+            
+            -- #78
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+            ELSE
+               v_esquema = 'plani';
+            END IF; 
+            
             --Sentencia de la consulta de conteo de registros
             v_consulta:='select count(id_funcionario_planilla)
                         from plani.tfuncionario_planilla funplan

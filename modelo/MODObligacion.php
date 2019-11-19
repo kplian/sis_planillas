@@ -13,6 +13,8 @@ HISTORIAL DE MODIFICACIONES:
 #38 ETR             12/09/2019          RAC                 metodo para verificar si existen cbtes de pago
 #46	ETR				23.09.2019			MZM					Listado para reporte abono en cuenta  
 #56	ETR				30.09.2019			MZM					Listado resumen de saldos
+#78	ETR			    19-11-2019          RAC				    considerar esquema para origen de datos PLA_OBLI_SEL
+ * 
  * */
 class MODObligacion extends MODbase{
 	
@@ -28,7 +30,8 @@ class MODObligacion extends MODbase{
 		
 		
 		$this->setParametro('groupBy','groupBy','varchar');	 //#38
-		$this->setParametro('groupDir','groupDir','varchar'); //#38
+		$this->setParametro('groupDir','groupDir','varchar'); //#38		
+		$this->setParametro('esquema','esquema','varchar'); //#78
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_obligacion','int4');		
@@ -196,7 +199,7 @@ class MODObligacion extends MODbase{
 		$this->captura('orden','numeric');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	
+	//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -228,7 +231,7 @@ class MODObligacion extends MODbase{
 		$this->captura('codigo','text');//#60
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	
+	//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta

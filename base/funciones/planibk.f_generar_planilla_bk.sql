@@ -101,7 +101,7 @@ BEGIN
                     p_id_usuario_ai,
                     p_usuario_ai,                   
                     p_id_planilla_original,  --id_planilla_original
-                    now(), --fecha_backup,
+                    now()::date, --fecha_backup,
                     v_planilla.id_gestion,
                     v_planilla.id_depto,
                     v_planilla.id_periodo,

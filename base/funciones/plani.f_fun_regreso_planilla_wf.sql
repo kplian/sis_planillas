@@ -1,3 +1,5 @@
+--------------- SQL ---------------
+
 CREATE OR REPLACE FUNCTION plani.f_fun_regreso_planilla_wf (
   p_id_usuario integer,
   p_id_usuario_ai integer,
@@ -20,8 +22,9 @@ $body$
        
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
- #0               17/10/2014        JRR KPLIAN       creacion
- #1 ETR           19/02/2019        RAC KPLIAN       elimina agrupadores de obligaciones
+ #0                17/10/2014        JRR KPLIAN       creacion
+ #1  ETR           19/02/2019        RAC KPLIAN       elimina agrupadores de obligaciones
+ #78 ETR           18/11/2019        RAC              Crear backup al retroceder estado finalizado
 
 */
 
@@ -41,6 +44,7 @@ DECLARE
     v_suma_porcentaje		numeric;
     v_id_horas_trabajadas	integer;
     v_registros				record;
+    v_resp_bool             boolean; --#78
    
 	
     
@@ -174,8 +178,17 @@ BEGIN
             
              --eliminacion de las obligaciones
             delete from plani.tobligacion
-            where id_planilla = v_planilla.id_planilla;     	 
-        	        
+            where id_planilla = v_planilla.id_planilla; 
+     
+     --#78 al retroceder de estado finalizado a vobo conta generamos un nuevo backup de la planilla
+     elsif (p_codigo_estado  in ('vobo_conta')) then            	 
+        
+        v_resp_bool =  planibk.f_generar_planilla_bk(
+                                      p_id_usuario, 
+                                      p_id_usuario_ai, 
+                                      p_usuario_ai, 
+                                      v_planilla.id_planilla);
+                                
      END IF;     
       
     -- actualiza estado en la solicitud

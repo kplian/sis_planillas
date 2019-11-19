@@ -11,6 +11,7 @@
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #74         04/11/2019           Rarteaga             creacion
+ #78 ETR     18-11-2019           RAC                  considerar esquema para origen de datos
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -21,10 +22,20 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 	constructor:function(config){
 		
 		this.maestro=config.maestro;
+		
+		this.south = ((config.esquema === 'plani')?{
+												  url:'../../../sis_planillas/vista/obligacion_columna/ObligacionColumna.php',
+													  title:'Detalle de Ejecución por Obligación', 
+													  height:'50%',
+													  cls:'ObligacionColumna'
+												}:undefined);
+	
+		
     	//llama al constructor de la clase padre
 		Phx.vista.ObligacionConta.superclass.constructor.call(this,config);
 		this.init();
 		this.store.baseParams.id_planilla = this.maestro.id_planilla;
+		this.store.baseParams.esquema = this.esquema?this.esquema:'plani'; //#78 si no existe el dato por defecto recupera de PLANI
 		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
 		
         
@@ -361,12 +372,6 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 	bsave:false,
 	bedit:false,
 	bnew:false,
-	south:{
-		  url:'../../../sis_planillas/vista/obligacion_columna/ObligacionColumna.php',
-		  title:'Detalle de Ejecución por Obligación', 
-		  height:'50%',
-		  cls:'ObligacionColumna'
-	},
 	
 	
     onBtnPag: function(){
@@ -506,7 +511,7 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 			});
 				
 	},
-	successGeneracion_txt:function(resp){
+	successGeneracion_txt:function(resp) {
 			Phx.CP.loadingHide();
 	        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
 	        
@@ -515,7 +520,7 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 		},//#46
 		
 		
-	onBtnRepBancos: function(){//#56
+	onBtnRepBancos: function() {//#56
 			var data=this.sm.getSelected().data;
 			
 			Phx.CP.loadingShow();
@@ -532,32 +537,24 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 	},
 	
 	
-	preparaMenu:function()
-    {	
-    	var rec = this.sm.getSelected().data;
-    	if(this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
+	preparaMenu: function()  {	
+    	var rec = this.sm.getSelected().data;    	
+    	if(this.esquema === 'plani' && this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
            	this.getBoton('SolPag').enable();
-           	//.getBoton('SolTodosPag').enable();
-           	
+           	this.getBoton('SolTodosPag').disable();	           	
         }
         else{
            this.getBoton('SolPag').disable();
-           	this.getBoton('SolTodosPag').disable();
-           	
-        }
-                
-             
+           this.getBoton('SolTodosPag').disable();
+        }  
         Phx.vista.ObligacionConta.superclass.preparaMenu.call(this);
     },
-    liberaMenu:function()
-    {	
-        
-        //this.getBoton('btnRepAbono').disable();//#46     
-        //this.getBoton('btnRepBancos').disable();//#56                      
+    liberaMenu: function() {	                   
         Phx.vista.ObligacionConta.superclass.liberaMenu.call(this);
+        this.getBoton('SolPag').disable();
+        this.getBoton('SolTodosPag').disable();
     },
-	}
-)
+});
 </script>
 		
 		
