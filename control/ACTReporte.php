@@ -654,7 +654,7 @@ function listarFuncionarioReporte($id_reporte){//#56
 		else{
 			if($this->objParam->getParametro('control_reporte')=='planilla_tributaria' ){
 				
-				$this->reportePlanillaTrib($titulo,$fecha); 
+				$this->reportePlanillaTrib($titulo,$id_periodo); //#77
 				   
 			}else{
 				if($this->objParam->getParametro('control_reporte')=='aporte_afp' || $this->objParam->getParametro('control_reporte')=='fondo_solidario' ){ 
@@ -664,7 +664,7 @@ function listarFuncionarioReporte($id_reporte){//#56
 						$this->reportePlanillaPersonal($titulo,$id_gestion); //nomina salarios BC, CT
 					}else{
 						if($this->objParam->getParametro('control_reporte')=='planilla_tributaria'){
-							$this->reportePlanillaTrib($titulo,$fecha);
+							$this->reportePlanillaTrib($titulo,$id_periodo); //#77
 						}else{
 							if($this->objParam->getParametro('control_reporte')=='dependientes' || $this->objParam->getParametro('control_reporte')=='dependientes_edad' ){
 								$this->reportePlanillaDep($titulo,$fecha,$id_tipo_contrato);//#66
@@ -864,7 +864,7 @@ function listarFuncionarioReporte($id_reporte){//#56
         $tamano = 'LEGAL';
         $orientacion = 'L';
        
-
+		
         $this->objParam->addParametro('orientacion',$orientacion);
         $this->objParam->addParametro('tamano',$tamano);
         $this->objParam->addParametro('titulo_archivo',$titulo);
@@ -883,7 +883,7 @@ function listarFuncionarioReporte($id_reporte){//#56
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()).$titulo);
 		
-		
+		if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
 			$nombreArchivo.='.pdf';
 	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 			
@@ -895,7 +895,17 @@ function listarFuncionarioReporte($id_reporte){//#56
 	        $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
 	        $this->objReporteFormato->generarReporte();
 	        $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
-
+		}else{
+			$titulo ='Planilla Tributaria';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        	$this->objReporteFormato=new RPlanillaGenericaTribXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos[0], $this->res2->datos);
+			
+		}
 		
 
 
