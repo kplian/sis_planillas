@@ -9,7 +9,8 @@ HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019               MMV                 Columna Codigo Funcionarion
 #53 ETR        26/09/2019               RAC                 listado para Interface que identifica empleado según centro de costo
-#61 ETR        01/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
+#61 ETR        01/10/2019               RAC                 Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
+#78 ETR        18/11/2019               RAC                 Considerar esquema origen para los listados backup de planillas 
  */
 
 class MODFuncionarioPlanilla extends MODbase{
@@ -23,6 +24,8 @@ class MODFuncionarioPlanilla extends MODbase{
 		$this->procedimiento='plani.ft_funcionario_planilla_sel';
 		$this->transaccion='PLA_FUNPLAN_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('esquema','esquema','varchar'); //#78
 				
 		//Definicion de la lista del resultado del query
 		$this->captura('id_funcionario_planilla','int4');

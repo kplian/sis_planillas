@@ -11,6 +11,7 @@
  ISSUE            FECHA:              AUTOR                 DESCRIPCION   
  #38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
  #47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
+ #78    ETR      18/11/2019        Adicionar listado de backups de planilla
  */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -270,7 +271,28 @@ class ACTPlanilla extends ACTbase{
 		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
 		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
 		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-	}	
+	}
+	
+	#78 listarPlanillaBk
+	function listarPlanillaBk(){
+        $this->objParam->defecto('ordenacion','id_planilla');
+        $this->objParam->defecto('dir_ordenacion','asc');
+        
+        if ($this->objParam->getParametro('id_planilla_original') != '') {
+            $this->objParam->addFiltro("plani.id_planilla_original = ". $this->objParam->getParametro('id_planilla_original'));
+        }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODPlanilla','listarPlanillaBk');
+        } else{
+            $this->objFunc=$this->create('MODPlanilla');
+
+            $this->res=$this->objFunc->listarPlanillaBk($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+		
 }
 
 ?>
