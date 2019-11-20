@@ -37,9 +37,11 @@ DECLARE
     v_obligacion_agrupador     record;
     v_id_obligacion_agrupador  integer;
     v_obligacion               record;
+    v_id_obligacion            integer;
     v_consolidado              record;
     v_id_consolidado           integer;
     v_consolidado_columna      record;
+    v_detalle_transferencia    record;
 
 
 
@@ -339,7 +341,51 @@ BEGIN
                       v_obligacion.id_partida_haber,
                       v_obligacion.id_auxiliar_haber,
                       v_obligacion.obs_cbte
-                    );
+                    ) RETURNING  id_obligacion into  v_id_obligacion;
+                    
+                    ---------------------------------------------------------------------------------
+                    -- copia la talba planibk.tdetalle_transferencia para obligaciones con agrupador
+                    ---------------------------------------------------------------------------------
+                    
+                    FOR v_detalle_transferencia IN (
+                           SELECT *
+                           FROM plani.tdetalle_transferencia dt
+                           WHERE dt.id_obligacion = v_obligacion.id_obligacion
+                    ) LOOP
+                    
+                         INSERT INTO 
+                                planibk.tdetalle_transferencia
+                              (
+                                id_usuario_reg,
+                                id_usuario_mod,
+                                fecha_reg,
+                                fecha_mod,
+                                estado_reg,
+                                id_usuario_ai,
+                                usuario_ai,                                
+                                id_obligacion,
+                                id_institucion,
+                                nro_cuenta,
+                                id_funcionario,
+                                monto_transferencia
+                              )
+                              VALUES (
+                                v_detalle_transferencia.id_usuario_reg,
+                                v_detalle_transferencia.id_usuario_mod,
+                                v_detalle_transferencia.fecha_reg,
+                                v_detalle_transferencia.fecha_mod,
+                                v_detalle_transferencia.estado_reg,
+                                v_detalle_transferencia.id_usuario_ai,
+                                v_detalle_transferencia.usuario_ai,                                
+                                v_id_obligacion,
+                                v_detalle_transferencia.id_institucion,
+                                v_detalle_transferencia.nro_cuenta,
+                                v_detalle_transferencia.id_funcionario,
+                                v_detalle_transferencia.monto_transferencia
+                              );
+                    
+                    END LOOP;
+                    
                END LOOP;
               
       END LOOP;
@@ -410,7 +456,50 @@ BEGIN
             v_obligacion.id_partida_haber,
             v_obligacion.id_auxiliar_haber,
             v_obligacion.obs_cbte
-          );
+          ) RETURNING  id_obligacion into  v_id_obligacion;
+                    
+              ---------------------------------------------------------------------------------
+              -- copia la talba planibk.tdetalle_transferencia para obligaciones SIN  agrupador
+              ---------------------------------------------------------------------------------
+                    
+              FOR v_detalle_transferencia IN (
+                     SELECT *
+                     FROM plani.tdetalle_transferencia dt
+                     WHERE dt.id_obligacion = v_obligacion.id_obligacion
+              ) LOOP
+                    
+                   INSERT INTO 
+                          planibk.tdetalle_transferencia
+                        (
+                          id_usuario_reg,
+                          id_usuario_mod,
+                          fecha_reg,
+                          fecha_mod,
+                          estado_reg,
+                          id_usuario_ai,
+                          usuario_ai,                                
+                          id_obligacion,
+                          id_institucion,
+                          nro_cuenta,
+                          id_funcionario,
+                          monto_transferencia
+                        )
+                        VALUES (
+                          v_detalle_transferencia.id_usuario_reg,
+                          v_detalle_transferencia.id_usuario_mod,
+                          v_detalle_transferencia.fecha_reg,
+                          v_detalle_transferencia.fecha_mod,
+                          v_detalle_transferencia.estado_reg,
+                          v_detalle_transferencia.id_usuario_ai,
+                          v_detalle_transferencia.usuario_ai,                                
+                          v_id_obligacion,
+                          v_detalle_transferencia.id_institucion,
+                          v_detalle_transferencia.nro_cuenta,
+                          v_detalle_transferencia.id_funcionario,
+                          v_detalle_transferencia.monto_transferencia
+                        );
+                    
+              END LOOP;
      END LOOP;
      
      ---------------------------------------------------
