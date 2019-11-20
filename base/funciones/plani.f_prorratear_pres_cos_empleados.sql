@@ -22,6 +22,7 @@ $body$
  #0               28-09-2013        GUY BOA             Creacion 
  #1               22-02-2019        Rarteaga            Integracion con sistema de asistencias , hoja_calculo
  #7               22-05-2019        Rarteaga            considerar columnas ci_contable en las hojas de tiempo
+ #63              21-10-2019        Rarteaga KPLIAN     refactorizacion plnailla aguinlados, comentarios, etc
 
 */
 DECLARE
@@ -68,6 +69,8 @@ BEGIN
 
     select po_id_gestion into v_id_gestion_contable
     from param.f_get_periodo_gestion(v_planilla.fecha_planilla);
+    
+    --raise exception '%,%',v_planilla.tipo_presu_cc,  v_planilla.calculo_horas;
     
     -----------------------------------------------------
     --llenar tprorrateo con datos de la parametrizazion
@@ -481,7 +484,7 @@ BEGIN
     -----------------------------------------------------------------
     --llenar tprorrateo con los datos del ultimo centro de costo
     --------------------------------------------------------------
-    elsif (v_planilla.tipo_presu_cc = 'prorrateo_aguinaldo') then
+    elsif (v_planilla.tipo_presu_cc = 'prorrateo_aguinaldo' and v_planilla.calculo_horas = 'si' ) then
 
             for v_registros in (select fp.id_funcionario,fp.id_funcionario_planilla, fun.desc_funcionario1, p.id_gestion
                                         from plani.tfuncionario_planilla fp
@@ -1054,7 +1057,6 @@ BEGIN
                 end loop;
 
             end loop;
-       
         
     end if;  --FIN IF configuracion
     
@@ -1314,6 +1316,8 @@ BEGIN
          END LOOP;
         
     END IF;
+    
+    
 
     /*****************************************************************/
     --llenar prorrateo para columnas de tipo si_contable
@@ -1324,7 +1328,7 @@ BEGIN
                 where tc.id_tipo_planilla = v_planilla.id_tipo_planilla and tc.estado_reg = 'activo'
                 	and tc.compromete = 'si_contable')) THEN
                     
-                    
+            
             --obtener el centro de costos administrativo para este depto de organigrama
             SELECT ps_id_centro_costo into v_id_pres_adm
             FROM conta.f_get_config_relacion_contable('CCDEPCON'::character

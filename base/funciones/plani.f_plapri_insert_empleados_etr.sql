@@ -47,7 +47,11 @@ BEGIN
 	
     -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
     -- la fecha de la planilla de prima es la fecha en que se va pagar
-    -- con la fecha de la plailla recuepramos las hojas de trabajo para costeo
+    -- la planilla de prima tiene costeo por que es solo el pago
+    -- cada mes se provisiona en planilla de ajuste de beneficios sociales , en ese momento ejecuta presupeusto y aplica costeo
+    -- el descuento de RC-IVA se lo realiza en la siguiente planilla de sueldos
+    
+    
     
     select 
            p.id_tipo_planilla, 
@@ -131,7 +135,7 @@ BEGIN
                                 where 
                                    
                                         vig.fecha_primer_cont <=  ''' || v_fecha_fin_planilla || '''   --la fecha del primer contrato consecutivo tiene que ser menor al ultimo dia del año de la prima
-                                   and  uofun.fecha_asignacion <= vig.fecha_primer_cont -- incluir solo las asignacion desde el primer contrato vigente      
+                                   and  uofun.fecha_asignacion >= vig.fecha_primer_cont -- incluir solo las asignacion desde el primer contrato vigente      
                                    and  uofun.id_funcionario not in (
                                                                   select id_funcionario
                                                                   from plani.tfuncionario_planilla fp
@@ -173,7 +177,7 @@ BEGIN
               v_id_funcionario = v_registros.id_funcionario;
               
               -- si tiene mas de 90 en la gestion pasada
-              -- esta vigente y no fue registrado aun en planilal de primas
+              -- esta vigente y no fue registrado aun en planilla de primas
               
               if (v_dias > 90  and v_entra = 'si' and v_bandera = 0) then
                   
