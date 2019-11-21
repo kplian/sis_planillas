@@ -1,7 +1,13 @@
-CREATE OR REPLACE FUNCTION "plani"."ft_tipo_planilla_sel"(	
-				p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
-RETURNS character varying AS
-$BODY$
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION plani.ft_tipo_planilla_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_tipo_planilla_sel
@@ -11,10 +17,10 @@ $BODY$
  COMENTARIOS:	
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
-
- DESCRIPCION:	
- AUTOR:			
- FECHA:		
+       
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+   
+ #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado
 ***************************************************************************/
 
 DECLARE
@@ -46,7 +52,7 @@ BEGIN
 						tippla.tipo_presu_cc,
 						tippla.funcion_obtener_empleados,
 						tippla.estado_reg,
-						tippla.nombre,
+						tippla.nombre as desc_tipo_plantilla,
 						tippla.codigo,
 						tippla.fecha_reg,
 						tippla.id_usuario_reg,
@@ -54,12 +60,14 @@ BEGIN
 						tippla.fecha_mod,
 						usu1.cuenta as usr_reg,
 						usu2.cuenta as usr_mod,
-						pm.nombre,
+						pm.nombre as desc_proceso_macro,
 						tippla.funcion_validacion_nuevo_empleado,
 						tippla.calculo_horas,
 						tippla.periodicidad,
 						tippla.funcion_calculo_horas,
-						tippla.recalcular_desde
+						tippla.recalcular_desde,
+                        tippla.sw_devengado,                 --#79
+                        tippla.nombre as desc_tipo_plantilla --#79
 						from plani.ttipo_planilla tippla
 						inner join segu.tusuario usu1 on usu1.id_usuario = tippla.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tippla.id_usuario_mod
@@ -116,7 +124,9 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$BODY$
-LANGUAGE 'plpgsql' VOLATILE
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
 COST 100;
-ALTER FUNCTION "plani"."ft_tipo_planilla_sel"(integer, integer, character varying, character varying) OWNER TO postgres;
