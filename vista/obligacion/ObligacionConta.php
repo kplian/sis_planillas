@@ -34,11 +34,10 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.ObligacionConta.superclass.constructor.call(this,config);
 		this.init();
+		this.esquema = this.esquema?this.esquema:'plani';
 		this.store.baseParams.id_planilla = this.maestro.id_planilla;
 		this.store.baseParams.esquema = this.esquema?this.esquema:'plani'; //#78 si no existe el dato por defecto recupera de PLANI
 		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
-		
-        
        
        this.addButton('SolPag',{text:'Solicitar Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnPag ,tooltip: '<b>Generar Cbte de  Pago</b><br/>Genera el comprobante correspondiente del pago seleccionado'});
        this.addButton('SolTodosPag',{text:'Solicitar Todos los Cbtes de Pago', iconCls: 'bpagar',disabled: true, handler: this.onBtnTodosPag ,tooltip: '<b>Solicitar Todos los Pagos</b><br/>Genera en cotabilidad todos los  comprobante Correspondiente de pago'});
@@ -538,7 +537,8 @@ Phx.vista.ObligacionConta=Ext.extend(Phx.gridInterfaz,{
 	
 	
 	preparaMenu: function()  {	
-    	var rec = this.sm.getSelected().data;    	
+    	var rec = this.sm.getSelected().data;   
+    	console.log('esquema ---->', this.esquema) 	
     	if(this.esquema === 'plani' && this.maestro.estado == 'vobo_conta' && rec.es_pagable == 'si' && this.vistaPadre == 'PlanillaVbConta'){
            	this.getBoton('SolPag').enable();
            	this.getBoton('SolTodosPag').disable();	           	
