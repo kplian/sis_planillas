@@ -22,29 +22,29 @@ $body$
  #68              16-10-2019       Rarteaga     KPLIAN     refactorizacion plnailla primas
  ********************************************************************************/
 DECLARE
-  v_registros			record;
-  v_planilla			record;
-  v_id_funcionario_planilla	integer;
-  v_columnas			record;
-  v_resp	            varchar;
+  v_registros            record;
+  v_planilla            record;
+  v_id_funcionario_planilla    integer;
+  v_columnas            record;
+  v_resp                varchar;
   v_nombre_funcion      text;
   v_mensaje_error       text;
-  v_filtro_uo			varchar;
-  v_id_afp				integer;
-  v_id_cuenta_bancaria	integer;
-  v_fecha_ini			date;
-  v_entra				varchar;
-  v_fecha_fin_planilla	date;
-  v_dias				integer = 0;
-  v_tipo_contrato		varchar;
-  v_id_funcionario		integer = 0;
-  v_bandera				integer;
+  v_filtro_uo            varchar;
+  v_id_afp                integer;
+  v_id_cuenta_bancaria    integer;
+  v_fecha_ini            date;
+  v_entra                varchar;
+  v_fecha_fin_planilla    date;
+  v_dias                integer = 0;
+  v_tipo_contrato        varchar;
+  v_id_funcionario        integer = 0;
+  v_bandera                integer;
   v_main_query          varchar; 
 BEGIN
 
     v_nombre_funcion = 'plani.f_plapri_insert_empleados_etr';
     v_filtro_uo = '';
-	
+    
     -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
     -- la fecha de la planilla de prima es la fecha en que se va pagar
     -- la planilla de prima tiene costeo por que es solo el pago
@@ -77,11 +77,11 @@ BEGIN
     --si es necesario filtra los miembro de una determinada UO o por determinado tipo de contrato
        
     if (v_planilla.id_uo is not null and v_planilla.id_tipo_contrato is not null) then
-    	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and tc.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
+        v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and tc.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
     end if;
 
     if (v_planilla.id_uo is not null and v_planilla.id_tipo_contrato is null) then
-    	v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
+        v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
     end if;
 
     if (v_planilla.id_tipo_contrato is not null and v_planilla.id_uo is null)then
@@ -133,7 +133,7 @@ BEGIN
                                 inner join orga.tcargo car  on car.id_cargo = uofun.id_cargo          
                                 inner join orga.toficina ofi  on car.id_oficina = ofi.id_oficina
                                 where 
-                                   
+                                   uofun.estado_reg != ''inactivo'' and
                                         vig.fecha_primer_cont <=  ''' || v_fecha_fin_planilla || '''   --la fecha del primer contrato consecutivo tiene que ser menor al ultimo dia del año de la prima
                                    and  uofun.fecha_asignacion >= vig.fecha_primer_cont -- incluir solo las asignacion desde el primer contrato vigente      
                                    and  uofun.id_funcionario not in (
@@ -147,11 +147,11 @@ BEGIN
                                       uofun.id_funcionario, 
                                       uofun.fecha_asignacion desc';
 
-     raise notice  'consulta %  <-----------',v_main_query;
+     --raise exception  'consulta %  <-----------',v_main_query;
 
     for v_registros in execute(v_main_query)loop
                 
-    	v_entra = 'si';
+        v_entra = 'si';
         v_bandera = 0;
         
               
@@ -191,21 +191,21 @@ BEGIN
                       -- inserta el empelado en la planilla
                       
                       INSERT INTO plani.tfuncionario_planilla (
-                          id_usuario_reg,					estado_reg,					id_funcionario,
-                          id_planilla,					    id_uo_funcionario,			id_lugar,
-                          forzar_cheque,					finiquito,					id_afp,
-                          id_cuenta_bancaria,				tipo_contrato)
+                          id_usuario_reg,                    estado_reg,                    id_funcionario,
+                          id_planilla,                        id_uo_funcionario,            id_lugar,
+                          forzar_cheque,                    finiquito,                    id_afp,
+                          id_cuenta_bancaria,                tipo_contrato)
                       VALUES (
-                          v_planilla.id_usuario_reg,		'activo',					    v_registros.id_funcionario,
-                          p_id_planilla,					v_registros.id_uo_funcionario,  v_registros.id_lugar,
-                          'no',							    'no',						    v_id_afp,
-                          v_id_cuenta_bancaria,			     v_tipo_contrato)
+                          v_planilla.id_usuario_reg,        'activo',                        v_registros.id_funcionario,
+                          p_id_planilla,                    v_registros.id_uo_funcionario,  v_registros.id_lugar,
+                          'no',                                'no',                            v_id_afp,
+                          v_id_cuenta_bancaria,                 v_tipo_contrato)
                        RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
                       
                       v_dias = 0;
                       
                       --inserta  la columnas configuradas en la planilla para el empleado
-                      for v_columnas in (	select *
+                      for v_columnas in (    select *
                                             from plani.ttipo_columna
                                             where id_tipo_planilla = v_planilla.id_tipo_planilla and estado_reg = 'activo' order by orden) loop
                               INSERT INTO
@@ -238,12 +238,12 @@ BEGIN
     return 'exito';
 EXCEPTION
 
-	WHEN OTHERS THEN
-		v_resp='';
-		v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
-		v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
-		v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
-		raise exception '%',v_resp;
+    WHEN OTHERS THEN
+        v_resp='';
+        v_resp = pxp.f_agrega_clave(v_resp,'mensaje',SQLERRM);
+        v_resp = pxp.f_agrega_clave(v_resp,'codigo_error',SQLSTATE);
+        v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
+        raise exception '%',v_resp;
 
 END;
 $body$
