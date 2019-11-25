@@ -15,6 +15,7 @@
   #66	ETR				15.10.2019			MZM					Adicion de filtro id_tipo_contrato en reportes especificos
   #67	ETR				16.10.2019			MZM					Reporte asignacion de cargos
  *#77	ETR				15.11.2019			MZM					Ajuste reporte
+ *#81	ETR				25.11.2019			MZM					Curva salarial jeerarquia por nivel arbol y prioridad
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -323,7 +324,7 @@ class MODFuncionarioReporte extends MODbase{
          $this->captura('tiempo_contrato','varchar'); 
          $this->captura('nombre_lugar','varchar');
          $this->captura('codigo_centro','varchar');  
-         $this->captura('numero_nivel','integer'); 
+         $this->captura('numero_nivel','varchar'); //#81
          $this->captura('nivel_salarial_cargo','varchar'); 
          $this->captura('lugar_pago','varchar');
          $this->captura('nivel_salarial_categoria','varchar');

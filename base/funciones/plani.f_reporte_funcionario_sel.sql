@@ -23,6 +23,7 @@ $body$
  #72	ETR				04.11.2019			MZM					Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
  #75	ETR				05.11.2019			MZM					bug en tipo_jub
  #77	ETR				15.11.2019			MZM					Ajuste reportes
+ #81	ETR				25.11.2019			MZM					Cambio de jerarquia en reporte curva salarial por nivel organigrama y prioridad
  ***************************************************************************/
 
 DECLARE
@@ -91,6 +92,7 @@ DECLARE
    v_tipo_jub varchar; --#72
    --#77
    v_fecha	date;
+    v_cont	integer;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -144,6 +146,7 @@ BEGIN
             end loop;
         
 			create temp table tt_func_antiguedad(
+            	id integer,
               centro varchar,
               codigo_emp varchar,
               nombre	text,
@@ -181,7 +184,7 @@ BEGIN
           end if;
         end if;
         
-       
+       v_cont:=1;
           while (v_contador< v_bandera) loop
                
               if(v_parametros.tipo_reporte='empleado_edad') then
@@ -226,7 +229,7 @@ BEGIN
     			for v_registros in execute (v_filtro) loop   
     
                       insert into tt_func_antiguedad
-                      values(v_registros.nombre_uo_pre,
+                      values(v_cont,v_registros.nombre_uo_pre,
                       v_registros.codigo,
                       v_registros.desc_funcionario2,
                       v_registros.fecha_ingreso,
@@ -241,15 +244,49 @@ BEGIN
                       --#77
                       ,v_fecha
                       );
+                      v_cont:=v_cont+1;
                  end loop;
                  v_contador:=v_fin+1;
                  v_fin:=v_contador+v_parametros.rango_fin-1;  
          
              end loop;           
        
-    		v_consulta:='SELECT *
+    		if(v_parametros.tipo_reporte='empleado_edad') then
+    		v_consulta:='SELECT centro ,
+              codigo_emp ,
+              nombre	,
+              fecha_ingreso ,
+              antiguedad_anterior	,
+              antiguedad_anos	,
+              antiguedad_dias	,
+              rango	,
+              genero ,
+              cargo ,
+              fecha_nacimiento ,
+              edad 
+             
+              ,fecha_rep
                        	FROM tt_func_antiguedad 
                       ';
+       else
+       			v_consulta:='SELECT centro ,
+              codigo_emp ,
+              nombre	,
+              fecha_ingreso ,
+              antiguedad_anterior	,
+              antiguedad_anos	,
+              antiguedad_dias	,
+              rango	,
+              genero ,
+              cargo ,
+              fecha_nacimiento ,
+              edad 
+             
+              ,fecha_rep
+                       	FROM tt_func_antiguedad 
+                        order by id
+                      ';
+       end if;
     
             return v_consulta;
                         
@@ -1067,7 +1104,7 @@ BEGIN
                 tiempo_contrato varchar,
                 nombre_lugar varchar,
                 codigo_centro varchar,
-                numero_nivel integer,
+                numero_nivel varchar,--#81
                 nivel_salarial_cargo varchar,
                 lugar_pago varchar,
                 nivel_salarial_categoria varchar,
@@ -1151,7 +1188,9 @@ BEGIN
                                 (plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario))) as fecha_ingreso,
                                  pxp.f_iif(tcon.codigo=''PLA'' and uof.fecha_finalizacion is null,''Indefinido'',''Fijo'') as tiempo_contrato,
                                 ofi.nombre as distrito,
-                                (select  codigo_uo_centro from orga.vuo_centro where id_uo= uof.id_uo) as codigo_centro,niv.numero_nivel,
+                                (select  codigo_uo_centro from orga.vuo_centro where id_uo= uof.id_uo) as codigo_centro,
+                                (''N''||pxp.f_rellena_cero_din(orden.nivel,2)||''-P''||pxp.f_rellena_cero_din(coalesce(orden.prioridad,0)::integer,4)) ::varchar as numero_nivel, 
+                                --niv.numero_nivel,
                                 esc.nombre as escala_cargo ,
                                 ofi.codigo as lugar_pago,
                                 COALESCE((select esct.codigo from orga.ttipo_cargo tcar
@@ -1654,4 +1693,8 @@ EXCEPTION
             raise exception '%',v_resp;
 END;
 $body$
-LANGUAGE 'plpgsql';
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+COST 100;
