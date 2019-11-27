@@ -16,6 +16,7 @@
 #54 ETR             24-09-2019          Manuel Guerra       mejora en consulta y reporte de verificación presupuestaria
 #68 ETR             24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
 #78 ETR             18/11/2019          RAC KPLIAN          Listado de backups de planilla  
+#79 ETR             27/11/2019          RAC KPLIAN          nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
  ***/
 
 class MODPlanilla extends MODbase{
@@ -70,6 +71,8 @@ class MODPlanilla extends MODbase{
 		$this->captura('id_int_comprobante','int4');//#43
 		$this->captura('id_int_comprobante_2','int4');//#43
 		$this->captura('calcular_prima_rciva','varchar'); //#68
+		$this->captura('sw_devengado','varchar'); //#79
+		$this->captura('sw_pago','varchar'); //#79
 		
 		
 		//Ejecuta la instruccion

@@ -11,6 +11,7 @@
  #38             11/09/2019        RAC KPLIAN           creacion de cbte de debengado o de pago  independiente al wf de la planilla
  #47    ETR      24-09-2019        Manuel Guerra        reporte de verificacion presupuestaria
  #74             04-11-2019        Rensi Arteaga        esconde opciones para contadores
+ #79    ETR      27/11/2019        RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -675,7 +676,8 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'usr_reg', type: 'string'},
             {name:'usr_mod', type: 'string'},
             {name:'codigo_poa', type: 'string'},
-            {name:'obs_poa', type: 'string'},'id_tipo_contrato','tipo_contrato','dividir_comprobante','id_int_comprobante','id_int_comprobante_2'
+            {name:'obs_poa', type: 'string'},'id_tipo_contrato','tipo_contrato','dividir_comprobante','id_int_comprobante','id_int_comprobante_2',
+            'sw_devengado','sw_pago' //#79
 
         ],
         sortInfo:{
@@ -796,7 +798,8 @@ header("content-type: text/javascript; charset=UTF-8");
                 this.getBoton('obs_poa').enable();
             }
             
-            if(rec.data.estado == 'vobo_conta'){
+            //valida configuracion de tipo plani para habilitar o co cl bte de devegado
+            if(rec.data.estado == 'vobo_conta' && rec.data.sw_devengado == 'si'){
             	this.getBoton('SolDev').enable();
             }
             else{
