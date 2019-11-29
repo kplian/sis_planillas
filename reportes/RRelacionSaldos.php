@@ -2,7 +2,8 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #56    ETR            30/09/2019           MZM                 Creacion 
+ #56    ETR            30/09/2019           MZM                 Creacion
+ #80    ETR            28/11/2019           MZM                 ajuste formato numeric 
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -158,7 +159,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(25,5,'','',0,'L');	
 					$this->Cell(80,5,$this->datos[$i]['banco'],'',0,'L');	 
 					$this->Cell(3.5,5,'','',0,'L');
-					$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,',','.'),'',1,'R');
+					$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,'.',','),'',1,'R');//#80 
 					//$this->Cell(5,5,'','',0,'L');
 					$total=$total+$this->datos[$i]['importe'];
 					$ciudad=$this->datos[$i]['nombre'];
@@ -174,7 +175,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->SetFont('','B',8);
 				$this->Cell(108.5,5,'Total para Banco:','',0,'R');
 				$this->SetFont('','',8);
-				$this->Cell(30,5,number_format($total,2,',','.'),'',1,'R');
+				$this->Cell(30,5,number_format($total,2,'.',','),'',1,'R');//#80
 				$this->tipo_contratoP='';
 				$this->tipo_pagoP='';
 				$this->AddPage();
@@ -182,19 +183,19 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(60,5,'','',0,'R');
 				$this->Cell(30,0,'Forma de Pago: Banco','',0,'L');
 				$this->SetFont('','',8);
-				$this->Cell(30,0,number_format($total,2,',','.'),'',1,'R');
+				$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
 				
 				$this->SetFont('','B',8);
 				$this->Cell(65,5,'','',0,'R');
 				$this->Cell(30,0,'Forma de Pago: Cheque','',0,'L');
 				$this->SetFont('','',8);
-				$this->Cell(30,0,number_format(0,2,',','.'),'',1,'R');
+				$this->Cell(30,0,number_format(0,2,'.',','),'',1,'R');//#80
 				
 				$this->SetFont('','B',8);
 				$this->Cell(65,5,'','',0,'R');
 				$this->Cell(30,0,'Forma de Pago: Efectivo','',0,'L');
 				$this->SetFont('','',8);
-				$this->Cell(30,0,number_format(0,2,',','.'),'',1,'R');
+				$this->Cell(30,0,number_format(0,2,'.',','),'',1,'R');//#80
 				
 				$this->Cell(55,5,'','',0,'R');
 				$this->Cell(80,0,'','B',1);
@@ -203,7 +204,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(65,5,'','',0,'R');
 				$this->Cell(30,0,'Total de la Empresa:','',0,'L');
 				$this->SetFont('','',8);
-				$this->Cell(30,0,number_format($total,2,',','.'),'',1,'R');
+				$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
 		}
 		
 		function Footer(){ }

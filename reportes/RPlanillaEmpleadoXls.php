@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #77    ETR            20/11/2019           MZM                 Reubicacion de columnas en nomina CT
 */
 class RPlanillaEmpleadoXls
 {
@@ -171,7 +172,7 @@ class RPlanillaEmpleadoXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-       
+        $meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
        // foreach ($datos as $value)
         //{
             
@@ -189,15 +190,7 @@ class RPlanillaEmpleadoXls
 					if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
 						$this->docexcel->getActiveSheet()->getStyle('A3:I3')->getAlignment()->setWrapText(true);
                 		$this->docexcel->getActiveSheet()->getStyle('A3:I3')->applyFromArray($styleTitulos3);
-					}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
-						
-						$this->docexcel->getActiveSheet()->getStyle('A3:E3')->getAlignment()->setWrapText(true);
-                		$this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos3);
-						
-					}
-					
-					
-					else{
+					}else{
 						$this->docexcel->getActiveSheet()->getStyle('A3:F3')->getAlignment()->setWrapText(true);
                 		$this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
 					
@@ -235,23 +228,7 @@ class RPlanillaEmpleadoXls
 	                $this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 					$this->docexcel->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 					$this->docexcel->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-				}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
-					$this->docexcel->getActiveSheet()->setTitle('PersonalNoSind');
-	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
-	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);//categoria
-	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);//pres
-	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(30);//ci
-	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
-					
-					$this->docexcel->getActiveSheet()->setCellValue('A3','Codigo Empleado');//1
-	                $this->docexcel->getActiveSheet()->setCellValue('B3','nombre Completo');//2
-	                $this->docexcel->getActiveSheet()->setCellValue('C3','CI');
-					$this->docexcel->getActiveSheet()->setCellValue('D3','Distrito');
-					$this->docexcel->getActiveSheet()->setCellValue('E3','Aporte(Bs)');
-				}
-				
-				
-				else{//nomina_Sal, nomina_sal1
+				}else{
 					$this->docexcel->getActiveSheet()->setTitle('NominaSalarios');
 	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
 	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);//categoria
@@ -271,7 +248,7 @@ class RPlanillaEmpleadoXls
 	                $this->docexcel->getActiveSheet()->setCellValue('C3','Cargo');//3
 	                
 	                if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-	                	$this->docexcel->getActiveSheet()->setCellValue('D3','Fecha Ingreso');//4
+	                	 $this->docexcel->getActiveSheet()->setCellValue('D3','Fecha Ingreso');//4
 		                $this->docexcel->getActiveSheet()->setCellValue('E3','Nivel');//5
 		                $this->docexcel->getActiveSheet()->setCellValue('F3','S. Basico (Bs)');//6
 		                $this->docexcel->getActiveSheet()->setCellValue('G3','T. Cotizable (Bs)');//7
@@ -310,8 +287,6 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 	$tit_rep='NOMINA DE SALARIOS BC';
 }elseif ($this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
 	$tit_rep='NOMINA DE SALARIOS CT';
-}elseif ($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
-	$tit_rep='NOMINA DE PERSONAL NO SINDICALIZADO';
 }
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:G1"); 
@@ -320,7 +295,7 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 				 $this->docexcel->getActiveSheet()->mergeCells("A2:G2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				 
-				 if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1' || $this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
+				 if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo']);
 				 }else{
 				 	$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$this->objParam->getParametro('fecha').'         T/C:'.$datos[0]['tc']);
@@ -653,7 +628,7 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['basico_limite']);
 						}else{
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nivel']);
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,',','.'));//#77 (20.11.19)
 						}
 						
 						
@@ -661,7 +636,7 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 						if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($value['valor'],2,',','.'));
 						}else{
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($value['valor'],2,',','.'));//#77 (20.11.19)
 						}
 						$fila++;
 						
@@ -673,14 +648,6 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$ger=$value['nombre_gerencia'];
 				}
 				
-			}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
-				foreach ($datos as $value){
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo_empleado']);
-			        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_empleado']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['ci'].' '.$value['expedicion']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['distrito']);
-					$fila++;	
-				}
 			}
         //}
        // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);

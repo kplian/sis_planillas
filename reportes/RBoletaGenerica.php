@@ -3,7 +3,10 @@
 /*
  * issue 	empresa		autor	fecha	detalle
  * #62		etr			MZM		08.10.2019	omision de 0 en boleta d epago
+ * #71		ETR			MZM		12.11.2019	Refactorizacion de reporte boleta para planillas anuales
+ * #80		ETR			MZM		28.11.2019	Ajuste formato numeric
  * */
+
 class RBoletaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
@@ -13,6 +16,7 @@ class RBoletaGenerica extends  ReportePDF {
 	var $ancho_sin_totales;
 	var $cantidad_columnas_estaticas;
 	var $num_boleta=1;
+	
 	function Header() {
 		
 
@@ -34,91 +38,7 @@ class RBoletaGenerica extends  ReportePDF {
 		
 		if($this->datos_titulo['multilinea']=='si'){
 			
-			/*$this->setFontSubsetting(false);
-			$this->SetLeftMargin(5);
-			$this->SetRightMargin(5);
-			$this->AddPage();
-			//cabecera del reporte
-			$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 5, 30, 15);
-			$this->setY(20);
-		
-			       $this->SetFont('','B',15);
-				   $this->Cell(0,5,$this->datos_titulo['titulo_reporte'],0,1,'C');
-				   $this->SetFont('','B',10);
-				   $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
-				   $this->Ln(2);
-				   $this->SetFont('','',7);
-				   $espacio=0;
-				 
-				   $detalle_col_mod=array();
-				   
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,0);
-				   array_push($detalle_col_mod,'Nombre');
-				   array_push($detalle_col_mod,'B');
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,$espacio);
-				   array_push($detalle_col_mod,$this->datos_titulo['nombre']);
-				   array_push($detalle_col_mod,'');
-				   
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,2);
-				   array_push($detalle_col_mod,'Cargo');
-				   array_push($detalle_col_mod,'B');
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,$espacio);
-				   array_push($detalle_col_mod,$this->datos_titulo['cargo']);
-				   array_push($detalle_col_mod,'');
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,$this->datos_detalle[0]['espacio_previo']);
-				   array_push($detalle_col_mod,'Fecha Ingreso');
-				   array_push($detalle_col_mod,'B');
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,$espacio);
-				   array_push($detalle_col_mod,$this->datos_detalle[0]['valor_columna']);
-				   array_push($detalle_col_mod,'');
-				   
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,0);
-				   array_push($detalle_col_mod,'Codigo');
-				   array_push($detalle_col_mod,'B');
-				   
-				   array_push($detalle_col_mod,$this->datos_titulo['id_funcionario']);
-				   array_push($detalle_col_mod,$espacio);
-				   array_push($detalle_col_mod,$this->datos_titulo['item']);
-				   array_push($detalle_col_mod,'');
-				   
-				   $this->grillaDatos($detalle_col_mod,$alto=5,$border=0,$this->datos_titulo['num_columna_multilinea'],5,'L');
-				  
-				   $detalle_col_mod=array();
-				   $this->Ln(5);
-				   $this->SetLineWidth(0.1);
- 	 				$this->SetDrawColor(0,0,0);
-					$this->Cell(0,0,'','B',1);
-				   //var_dump($this->datos_detalle); exit;
-				   for ($i=1; $i< sizeof($this->datos_detalle); $i++ ){
-				   	    
-						array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-						array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
-						array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
-						array_push($detalle_col_mod,'B'); 
-							
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,$espacio);
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['valor_columna']);
-							array_push($detalle_col_mod,'');
-						
-				    }
-					
-				   $this->grillaDatos($detalle_col_mod,$alto=5,$border=0,$this->datos_titulo['num_columna_multilinea'],5,'L');
-				 */ 
+			
 				$x=($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*2*4)+15;
 				
 				$id_fun=$this->datos_detalle[0]['id_funcionario'];
@@ -209,19 +129,7 @@ class RBoletaGenerica extends  ReportePDF {
 							array_push($detalle_col_mod,$linea);
 							array_push($detalle_col_mod,'L');  
 							
-							/*array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,0);
-							array_push($detalle_col_mod,'');
-							array_push($detalle_col_mod,'B'); 
-							array_push($detalle_col_mod,0); 
-							array_push($detalle_col_mod,'L'); 
-								
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,0);
-							array_push($detalle_col_mod,'');
-							array_push($detalle_col_mod,'B'); 
-							array_push($detalle_col_mod,0); 
-						    array_push($detalle_col_mod,'L');*/
+						
 						   
 						   
 						}else{
@@ -230,7 +138,7 @@ class RBoletaGenerica extends  ReportePDF {
 								
 								$alineacion='R';
 								if($cadena>0){//#62
-									$cadena=number_format($cadena,2,',','.');
+									$cadena=number_format($cadena,2,'.',',');//#80
 								}else{
 									$cadena='';
 								}
@@ -292,6 +200,107 @@ class RBoletaGenerica extends  ReportePDF {
 				   
 				   
 		}else{
+			//#71
+			//SI LA PERIODICIDAD ES ANUAL == CON DIBUJO, PERIODO IS NULL
+			
+			$array_datos;
+			$cont=0;
+			$es_aguinaldo='no';
+			if($this->datos_titulo['id_periodo']==''){ // es anual: prima, desempeño, aguinaldo
+				
+			$id_fun=0;
+			$this->SetLeftMargin(20);
+							$this->SetRightMargin(20);
+								
+							if(strlen(stristr($this->datos_titulo['titulo_reporte'],'aguinaldo'))> 0){
+								$es_aguinaldo='si';
+							}
+						for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
+							
+						   if (($i%2) == 0) {
+							$this->setFontSubsetting(false);
+							
+							$this->AddPage();
+							$this->SetFont('','B',12);
+							$this->Cell(0,5,'','TRL',1,'C');
+							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'].' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');
+							$this->Cell(0,8,'','RL',1,'C');
+							
+							$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 25, $this->GetY()-15, 35, 18);
+								
+							$this->Cell(0,1,'','RL',1,'C');
+							$this->SetFont('','B',8);
+							$this->Cell(30,5,'Nombre: ','LB',0,'R');
+							$this->SetFont('','',8);
+							
+							$this->Cell(0,5,$this->datos_detalle[$i]['nombre_empleado'],'BR',1,'L');
+							
+							$this->Ln(10);
+							if($es_aguinaldo=='no'){
+								$this->Ln(10);
+							}
+						} else {
+							//cabecera del reporte
+							
+							$this->SetFont('','B',12);
+							$this->Cell(0,5,'','TRL',1,'C');
+							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'].' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');
+							$this->Cell(0,8,'','RL',1,'C');
+							
+							$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 25, $this->GetY()-15, 35, 18);
+								
+							$this->Cell(0,1,'','RL',1,'C');
+							$this->SetFont('','B',8);
+							$this->Cell(30,5,'Nombre: ','LB',0,'R');
+							$this->SetFont('','',8);
+							$this->Cell(0,5,$this->datos_detalle[$i]['nombre_empleado'],'BR',1,'L');
+							
+							$this->Ln(10);
+							
+							if($es_aguinaldo=='no'){
+								$this->Ln(10);
+							}
+						}
+						
+						$this->SetFont('','B',8);
+						$this->Cell(30,5,'',0,0,'C');
+						if($es_aguinaldo=='si'){
+							$this->Cell(30,5,'',0,0,'C');
+						}
+						$this->Cell(30,5,$this->datos_detalle[$i]['titulo_reporte_superior'].' '. $this->datos_detalle[$i]['titulo_reporte_inferior'],0,0,'R');
+							
+						$this->SetFont('','',8);
+						
+						$this->Cell(0,5,' Bs. '.number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','),0,1,'L');
+						if($es_aguinaldo=='no'){
+							$this->Image(dirname(__FILE__).'/../../lib/imagenes/anual.png', 110, $this->GetY()-15, 40, 20);	
+							$this->Ln(20);
+							$this->Cell(0,5,'','TRL',1,'L');
+							$this->Cell(0,5,'Este monto será incluido al sueldo de '.$this->datos_titulo['periodo'].' para fines de deducción del impuesto RC-IVA.','RL',1,'C');
+							$this->Cell(0,5,'','BRL',1,'L');
+							$this->Ln(50);
+						}else{
+							$this->Ln(10);
+							$this->Cell(0,1,'','TRL',1,'L');
+							$n_gestion=$this->datos_titulo['gestion']+1;
+							$this->SetFont('','B',8);
+							$this->Cell(0,5,'Feliz Navidad y prospero año '.$n_gestion,'RL',1,'C');
+							$this->Cell(0,15,'','RL',1,'L');
+							$this->Image(dirname(__FILE__).'/../../lib/imagenes/aguinaldo.png', 45, $this->GetY()-15, 120, 20);
+							$this->Cell(0,8,'','BRL',1,'L');
+							$this->Ln(50);
+						}
+							
+							
+				   
+				}
+				  
+				  
+		
+				
+				
+			}else{ 
+				//la boleta anterior
 				if (($this->num_boleta%2) == 1) {
 					$this->setFontSubsetting(false);
 					$this->SetLeftMargin(5);
@@ -407,6 +416,11 @@ class RBoletaGenerica extends  ReportePDF {
 					 
 					 
 					$this->num_boleta++;
+				
+			}
+			
+			
+				
 			}
 						
 		}	

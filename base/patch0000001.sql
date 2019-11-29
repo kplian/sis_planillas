@@ -1505,3 +1505,15 @@ WITH (oids = false);
 
 
 /***********************************F-SCP-RAC-PLANI-79-20/11/2019****************************************/
+
+/***********************************I-SCP-MZM-PLANI-82-28/11/2019****************************************/
+
+ -- object recreation
+ALTER TABLE plani.treporte
+  DROP CONSTRAINT chk__treporte__ordenar_por RESTRICT;
+
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text) or (ordenar_por='organigrama'));
+
+  
+/***********************************F-SCP-MZM-PLANI-82-28/11/2019****************************************/

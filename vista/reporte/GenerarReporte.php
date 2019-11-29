@@ -8,6 +8,7 @@
  * #33	etr			MZM		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
  * #66	etr			MZM		24.10.2019	inclusion de opcion de reporte con control_reporte
  * #77	ETR			MZM		15.11.2019	Ajuste Reportes
+ * #81	ETR			MZM		20.11.2019	Ampliacion de visualizacion de nombre de reportes
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -131,14 +132,59 @@ header("content-type: text/javascript; charset=UTF-8");
 				mode: 'remote',
 				pageSize: 20,
 				queryDelay: 200,
-				listWidth:280,
+				listWidth:480,//#81 20.11.2019
 				minChars: 2,
 				disabled : true
 			},
 			type: 'ComboBox',
 			id_grupo: 0,			
 			form: true
-		},	
+		},	//#80
+		{
+			config: {
+				name: 'id_tipo_columna',
+				fieldLabel: 'Código Columna',
+				typeAhead: false,
+				forceSelection: false,
+				hiddenName: 'id_tipo_columna',
+				allowBlank: false,
+				emptyText: 'Lista de Columnas...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_planillas/control/TipoColumna/listarTipoColumna',
+					id: 'id_tipo_columna',
+					root: 'datos',
+					sortInfo: {
+						field: 'codigo',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_tipo_columna', 'nombre', 'codigo', 'tipo_descuento_bono','tipo_dato'],
+					// turn on remote sorting
+					remoteSort: true,
+					baseParams: {par_filtro: 'tipcol.nombre#tipcol.codigo',tipo_descuento_bono:'si'}
+				}),
+				valueField: 'id_tipo_columna',
+				displayField: 'nombre',
+				gdisplayField: 'codigo_columna',
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 20,
+				queryDelay: 200,
+				listWidth:280,
+				minChars: 2,
+				gwidth: 170,
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p>{codigo}</p><strong>{nombre}</strong> </div></tpl>'
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {
+				pfiltro: 'tipcol.codigo',
+				type: 'string'
+			},
+			grid: true,
+			form: true
+		},
 		{
 			config: {
 				name: 'id_tipo_contrato',
@@ -209,7 +255,8 @@ header("content-type: text/javascript; charset=UTF-8");
 	   				name : 'id_periodo',
 	   				origen : 'PERIODO',
 	   				fieldLabel : 'Periodo',
-	   				allowBlank : true	   				
+	   				allowBlank : true
+	   				  				
 	       	     },
 	   			type : 'ComboRec',
 	   			id_grupo : 0,	   			
@@ -427,6 +474,18 @@ header("content-type: text/javascript; charset=UTF-8");
 				id_grupo:0,
 				grid:true
 		}
+		//#80
+		,{
+			//configuracion del componente
+			config:{
+					labelSeparator:'',
+					inputType:'hidden',
+					name: 'nombre_descuento'
+			},
+			type:'Field',
+			form:true 
+		}
+		
 		],
 		title : 'Generar Reporte',
 		ActSave : '../../sis_planillas/control/Reporte/generarReporteDesdeForm',
@@ -445,7 +504,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.ocultarComponente(this.Cmp.id_afp);
 						this.ocultarComponente(this.Cmp.fecha);
 						this.ocultarComponente(this.Cmp.personal_activo);
-						//this.ocultarComponente(this.Cmp.id_gestion);
+						this.ocultarComponente(this.Cmp.id_tipo_columna);//#80
 												
 			//********
 			this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
@@ -487,6 +546,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			this.Cmp.id_gestion.on('select',function(c,r,i){
 				this.Cmp.id_periodo.reset();
 				this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
+				
 				this.Cmp.id_periodo.modificado = true;
 			},this);
 			
@@ -494,6 +554,11 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.tipo_contrato.setValue(r.data.codigo);
 				this.Cmp.nombre_tipo_contrato.setValue(r.data.nombre);
 			},this);
+			
+			this.Cmp.id_tipo_columna.on('select',function(c,r,i){ //#80
+				this.Cmp.nombre_descuento.setValue(r.data.nombre);
+			},this);	  
+			
 			
 			this.Cmp.id_reporte.on('select',function(c,r,i){ //#33
 				this.Cmp.tipo_reporte.setValue(r.data.tipo_reporte);
@@ -504,7 +569,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					    this.ocultarComponente(this.Cmp.totales);
 						//this.ocultarComponente(this.Cmp.formato_reporte);
 						this.ocultarComponente(this.Cmp.id_uo);
-						
+						this.ocultarComponente(this.Cmp.id_tipo_columna);//#80
 						
 						/*if(r.data.control_reporte=='empleado_antiguedad' || r.data.control_reporte=='empleado_edad'){
 							this.ocultarComponente(this.Cmp.formato_reporte);
@@ -585,7 +650,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.mostrarComponente(this.Cmp.formato_reporte);	
 						this.Cmp.formato_reporte.allowBlank=false;
 						
-						if (r.data.control_reporte=='empleado_edad' || r.data.control_reporte=='empleado_antiguedad' || c.value=='dependientes_edad'){
+						if (r.data.control_reporte=='empleado_edad' || r.data.control_reporte=='empleado_antiguedad' || r.data.control_reporte=='dependientes_edad'){//#77
 								
 								this.mostrarComponente(this.Cmp.rango_fin);
 								this.mostrarComponente(this.Cmp.rango_inicio);
@@ -643,37 +708,44 @@ header("content-type: text/javascript; charset=UTF-8");
 							
 						//},this);
 					
-					
 					  //***************************
 				}else{
-					
-					//this.mostrarComponente(this.Cmp.id_tipo_contrato);
-					if (this.Cmp.periodicidad == 'anual') {
-						this.ocultarComponente(this.Cmp.id_periodo);
-						this.Cmp.id_periodo.allowBlank = true;
-						this.Cmp.id_periodo.reset();					
-					} else {
-						this.mostrarComponente(this.Cmp.id_periodo);
-						this.Cmp.id_periodo.allowBlank = false;		
-		
-					}
-					
-					this.ocultarComponente(this.Cmp.fecha);
-					this.ocultarComponente(this.Cmp.rango_fin);
-					this.ocultarComponente(this.Cmp.rango_inicio);
-					this.ocultarComponente(this.Cmp.id_afp);
-					
-					this.ocultarComponente(this.Cmp.totales);
-					this.mostrarComponente(this.Cmp.formato_reporte);
-					this.mostrarComponente(this.Cmp.id_uo);
-					
-					this.mostrarComponente(this.Cmp.id_gestion);
-					if(r.data.tipo_reporte=='planilla' && r.data.multilinea=='si' ){
-						this.mostrarComponente(this.Cmp.totales);
-						this.Cmp.totales.allowBlank = false;	
-					}else{
+					if(r.data.tipo_reporte=='bono_descuento'){
+					  this.mostrarComponente(this.Cmp.id_tipo_columna);
+					  this.Cmp.id_tipo_columna.setValue('');
+					  		
+					  
+						}
+					else{
+						this.ocultarComponente(this.Cmp.id_tipo_columna);//#80
+						//this.mostrarComponente(this.Cmp.id_tipo_contrato);
+						if (this.Cmp.periodicidad == 'anual') {
+							this.ocultarComponente(this.Cmp.id_periodo);
+							this.Cmp.id_periodo.allowBlank = true;
+							this.Cmp.id_periodo.reset();					
+						} else {
+							this.mostrarComponente(this.Cmp.id_periodo);
+							this.Cmp.id_periodo.allowBlank = false;		
+			
+						}
+						
+						this.ocultarComponente(this.Cmp.fecha);
+						this.ocultarComponente(this.Cmp.rango_fin);
+						this.ocultarComponente(this.Cmp.rango_inicio);
+						this.ocultarComponente(this.Cmp.id_afp);
+						
 						this.ocultarComponente(this.Cmp.totales);
-						this.Cmp.totales.setValue('no');
+						this.mostrarComponente(this.Cmp.formato_reporte);
+						this.mostrarComponente(this.Cmp.id_uo);
+						
+						this.mostrarComponente(this.Cmp.id_gestion);
+						if(r.data.tipo_reporte=='planilla' && r.data.multilinea=='si' ){
+							this.mostrarComponente(this.Cmp.totales);
+							this.Cmp.totales.allowBlank = false;	
+						}else{
+							this.ocultarComponente(this.Cmp.totales);
+							this.Cmp.totales.setValue('no');
+						}
 					}
 				}
 				

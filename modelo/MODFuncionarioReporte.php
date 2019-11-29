@@ -14,7 +14,7 @@
   #45	ETR				19.09.2019			MZM					adicion de campo para reporte afp
   #66	ETR				15.10.2019			MZM					Adicion de filtro id_tipo_contrato en reportes especificos
   #67	ETR				16.10.2019			MZM					Reporte asignacion de cargos
- *#77	ETR				15.11.2019			MZM					Ajuste reporte
+ *#77	ETR				15.11.2019			MZM					Ajsutes reportes
  *#81	ETR				25.11.2019			MZM					Curva salarial jeerarquia por nivel arbol y prioridad
  */
 class MODFuncionarioReporte extends MODbase{
@@ -62,7 +62,8 @@ class MODFuncionarioReporte extends MODbase{
 		 $this->captura('fecha_rep','date');//#77
 		//Ejecuta la funcion
 		$this->armarConsulta();		
-		//echo 'listarFuncionarioReporte - '.$this->getConsulta(); exit;
+		//echo 'listarFuncionarioReporte - '.
+		//echo '***'.$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//var_dump('hola',$this->respuesta);exit;
@@ -70,7 +71,6 @@ class MODFuncionarioReporte extends MODbase{
 		return $this->respuesta;
 
 	}
-
 
 	function listarDatosReporteDetalle(){ 
 		//Definicion de variables para ejecucion del procedimientp
@@ -112,7 +112,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('nivel_limite','varchar');
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "**1:**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -180,7 +180,7 @@ class MODFuncionarioReporte extends MODbase{
 		
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('id_gestion','id_gestion','integer');	
-		
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');//#77(20.11.19)
 		//Datos del empleado
 		$this->captura('desc_funcionario1','text');
 		$this->captura('fecha','date');
@@ -190,11 +190,12 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('centro','varchar');
 		$this->captura('valor','numeric');	
 		$this->captura('mes','varchar');
-		$this->captura('gestion','integer');			
+		$this->captura('gestion','integer');
+		$this->captura('nombre','varchar');	//#77			
 		
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "**2:**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -372,14 +373,15 @@ class MODFuncionarioReporte extends MODbase{
 		 $this->captura('afp_sso','numeric');
 		 $this->captura('afp_rcom','numeric');
 		 $this->captura('afp_cadm','numeric');
-		 $this->captura('afp_apsol','numeric');
+		
 		 $this->captura('afp_apnal','numeric');
-		 
+		 $this->captura('afp_apsol','numeric');//#81
 		 $this->captura('nombre_centro','varchar'); 	
 		 $this->captura('orden_centro','numeric'); 	 		  
-				   
+		$this->captura('bonant','numeric'); 	
+		$this->armarConsulta(); 		   
         //Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+        //echo '----'.$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -540,5 +542,64 @@ class MODFuncionarioReporte extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	function listarFrecuenciaProfesiones(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_FRECPROF_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
+		$this->setParametro('id_periodo','id_periodo','integer'); //#77
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
+		
+		//Datos del empleado
+		
+		
+		$this->captura('nombre','varchar');
+		$this->captura('total_femenino','integer');	
+		$this->captura('total_masculino','integer');
+						
+		//Ejecuta la instruccion
+		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	
+	
+	function listarDetalleBonoDesc(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_DETBONDESC_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
+		
+		//Datos del empleado
+		
+		$this->captura('id_funcionario','integer');
+		$this->captura('codigo','varchar');
+		$this->captura('nombre','varchar');
+		$this->captura('codigo_columna','varchar');
+		$this->captura('nombre_columna','varchar');
+		$this->captura('valor','numeric');	
+		$this->captura('fecha_ini','date');
+		$this->captura('fecha_fin','date');
+						
+		//Ejecuta la instruccion
+		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+
 }
 ?>

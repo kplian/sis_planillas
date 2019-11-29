@@ -1,7 +1,8 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #77    ETR            14/11/2019           MZM                 Creacion 
+ #77    ETR            14/11/2019           MZM                 Creacion
+ #80    ETR            27/11/2019           MZM                 ajuste formato numeric 
 */
 class RPlanillaAportesXls
 {
@@ -339,32 +340,32 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 									  
 									  
 						if($value['tipo_jubilado']=='mayor_65'){
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,number_format($value['valor'],2,'.',','));//#80
 						} 
 						else {
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,'');
 						}
 						
 						if($value['tipo_jubilado']=='jubilado_55'){
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,number_format($value['valor'],2,'.',','));//#80
 						} 
 						else {
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,'');
 						}
 								
 						if($value['tipo_jubilado']=='jubilado_65'){
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,number_format($value['valor'],2,'.',','));//#80
 						} 
 						else {
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,'');
 						}	  				
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila ,number_format($value['valor'],2,',','.'));
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila ,number_format($value['valor'],2,',','.'));
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila ,number_format($value['valor'],2,'.',','));//#80
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila ,number_format($value['valor'],2,'.',','));//#80
 					}else{
 						
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,number_format($value['valor'],2,',','.'));
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,number_format($value['valor'],2,'.',','));//#80
 						if($value['valor']>13000){//#45
-							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,number_format(($value['valor']-13000),2,',','.'));
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,number_format(($value['valor']-13000),2,'.',','));//#80
 							  	
 						}else{
 							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,'');
@@ -372,7 +373,7 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 						}
 						
 						if($value['valor']>25000){//#45
-							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,number_format(($value['valor']-25000),2,',','.'));
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,number_format(($value['valor']-25000),2,'.',','));//#80
 							  	
 						}else{
 							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,'');
@@ -381,7 +382,7 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 						
 						
 						if($value['valor']>35000){//#45
-							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,number_format(($value['valor']-35000),2,',','.'));
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,number_format(($value['valor']-35000),2,'.',','));//#80
 							  	
 						}else{
 							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila ,'');

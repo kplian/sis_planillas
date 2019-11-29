@@ -212,20 +212,35 @@ class RPlanillaAsignacionCargosXls
                 $total_frontera = 0;
                 $this->docexcel->getActiveSheet()->setTitle('Cargos');
 				
-			if($this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos' ){
-				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
-                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);//categori
-                $this->docexcel->getActiveSheet()->setCellValue('A3','Codigo');//1
-                $this->docexcel->getActiveSheet()->setCellValue('B3','Descripcion');//2
-                
-                if ($this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos' ){
-                	$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
-	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);//categori
-	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);//categori
-	                $this->docexcel->getActiveSheet()->setCellValue('C3','Hombres');//1
-	                $this->docexcel->getActiveSheet()->setCellValue('D3','Mujeres');//2
-	                $this->docexcel->getActiveSheet()->setCellValue('E3','Totales');//2
-                }
+			if($this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
+					
+				if ($this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones' ){
+					$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(40);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);//categori
+	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
+		            $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);//categori
+		                
+	                $this->docexcel->getActiveSheet()->setCellValue('A3','Profesion');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B3','Hombres');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('C3','Mujeres');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('D3','Totales');//2
+	              
+				}else{
+					$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(40);//categori
+	                $this->docexcel->getActiveSheet()->setCellValue('A3','Codigo');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B3','Descripcion');//2
+	                
+	                if ($this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos' ){
+	                	$this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
+		                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);//categori
+		                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);//categori
+		                $this->docexcel->getActiveSheet()->setCellValue('C3','Hombres');//1
+		                $this->docexcel->getActiveSheet()->setCellValue('D3','Mujeres');//2
+		                $this->docexcel->getActiveSheet()->setCellValue('E3','Totales');//2
+	                }
+				}
+				
 			}elseif($this->objParam->getParametro('tipo_reporte')=='directorio_empleados'){
 				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);//categori
@@ -277,7 +292,7 @@ class RPlanillaAsignacionCargosXls
                 $this->docexcel->getActiveSheet()->setCellValue('E3','Cargo');//4
                 $this->docexcel->getActiveSheet()->setCellValue('F3','Centro de Responsabilidad');//4
               
-			}elseif($this->objParam->getParametro('tipo_reporte')=='profesiones'){
+			}elseif($this->objParam->getParametro('tipo_reporte')=='profesiones' ){
 				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);//categori
                 $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
@@ -324,33 +339,37 @@ class RPlanillaAsignacionCargosXls
                 
                
 				
-                
+ $cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
+		if($cadena_nomina!=''){
+			$cadena_nomina='('.$cadena_nomina.')';
+		}               
              
                 
 if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
-	$tit_rep='DESIGNACION DE CARGOS';
+	$tit_rep='DESIGNACION DE CARGOS'.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='movimiento_personal'){
-	$tit_rep='MOVIMIENTOS DE PERSONAL ';
+	$tit_rep='MOVIMIENTOS DE PERSONAL '.$cadena_nomina;
 
 }elseif( $this->objParam->getParametro('tipo_reporte')=='lista_cargos'){
-	$tit_rep='CARGOS ';
+	$tit_rep='CARGOS '.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos'){
-	$tit_rep='FRECUENCIA DE CARGOS ';
+	$tit_rep='FRECUENCIA DE CARGOS '.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='directorio_empleados'){
-	$tit_rep='DIRECTORIO DE EMPLEADOS POR CENTRO DE BENEFICIO Y CARGOS';
+	$tit_rep='DIRECTORIO DE EMPLEADOS POR CENTRO DE BENEFICIO Y CARGOS'.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano'){
 	
-	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR AÑO';
+	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR AÑO'.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes'){
 	
-	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR MES';
+	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR MES'.$cadena_nomina;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='profesiones'){
-	$tit_rep='CLASIFICACION DE PERSONAL POR PROFESIONES';
+	$tit_rep='CLASIFICACION DE PERSONAL POR PROFESIONES'.$cadena_nomina;
+}elseif( $this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
+	$tit_rep='FRECUENCIA DE PROFESIONES '.$cadena_nomina;
 }
 
 
-
-if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos'){
+if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
 	 	if($this->objParam->getParametro('tipo_reporte')=='lista_cargos'){
 	 		$this->docexcel->getActiveSheet()->mergeCells("A1:B1"); 
 			$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -371,7 +390,7 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 				
 }else{
 	
-	 if($this->objParam->getParametro('tipo_reporte')=='profesiones'){
+	 if($this->objParam->getParametro('tipo_reporte')=='profesiones' ){
 	 	 $this->docexcel->getActiveSheet()->mergeCells("A1:C1");
 		 $this->docexcel->getActiveSheet()->mergeCells("A2:C2"); 
 	 }else{
@@ -548,6 +567,28 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 					
 					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,($value['total_femenino']+$value['total_masculino']));
+					$fila++;			
+				}
+		  }elseif($this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
+		  	
+			  	foreach ($datos as $value){
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['nombre']);
+					
+					if($value['total_masculino']>0){
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['total_masculino']);
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,'');
+					}
+										
+					if($value['total_femenino']>0){
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$value['total_femenino']);
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,'');
+					}
+										
+					
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,($value['total_femenino']+$value['total_masculino']));
 					$fila++;			
 				}
 		  }
