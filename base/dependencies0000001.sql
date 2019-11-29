@@ -3756,7 +3756,6 @@ FROM (
 /***********************************F-DEP-MZM-PLANI-77-15/11/2019****************************************/         
 
 /***********************************I-DEP-MZM-PLANI-80-29/11/2019****************************************/
-
 CREATE or replace VIEW plani.vdatos_horas_funcionario (
     id_funcionario,
     id_funcionario_planilla,
