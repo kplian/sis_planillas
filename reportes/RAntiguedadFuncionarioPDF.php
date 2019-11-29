@@ -5,6 +5,7 @@
  #30    ETR            30/07/2019           MZM                 Creacion 
  #66	ETR				16.10.2019			MZM					Adicion de total a reporte
  #77	ETR				15.11.2019			MZM					Ajsute reprote
+ *77	ETR				20.11.2019			MZM					Uniformizado de tamaño de letra
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -15,6 +16,9 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $cantidad_columnas_estaticas;
 	var $alto_header;
 	var $etiqueta;
+	var $datos_titulo;
+	var $bordes;
+	var $interlineado;
 	function Header() {
 		//cabecera del reporte
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 8, 30, 12);
@@ -23,13 +27,14 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
 		$this->Cell($this->ancho_hoja+200, 3, $pagenumtxt, '', 1, 'R');
 		
-		$this->SetFont('','B',15);
+		$this->SetFont('','B',12);//#77 (20.11.19)
 		$this->SetY(20);
 		//#66
 		$tipo_cto=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($tipo_cto!=''){
 			$tipo_cto='('.$tipo_cto.')';
 		}
+		
 		
 		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 			$this->Cell(0,5,'ANTIGUEDAD DE LOS EMPLEADOS '.$tipo_cto,0,1,'C');
@@ -54,42 +59,46 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		
 		$this->Ln(4);			
 		//Titulos de columnas superiores
-		$this->SetFont('','B',7);
-		$this->Cell(45,3.5,'Centro','LTR',0,'C');
-		$this->Cell(20,3.5,'Codigo Emp.','LTR',0,'C');
-		$this->Cell(60,3.5,'Nombre Completo','LTR',0,'C');
+		$this->SetFont('','B',8);
+		$this->Cell(45,5,'Centro','LTR',0,'C');
+		$this->Cell(20,5,'Codigo Emp.','LTR',0,'C');
+		$this->Cell(60,5,'Nombre Completo','LTR',0,'C');
 		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 			
-			$this->Cell(20,3.5,'Fecha','LTR',0,'C');
-			$this->Cell(10,3.5,'Antig','LTR',0,'C');
-			$this->Cell(30,3.5,'T.Antiguedad','LTR',1,'C');
+			$this->Cell(20,5,'Fecha','LTR',0,'C');
+			$this->Cell(12,5,'Antig','LTR',0,'C');
+			$this->Cell(28,5,'T.Antiguedad','LTR',1,'C');
 		}else{ 
-			$this->Cell(30,3.5,'Cargo','LTR',0,'C');
-			$this->Cell(20,3.5,'Fecha','LTR',0,'C');
-			$this->Cell(10,3.5,'Edad','LTR',1,'C');
+			$this->Cell(30,5,'Cargo','LTR',0,'C');
+			$this->Cell(20,5,'Fecha','LTR',0,'C');
+			$this->Cell(10,5,'Edad','LTR',1,'C');
 		}
 		
-			$this->Cell(45,3.5,'','LBR',0,'C');
-			$this->Cell(20,3.5,'','LBR',0,'C');
-			$this->Cell(60,3.5,'','LBR',0,'C');
+			$this->Cell(45,5,'','LBR',0,'C');
+			$this->Cell(20,5,'','LBR',0,'C');
+			$this->Cell(60,5,'','LBR',0,'C');
 		
 		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
-			$this->Cell(20,3.5,'Ingreso','LBR',0,'C');
-			$this->Cell(10,3.5,'Anterior','LBR',0,'C');
-			$this->Cell(15,3.5,'Años','LTBR',0,'C');		
-			$this->Cell(15,3.5,'Dias','LTBR',1,'C');	
+			$this->Cell(20,5,'Ingreso','LBR',0,'C');
+			$this->Cell(12,5,'Anterior','LBR',0,'C');
+			$this->Cell(14,5,'Años','LTBR',0,'C');		
+			$this->Cell(14,5,'Dias','LTBR',1,'C');	
 		}else{
-			$this->Cell(30,3.5,'','LBR',0,'C');
-			$this->Cell(20,3.5,'Nacim','LBR',0,'C');
-			$this->Cell(10,3.5,'','LBR',1,'C');
+			$this->Cell(30,5,'','LBR',0,'C');
+			$this->Cell(20,5,'Nacim','LBR',0,'C');
+			$this->Cell(10,5,'','LBR',1,'C');
 		}	
 		
 		//$this->Cell(0,5,'Rango de Antiguedad:'.$this->objParam->getParametro('rango'),0,1,'L');
 		$this->alto_header =$this->GetY(); 
+		$this->bordes=$this->datos_titulo[0]['bordes']; //#77
+		$this->interlineado= $this->datos_titulo[0]['interlineado'];//#77
 
 	}
-	function setDatos($datos) {
+	function setDatos($datos, $datos_titulo) {
 		$this->datos = $datos;
+		$this->datos_titulo = $datos_titulo;
+		
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
@@ -114,7 +123,10 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$contador_rango=$rango_fin;
 		$genero=$this->datos[0]['genero'];
 		$rango='-1';
-		
+		$borde=''; 
+		if($this->bordes==1){
+			$borde='LTRB';
+		} 
 			
 		  	for ($i=0; $i<count($this->datos);$i++){
 		    
@@ -122,8 +134,8 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 					 	   if($genero!=$this->datos[0]['genero']){
 					 	
 					 			$this->SetFont('','B',8);
-								$this->Cell(65,3.5,'Total '.$this->datos[$i-1]['genero'].':','TB',0,'C');
-								$this->Cell(120,3.5,''.$contf,'TB',1,'C');
+								$this->Cell(65,$this->interlineado,'Total '.$this->datos[$i-1]['genero'].':','TB',0,'C');
+								$this->Cell(120,$this->interlineado,''.$contf,'TB',1,'C');
 								$this->Ln(2);
 								$contf=0;
 								$this->SetFont('','',8);
@@ -131,14 +143,14 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 					 	    }
 								$this->Ln(2);
 								$this->SetFont('','B',10);
-								$this->Cell(65,3.5,'Rango '.$this->etiqueta.' : '.$this->datos[$i]['rango'],'',1,'L');
+								$this->Cell(65,$this->interlineado,'Rango '.$this->etiqueta.' : '.$this->datos[$i]['rango'],'',1,'L');
 								$this->Ln(2);
 								$contf=0; 
 								
-								$this->SetFont('','',7);
-								$this->Cell(45,3.5,substr ( $this->datos[$i]['nombre_uo_pre'], 0, 23),'',0,'L');
-								$this->Cell(20,3.5,$this->datos[$i]['codigo'],'',0,'R');
-								$this->Cell(60,3.5,substr ( $this->datos[$i]['desc_funcionario2'], 0, 30),'',0,'L');
+								$this->SetFont('','',8);//#77 (20.11.19)
+								$this->Cell(45,$this->interlineado,mb_strcut (  $this->datos[$i]['nombre_uo_pre'], 0, 23, "UTF-8"),$borde,0,'L');
+								$this->Cell(20,$this->interlineado,$this->datos[$i]['codigo'],$borde,0,'R');
+								$this->Cell(60,$this->interlineado,mb_strcut ( $this->datos[$i]['desc_funcionario2'], 0, 30, "UTF-8"),$borde,0,'L');
 								
 								
 								if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
@@ -146,19 +158,19 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 									$aa=substr($ff, 0,4);
 									$mm=substr($ff, 5,2);
 									$dd=substr($ff, 8,2);
-									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
-									$this->Cell(10,3.5,$this->datos[$i]['antiguedad_ant'],'',0,'R');
-									$this->Cell(15,3.5,$this->datos[$i]['antiguedad_anos'],'',0,'R');		
-									$this->Cell(15,3.5,$this->datos[$i]['antiguedad'],'',1,'R');
+									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
+									$this->Cell(12,$this->interlineado,$this->datos[$i]['antiguedad_ant'],$borde,0,'R');
+									$this->Cell(14,$this->interlineado,$this->datos[$i]['antiguedad_anos'],$borde,0,'R');		
+									$this->Cell(14,$this->interlineado,$this->datos[$i]['antiguedad'],$borde,1,'R');
 								}else{
 									$ff=$this->datos[$i]['fecha_nacimiento'];
 									$aa=substr($ff, 0,4);
 									$mm=substr($ff, 5,2);
 									$dd=substr($ff, 8,2);
 								
-									$this->Cell(30,3.5,substr ($this->datos[$i]['cargo'],0,18),'',0,'L');
-									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
-									$this->Cell(10,3.5,$this->datos[$i]['edad'],'',1,'R');		
+									$this->Cell(30,$this->interlineado,mb_strcut ($this->datos[$i]['cargo'],0,18, "UTF-8"),$borde,0,'L');
+									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
+									$this->Cell(10,$this->interlineado,$this->datos[$i]['edad'],$borde,1,'R');		
 								}	
 								
 								
@@ -171,8 +183,8 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 									
 										$this->SetFont('','B',8);
 										$this->Ln(2);
-										$this->Cell(65,3.5,'Total '.$this->datos[$i-1]['genero'].':','BT',0,'C');
-										$this->Cell(120,3.5,''.$contf,'TB',1,'C');
+										$this->Cell(65,$this->interlineado,'Total '.$this->datos[$i-1]['genero'].':','BT',0,'C');
+										$this->Cell(120,$this->interlineado,''.$contf,'TB',1,'C');
 										$this->Ln(2);
 										$contf=0;
 										
@@ -181,10 +193,10 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 								}	
 								
 								
-								$this->SetFont('','',7);
-								$this->Cell(45,3.5,substr ( $this->datos[$i]['nombre_uo_pre'], 0, 23),'',0,'L');
-								$this->Cell(20,3.5,$this->datos[$i]['codigo'],'',0,'R');
-								$this->Cell(60,3.5,substr ( $this->datos[$i]['desc_funcionario2'], 0, 30),'',0,'L');
+								$this->SetFont('','',8);
+								$this->Cell(45,$this->interlineado,mb_strcut ( $this->datos[$i]['nombre_uo_pre'], 0, 23, "UTF-8"),$borde,0,'L');
+								$this->Cell(20,$this->interlineado,$this->datos[$i]['codigo'],$borde,0,'R');
+								$this->Cell(60,$this->interlineado,mb_strcut ( $this->datos[$i]['desc_funcionario2'], 0, 30, "UTF-8"),$borde,0,'L');
 								
 								if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 									$ff=$this->datos[$i]['fecha_ingreso'];
@@ -192,18 +204,18 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 									$mm=substr($ff, 5,2);
 									$dd=substr($ff, 8,2);
 									
-									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
-									$this->Cell(10,3.5,$this->datos[$i]['antiguedad_ant'],'',0,'R');
-									$this->Cell(15,3.5,$this->datos[$i]['antiguedad_anos'],'',0,'R');		
-									$this->Cell(15,3.5,$this->datos[$i]['antiguedad'],'',1,'R');
+									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
+									$this->Cell(12,$this->interlineado,$this->datos[$i]['antiguedad_ant'],$borde,0,'R');
+									$this->Cell(14,$this->interlineado,$this->datos[$i]['antiguedad_anos'],$borde,0,'R');		
+									$this->Cell(14,$this->interlineado,$this->datos[$i]['antiguedad'],$borde,1,'R');
 								}else{
 									$ff=$this->datos[$i]['fecha_nacimiento'];
 									$aa=substr($ff, 0,4);
 									$mm=substr($ff, 5,2);
 									$dd=substr($ff, 8,2);
-									$this->Cell(30,3.5,substr ($this->datos[$i]['cargo'],0,16),'',0,'L');
-									$this->Cell(20,3.5,$dd.'/'.$mm.'/'.$aa,'',0,'C');
-									$this->Cell(10,3.5,$this->datos[$i]['edad'],'',1,'R');		
+									$this->Cell(30,$this->interlineado,mb_strcut ($this->datos[$i]['cargo'],0,16, "UTF-8"),$borde,0,'L');
+									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
+									$this->Cell(10,$this->interlineado,$this->datos[$i]['edad'],$borde,1,'R');		
 									
 								
 									
@@ -228,8 +240,8 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 				
 			}
 						$this->SetFont('','B',8);
-						$this->Cell(65,3.5,'Total '.$genero.':','TB',0,'C');
-						$this->Cell(120,3.5,''.$contf,'TB',1,'C');
+						$this->Cell(65,$this->interlineado,'Total '.$genero.':','TB',0,'C');
+						$this->Cell(120,$this->interlineado,''.$contf,'TB',1,'C');
 						$this->Ln(2);
 
 		
@@ -238,10 +250,10 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 			$this->Ln(2);
 			$this->SetFont('','B',8);
-							$this->Cell(70,3.5,'Total Hombres: '.$totalm,'',0,'L');
-							$this->Cell(70,3.5,'Total Mujeres: '.$totalf,'',0,'L');
-							$this->Cell(38,3.5,'Antiguedad Media: '.round($totala/($totalm+$totalf),0),'',0,'L');
-							$this->Cell(25,3.5,''.round($totald/($totalm+$totalf),0),'',1,'L');
+							$this->Cell(70,$this->interlineado,'Total Hombres: '.$totalm,'',0,'L');
+							$this->Cell(70,$this->interlineado,'Total Mujeres: '.$totalf,'',0,'L');
+							$this->Cell(38,$this->interlineado,'Antiguedad Media: '.round($totala/($totalm+$totalf),0),'',0,'L');
+							$this->Cell(25,$this->interlineado,''.round($totald/($totalm+$totalf),0),'',1,'L');
 							$this->Ln(2);
 			
 			}

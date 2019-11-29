@@ -3,6 +3,7 @@
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion 
+ #80    ETR            28/11/2019           MZM                 ajuste formato numeric
 */
 class RRelacionSaldosDet extends  ReportePDF {
 	var $datos;	
@@ -164,7 +165,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 							$this->Cell(125,5,'','',0,'C');
 							$this->Cell(35,5,'Sub Total:','',0,'L');
 							$this->SetFont('','',8);
-							$this->Cell(30,5,number_format($det_total_ciudad,2,',','.'),'',1,'R');
+							$this->Cell(30,5,number_format($det_total_ciudad,2,'.',','),'',1,'R');//#80
 						}
 												
 					    if($det_ciudad==''){ $this->Cell(5,0,'','',0);
@@ -196,7 +197,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 					$this->Cell(25,5,$this->detalle[$i]['codigo'],'',0,'L');
 					$this->Cell(95,5,$this->detalle[$i]['det_desc_funcionario2'],'',0,'L');
 					$this->Cell(35,5,$this->detalle[$i]['det_nro_cuenta'],'',0,'L');
-					$this->Cell(30,5,number_format($this->detalle[$i]['det_importe'],2,',','.'),'',1,'R');
+					$this->Cell(30,5,number_format($this->detalle[$i]['det_importe'],2,'.',','),'',1,'R');//#80
 					$this->Cell(5,5,'','',0,'C');
 					$det_total=$det_total+$this->detalle[$i]['det_importe'];
 					$det_total_ciudad=$det_total_ciudad+$this->detalle[$i]['det_importe'];
@@ -216,7 +217,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 							$this->Cell(125,5,'','',0,'C');
 							$this->Cell(35,5,'Sub Total:','',0,'L');
 							$this->SetFont('','',8);
-							$this->Cell(30,5,number_format($det_total_ciudad,2,',','.'),'',1,'R');
+							$this->Cell(30,5,number_format($det_total_ciudad,2,'.',','),'',1,'R');//#80
 
 		
 		}

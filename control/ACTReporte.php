@@ -14,6 +14,7 @@
  * #71			MZM			08.11.2019				Refactorizacion para reportes de planillas anuales
  * #72			MZM			04.11.2019				Cambio en el orden de defnicion de variable nombre_arhivo para reporte
  * #77			MZM			15.11.2019				Ajuste reportes
+ * #80			MZM			22.11.2019				Reporte para bono/descuento
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -316,16 +317,17 @@ class ACTReporte extends ACTbase{
 		if ($this->objParam->getParametro('tipo_reporte') == 'formato_especifico') {
 			$this->listarFuncionarioReporte($this->objParam->getParametro('id_reporte'));
 		}else{
+			if ($this->objParam->getParametro('tipo_reporte') == 'bono_descuento') {//#80
+				$this->reporteBonoDesc($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
+			}else{
+				
+				if ($this->objParam->getParametro('tipo_reporte') == 'planilla') {
+	            	$this->reportePlanilla($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
+	        	} else {
+	            	$this->reporteBoleta();
+	        	}
+			}
 			
-		
-		//^*********
-		
-			
-			if ($this->objParam->getParametro('tipo_reporte') == 'planilla') {
-	            $this->reportePlanilla($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
-	        } else {
-	            $this->reporteBoleta();
-	        }
 		}
     }
 
@@ -604,6 +606,7 @@ function listarFuncionarioReporte($id_reporte){//#56
         $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 		
 		//#77
+		$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte); //#80
 		$this->objFunc=$this->create('MODReporte');
 		$this->resM=$this->objFunc->listarReporteMaestro($this->objParam);
 		
@@ -628,7 +631,7 @@ function listarFuncionarioReporte($id_reporte){//#56
 					   
 	            $this->objReporteFormato=new RAntiguedadFuncionarioPDF($this->objParam);
 	
-				$this->objReporteFormato->setDatos($this->res->datos);
+				$this->objReporteFormato->setDatos($this->res->datos, $this->resM->datos);//#80
 				$this->objReporteFormato->generarReporte();
 	            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
 			}else{
@@ -678,11 +681,16 @@ function listarFuncionarioReporte($id_reporte){//#56
 										if($this->objParam->getParametro('control_reporte')=='relacion_saldos_det'  ){//#56
 											$this->reporteBancosDet($titulo,$fecha);
 										}else{ 
-											if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes'){//#67
+											if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){//#67
 											
 												$this->reporteAsignacionCargos($titulo,$id_gestion,$id_tipo_contrato);
 											}else{
-												$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77	
+												if($this->objParam->getParametro('control_reporte')=='detalle_bono_desc'){
+												    $this->reporteDetalleBonoDesc($titulo,$id_tipo_contrato,$id_reporte);
+												}else{
+													$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
+												}
+													
 											}
 											
 											
@@ -770,8 +778,6 @@ function listarFuncionarioReporte($id_reporte){//#56
         
             
 		$this->objFunc=$this->create('MODFuncionarioReporte');
-
-        
         $this->res=$this->objFunc->listarDatosAportes($this->objParam);
        
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
@@ -933,13 +939,16 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             
+		$this->objFunc=$this->create('MODReporte');
+        $this->res1=$this->objFunc->listarReporteMaestro($this->objParam);
+			 
 			 $this->objFunc=$this->create('MODFuncionarioReporte');
 
         
         $this->res=$this->objFunc->listarDatosReporteDep($this->objParam);
        
            	$this->objReporteFormato=new REmpleadoDep($this->objParam);
-            $this->objReporteFormato->setDatos($this->res->datos);
+            $this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos);
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
         
@@ -1162,8 +1171,8 @@ function reporteBancosDet()	{ //#56
 			
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()));
-
- 		if($this->objParam->getParametro('control_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('control_reporte')=='lista_cargos' || $this->objParam->getParametro('control_reporte')=='profesiones' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes'){
+		//#77
+ 		if($this->objParam->getParametro('control_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('control_reporte')=='lista_cargos' || $this->objParam->getParametro('control_reporte')=='profesiones' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes' || $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){
         	$this->objParam->addParametro('orientacion','P');}
         else{
         	$this->objParam->addParametro('orientacion','L');
@@ -1194,7 +1203,12 @@ function reporteBancosDet()	{ //#56
 				}else{
 					if($this->objParam->getParametro('control_reporte')=='directorio_empleados' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes'){
 						$this->res=$this->objFunc->listarDirectorioEmpleados($this->objParam);
-					}else{
+					}
+					elseif($this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){//#77
+        	
+        				$this->res=$this->objFunc->listarFrecuenciaProfesiones($this->objParam);
+					}
+					else{
 						$this->res=$this->objFunc->listarRepAsignacionCargos($this->objParam);	
 					}
 					
@@ -1242,6 +1256,147 @@ function reporteBancosDet()	{ //#56
 				
 	}
 
+
+//#80
+function reporteBonoDesc($id_reporte,$tipo_reporte)	{
+
+		
+
+        $this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
+        $this->objFunc=$this->create('MODReporte');
+        $this->res=$this->objFunc->listarReporteMaestro($this->objParam);
+
+		if ($this->objParam->getParametro('id_tipo_columna') != '') {
+            $this->objParam->addParametro('id_tipo_columna',$this->objParam->getParametro('id_tipo_columna'));
+        }
+		
+        $this->objFunc=$this->create('MODReporte');
+        $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
+		
+		
+		$this->objFunc=$this->create('MODReporte');
+		$this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39 
+		
+		//obtener titulo del reporte
+        $titulo = $this->res->datos[0]['titulo_reporte'];
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+
+        //obtener tamaño y orientacion
+        if ($this->res->datos[0]['hoja_posicion'] == 'carta_vertical') {
+            $tamano = 'LETTER';
+            $orientacion = 'P';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'carta_horizontal') {
+            $tamano = 'LETTER';
+            $orientacion = 'L';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'oficio_vertical') {
+            $tamano = 'LEGAL';
+            $orientacion = 'P';
+        } else {
+            $tamano = 'LEGAL';
+            $orientacion = 'L';
+        }
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+		
+		if ($tipo_reporte == 'pdf') { 
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            //Instancia la clase de pdf
+            $this->objReporteFormato=new RPlanillaGenerica($this->objParam);
+            $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos, $this->res3->datos);//#40
+			$this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        } else {
+
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objParam->addParametro('config',$this->res->datos[0]);
+            $this->objParam->addParametro('datos',$this->res2->datos);
+
+			$this->objReporteFormato=new RPlanillaGenericaXls($this->objParam);
+			$this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte();
+        }
+
+		$this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
+
+
+//#80
+function reporteDetalleBonoDesc($tipo_reporte,$id_tipo_contrato,$id_reporte)	{
+
+      //  $this->objParam->addFiltro("repo.id_reporte = ". $id_reporte);
+		
+        $this->objFunc=$this->create('MODReporte');
+        $this->res=$this->objFunc->listarReporteMaestro($this->objParam);
+
+		//obtener titulo del reporte
+        $titulo = $this->res->datos[0]['titulo_reporte'];
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+
+        //obtener tamaño y orientacion
+        if ($this->res->datos[0]['hoja_posicion'] == 'carta_vertical') {
+            $tamano = 'LETTER';
+            $orientacion = 'P';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'carta_horizontal') {
+            $tamano = 'LETTER';
+            $orientacion = 'L';
+        } else if ($this->res->datos[0]['hoja_posicion'] == 'oficio_vertical') {
+            $tamano = 'LEGAL';
+            $orientacion = 'P';
+        } else {
+            $tamano = 'LEGAL';
+            $orientacion = 'L';
+        }
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+		
+		$this->objFunc=$this->create('MODFuncionarioReporte');
+		$this->res1=$this->objFunc->listarDetalleBonoDesc($this->objParam);
+		
+		//if ($tipo_reporte == 'pdf') { 
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            //Instancia la clase de pdf
+            $this->objReporteFormato=new REmpleadoDep($this->objParam);
+            $this->objReporteFormato->setDatos($this->res1->datos, $this->res->datos);
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        /*} else {
+
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objParam->addParametro('config',$this->res->datos[0]);
+            $this->objParam->addParametro('datos',$this->res2->datos);
+
+			$this->objReporteFormato=new RPlanillaGenericaXls($this->objParam);
+			$this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte();
+        }*/
+
+
+		$this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
 
 }
 

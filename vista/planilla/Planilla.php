@@ -305,7 +305,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				name: 'fecha_planilla',
 				fieldLabel: 'Fecha Planilla',
 				allowBlank: false,
-				qtip: 'Esta fecha se tomara como base para afectaciones contables y presupuestarias de esta planilla',
+				qtip: 'Esta fecha se tomara como base para afectaciones contables y presupuestarias de esta planilla, Es la fecha tentativa de pago (Por ejemplo para primas se pone la gestion pasada, 2018 pero en fecha se pone la fecha de pago  31 de abril de 2019)',
 				anchor: '80%',
 				gwidth: 100,
 							format: 'd/m/Y', 

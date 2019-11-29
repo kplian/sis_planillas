@@ -1466,3 +1466,54 @@ ALTER TABLE plani.treporte
 ALTER TABLE plani.treporte
   ADD COLUMN interlineado NUMERIC(5,2);
 /***********************************F-SCP-MZM-PLANI-77-15/11/2019****************************************/
+
+
+
+/***********************************I-SCP-RAC-PLANI-79-20/11/2019****************************************/
+
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN sw_devengado VARCHAR(2) DEFAULT 'si' NOT NULL;
+
+COMMENT ON COLUMN plani.ttipo_planilla.sw_devengado
+IS 'si o no, si se habilita o no el boton de generacion de comprobantes de devegado';
+
+CREATE TABLE planibk.tdetalle_transferencia (
+  id_detalle_transferencia SERIAL,
+  id_obligacion INTEGER NOT NULL,
+  id_institucion INTEGER NOT NULL,
+  nro_cuenta VARCHAR(50) NOT NULL,
+  id_funcionario INTEGER NOT NULL,
+  monto_transferencia NUMERIC(18,2) NOT NULL,
+  CONSTRAINT tdetalle_transferencia_pkey PRIMARY KEY(id_detalle_transferencia),
+  CONSTRAINT fk_tdetalle_transferencia__id_funcionario FOREIGN KEY (id_funcionario)
+    REFERENCES orga.tfuncionario(id_funcionario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tdetalle_transferencia__id_institucion FOREIGN KEY (id_institucion)
+    REFERENCES param.tinstitucion(id_institucion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE,
+  CONSTRAINT fk_tdetalle_transferencia__id_obligacion FOREIGN KEY (id_obligacion)
+    REFERENCES planibk.tobligacion(id_obligacion)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    NOT DEFERRABLE
+) INHERITS (pxp.tbase)
+WITH (oids = false);
+
+
+/***********************************F-SCP-RAC-PLANI-79-20/11/2019****************************************/
+
+/***********************************I-SCP-MZM-PLANI-82-28/11/2019****************************************/
+
+ -- object recreation
+ALTER TABLE plani.treporte
+  DROP CONSTRAINT chk__treporte__ordenar_por RESTRICT;
+
+ALTER TABLE plani.treporte
+  ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text) or (ordenar_por='organigrama'));
+
+  
+/***********************************F-SCP-MZM-PLANI-82-28/11/2019****************************************/

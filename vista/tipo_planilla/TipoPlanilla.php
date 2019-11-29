@@ -17,6 +17,7 @@
  #0              17-01-2014        GUY BOA             Creacion 
  #1              22-02-2019        Rarteaga           agregaga  hoja_calculo
  #9 EndeETR      22/05/2019        EGS           	  btn de plantilla para exportar datos del tipo planilla
+ #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -95,7 +96,8 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: false,
 				anchor: '80%',
 				gwidth: 150,
-				maxLength:100
+				maxLength:100,
+				gdisplayField:'desc_tipo_plantilla'
 			},
 				type:'TextField',
 				filters:{pfiltro:'tippla.nombre',type:'string'},
@@ -264,6 +266,30 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		},	
+		
+		{
+			config:{
+				name: 'sw_devengado',
+				fieldLabel: 'Habilitar cbte de devengado',
+				qtip:'si el sistema esta configurado para generar cbtes independientes al flujo, este boton habilita la generacion de cbte de devengado',
+				allowBlank:false,
+				emptyText:'Calculo horas...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
+		},	
 		{
 			config:{
 				name: 'recalcular_desde',
@@ -387,7 +413,7 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'funcion_validacion_nuevo_empleado', type: 'string'},
 		{name:'funcion_calculo_horas', type: 'string'},		
 		{name:'calculo_horas', type: 'string'},
-		{name:'periodicidad', type: 'string'}
+		{name:'periodicidad', type: 'string'},'desc_tipo_plantilla','sw_devengado'
 		
 	],
 	sortInfo:{

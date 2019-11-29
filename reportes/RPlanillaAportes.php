@@ -7,6 +7,7 @@
  *#44	ETR				18.09.2019			MZM					Adicion de totales para columnas numericas
  *#45	ETR				19.09.2019			MZM					Adicion de incap en dias_cotizable, cambio de var1, var2, var3
   #45	ETR				20.09.2019			MZM					Reposicion de calculo para valores 13000, 25000 y 35000
+ *#80	ETR				27.11.2019			MZM					ajuste formato numeric
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -22,7 +23,7 @@ class RPlanillaAportes extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
 		
-		$this->SetFont('','B',15);
+		$this->SetFont('','B',12);
 		$this->SetY(20);
 		if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 			$this->Cell(0,5,'APORTES AL SISTEMA INTEGRAL DE PENSIONES',0,1,'C');
@@ -44,117 +45,117 @@ class RPlanillaAportes extends  ReportePDF {
 		$this->SetFont('','B',6);
 		$this->SetX(5);
 		
-			  $this->Cell(50,3.5,'Identificacion','LTR',0,'C');
+			  $this->Cell(50,5,'Identificacion','LTR',0,'C');
 			  
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-			  	$this->Cell(79,3.5,'Nombre del Empleado','LTR',0,'C');
+			  	$this->Cell(79,5,'Nombre del Empleado','LTR',0,'C');
 			  }else{
-			  	$this->Cell(100,3.5,'Nombre del Empleado','LTR',0,'C');
+			  	$this->Cell(100,5,'Nombre del Empleado','LTR',0,'C');
 			  }
-			  $this->Cell(21,3.5,'Departamento','LTR',0,'C');
-			  $this->Cell(21,3.5,'Novedad','LTR',0,'C');
-			  $this->Cell(8,3.5,'Dias','LTR',0,'C');
-			  $this->Cell(15,3.5,'Tot.Ganado','LTR',0,'C');
+			  $this->Cell(21,5,'Departamento','LTR',0,'C');
+			  $this->Cell(21,5,'Novedad','LTR',0,'C');
+			  $this->Cell(8,5,'Dias','LTR',0,'C');
+			  $this->Cell(15,5,'Tot.Ganado','LTR',0,'C');
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-				  $this->Cell(15,3.5,'Tot.Ganado','LTR',0,'C');
-				  $this->Cell(15,3.5,'Tot','LTR',0,'C');
-				  $this->Cell(15,3.5,'Tot','LTR',0,'C');
-				  $this->Cell(16,3.5,'Tot','LTR',0,'C');
-				  $this->Cell(16,3.5,'Tot.Ganado','LTR',1,'C');
+				  $this->Cell(15,5,'Tot.Ganado','LTR',0,'C');
+				  $this->Cell(15,5,'Tot','LTR',0,'C');
+				  $this->Cell(15,5,'Tot','LTR',0,'C');
+				  $this->Cell(16,5,'Tot','LTR',0,'C');
+				  $this->Cell(16,5,'Tot.Ganado','LTR',1,'C');
 			}else{
-				  $this->Cell(17,3.5,'Total Ganado','LTR',0,'C');
-				  $this->Cell(17,3.5,'Total Ganado','LTR',0,'C');
-				  $this->Cell(17,3.5,'Total Ganado','LTR',1,'C');
+				  $this->Cell(17,5,'Total Ganado','LTR',0,'C');
+				  $this->Cell(17,5,'Total Ganado','LTR',0,'C');
+				  $this->Cell(17,5,'Total Ganado','LTR',1,'C');
 			}
 		//titulo inferior
 		
 		
 		$this->SetX(5);
 		
-			  $this->Cell(5,3.5,'N','LTR',0,'C');
-			  $this->Cell(7,3.5,'Tipo','LTR',0,'C');
-			  $this->Cell(16,3.5,'Numero','LTR',0,'C');
-			  $this->Cell(7,3.5,'Ext','LTR',0,'C');
-			  $this->Cell(15,3.5,'NUA','LTR',0,'C');
+			  $this->Cell(5,5,'N','LTR',0,'C');
+			  $this->Cell(7,5,'Tipo','LTR',0,'C');
+			  $this->Cell(16,5,'Numero','LTR',0,'C');
+			  $this->Cell(7,5,'Ext','LTR',0,'C');
+			  $this->Cell(15,5,'NUA','LTR',0,'C');
 			  //---------
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-				  $this->Cell(22,3.5,'Apellido Paterno','LTR',0,'C');
-				  $this->Cell(21,3.5,'Apellido Materno','LTR',0,'C');
-				  $this->Cell(17,3.5,'Primer Nombre','LTR',0,'C');
-				  $this->Cell(19,3.5,'Segundo Nombre','LTR',0,'C');
+				  $this->Cell(22,5,'Apellido Paterno','LTR',0,'C');
+				  $this->Cell(21,5,'Apellido Materno','LTR',0,'C');
+				  $this->Cell(17,5,'Primer Nombre','LTR',0,'C');
+				  $this->Cell(19,5,'Segundo Nombre','LTR',0,'C');
 			  }else{
-			  	  $this->Cell(27,3.5,'Apellido Paterno','LTR',0,'C');
-				  $this->Cell(27,3.5,'Apellido Materno','LTR',0,'C');
-				  $this->Cell(22,3.5,'Primer Nombre','LTR',0,'C');
-				  $this->Cell(24,3.5,'Segundo Nombre','LTR',0,'C');
+			  	  $this->Cell(27,5,'Apellido Paterno','LTR',0,'C');
+				  $this->Cell(27,5,'Apellido Materno','LTR',0,'C');
+				  $this->Cell(22,5,'Primer Nombre','LTR',0,'C');
+				  $this->Cell(24,5,'Segundo Nombre','LTR',0,'C');
 			  }
 			  //---------
-			  $this->Cell(21,3.5,'','LTR',0,'C');
+			  $this->Cell(21,5,'','LTR',0,'C');
 			  //----
-			  $this->Cell(11,3.5,'Novedad','LTR',0,'C');
-			  $this->Cell(10,3.5,'Fecha','LTR',0,'C');
+			  $this->Cell(11,5,'Novedad','LTR',0,'C');
+			  $this->Cell(10,5,'Fecha','LTR',0,'C');
 			  //-------
-			  $this->Cell(8,3.5,'Cot','LTR',0,'C');
+			  $this->Cell(8,5,'Cot','LTR',0,'C');
 			  //-----
 			  
 			   if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-				  $this->Cell(15,3.5,'Cot Dep<65','LTR',0,'C');
+				  $this->Cell(15,5,'Cot Dep<65','LTR',0,'C');
 				  //----
-				  $this->Cell(15,3.5,'Cot Dep>65','LTR',0,'C');
+				  $this->Cell(15,5,'Cot Dep>65','LTR',0,'C');
 				  //---
-				  $this->Cell(15,3.5,'Jubilado<65','LTR',0,'C');
-				  $this->Cell(15,3.5,'Jubilado>65','LTR',0,'C');
+				  $this->Cell(15,5,'Jubilado<65','LTR',0,'C');
+				  $this->Cell(15,5,'Jubilado>65','LTR',0,'C');
 				  
-				  $this->Cell(16,3.5,'FV','LTR',0,'C');
-				  $this->Cell(16,3.5,'FS','LTR',1,'C');
+				  $this->Cell(16,5,'FV','LTR',0,'C');
+				  $this->Cell(16,5,'FS','LTR',1,'C');
 			  }else{
-			  	 $this->Cell(15,3.5,'Solidario','LTR',0,'C');
-			  	 $this->Cell(17,3.5,'Sol(13000 Bs)','LTR',0,'C');
-				  $this->Cell(17,3.5,'Sol(25000 Bs)','LTR',0,'C');
-				  $this->Cell(17,3.5,'Sol(35000 Bs)','LTR',1,'C');
+			  	 $this->Cell(15,5,'Solidario','LTR',0,'C');
+			  	 $this->Cell(17,5,'Sol(13000 Bs)','LTR',0,'C');
+				  $this->Cell(17,5,'Sol(25000 Bs)','LTR',0,'C');
+				  $this->Cell(17,5,'Sol(35000 Bs)','LTR',1,'C');
 			  }
 			  
 		$this->SetX(5);
 		
-			  $this->Cell(5,3.5,'','LBR',0,'C');
-			  $this->Cell(7,3.5,'','LBR',0,'C');
-			  $this->Cell(16,3.5,'','LBR',0,'C');
-			  $this->Cell(7,3.5,'','LBR',0,'C');
-			  $this->Cell(15,3.5,'','LBR',0,'C');
+			  $this->Cell(5,5,'','LBR',0,'C');
+			  $this->Cell(7,5,'','LBR',0,'C');
+			  $this->Cell(16,5,'','LBR',0,'C');
+			  $this->Cell(7,5,'','LBR',0,'C');
+			  $this->Cell(15,5,'','LBR',0,'C');
 			  //---------
 			   if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-				  $this->Cell(22,3.5,' ','LBR',0,'C');
-				  $this->Cell(21,3.5,' ','LBR',0,'C');
-				  $this->Cell(17,3.5,' ','LBR',0,'C');
-				  $this->Cell(19,3.5,' ','LBR',0,'C');
+				  $this->Cell(22,5,' ','LBR',0,'C');
+				  $this->Cell(21,5,' ','LBR',0,'C');
+				  $this->Cell(17,5,' ','LBR',0,'C');
+				  $this->Cell(19,5,' ','LBR',0,'C');
 			  }else{
-			  	  $this->Cell(27,3.5,'','LBR',0,'C');
-				  $this->Cell(27,3.5,'','LBR',0,'C');
-				  $this->Cell(22,3.5,'','LBR',0,'C');
-				  $this->Cell(24,3.5,'','LBR',0,'C');
+			  	  $this->Cell(27,5,'','LBR',0,'C');
+				  $this->Cell(27,5,'','LBR',0,'C');
+				  $this->Cell(22,5,'','LBR',0,'C');
+				  $this->Cell(24,5,'','LBR',0,'C');
 			  }
 			  //---------
-			  $this->Cell(21,3.5,'','LBR',0,'C');
+			  $this->Cell(21,5,'','LBR',0,'C');
 			  //----
-			  $this->Cell(11,3.5,'I/R/L/S','LBR',0,'C');
-			  $this->Cell(10,3.5,'Novedad','LBR',0,'C');
+			  $this->Cell(11,5,'I/R/L/S','LBR',0,'C');
+			  $this->Cell(10,5,'Novedad','LBR',0,'C');
 			  //-------
-			  $this->Cell(8,3.5,'','LBR',0,'C');
+			  $this->Cell(8,5,'','LBR',0,'C');
 			  //-----
-			  $this->Cell(15,3.5,'','LBR',0,'C');
+			  $this->Cell(15,5,'','LBR',0,'C');
 			  //----
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-				  $this->Cell(15,3.5,'','LBR',0,'C');
+				  $this->Cell(15,5,'','LBR',0,'C');
 				  //---
-				  $this->Cell(15,3.5,'','LBR',0,'C');
-				  $this->Cell(15,3.5,'','LBR',0,'C');
+				  $this->Cell(15,5,'','LBR',0,'C');
+				  $this->Cell(15,5,'','LBR',0,'C');
 				  
-				  $this->Cell(16,3.5,'','LBR',0,'C');
-				  $this->Cell(16,3.5,'','LBR',1,'C');
+				  $this->Cell(16,5,'','LBR',0,'C');
+				  $this->Cell(16,5,'','LBR',1,'C');
 			}else{
-				  $this->Cell(17,3.5,'','LBR',0,'C');
-				  $this->Cell(17,3.5,'','LBR',0,'C');
-				  $this->Cell(17,3.5,'','LBR',1,'C');
+				  $this->Cell(17,5,'','LBR',0,'C');
+				  $this->Cell(17,5,'','LBR',0,'C');
+				  $this->Cell(17,5,'','LBR',1,'C');
 			}
 		
 	
@@ -307,33 +308,33 @@ class RPlanillaAportes extends  ReportePDF {
 				
 										
 					
-					  $this->Cell(5,3.5,$array_datos[$i][0],'',0,'R');
-					  $this->Cell(7,3.5,$array_datos[$i][1],'',0,'L');
-					  $this->Cell(16,3.5,$array_datos[$i][2],'',0,'R');
-					  $this->Cell(7,3.5,$array_datos[$i][3],'',0,'L');
-					  $this->Cell(15,3.5,$array_datos[$i][4],'',0,'R');
+					  $this->Cell(5,5,$array_datos[$i][0],'',0,'R');
+					  $this->Cell(7,5,$array_datos[$i][1],'',0,'L');
+					  $this->Cell(16,5,$array_datos[$i][2],'',0,'R');
+					  $this->Cell(7,5,$array_datos[$i][3],'',0,'L');
+					  $this->Cell(15,5,$array_datos[$i][4],'',0,'R');
 					  //---------
 					 if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					  
-						  $this->Cell(22,3.5,$array_datos[$i][5],'',0,'L');
-						  $this->Cell(21,3.5,$array_datos[$i][6],'',0,'L');
-						  $this->Cell(17,3.5,$array_datos[$i][7],'',0,'L');
-						  $this->Cell(19,3.5,$array_datos[$i][8],'',0,'L');
+						  $this->Cell(22,5,$array_datos[$i][5],'',0,'L');
+						  $this->Cell(21,5,$array_datos[$i][6],'',0,'L');
+						  $this->Cell(17,5,$array_datos[$i][7],'',0,'L');
+						  $this->Cell(19,5,$array_datos[$i][8],'',0,'L');
 					  }else{
-					  	  $this->Cell(27,3.5,$array_datos[$i][5],'',0,'L');
-						  $this->Cell(27,3.5,$array_datos[$i][6],'',0,'L');
-						  $this->Cell(22,3.5,$array_datos[$i][7],'',0,'L');
-						  $this->Cell(24,3.5,$array_datos[$i][8],'',0,'L');
+					  	  $this->Cell(27,5,$array_datos[$i][5],'',0,'L');
+						  $this->Cell(27,5,$array_datos[$i][6],'',0,'L');
+						  $this->Cell(22,5,$array_datos[$i][7],'',0,'L');
+						  $this->Cell(24,5,$array_datos[$i][8],'',0,'L');
 					  }
 					  //---------
-					  $this->Cell(21,3.5,$array_datos[$i][9],'',0,'L');
+					  $this->Cell(21,5,$array_datos[$i][9],'',0,'L');
 					  //----
-					  $this->Cell(11,3.5,$array_datos[$i][10],'',0,'L');
-					  $this->Cell(10,3.5,$array_datos[$i][11],'',0,'C');
+					  $this->Cell(11,5,$array_datos[$i][10],'',0,'L');
+					  $this->Cell(10,5,$array_datos[$i][11],'',0,'C');
 					  //-------
-					  $this->Cell(8,3.5,$array_datos[$i][12],'',0,'R');
+					  $this->Cell(8,5,$array_datos[$i][12],'',0,'R');
 					  //-----
-					  $this->Cell(15,3.5,number_format($array_datos[$i][13],2,',','.'),'',0,'R');
+					  $this->Cell(15,5,number_format($array_datos[$i][13],2,'.',','),'',0,'R');//#80
 					  $tot13=$tot13+$array_datos[$i][13];
 					  $tot15=$tot15+$array_datos[$i][15];
 					  $tot16=$tot16+$array_datos[$i][16];
@@ -341,19 +342,19 @@ class RPlanillaAportes extends  ReportePDF {
 					  //----
 					  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					
-						  $this->Cell(15,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
+						  $this->Cell(15,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
 						  //---
-						  $this->Cell(15,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
-						  $this->Cell(15,3.5,number_format($array_datos[$i][17],2,',','.'),'',0,'R');
+						  $this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
+						  $this->Cell(15,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');
 						  $tot18=$tot18+$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17];
 						  $tot19=$tot19+$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17];
-						  $this->Cell(16,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',0,'R');
-						  $this->Cell(16,3.5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,',','.'),'',1,'R');
+						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',0,'R');
+						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',1,'R');
 					  }else{
-					  	  $this->Cell(17,3.5,number_format($array_datos[$i][15],2,',','.'),'',0,'R');
+					  	  $this->Cell(17,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
 						  //---
-						  $this->Cell(17,3.5,number_format($array_datos[$i][16],2,',','.'),'',0,'R');
-						  $this->Cell(17,3.5,number_format($array_datos[$i][17],2,',','.'),'',1,'R');
+						  $this->Cell(17,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
+						  $this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',1,'R');
 					  }
 			 
 			}
@@ -363,23 +364,23 @@ class RPlanillaAportes extends  ReportePDF {
 	 	 	$this->SetDrawColor(0,0,0);
 			$this->Cell(0,0,'','B',1);
  			if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
- 				$this->Cell(176,3.5,'TOTALES','',0,'R');
-				$this->Cell(3,3.5,'','',0,'R');
-				$this->Cell(15,3.5,number_format($tot13,2,',','.'),'',0,'R');
-				$this->Cell(15,3.5,number_format($tot15,2,',','.'),'',0,'R');
-				$this->Cell(15,3.5,number_format($tot16,2,',','.'),'',0,'R');
-				$this->Cell(15,3.5,number_format($tot17,2,',','.'),'',0,'R');
-				$this->Cell(16,3.5,number_format($tot18,2,',','.'),'',0,'R');
-				$this->Cell(16,3.5,number_format($tot19,2,',','.'),'',1,'R');
+ 				$this->Cell(176,5,'TOTALES','',0,'R');
+				$this->Cell(3,5,'','',0,'R');
+				$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
+				$this->Cell(15,5,number_format($tot15,2,'.',','),'',0,'R');//#80
+				$this->Cell(15,5,number_format($tot16,2,'.',','),'',0,'R');//#80
+				$this->Cell(15,5,number_format($tot17,2,'.',','),'',0,'R');//#80
+				$this->Cell(16,5,number_format($tot18,2,'.',','),'',0,'R');//#80
+				$this->Cell(16,5,number_format($tot19,2,'.',','),'',1,'R');//#80
 				
 			}else{
 				
-				$this->Cell(197,3.5,'TOTALES','',0,'R');
-				$this->Cell(3,3.5,'','',0,'R');
-				$this->Cell(15,3.5,number_format($tot13,2,',','.'),'',0,'R');
-				$this->Cell(17,3.5,number_format($tot15,2,',','.'),'',0,'R');
-				$this->Cell(17,3.5,number_format($tot16,2,',','.'),'',0,'R');
-				$this->Cell(17,3.5,number_format($tot17,2,',','.'),'',1,'R');
+				$this->Cell(197,5,'TOTALES','',0,'R');
+				$this->Cell(3,5,'','',0,'R');
+				$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
+				$this->Cell(17,5,number_format($tot15,2,'.',','),'',0,'R');//#80
+				$this->Cell(17,5,number_format($tot16,2,'.',','),'',0,'R');//#80
+				$this->Cell(17,5,number_format($tot17,2,'.',','),'',1,'R');//#80
 			}
 				
 		

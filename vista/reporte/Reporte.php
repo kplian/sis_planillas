@@ -13,6 +13,8 @@ issue 	empresa		autor	fecha	detalle
  * #65	ETR			MZM		10.10.2019	Adicion de cmpo id_moneda_reporte
  * #71	ETR			MZM		01.11.2019	Refactorizacion para planilla de prima (agrupacion en treporte distrito_banco)
  * #77	ETR			MZM		14.11.2019	Ajustes varios
+ * #80	ETR			MZM		22.11.2019	Adicion de tipo_reporte (bono_descuento)
+ * #82	ETR			MZM		27.11.2019	Adicion de opcion organigrama en check ordenar_por
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -135,12 +137,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['planilla','boleta','archivo_texto','formato_especifico']
+				store:['planilla','boleta','archivo_texto','formato_especifico','bono_descuento']//#80
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['planilla','boleta','archivo_texto','formato_especifico'],	
+	       				 options: ['planilla','boleta','archivo_texto','formato_especifico','bono_descuento'],	//#80
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -289,12 +291,12 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 120,
-				store:['nombre','doc_id','codigo_cargo','codigo_empleado'] //#17
+				store:['nombre','doc_id','codigo_cargo','codigo_empleado','organigrama'] //#17 #82
 			},
 				type:'ComboBox',
 				filters:{	
 	       		         type: 'list',
-	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado'], //#17 	
+	       				 options: ['nombre','doc_id','codigo_cargo','codigo_empleado','organigrama'], //#17 #82 	
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -572,6 +574,7 @@ Phx.vista.Reporte=Ext.extend(Phx.gridInterfaz,{
 				grid:true,
 				form:true
 		}
+		
 	],
 	tam_pag:50,	
 	title:'Reportes de Planilla',

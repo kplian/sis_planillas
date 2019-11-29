@@ -224,15 +224,17 @@ class RPlanillaPersonalXls
                
                
                 
-                $this->docexcel->getActiveSheet()->getStyle('M:S')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-				
-                
+                $this->docexcel->getActiveSheet()->getStyle('F:S')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+	$tip='';			
+ if($this->objParam->getParametro('id_tipo_contrato')>0){
+ 	$tip=$datos[0]['nombre'];
+ }             
              
                 
 if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
-	$tit_rep='INCORPORACIONES DEL PERSONAL';
+	$tit_rep='INCORPORACIONES DEL PERSONAL '.$tip;
 }else{
-	$tit_rep='PERSONAL RETIRADO';
+	$tit_rep='PERSONAL RETIRADO '.$tip;
 
 }
 

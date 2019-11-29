@@ -9,7 +9,8 @@
  * #60	etr			MZM		08.10.2019	Adicion de campo incluir_retirados
  * #65	ETR			MZM		10.10.2019	Adicion de 2 campos para q en reportes de listado solo se muestren los q tengan valor diferente a 0
  * #71	ETR			MZM		31.10.2019	Refactorizacion de campo periodo cuando son anuales, obteniendo el periodo en funcion a la fecha de planilla
- * #77	ETR			MZM		14.11.2019	Interlineado y bordes de reporte 
+ * #77	ETR			MZM		14.11.2019	Interlineado y bordes de reporte
+ * #80	ETR			MZM		22.11.2019	Reportes bono/desc 
 **/
 
 class MODReporte extends MODbase{
@@ -313,6 +314,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('id_uo','id_uo','integer');
 		$this->setParametro('totales','totales','varchar');
 		
+		$this->setParametro('id_tipo_columna','id_tipo_columna','integer');//#80
 			
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -336,12 +338,12 @@ class MODReporte extends MODbase{
 		$this->captura('nombre','varchar');
 		$this->captura('espacio_previo','integer');
 				
-		
+		$this->captura('orden','integer');//#80
 
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		
-		//echo "****".$this->getConsulta(); exit;
+		//echo "**REP**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		

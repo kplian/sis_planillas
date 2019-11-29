@@ -21,13 +21,13 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$this->SetFont('','B',7);
 		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
 		
-		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos'  && $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='profesiones'  && $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' && $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes'){
+		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos'  && $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='profesiones'  && $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' && $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes'  && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			$this->Cell($this->ancho_hoja+260, 3, $pagenumtxt, '', 1, 'R');
 		}else{
 			$this->Cell($this->ancho_hoja+200, 3, $pagenumtxt, '', 1, 'R');
 		}
 		
-		$this->SetFont('','B',15);
+		$this->SetFont('','B',12);//#77
 		$this->SetY(20);
 		$cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($cadena_nomina!=''){
@@ -53,9 +53,14 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(0,5,'FECHAS DE NACIMIENTO',0,1,'C');
 								if($this->objParam->getParametro('tipo_reporte')=='nacimiento_ano'){
 									$this->Cell(0,5,'NOMINA CLASIFICADA POR AÑO '. $cadena_nomina,0,1,'C');	
-								}else{
+								}
+								
+								else{
 									$this->Cell(0,5,'NOMINA CLASIFICADA POR MES '. $cadena_nomina,0,1,'C');
 								}
+								
+							  }elseif($this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){//#77
+								$this->Cell(0,5,'FRECUENCIA DE PROFESIONES '.$cadena_nomina,0,1,'C');
 								
 							}
 							else{
@@ -71,7 +76,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		}
 		
 		
-		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' ){
+		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			$this->SetFont('','B',10);
 			if($this->objParam->getParametro('tipo_reporte')=='profesiones'|| $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes'){
 				$this->Cell(0,5,'Correspondiente a : '.$this->datos[0]['periodo_lite'],0,1,'C');
@@ -152,6 +157,11 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(50,5,'','B',0,'C');
 								$this->Cell(50,5,'','B',1,'C');
 							
+							}elseif($this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
+								$this->Cell(120,5,'Descripcion','LRTB',0,'C');
+								$this->Cell(25,5,'Hombres','LRTB',0,'C');
+								$this->Cell(25,5,'Mujeres','LRTB',0,'C');
+								$this->Cell(25,5,'Total','LRTB',1,'C');
 							}
 						}
 					}
@@ -178,7 +188,8 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		
 		$cont=0;
 		
-		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes'){
+		
+		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes' &&  $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			for ($i=0; $i<count($this->datos);$i++){
 			   if($this->datos[$i]['nuevo_cargo']!='' && $this->datos[$i]['cargo']!=$this->datos[$i]['nuevo_cargo']){
 			   	  $cont++; 	  
@@ -346,6 +357,40 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 							}
 							
 						}
+				elseif($this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
+							$tot_fem=0;
+							$tot_mas=0;
+							for ($i=0; $i<count($this->datos);$i++){
+								$cont++; 
+								if($cont ==1){
+								  	//$this->Cell(5,4,'','',0,'R');
+								  	$this->SetX($this->GetX()-5);
+								  }	  
+								
+										$this->Cell(120,5,mb_strcut($this->datos[$i]['nombre'], 0, 50, "UTF-8"),'LRTB',0,'L');
+										//#77
+										if($this->datos[$i]['total_masculino']>0){
+											$this->Cell(25,5,$this->datos[$i]['total_masculino'],'LRTB',0,'C');
+										}else{
+											$this->Cell(25,5,'','LRTB',0,'C');
+										}
+										
+										if($this->datos[$i]['total_femenino']>0){
+											$this->Cell(25,5,$this->datos[$i]['total_femenino'],'LRTB',0,'C');
+										}else{
+											$this->Cell(25,5,'','LRTB',0,'C');
+										}
+										$this->Cell(25,5,$this->datos[$i]['total_femenino']+$this->datos[$i]['total_masculino'],'LRTB',1,'C');
+										
+									$tot_fem=$tot_fem+$this->datos[$i]['total_femenino'];
+									$tot_mas=$tot_mas+$this->datos[$i]['total_masculino'];
+							}
+							$this->Cell(20,5,$cont,'',0,'C');
+							$this->Cell(100,5,'Totales','',0,'R');
+							$this->Cell(25,5,$tot_mas,'',0,'C');
+							$this->Cell(25,5,$tot_fem,'',0,'C');
+							$this->Cell(25,5,$tot_fem+$tot_mas,'',1,'C');
+				}
 					else{
 							$tot_fem=0;
 							$tot_mas=0;

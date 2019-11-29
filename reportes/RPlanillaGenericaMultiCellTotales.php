@@ -4,7 +4,7 @@
 //#33			etr-MZM		02.09.2019				reporte multilinea pro totales
 //#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0	
- 
+//#80			MZM			24.11.2019				Ajuste formato numeric 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -191,7 +191,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 				 ){
 				 	
 				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
 				 	}else{
 				 		array_push($detalle_col_mod, '');
 				 	}
@@ -230,7 +230,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -260,7 +260,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,',','.'));	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -374,7 +374,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
 				if($data_sub[$cc]>0){//#50
-					array_push($result, number_format($data_sub[$cc],2,',','.'));
+					array_push($result, number_format($data_sub[$cc],2,'.',','));//#80
 				}else{
 					array_push($result, '');
 				}

@@ -28,6 +28,7 @@ $body$
    #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria 
    #68    ETR             24/10/2019            RAC                  Registrar  calcular_prima_rciva
    #78    ETR             18/11/2019            RAC                  Adcionar listado del historico de backup planilla  
+   #79    ETR             27/11/2019            RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
    
  ***************************************************************************/
 
@@ -43,25 +44,24 @@ $body$
     --variables reporte certificacion presupuestaria
     v_record_op                    record;
     v_index                        integer;
-    v_record                    record;
-    v_record_funcionario        record;
-    v_firmas                    varchar[];
+    v_record                       record;
+    v_record_funcionario           record;
+    v_firmas                       varchar[];
     v_firma_fun                    varchar;
-    v_nombre_entidad            varchar;
-    v_direccion_admin            varchar;
-    v_unidad_ejecutora            varchar;
-    v_cod_proceso                varchar;
-    v_cont                        integer;
-    v_gerencia                    varchar;
-    v_id_funcionario            integer;
-
-    v_desc_funcionario            varchar;
-
-    v_id_gestion                integer;
+    v_nombre_entidad               varchar;
+    v_direccion_admin              varchar;
+    v_unidad_ejecutora             varchar;
+    v_cod_proceso                  varchar;
+    v_cont                         integer;
+    v_gerencia                     varchar;
+    v_id_funcionario               integer;
+    v_desc_funcionario             varchar;
+    v_id_gestion                   integer;
     v_desc_planilla                varchar;
-    v_porcentaje                varchar='';
+    v_porcentaje                   varchar='';
     v_inner_periodo                varchar='';
     v_aux_tipo_interfaz            varchar = '';
+    v_config_gen_cbte_pago         varchar; 
   BEGIN
 
     v_nombre_funcion = 'plani.ft_planilla_sel';
@@ -104,6 +104,8 @@ $body$
           END IF;
 
         END IF;
+        
+        v_config_gen_cbte_pago = pxp.f_get_variable_global('plani_generar_comprobante_obligaciones');
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -143,7 +145,9 @@ $body$
                         plani.calcular_reintegro_rciva,
                         plani.id_int_comprobante,   --#43
                         plani.id_int_comprobante_2,  --#43
-                        plani.calcular_prima_rciva  --#68
+                        plani.calcular_prima_rciva,  --#68
+                        tippla.sw_devengado,  --#79 
+                        '''||v_config_gen_cbte_pago||'''::varchar as sw_pago --#79
                   from plani.tplanilla plani
                   inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
                   left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod

@@ -133,7 +133,7 @@ BEGIN
      for v_registros in execute(v_base_query)loop
     	
      -------------------------------------------------------------------------------------------
-     -- solo entran los empleado con contrato vigente mayor o giaul a la fecha de la planilla
+     -- solo entran los empleado con contrato vigente  a la fecha de la planilla
      -- (feha finalizacion real igual a NULL or fecha de finalizacion mayor a la planilla)
      -- OJO analizar caso de otras empresa esto puede cambiar y se peude customizar otra funcion
      --------------------------------------------------------------------------------------------
@@ -157,8 +157,8 @@ BEGIN
         
         if (v_dias >= 90  and v_entra = 'si') then
         	
-            v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_registros.fecha_fin);
-        	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_fin);
+            v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_planilla);
+        	v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla);
             v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);  
             
             
