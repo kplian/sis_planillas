@@ -2,7 +2,8 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion
- #66	ETR				25.10.2019			MZM					Condicion para reporte por centros 
+ #66	ETR				25.10.2019			MZM					Condicion para reporte por centros
+ #81	ETR				06.11.2019			MZM					Adicion de columna estado AFP (Jubilado55, 65, mayor65, activo) 
 */
 class RPlanillaCurvaXls
 {
@@ -256,7 +257,7 @@ class RPlanillaCurvaXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        $meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        
        // foreach ($datos as $value)
         //{
             //var_dump($value['tipo_contrato']);exit;
@@ -266,8 +267,8 @@ class RPlanillaCurvaXls
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
 
-                $this->docexcel->getActiveSheet()->getStyle('A1:BQ1')->getAlignment()->setWrapText(true);
-                $this->docexcel->getActiveSheet()->getStyle('A1:BQ1')->applyFromArray($styleTitulos3);
+                $this->docexcel->getActiveSheet()->getStyle('A1:BR1')->getAlignment()->setWrapText(true);
+                $this->docexcel->getActiveSheet()->getStyle('A1:BR1')->applyFromArray($styleTitulos3);
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
                 $fila=3;
                 $this->numero=1;
@@ -349,7 +350,7 @@ class RPlanillaCurvaXls
 				$this->docexcel->getActiveSheet()->getColumnDimension('BO')->setWidth(20);//mes
 				$this->docexcel->getActiveSheet()->getColumnDimension('BP')->setWidth(20);//mes
 				$this->docexcel->getActiveSheet()->getColumnDimension('BQ')->setWidth(20);//mes
-				
+				$this->docexcel->getActiveSheet()->getColumnDimension('BR')->setWidth(20);//mes#81
 				
 				
                 $this->docexcel->getActiveSheet()->setCellValue('A1','Cd_Empleado');//1
@@ -403,35 +404,37 @@ class RPlanillaCurvaXls
 				$this->docexcel->getActiveSheet()->setCellValue('AS1','Basico');//45
 				$this->docexcel->getActiveSheet()->setCellValue('AT1','AFP');//46
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AU1','Nivel_Salarial_Cargo');//47							
+				$this->docexcel->getActiveSheet()->setCellValue('AU1','Estado AFP');//46#81
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AV1','Basico_Límite');//48
-				$this->docexcel->getActiveSheet()->setCellValue('AW1','FechaIngresoNeto');//49
-				$this->docexcel->getActiveSheet()->setCellValue('AX1','AntiguedadExterna');//50
-				$this->docexcel->getActiveSheet()->setCellValue('AY1','Periodo');//51
-				$this->docexcel->getActiveSheet()->setCellValue('AZ1','Sueldo_Mes'); //52
-				$this->docexcel->getActiveSheet()->setCellValue('BA1','Cotizable');//53
+				$this->docexcel->getActiveSheet()->setCellValue('AV1','Nivel_Salarial_Cargo');//47							
+				
+				$this->docexcel->getActiveSheet()->setCellValue('AW1','Basico_Límite');//48
+				$this->docexcel->getActiveSheet()->setCellValue('AX1','FechaIngresoNeto');//49
+				$this->docexcel->getActiveSheet()->setCellValue('AY1','AntiguedadExterna');//50
+				$this->docexcel->getActiveSheet()->setCellValue('AZ1','Periodo');//51
+				$this->docexcel->getActiveSheet()->setCellValue('BA1','Sueldo_Mes'); //52
+				$this->docexcel->getActiveSheet()->setCellValue('BB1','Cotizable');//53
 
-				$this->docexcel->getActiveSheet()->setCellValue('BB1','LQ_Pagable');//54
-				$this->docexcel->getActiveSheet()->setCellValue('BC1','Asig_Disp');//55
-				$this->docexcel->getActiveSheet()->setCellValue('BD1','Prenatal');//56
-				$this->docexcel->getActiveSheet()->setCellValue('BE1','Lactancia');//57
-				$this->docexcel->getActiveSheet()->setCellValue('BF1','Natalidad');//58
+				$this->docexcel->getActiveSheet()->setCellValue('BC1','LQ_Pagable');//54
+				$this->docexcel->getActiveSheet()->setCellValue('BD1','Asig_Disp');//55
+				$this->docexcel->getActiveSheet()->setCellValue('BE1','Prenatal');//56
+				$this->docexcel->getActiveSheet()->setCellValue('BF1','Lactancia');//57
+				$this->docexcel->getActiveSheet()->setCellValue('BG1','Natalidad');//58
 				
 				///////
-				$this->docexcel->getActiveSheet()->setCellValue('BG1','C_Indiv');//59
-				$this->docexcel->getActiveSheet()->setCellValue('BH1','Riesgo_Comun');//60
-				$this->docexcel->getActiveSheet()->setCellValue('BI1','C_Administ');//61
-				$this->docexcel->getActiveSheet()->setCellValue('BJ1','AporteSolidarioNacional');//62
-				$this->docexcel->getActiveSheet()->setCellValue('BK1','AporteSolidarioEmpl');//63
+				$this->docexcel->getActiveSheet()->setCellValue('BH1','C_Indiv');//59
+				$this->docexcel->getActiveSheet()->setCellValue('BI1','Riesgo_Comun');//60
+				$this->docexcel->getActiveSheet()->setCellValue('BJ1','C_Administ');//61
+				$this->docexcel->getActiveSheet()->setCellValue('BK1','AporteSolidarioNacional');//62
+				$this->docexcel->getActiveSheet()->setCellValue('BL1','AporteSolidarioEmpl');//63
 				//////
 				
-				$this->docexcel->getActiveSheet()->setCellValue('BL1','TotalGanado');//59
-				$this->docexcel->getActiveSheet()->setCellValue('BM1','TotalDescuentos');//60
-				$this->docexcel->getActiveSheet()->setCellValue('BN1','TotalGeneral');//61
-				$this->docexcel->getActiveSheet()->setCellValue('BO1','Telef_Celular');//62
-				$this->docexcel->getActiveSheet()->setCellValue('BP1','Banco');//63
-				$this->docexcel->getActiveSheet()->setCellValue('BQ1','Cuenta_Banco');//64
+				$this->docexcel->getActiveSheet()->setCellValue('BM1','TotalGanado');//59
+				$this->docexcel->getActiveSheet()->setCellValue('BN1','TotalDescuentos');//60
+				$this->docexcel->getActiveSheet()->setCellValue('BO1','TotalGeneral');//61
+				$this->docexcel->getActiveSheet()->setCellValue('BP1','Telef_Celular');//62
+				$this->docexcel->getActiveSheet()->setCellValue('BQ1','Banco');//63
+				$this->docexcel->getActiveSheet()->setCellValue('BR1','Cuenta_Banco');//64
 
 				$nombre_centro='';
 				foreach ($datos as $value){
@@ -514,39 +517,42 @@ class RPlanillaCurvaXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(36, $fila,$value['asigcaja'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(37, $fila,$value['asigcaja_it'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(38, $fila,$value['asignaciones'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(39, $fila,$value['horext'] );//bono antiguedad
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(39, $fila,$value['bonant'] );//bono antiguedad
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(40, $fila,$value['horext'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(41, $fila,$value['extra'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(42, $fila,$value['hornoc'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(43, $fila,$value['nocturno'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(44, $fila,$value['sueldo_mes'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(45, $fila,$value['nombre_afp'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(46, $fila,$value['nivel_salarial_categoria'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(47, $fila,$value['basico_limite'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(48, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(49, $fila,$value['antiguedad_anterior'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(50, $fila,date_format(date_create($value['fecha_planilla']),'d/m/Y') );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(51, $fila,$value['suelmes'] ); //suelmes
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(52, $fila,$value['cotizable'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(53, $fila,$value['liquido'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(54, $fila,$value['disponibilidad'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(55, $fila,$value['prenatal'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(56, $fila,$value['lactancia'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(57, $fila,$value['natalidad'] );
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(46, $fila,$value['estado_afp'] );//#81
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(47, $fila,$value['nivel_salarial_categoria'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(48, $fila,$value['basico_limite'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(49, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(50, $fila,$value['antiguedad_anterior'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(51, $fila,date_format(date_create($value['fecha_planilla']),'d/m/Y') );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(52, $fila,$value['suelmes'] ); //suelmes
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(53, $fila,$value['cotizable'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(54, $fila,$value['liquido'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(55, $fila,$value['disponibilidad'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(56, $fila,$value['prenatal'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(57, $fila,$value['lactancia'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(58, $fila,$value['natalidad'] );
 					//#66
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(58, $fila,$value['afp_sso'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(59, $fila,$value['afp_rcom'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(60, $fila,$value['afp_cadm'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(61, $fila,$value['afp_apnal'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(62, $fila,$value['afp_apsol'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(59, $fila,$value['afp_sso'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(60, $fila,$value['afp_rcom'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(61, $fila,$value['afp_cadm'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(62, $fila,$value['afp_apnal'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(63, $fila,$value['afp_apsol'] );
 					
 					//
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(63, $fila,$value['total_ganado'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(64, $fila,$value['total_descuentos'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(65, $fila,$value['total_gral'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(66, $fila,$value['celular1'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(67, $fila,$value['banco'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(68, $fila,$value['nro_cuenta'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(64, $fila,$value['total_ganado'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(65, $fila,$value['total_descuentos'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(66, $fila,$value['total_gral'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(67, $fila,$value['celular1'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(68, $fila,$value['banco'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(69, $fila,$value['nro_cuenta'] );
 										 
 					$fila++;
 				}
