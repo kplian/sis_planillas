@@ -1,7 +1,8 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #77    ETR            14/11/2019           MZM                 Creacion 
+ #77    ETR            14/11/2019           MZM                 Creacion
+ #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades 
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -419,17 +420,15 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 				$cont=0;
 				
 				foreach ($datos as $value){
+					
+				   if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){		
 					if($value['nuevo_cargo']!='' && $value['cargo']!=$value['nuevo_cargo']){
 				   	  	$cont++; 	  
 					  	$a=substr($value['fecha_finalizacion'],0,4);
 					  	$m=substr($value['fecha_finalizacion'],5,2);
 					  	$d=substr($value['fecha_finalizacion'],8,2);
 				  
-				  
-				       if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos' || $this->objParam->getParametro('tipo_reporte')=='movimiento_personal'){
-				  
-					    
-							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont);
+				  			    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont);
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['codigo']);
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$d.'/'.$m.'/'.$a);
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$value['desc_funcionario2']);
@@ -442,18 +441,32 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['nuevo_cargo']);
 								}
 								
-					   }else{ 
-					  	/*$this->Cell(10,5,$cont,'',0,'R');
-						$this->Cell(15,5,$this->datos[$i]['codigo'],'',0,'C');
-						$this->Cell(18,5,$d.'/'.$m.'/'.$a,'',0,'C');
-						$this->Cell(60,5,mb_strcut($this->datos[$i]['desc_funcionario2'],0,32, "UTF-8"),'',0,'L');
-						$this->Cell(55,5,mb_strcut($this->datos[$i]['unidad'],0,30, "UTF-8"),'',0,'L');
-						$this->Cell(55,5,mb_strcut($this->datos[$i]['nueva_unidad'],0,30, "UTF-8"),'',0,'L');
-						$this->Cell(55,5,mb_strcut($this->datos[$i]['nuevo_cargo'], 0, 27, "UTF-8"),'',1,'L');
-					*/
-					
-				  }
+					   
 				  $fila++;
+			   }
+			   }else{
+			   	if($value['nueva_unidad']!='' && $value['nueva_unidad']!=$value['unidad']){
+				   	  	$cont++; 	  
+					  	$a=substr($value['fecha_finalizacion'],0,4);
+					  	$m=substr($value['fecha_finalizacion'],5,2);
+					  	$d=substr($value['fecha_finalizacion'],8,2);
+				  
+				  			    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont);
+							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['codigo']);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$d.'/'.$m.'/'.$a);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$value['desc_funcionario2']);
+								if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['cargo']);
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['nuevo_cargo']);	
+								}else{
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['unidad']);
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['nueva_unidad']);	
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['nuevo_cargo']);
+								}
+								
+					   
+				  $fila++;
+			   }
 			   }
 					
 			}

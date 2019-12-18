@@ -4,6 +4,7 @@
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #67	ETR				16.10.2019			MZM		 			Creacion
  #77	ETR				13.11.2019			MZM					Ajustes varios
+ #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
 */
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	
@@ -191,6 +192,9 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		
 		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes' &&  $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			for ($i=0; $i<count($this->datos);$i++){
+				
+			 if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){	//#81
+				
 			   if($this->datos[$i]['nuevo_cargo']!='' && $this->datos[$i]['cargo']!=$this->datos[$i]['nuevo_cargo']){
 			   	  $cont++; 	  
 				  $a=substr($this->datos[$i]['fecha_finalizacion'],0,4);
@@ -201,15 +205,25 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 				  	$this->SetX($this->GetX()-5);
 				  }
 				  
-				  if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
-				  
-					    $this->Cell(10,5,$cont,'',0,'R');
+				  $this->Cell(10,5,$cont,'',0,'R');
 					    $this->Cell(18,5,$this->datos[$i]['codigo'],'',0,'C');
 					    $this->Cell(20,5,$d.'/'.$m.'/'.$a,0,'C');
 					    $this->Cell(69,5,mb_strcut($this->datos[$i]['desc_funcionario2'],0,38, "UTF-8"),'',0,'L');
 					    $this->Cell(69,5,mb_strcut($this->datos[$i]['cargo'],0,38, "UTF-8"),'',0,'L');
 					    $this->Cell(69,5,mb_strcut($this->datos[$i]['nuevo_cargo'],0,39, "UTF-8"),'',1,'L');
-				  }else{ 
+			   }
+			 }else{
+			 	
+				if($this->datos[$i]['nueva_unidad']!='' && $this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad']){//#81
+			   	  $cont++; 	  
+				  $a=substr($this->datos[$i]['fecha_finalizacion'],0,4);
+				  $m=substr($this->datos[$i]['fecha_finalizacion'],5,2);
+				  $d=substr($this->datos[$i]['fecha_finalizacion'],8,2);
+				  if($cont ==1){
+				  	//$this->Cell(5,4,'','',0,'R');
+				  	$this->SetX($this->GetX()-5);
+				  }
+				
 					  	$this->Cell(10,5,$cont,'',0,'R');
 						$this->Cell(15,5,$this->datos[$i]['codigo'],'',0,'C');
 						$this->Cell(18,5,$d.'/'.$m.'/'.$a,'',0,'C');
@@ -217,11 +231,10 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 						$this->Cell(55,5,mb_strcut($this->datos[$i]['unidad'],0,30, "UTF-8"),'',0,'L');
 						$this->Cell(55,5,mb_strcut($this->datos[$i]['nueva_unidad'],0,30, "UTF-8"),'',0,'L');
 						$this->Cell(55,5,mb_strcut($this->datos[$i]['nuevo_cargo'], 0, 27, "UTF-8"),'',1,'L');
-					
-					
-				  }
-			   }
-				  
+				}
+				
+			 }
+				 
 				  
 			}
 		}else{

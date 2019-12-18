@@ -2,7 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
- #77    ETR            20/11/2019           MZM                 Reubicacion de columnas en nomina CT
+ #80	ETR				25.11.2019			MZM					Ajuste formato numeric, inclusion de totales, campo de columna en nomina salarios ct
 */
 class RPlanillaEmpleadoXls
 {
@@ -172,7 +172,7 @@ class RPlanillaEmpleadoXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        $meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+       
        // foreach ($datos as $value)
         //{
             
@@ -190,7 +190,15 @@ class RPlanillaEmpleadoXls
 					if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
 						$this->docexcel->getActiveSheet()->getStyle('A3:I3')->getAlignment()->setWrapText(true);
                 		$this->docexcel->getActiveSheet()->getStyle('A3:I3')->applyFromArray($styleTitulos3);
-					}else{
+					}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
+						
+						$this->docexcel->getActiveSheet()->getStyle('A3:E3')->getAlignment()->setWrapText(true);
+                		$this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos3);
+						
+					}
+					
+					
+					else{
 						$this->docexcel->getActiveSheet()->getStyle('A3:F3')->getAlignment()->setWrapText(true);
                 		$this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
 					
@@ -228,7 +236,23 @@ class RPlanillaEmpleadoXls
 	                $this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 					$this->docexcel->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 					$this->docexcel->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-				}else{
+				}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
+					$this->docexcel->getActiveSheet()->setTitle('PersonalNoSind');
+	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);//categoria
+	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);//pres
+	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(30);//ci
+	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
+					
+					$this->docexcel->getActiveSheet()->setCellValue('A3','Codigo Empleado');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B3','nombre Completo');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('C3','CI');
+					$this->docexcel->getActiveSheet()->setCellValue('D3','Distrito');
+					$this->docexcel->getActiveSheet()->setCellValue('E3','Aporte(Bs)');
+				}
+				
+				
+				else{//nomina_Sal, nomina_sal1
 					$this->docexcel->getActiveSheet()->setTitle('NominaSalarios');
 	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
 	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);//categoria
@@ -248,7 +272,7 @@ class RPlanillaEmpleadoXls
 	                $this->docexcel->getActiveSheet()->setCellValue('C3','Cargo');//3
 	                
 	                if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-	                	 $this->docexcel->getActiveSheet()->setCellValue('D3','Fecha Ingreso');//4
+	                	$this->docexcel->getActiveSheet()->setCellValue('D3','Fecha Ingreso');//4
 		                $this->docexcel->getActiveSheet()->setCellValue('E3','Nivel');//5
 		                $this->docexcel->getActiveSheet()->setCellValue('F3','S. Basico (Bs)');//6
 		                $this->docexcel->getActiveSheet()->setCellValue('G3','T. Cotizable (Bs)');//7
@@ -287,6 +311,8 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 	$tit_rep='NOMINA DE SALARIOS BC';
 }elseif ($this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
 	$tit_rep='NOMINA DE SALARIOS CT';
+}elseif ($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
+	$tit_rep='NOMINA DE PERSONAL NO SINDICALIZADO';
 }
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:G1"); 
@@ -295,7 +321,7 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 				 $this->docexcel->getActiveSheet()->mergeCells("A2:G2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				 
-				 if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
+				 if ($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1' || $this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo']);
 				 }else{
 				 	$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$this->objParam->getParametro('fecha').'         T/C:'.$datos[0]['tc']);
@@ -319,11 +345,11 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $dias);
 					
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,',','.') );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format(($value['valor']/360*$dias),2,',','.'));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,'.',',') );
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format(($value['valor']/360*$dias),2,'.',','));
 					$val_tc=($value['valor']/360*$dias/$value['tc']);
 					//$value['tc']
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($val_tc,2,',','.'));
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($val_tc,2,'.',','));
                   
 				    $tot_cot=$tot_cot+$value['valor'];
 				  	$tot_reserva=$tot_reserva+($value['valor']/360*$dias);
@@ -331,11 +357,11 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$fila++;
 				}
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,'TOTALES' );
-              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,',','.') );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,',','.'));
+              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,'.',',') );
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,'.',','));
 					$val_tc=($value['valor']/360*$dias/$value['tc']);
 					//$value['tc']
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,',','.'));
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,'.',','));
                   
             }elseif($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
             	$id_fun=0;
@@ -343,126 +369,94 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 				$prom_res=0;
 				$prom_res1=0;
 				$cont=0;
+				$v4=0;
+				
             	foreach ($datos as $value){
-					 
-					
 					
 					if($id_fun!=$value['id_funcionario']){
-						  
-						  
-						  	while($cont<2 && $v1!=''){
-								
-			                  	$cont++;
-								$vt4=$vt4+$v4;
-								$vt5=$vt5+$v5;
-								$vt6=$vt6+$v6;
-							}
-						    
-							if($cont==2 )
-							{  
-								$vt5=(($vt4/2)/360*$v3);
-								$vt6=($vt5/$datos[0]['tc']);
-							
+						
+							if($id_fun!=0){
 						  	    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $v0);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $v1);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $v2);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $v3);
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($vt4/2,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($vt5,2,',','.'));
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($vt6,2,',','.'));
-			                  	$tot_cot=$tot_cot+($vt4/2);
-								$tot_reserva=$tot_reserva+($vt5);
-								$tot_reserva1=$tot_reserva1+($vt6);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($v4/($cont),2,'.',',') );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format(($v4/$cont/360*$v3),2,'.',','));
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format(($v4/$cont/360*$v3/$v6),2,'.',','));
+			                  	$tot_cot=$tot_cot+($v4/$cont);
+								$tot_reserva=$tot_reserva+($v4/$cont/360*$v3);
+								$tot_reserva1=$tot_reserva1+($v4/$cont/360*$v3/$v6);
 			                  	
-			                  	$cont=0; $v1='';
+			                  	$cont=0; $v1='';$v4=0;
 								$fila++;
 								$vt4=0;
 								$vt5=0;
 								$vt6=0;
+							}
 								
-								
-						   }
+						  
 							
 							$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
 					
 							
-							$val_tc=($value['valor']/360*$dias/$value['tc']);
+							
 							
 							$v0=$value['codigo_empleado'];
 							$v1=$value['nombre_empleado'];
 							$v2=date_format(date_create($value['fecha_quinquenio']),'d/m/Y');
 							$v3=$dias;
-							$v4=$value['valor'];
+							$v4=$v4+$value['valor'];
 							$v5=($value['valor']/360*$dias);
-							$v6=$val_tc;
+							$v6=$value['tc'];
 							
 							$vt4=$vt4+$v4;
-							//$vt5=$vt5+$v5;
-							//$vt6=$vt6+$v6;
 							
 							
 					}else{
-							//$val_tc=($value['valor']/360*$dias/$value['tc']);
+							
 							
 							$v0=$value['codigo_empleado'];
 							$v1=$value['nombre_empleado'];
 							$v2=date_format(date_create($value['fecha_quinquenio']),'d/m/Y');
+							$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
 							$v3=$dias;
-							$v4=$value['valor'];
+							$v4=$v4+$value['valor'];
 							$v5=($value['valor']/360*$dias);
-							$v6=$val_tc;
+							$v6=$value['tc'];
 							
 							$vt4=$vt4+$v4;
-							//$vt5=$vt5+$v5;
-							//$vt6=$vt6+$v6;
+							
 					}
 					
-					//$fila++;
+					
 					$cont++;
 					$id_fun=$value['id_funcionario'];
 					
 					
-					
-					
 				}
 
-						while($cont<2 && $v1!=''){
-								
-			                  	$cont++;
-								$vt4=$vt4+$v4;
-								$vt5=$vt5+$v5;
-								$vt6=$vt6+$v6;
-							}
-						    
-							if($cont==2){
-								
-								$vt5=(($vt4/2)/360*$v3);
-								$vt6=($vt5/$datos[0]['tc']); 
-						  	    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $v0);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $v0);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $v1);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $v2);
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $v3);
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($vt4/2,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($vt5,2,',','.'));
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($vt6,2,',','.'));
-			                  	$tot_cot=$tot_cot+($vt4/2);
-								$tot_reserva=$tot_reserva+($vt5);
-								$tot_reserva1=$tot_reserva1+($vt6);
-			                  	$cont=0; $v1='';
-								$fila++;
-								$vt4=0;
-								$vt5=0;
-								$vt6=0;
-						   }
-
-
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($v4/($cont),2,'.',',') );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format((($v4/$cont)/360*$v3),2,'.',','));
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format(((($v4/$cont)/360*$v3)/$v6),2,'.',','));
+			         $fila++;  
+					        	
+					$tot_cot=$tot_cot+($v4/$cont);
+					$tot_reserva=$tot_reserva+($v4/$cont/360*$v3);
+					$tot_reserva1=$tot_reserva1+($v4/$cont/360*$v3/$v6);
+			                  	
+								
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,'TOTALES' );
-              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,',','.') );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,',','.'));
+              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,'.',',') );
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,'.',','));
 					$val_tc=($value['valor']/360*$dias/$value['tc']);
-					//$value['tc']
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,',','.'));
+					
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,'.',','));
 
+					
             }elseif($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
             	$id_fun=0;//$datos[0]['id_funcionario'];
 				$cont=0;
@@ -477,44 +471,33 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					
 					if($id_fun!=$value['id_funcionario']){
 						  
-						  
-						  	while($cont<3 && $v1!=''){
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($v4,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, '');
-			                  	$cont++;
-								$fila++;
-								$vt4=$vt4+$v4;
-								$vt5=$vt5+$v5;
-								$vt6=$vt6+$v6;
-							}
-						    
-							if($cont==3){ 
-						  	    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
+						 if($id_fun!=0){
+						 	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '');
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, '' );
 			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($vt4/3,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($vt5/3,2,',','.'));
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($vt6/3,2,',','.'));
-			                  	$cont=0; $v1='';
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($vt4/$cont,2,'.',',') );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($vt5/$cont,2,'.',','));
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($vt6/$cont,2,'.',','));
+			                  	
+								$tot_cot=$tot_cot+($vt4/$cont);
+								$tot_reserva=$tot_reserva+($vt5/$cont);
+								$tot_reserva1=$tot_reserva1+($vt6/$cont);
+								
+								$cont=0; $v1='';
 								$fila++;
+								
 								$vt4=0;
 								$vt5=0;
 								$vt6=0;
-						   }
-							
-							
-							
+						 } 
+						  	    
+						  
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo_empleado']);
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_empleado']);
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $dias);
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,',','.') );
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,'.',',') );
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, '');
 							$val_tc=($value['valor']/360*$dias/$value['tc']);
 							//$value['tc']
@@ -533,13 +516,15 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 							$vt6=$vt6+$v6;
 							
 							
+							
+							
 					}else{
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '');
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, '' );
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, '');
 							
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,',','.') );
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($value['valor'],2,'.',',') );
 		                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, '');
 							$val_tc=($value['valor']/360*$dias/$value['tc']);
 							//$value['tc']
@@ -557,9 +542,9 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 							$vt4=$vt4+$v4;
 							$vt5=$vt5+$v5;
 							$vt6=$vt6+$v6;
+							
+							
 					}
-					
-					
 					
 					
 					$fila++;
@@ -567,35 +552,17 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$id_fun=$value['id_funcionario'];
 				}
 				
-				while($cont<3 && $v1!=''){
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($v4,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, '');
-			                  	$cont++;
-								$fila++;
-								$vt4=$vt4+$v4;
-								$vt5=$vt5+$v5;
-								$vt6=$vt6+$v6;
-							}
-						    
-							if($cont==3){ 
-						  	    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, '');
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, '' );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, '');
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($vt4/3,2,',','.') );
-			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($vt5/3,2,',','.'));
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($vt6/3,2,',','.'));
-			                  	$cont=0; $v1='';
-								$fila++;
-								$vt4=0;
-								$vt5=0;
-								$vt6=0;
-						   }
+				   $fila++;  
+					        	
+					$tot_cot=$tot_cot+($vt4/$cont);
+					$tot_reserva=$tot_reserva+($vt5/$cont);
+					$tot_reserva1=$tot_reserva1+($vt6/$cont);         	
+								
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,'TOTALES' );
+              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,'.',',') );
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,'.',','));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,'.',','));
+				
 				
 					
 			}elseif ($this->objParam->getParametro('tipo_reporte')=='nomina_salario' || $this->objParam->getParametro('tipo_reporte')=='nomina_salario1' ){
@@ -622,21 +589,21 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 						if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, date_format(date_create($value['fecha_ingreso']),'d/m/Y') );
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nivel']);
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,'.',','));
 							
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['nivel_limite']);
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila, $value['basico_limite']);
 						}else{
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nivel']);
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,',','.'));//#77 (20.11.19)
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($value['valor'],2,'.',','));
 						}
 						
 						
 					}else{
 						if($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($value['valor'],2,',','.'));
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($value['valor'],2,'.',','));
 						}else{
-							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, number_format($value['valor'],2,',','.'));//#77 (20.11.19)
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($value['valor'],2,'.',','));
 						}
 						$fila++;
 						
@@ -648,6 +615,14 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$ger=$value['nombre_gerencia'];
 				}
 				
+			}elseif($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
+				foreach ($datos as $value){
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo_empleado']);
+			        $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_empleado']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['ci'].' '.$value['expedicion']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['distrito']);
+					$fila++;	
+				}
 			}
         //}
        // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);

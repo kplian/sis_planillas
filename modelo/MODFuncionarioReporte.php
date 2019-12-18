@@ -16,6 +16,7 @@
   #67	ETR				16.10.2019			MZM					Reporte asignacion de cargos
  *#77	ETR				15.11.2019			MZM					Ajsutes reportes
  *#81	ETR				25.11.2019			MZM					Curva salarial jeerarquia por nivel arbol y prioridad
+ *#81	ETR				05.12.2019			MZM					Adicion de campo estado_afp para curva salarial	
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -378,7 +379,8 @@ class MODFuncionarioReporte extends MODbase{
 		 $this->captura('afp_apsol','numeric');//#81
 		 $this->captura('nombre_centro','varchar'); 	
 		 $this->captura('orden_centro','numeric'); 	 		  
-		$this->captura('bonant','numeric'); 	
+		 $this->captura('bonant','numeric');
+		 $this->captura('estado_afp','varchar');  	//#81
 		$this->armarConsulta(); 		   
         //Ejecuta la instruccion
         //echo '----'.$this->getConsulta(); exit;
