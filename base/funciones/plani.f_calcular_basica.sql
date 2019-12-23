@@ -42,6 +42,7 @@ $body$
  #59              30/09/2019        RArteaga            Sueldo según escala menos incapacidad temporal para calculo de horas extra, nocturna y disponibilidad
  #63              22-02-2019        Rarteaga  KPLIAN    cambio de logica de la claculo de dias aguinaldo, DIASAGUI
  #68              17-10-2019        RARTEAGA  KPLIAN    refactorizacion planilla de primas
+ #85              23-12-2019        RARTEAGA  KPLIAN    Correcion de funcion basica de calculo de planillas para incluir personal que no recibe incremento salarial en planilla de retroactivos, código columna PRMCOTIZABLE_MES
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -334,6 +335,7 @@ $body$
       else
           v_gestion:= (select (date_part('year', age(p_fecha_ini, v_fecha_ini))));
           v_periodo:= (select (date_part('month',age(p_fecha_ini, v_fecha_ini))));
+
       end if;
 
       v_periodo:= v_periodo + (select coalesce(antiguedad_anterior,0) from orga.tfuncionario f where id_funcionario=v_id_funcionario);
@@ -1180,10 +1182,11 @@ $body$
     --#25  cotizable para reintegro mensual
     
     ELSIF (p_codigo = 'PRMCOTIZABLE_MES') THEN
-   
+      
+      -- recupera el meaximo suledo para retroactivos
       v_max_retro = plani.f_get_valor_parametro_valor('MAXRETROSUE', p_fecha_ini)::integer;
-
-      select sum(  case when ( orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) > ht.sueldo ) then
+   
+      select sum(  case when ( orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) >= ht.sueldo ) then  --#85 considera mayor o igual
 
                     cv.valor
                   else
