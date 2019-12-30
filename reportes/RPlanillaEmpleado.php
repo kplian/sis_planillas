@@ -7,10 +7,12 @@
  #64	ETR				10.10.2019			MZM					Ajuste a reporte Aporte CACSEL
  #77	ETR				15.11.2019			MZM					Ajuste reportes
  #77 	ETR				20.11.2019			MZM					Cambio de ubicacion de columas nomina CT
- *#80 	ETR				27.11.2019			MZM					Cambio de formato numeric, ajuste a beneficios reserva detalel
+ #80 	ETR				27.11.2019			MZM					Cambio de formato numeric, ajuste a beneficios reserva detalel
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
+	var $datos_titulo;//#83
 	var $ancho_hoja;
 	var $gerencia;
 	var $numeracion;
@@ -23,11 +25,21 @@ class RPlanillaEmpleado extends  ReportePDF {
 	function Header() {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
+		$this->SetFont('','B',7);
 		if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
-			$this->SetFont('','B',7);
+			
 			$this->Cell(0,5,'T.C. '.$this->datos[0]['tc'],0,1,'R');
 		}
-		
+		//#83
+		$dr=substr($this->datos_titulo[0]['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo[0]['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo[0]['fecha_backup'],6);
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			$this->Cell(0, 3, '', '', 0, 'R');
+			$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'R');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
 		$this->SetFont('','B',12);//#77
 		$this->SetY(20);
 		$cadena_nomina='';
@@ -208,8 +220,9 @@ class RPlanillaEmpleado extends  ReportePDF {
 		$this->alto_header =$this->GetY(); 
 
 	}
-	function setDatos($datos) {
+	function setDatos($datos,$datos_titulo) {
 		$this->datos = $datos;
+		$this->datos_titulo=$datos_titulo;
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
@@ -337,7 +350,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 				}
 
 
-				//para el ultimo registro #41 //#80
+				//para el ultimo registro #41
 				/*while($num!=0 && $num<3 ){ 
 						      	  $num++;
 							  	  $cont++;
@@ -475,7 +488,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 					//echo $i.'---'.$array_datos[1][17].'---'.$array_datos[1][18]; exit;
 					$numE++; //#41
 					   if($array_datos[$i-1][18]>0 ){
-						   	$this->Cell(148,5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18],2,'.',','),'',0,'R');//#80	
+						   	$this->Cell(148,5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18],2,'.',','),'',0,'R');	//#80
 							$this->Cell(25,5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast,2,'.',','),'',0,'R');//#80
 							$this->Cell(25,5,number_format($array_datos[$i-1][17]/$array_datos[$i-1][18]/360*$diast/$this->datos[0]['tc'],2,'.',','),'',1,'R');//#80
 							$this->Ln(3);
@@ -543,7 +556,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 			}
 				$this->Cell(130,5,number_format($tot_cot,2,'.',','),'',0,'R');//#80
 				$this->Cell(25,5,number_format($tot_bs,2,'.',','),'',0,'R');//#80
-				$this->Cell(25,5,number_format($tot_sus,2,'.',','),'',1,'R');	//#80	
+				$this->Cell(25,5,number_format($tot_sus,2,'.',','),'',1,'R');//#80	
 				
 		}else{
 			
@@ -656,14 +669,14 @@ class RPlanillaEmpleado extends  ReportePDF {
 												$this->Cell(17,5,number_format($array_datos[$i][5],2,'.',','),'',0,'R');//#80
 												$this->Cell(17,5,number_format($array_datos[$i][6],2,'.',','),'',0,'R');//#80
 												$this->Cell(11,5,$array_datos[$i][17],'',0,'R');//nomina BC y CT
-												$this->Cell(15,5,number_format($array_datos[$i][18],2,'.',','),'',1,'R');//nomina BC y CT//#80
+												$this->Cell(15,5,number_format($array_datos[$i][18],2,'.',','),'',1,'R');//nomina BC y CT //#80
 											}
 										}else{
 											if($array_datos[$i][5]!=''){
 												$tot11=$tot11+$array_datos[$i][5];
 												$tot22=$tot22+$array_datos[$i][6];
-												$this->Cell(20,5,number_format($array_datos[$i][6],2,'.',','),'',0,'R');//#77 (20.11.19)//#80
-												$this->Cell(20,5,number_format($array_datos[$i][5],2,'.',','),'',1,'R');//#77 (20.11.19)//#80
+												$this->Cell(20,5,number_format($array_datos[$i][6],2,'.',','),'',0,'R');//#77 (20.11.19) //#80
+												$this->Cell(20,5,number_format($array_datos[$i][5],2,'.',','),'',1,'R');//#77 (20.11.19) //#80
 											}
 											
 										
@@ -682,13 +695,13 @@ class RPlanillaEmpleado extends  ReportePDF {
 						$this->Cell(128,5,'TOTALES','',0,'R');
 						$this->Cell(10,5,'','',0,'R');
 						$this->Cell(17,5,number_format($tot1,2,'.',','),'',0,'R');//#80
-						$this->Cell(17,5,number_format($tot2,2,'.',','),'',0,'R');//nomina BC y CT//#80
-						$this->Cell(26,5,number_format($tot3,2,'.',','),'',1,'R');//nomina BC y CT//#80
+						$this->Cell(17,5,number_format($tot2,2,'.',','),'',0,'R');//nomina BC y CT //#80
+						$this->Cell(26,5,number_format($tot3,2,'.',','),'',1,'R');//nomina BC y CT //#80
 					}else{
 						$this->Cell(153,5,'TOTALES','',0,'R');
 										
-						$this->Cell(20,5,number_format($tot22,2,'.',','),'',0,'R'); //#77 (20.11.19)//#80
-						$this->Cell(20,5,number_format($tot11,2,'.',','),'',0,'R');//nomina BC y CT #77 (20.11.19)//#80
+						$this->Cell(20,5,number_format($tot22,2,'.',','),'',0,'R'); //#77 (20.11.19) //#80
+						$this->Cell(20,5,number_format($tot11,2,'.',','),'',0,'R');//nomina BC y CT #77 (20.11.19) //#80
 					}
 					
 

@@ -2,7 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion
- #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -64,7 +64,7 @@ class RPlanillaAsignacionCargosXls
 
     }
 
-    function generarDatos($data)
+    function generarDatos($data,$data_titulo)
     {
         $styleTitulos3 = array(
             'alignment' => array(
@@ -344,29 +344,36 @@ class RPlanillaAsignacionCargosXls
 		if($cadena_nomina!=''){
 			$cadena_nomina='('.$cadena_nomina.')';
 		}               
-             
+   //#83
+				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
+				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
+				$ar=substr($data_titulo[0]['fecha_backup'],6);
+				$fecha_backup='';
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+					$fecha_backup=' [Backup:'.($dr.'/'.$mr.'/'.$ar).']';
+				}          
                 
 if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
-	$tit_rep='DESIGNACION DE CARGOS'.$cadena_nomina;
+	$tit_rep='DESIGNACION DE CARGOS'.$cadena_nomina .$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='movimiento_personal'){
-	$tit_rep='MOVIMIENTOS DE PERSONAL '.$cadena_nomina;
+	$tit_rep='MOVIMIENTOS DE PERSONAL '.$cadena_nomina.$fecha_backup;
 
 }elseif( $this->objParam->getParametro('tipo_reporte')=='lista_cargos'){
-	$tit_rep='CARGOS '.$cadena_nomina;
+	$tit_rep='CARGOS '.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos'){
-	$tit_rep='FRECUENCIA DE CARGOS '.$cadena_nomina;
+	$tit_rep='FRECUENCIA DE CARGOS '.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='directorio_empleados'){
-	$tit_rep='DIRECTORIO DE EMPLEADOS POR CENTRO DE BENEFICIO Y CARGOS'.$cadena_nomina;
+	$tit_rep='DIRECTORIO DE EMPLEADOS POR CENTRO DE BENEFICIO Y CARGOS'.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano'){
 	
-	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR AÑO'.$cadena_nomina;
+	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR AÑO'.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes'){
 	
-	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR MES'.$cadena_nomina;
+	$tit_rep='FECHAS DE NACIMIENTO - NOMINA CLASIFICADA POR MES'.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='profesiones'){
-	$tit_rep='CLASIFICACION DE PERSONAL POR PROFESIONES'.$cadena_nomina;
+	$tit_rep='CLASIFICACION DE PERSONAL POR PROFESIONES'.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
-	$tit_rep='FRECUENCIA DE PROFESIONES '.$cadena_nomina;
+	$tit_rep='FRECUENCIA DE PROFESIONES '.$cadena_nomina.$fecha_backup;
 }
 
 
@@ -619,8 +626,8 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
         $mes = $mes[(date('m', strtotime($fecha))*1)-1];
         return $dia.' de '.$mes.' del '.$anno;
     }
-    function generarReporte($datos){ 
-        $this->generarDatos($datos);
+    function generarReporte($datos,$datos_titulo){ 
+        $this->generarDatos($datos,$datos_titulo);
         $this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);

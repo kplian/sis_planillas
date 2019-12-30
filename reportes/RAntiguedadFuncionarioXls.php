@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
 */
 class RAntiguedadFuncionarioXls
 {
@@ -54,7 +55,7 @@ class RAntiguedadFuncionarioXls
     public function addHoja($name,$index){
         //$index = $this->docexcel->getSheetCount();
         //echo($index);
-        $this->docexcel->createSheet($index)->setTitle('XXXXX'.$name);
+        $this->docexcel->createSheet($index)->setTitle('Hoja'.$name);
         $this->docexcel->setActiveSheetIndex($index);
         return $this->docexcel;
     }
@@ -64,7 +65,7 @@ class RAntiguedadFuncionarioXls
 
     }
 
-    function generarDatos($data)
+    function generarDatos($data,$data_titulo)
     {
         $styleTitulos3 = array(
             'alignment' => array(
@@ -240,6 +241,18 @@ if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.date_format(date_create($this->datos[0]['fecha_rep']),'d/m/Y'));
 				 
 				
+				//#83
+				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
+				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
+				$ar=substr($data_titulo[0]['fecha_backup'],6);
+				$this->docexcel->getActiveSheet()->mergeCells("A3:G3");
+				$this->docexcel->getActiveSheet()->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				
+				
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+					$this->docexcel->getActiveSheet()->setCellValue('A3', 'Backup: '.$dr.'/'.$mr.'/'.$ar);
+				}
+				
 				
 				$nombre_centro='';
 				$tot_cot=0;
@@ -318,8 +331,8 @@ if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
         $mes = $mes[(date('m', strtotime($fecha))*1)-1];
         return $dia.' de '.$mes.' del '.$anno;
     }
-    function generarReporte($datos){ 
-        $this->generarDatos($datos);
+    function generarReporte($datos,$datos_titulo){//#83 
+        $this->generarDatos($datos,$datos_titulo);//#83 
         $this->docexcel->setActiveSheetIndex(0);
         $this->objWriter = PHPExcel_IOFactory::createWriter($this->docexcel, 'Excel5');
         $this->objWriter->save($this->url_archivo);

@@ -4,6 +4,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion 
  #77	ETR				21.11.2019			MZM					Ajuste a reporte (inclusion de tipo contrato)
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ * * 
 */
 class RPlanillaPersonal extends  ReportePDF {
 	var $datos;	
@@ -17,7 +19,17 @@ class RPlanillaPersonal extends  ReportePDF {
 	function Header() {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
-		
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$this->Cell(0, 3, '', '', 0, 'R');
+			$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'R');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
 		$this->SetFont('','B',12);
 		$this->SetY(20);
 		$tipo_con='';//#77

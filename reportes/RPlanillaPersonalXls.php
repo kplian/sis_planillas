@@ -1,7 +1,8 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #77    ETR            14/11/2019           MZM                 Creacion 
+ #77    ETR            14/11/2019           MZM                 Creacion
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 */
 class RPlanillaPersonalXls
 {
@@ -229,12 +230,21 @@ class RPlanillaPersonalXls
  if($this->objParam->getParametro('id_tipo_contrato')>0){
  	$tip=$datos[0]['nombre'];
  }             
+	   //#83
+	   $fecha_back='';
+	   if($this->objParam->getParametro('fecha_backup')!=''){
+			
+			$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+			$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+			$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+			$fecha_back=' [Backup:'.$dr.'/'.$mr.'/'.$ar.']';
+		}
              
                 
 if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
-	$tit_rep='INCORPORACIONES DEL PERSONAL '.$tip;
+	$tit_rep='INCORPORACIONES DEL PERSONAL '.$tip.$fecha_back;
 }else{
-	$tit_rep='PERSONAL RETIRADO '.$tip;
+	$tit_rep='PERSONAL RETIRADO '.$tip.$fecha_back;
 
 }
 

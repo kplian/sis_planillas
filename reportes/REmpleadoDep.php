@@ -5,7 +5,8 @@
  #30    ETR            30/07/2019           MZM                 Creacion
  #66	ETR				15.10.2019			MZM					Adicion de tipo contrato
  #77	ETR				20.11.2019			MZM					Uniformizacion de tamaño de letra
- #80	ETR				25.11.2019			MZM					Reporte Bono Desc 
+ #80	ETR				25.11.2019			MZM					Reporte Bono Desc
+ #83	MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla 
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -22,6 +23,17 @@ class REmpleadoDep extends  ReportePDF {
 	function Header() {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->datos_titulo[0]['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo[0]['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo[0]['fecha_backup'],6);
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			$this->Cell(0, 3, '', '', 0, 'R');
+			$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'R');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
 		
 		$this->Ln(15);	
 		$this->SetFont('','B',12);

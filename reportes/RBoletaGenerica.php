@@ -5,6 +5,7 @@
  * #62		etr			MZM		08.10.2019	omision de 0 en boleta d epago
  * #71		ETR			MZM		12.11.2019	Refactorizacion de reporte boleta para planillas anuales
  * #80		ETR			MZM		28.11.2019	Ajuste formato numeric
+ * #83		ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -66,6 +67,17 @@ class RBoletaGenerica extends  ReportePDF {
 					   }
 						//cabecera del reporte
 						$this->SetFont('','',8);
+						//#83
+							$dr=substr($this->datos_titulo['fecha_backup'],0,2);
+							$mr=substr($this->datos_titulo['fecha_backup'],3,2);
+							$ar=substr($this->datos_titulo['fecha_backup'],6);
+						if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+							$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
+							$this->Cell(10, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'L');
+						}else{
+							$this->Cell(10, 3, '', '', 1, 'L');
+						}
+						
 						$fecha_rep = date("d/m/Y");
 						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
 						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
@@ -182,6 +194,17 @@ class RBoletaGenerica extends  ReportePDF {
 					   }
 				 		
 				   		$this->SetFont('','',8);
+						//#83
+						
+							$dr=substr($this->datos_titulo['fecha_backup'],0,2);
+							$mr=substr($this->datos_titulo['fecha_backup'],3,2);
+							$ar=substr($this->datos_titulo['fecha_backup'],6);
+						if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+							$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
+							$this->Cell(10, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'L');
+						}else{
+							$this->Cell(10, 3, '', '', 1, 'L');
+						}
 						$fecha_rep = date("d/m/Y");
 						$this->SetX($dimensions['wk']-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10);
 						$this->Cell(10, 3, "Fecha: ".$fecha_rep, '', 1, 'L');
