@@ -1,5 +1,3 @@
---------------- SQL ---------------
-
 CREATE OR REPLACE FUNCTION plani.ft_obligacion_sel (
   p_administrador integer,
   p_id_usuario integer,
@@ -27,6 +25,8 @@ $body$
  #56              08.10.2019        MZM                    Adicion de funcion para reporte detalle de saldos
  #56              31.10.2019        MZM                    inclusion de join con treporte para que funcione tanto desde la vista de obligaciones como desde generacion de reportes
  #78              19.11.2019        RAC                    considerar esquema origen de datos para listado de backups, PLA_OBLI_SEL
+ #84			  18.12.2019		MZM						Considerar tipo_contrato para planilla resumen de aguinaldos
+ #83	ETR		  09.12.2019		MZM						Habilitacion de reporte para backup de planilla
 */
 
 DECLARE
@@ -36,7 +36,8 @@ DECLARE
     v_nombre_funcion       text;
     v_resp                varchar;
     v_esquema             varchar; --#78
-                
+    v_condicion			  varchar; --#84
+            
 BEGIN
 
     v_nombre_funcion = 'plani.ft_obligacion_sel';
@@ -208,6 +209,14 @@ BEGIN
         END;            
     elsif (p_transaccion='PLA_REPOBANC_CONT') THEN --#56
         BEGIN
+        
+        --#84 
+          v_condicion:=' and 0=0';
+          if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+            if(v_parametros.id_tipo_contrato>0) then
+              v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+            end if;
+          end if; 
             v_consulta:='select count(*) from plani.tdetalle_transferencia df
                     inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
                     and o.id_tipo_obligacion in (select id_tipo_obligacion from plani.ttipo_obligacion where codigo=''SUEL'')
@@ -223,13 +232,21 @@ BEGIN
                     inner join param.tinstitucion ins on ins.id_institucion=df.id_institucion
                     where '; 
                         
-                    v_consulta:=v_consulta||v_parametros.filtro;
+                    v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
             return v_consulta;
         
         END;
         
       elsif (p_transaccion='PLA_REPOBANC_SEL') THEN --#56
         BEGIN
+        
+        --#84 
+          v_condicion:=' and 0=0';
+          if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+            if(v_parametros.id_tipo_contrato>0) then
+              v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+            end if;
+          end if; 
             
            v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
@@ -249,7 +266,7 @@ BEGIN
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         where ';
-                        v_consulta:=v_consulta||v_parametros.filtro;
+                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
                         v_consulta:=v_consulta||'
                         group by  tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre
@@ -270,12 +287,12 @@ BEGIN
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         and o.tipo_pago = ''cheque'' and tob.tipo_obligacion = ''pago_empleados''
                         where ';
-                        v_consulta:=v_consulta||v_parametros.filtro;
+                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
                         v_consulta:=v_consulta||'
                         group by 
                         tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo
-                        order by 6 desc, 5 desc, 7 asc,1 asc
+                        order by 6 desc, 5 desc, 7 asc,1 asc, 4 asc
                         ';
            return v_consulta;
         
@@ -283,37 +300,54 @@ BEGIN
         
       elsif (p_transaccion='PLA_REPOBANCDET_SEL') THEN --#56
          BEGIN   
-      
+      --#84 
+          v_condicion:=' and 0=0';
+          if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+            if(v_parametros.id_tipo_contrato>0) then
+              v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+            end if;
+          end if; 
+          
+          --#83
+          IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                 v_esquema = v_parametros.esquema;
+          ELSE
+                 v_esquema = 'plani';
+          END IF;
             v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar ,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
                         ''Banco'' as tipo_pago,  tc.nombre as tipo_contrato, fun.desc_funcionario2,df.nro_cuenta 
                         , ofi.orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
-                        from plani.tdetalle_transferencia df
+                        --#84
+                        ,fun.ci
+                        from '||v_esquema||'.tdetalle_transferencia df
                         inner join param.tinstitucion ins on ins.id_institucion = df.id_institucion
-                        inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
-                        inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join '||v_esquema||'.tobligacion o on o.id_obligacion = df.id_obligacion
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = o.id_planilla
                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
-                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and fp.id_planilla = plani.id_planilla
+                        inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario = df.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
                         inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         where ';
-            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
             v_consulta:=v_consulta||' group by  tc.nombre , ofi.orden,
             ofi.nombre ,o.tipo_pago
-            , plani.id_periodo , ins.nombre,fun.desc_funcionario2, df.nro_cuenta, fun.codigo
+            , plani.id_periodo , ins.nombre,fun.desc_funcionario2, df.nro_cuenta, fun.codigo, fun.ci
                         union all
                         select ofi.nombre as oficina,sum(o.monto_obligacion) as monto_pagar ,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,''SIN BANCO'' as banco,
                         ''cheque'' as tipo_pago,  tc.nombre as tipo_contrato, fun.desc_funcionario2 ,''''::varchar as nro_cuenta
                         ,ofi.orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
-                        from plani.tobligacion o 
+                        --#84
+                        ,fun.ci
+                        from '||v_esquema||'.tobligacion o 
                         inner join plani.ttipo_obligacion tob on o.id_tipo_obligacion = tob.id_tipo_obligacion 
-                        inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = o.id_planilla
                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla --#56
-                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario = o.id_funcionario and fp.id_planilla = plani.id_planilla
+                        inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario = o.id_funcionario and fp.id_planilla = plani.id_planilla
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo inner 
                         join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
@@ -321,12 +355,12 @@ BEGIN
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         and o.tipo_pago = ''cheque'' and tob.tipo_obligacion = ''pago_empleados'' 
                         where ';
-            v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
             v_consulta:=v_consulta||' group by 
             tc.nombre , ofi.orden,
             ofi.nombre ,o.tipo_pago
             , plani.id_periodo
-            , fun.desc_funcionario2, fun.codigo
+            , fun.desc_funcionario2, fun.codigo, fun.ci
                         order by  6 desc, 5 desc,  9 asc,
                         1 asc,4 asc
                         , 7 asc
@@ -376,8 +410,4 @@ EXCEPTION
             raise exception '%',v_resp;
 END;
 $body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+LANGUAGE 'plpgsql';

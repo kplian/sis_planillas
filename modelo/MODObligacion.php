@@ -14,6 +14,8 @@ HISTORIAL DE MODIFICACIONES:
 #46	ETR				23.09.2019			MZM					Listado para reporte abono en cuenta  
 #56	ETR				30.09.2019			MZM					Listado resumen de saldos
 #78	ETR			    19-11-2019          RAC				    considerar esquema para origen de datos PLA_OBLI_SEL
+#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
+#84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
  * 
  * */
 class MODObligacion extends MODbase{
@@ -184,9 +186,8 @@ class MODObligacion extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('id_obligacion','id_obligacion','int4');
-		
-						
-		
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
+		$this->setParametro('esquema','esquema','varchar');//#83
 		//Datos de la planilla
 		$this->captura('nombre','varchar');
 		$this->captura('importe','numeric');
@@ -215,8 +216,8 @@ class MODObligacion extends MODbase{
 		$this->setCount(false);
 		
 		$this->setParametro('id_obligacion','id_obligacion','int4');
-		
-						
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
+		$this->setParametro('esquema','esquema','varchar');	//#83			
 		
 		//Datos de la planilla
 		$this->captura('det_nombre','varchar');
@@ -229,6 +230,8 @@ class MODObligacion extends MODbase{
 		$this->captura('det_nro_cuenta','varchar');//#60
 		$this->captura('det_orden','numeric');//#60
 		$this->captura('codigo','text');//#60
+		$this->captura('ci','varchar');//#84
+		
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
 	//echo "****".$this->getConsulta(); exit;

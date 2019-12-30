@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
 */
 class RRelacionSaldosDetXls
 {
@@ -178,11 +179,17 @@ class RRelacionSaldosDetXls
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
+				if($this->objParam->getParametro('tipo_reporte')=='relacion_saldos_det_ci'){//#84
+					$this->docexcel->getActiveSheet()->getStyle('A3:E3')->getAlignment()->setWrapText(true);
+		            $this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos3);
 				
+				}else{
+					$this->docexcel->getActiveSheet()->getStyle('A3:D3')->getAlignment()->setWrapText(true);
+	            	$this->docexcel->getActiveSheet()->getStyle('A3:D3')->applyFromArray($styleTitulos3);
+				
+				}
                 
-	            $this->docexcel->getActiveSheet()->getStyle('A3:D3')->getAlignment()->setWrapText(true);
-	            $this->docexcel->getActiveSheet()->getStyle('A3:D3')->applyFromArray($styleTitulos3);
-				
+	            
 				
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
                 $fila=4;
@@ -202,16 +209,20 @@ class RRelacionSaldosDetXls
 	                
 	                $this->docexcel->getActiveSheet()->setCellValue('A3','Codigo');//1
 	                $this->docexcel->getActiveSheet()->setCellValue('B3','Nombre');//2
-	                $this->docexcel->getActiveSheet()->setCellValue('C3','Nº Cuenta');//2
-	                $this->docexcel->getActiveSheet()->setCellValue('D3','Monto (Bs)');//3
 	                
+	                if($this->objParam->getParametro('tipo_reporte')=='relacion_saldos_det_ci'){//#84
+	                	$this->docexcel->getActiveSheet()->setCellValue('C3','CI');//2
+	                	$this->docexcel->getActiveSheet()->setCellValue('D3','Nº Cuenta');
+	                	$this->docexcel->getActiveSheet()->setCellValue('E3','Monto (Bs)');
+						$this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValue('C3','Nº Cuenta');//2
+	                	$this->docexcel->getActiveSheet()->setCellValue('D3','Monto (Bs)');//3
+	                	$this->docexcel->getActiveSheet()->getStyle('D')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					}
 	                
-	                $this->docexcel->getActiveSheet()->getStyle('D')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-					
-				 
-                
-
-				$tit_rep='RELACION DE SALDOS';
+	             
+	            $tit_rep= $datos[0]['titulo_reporte']; //  'RELACION DE SALDOS';
 	
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:D1"); 
@@ -242,8 +253,18 @@ class RRelacionSaldosDetXls
 					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['det_desc_funcionario2']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['det_nro_cuenta']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['det_importe']);
+					
+					if($this->objParam->getParametro('tipo_reporte')=='relacion_saldos_det_ci'){//#84
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['ci']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['det_nro_cuenta']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['det_importe']);
+					
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['det_nro_cuenta']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['det_importe']);
+					
+					}
+					
 					
 					$tipo_contrato=$value['tipo_contrato'];
 					$nombre=$value['det_nombre'];
