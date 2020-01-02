@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
 */
 class RRelacionSaldosXls
 {
@@ -209,7 +210,7 @@ class RRelacionSaldosXls
 				 
                 
 
-				$tit_rep='RESUMEN RELACION DE SALDOS';
+				$tit_rep=$datos[0]['titulo_reporte'];
 	
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 
@@ -217,7 +218,14 @@ class RRelacionSaldosXls
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 				$this->docexcel->getActiveSheet()->mergeCells("A2:C2");
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+				
+				if($datos[0]['periodo']>0){
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+				}else{
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['gestion']);
+				}
+				
+				
 				 
 				
 				$tipo_contrato='';

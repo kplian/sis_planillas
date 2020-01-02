@@ -2,7 +2,8 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
+ #30    ETR            30/07/2019           MZM                 Creacion
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 */
 class RPlanillaGenericaTrib extends  ReportePDF {
 	var $datos_titulo;
@@ -17,7 +18,17 @@ class RPlanillaGenericaTrib extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 5, 30, 10);
 		$this->SetFont('','B',7);
 		$this->ln(10);
-		
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$this->Cell(0, 3, '', '', 0, 'R');
+			$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'R');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
 		$this->SetFont('','B',14);
 		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'],0,1,'C');
 		$this->ln(5);
@@ -67,7 +78,7 @@ class RPlanillaGenericaTrib extends  ReportePDF {
 		$this->ancho_sin_totales = 0;
 		$this->cantidad_columnas_estaticas = 0;
 		
-		$this->SetMargins(5, 55, 5);
+		$this->SetMargins(5, 58, 5);
 	}
 	function generarReporte() {
 		

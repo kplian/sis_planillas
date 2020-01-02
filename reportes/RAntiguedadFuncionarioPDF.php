@@ -6,6 +6,7 @@
  #66	ETR				16.10.2019			MZM					Adicion de total a reporte
  #77	ETR				15.11.2019			MZM					Ajsute reprote
  *77	ETR				20.11.2019			MZM					Uniformizado de tamaño de letra
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -25,7 +26,20 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$this->SetFont('','B',8);
 		$this->SetY(10);
 		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
-		$this->Cell($this->ancho_hoja+200, 3, $pagenumtxt, '', 1, 'R');
+		$this->Cell(199, 3, $pagenumtxt, '', 1, 'R');
+		
+		//#83
+		$dr=substr($this->datos_titulo[0]['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo[0]['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo[0]['fecha_backup'],6);
+		
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			
+			$this->Cell(185, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'R');
+		}else{
+			$this->Cell(185, 3, '', '', 0, 'R');
+		}
+		
 		
 		$this->SetFont('','B',12);//#77 (20.11.19)
 		$this->SetY(20);

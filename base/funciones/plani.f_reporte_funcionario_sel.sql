@@ -25,6 +25,7 @@ $body$
  #77	ETR				15.11.2019			MZM					Ajuste reportes
  #81	ETR				25.11.2019			MZM					Cambio en reporte curva salarial, campo jerarquia por nivel de organigrama y prioridad
  #81	ETR				04.12.2019			MZM					Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
+ #83	ETR				09.12.2019			MZM					Habilitacion de reporte para backup de planilla
  ***************************************************************************/
 
 DECLARE
@@ -98,6 +99,11 @@ DECLARE
    v_incap	numeric;
    v_bonant	numeric;
    v_estado_afp	varchar;--#81
+   --#83
+   v_esquema	varchar;
+   v_consulta_det	varchar;
+   v_cons		varchar;
+   v_fecha_backup	varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -123,6 +129,13 @@ BEGIN
              v_id_periodo:=v_parametros.id_periodo;
         end if;
 
+		--#83
+    	IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+        ELSE
+               v_esquema = 'plani';
+        END IF;
+
         	create temp table tt_func(
               id_funcionario integer,
               fecha_ingreso date,
@@ -137,8 +150,8 @@ BEGIN
             v_consulta:='select uofunc.id_funcionario, uofunc.fecha_asignacion, 0, fu.antiguedad_anterior 
             from orga.tuo_funcionario uofunc
             inner join orga.tfuncionario fu on fu.id_funcionario=uofunc.id_funcionario
-            inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fu.id_funcionario
-            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla 
+            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fu.id_funcionario
+            inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
             where '||v_parametros.filtro||' and uofunc.estado_reg!=''inactivo'' and uofunc.id_uo_funcionario=fp.id_uo_funcionario
                                                     and uofunc.tipo=''oficial'' ';
@@ -212,7 +225,7 @@ BEGIN
           while (v_contador< v_bandera) loop
                
               if(v_parametros.tipo_reporte='empleado_edad') then --#77
-                 v_motivo:='date_part(''year'', age(per.fecha_nacimiento))'; 
+                 v_motivo:='extract(YEAR FROM age('''||v_fecha||''',per.fecha_nacimiento ))'; 
 
 				 v_ordenar:='per.genero,per.fecha_nacimiento DESC, rfu.desc_funcionario2';
               else
@@ -222,11 +235,11 @@ BEGIN
               end if;
               
                 v_filtro:=' select cen.nombre_uo_centro as nombre_uo_pre,trim(both ''FUNODTPR'' from rfu.codigo) as codigo, rfu.desc_funcionario2, tt.fecha_ingreso,
-							tt.antiguedad_ant,tt.antiguedad_anos,tt.antiguedad, per.genero, per.fecha_nacimiento, date_part(''year'', age(per.fecha_nacimiento)) AS edad,
+							tt.antiguedad_ant,tt.antiguedad_anos,tt.antiguedad, per.genero, per.fecha_nacimiento, extract(YEAR FROM age('''||v_fecha||''',per.fecha_nacimiento )) AS edad,
 							car.nombre as nombre_cargo
                             from tt_func tt
-                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario=tt.id_funcionario
-                            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=tt.id_funcionario
+                            inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                             inner join orga.tuo_funcionario uofun on uofun.id_funcionario=tt.id_funcionario and uofun.id_uo_funcionario=fp.id_uo_funcionario
                             inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
@@ -309,23 +322,40 @@ BEGIN
         
     elsif(p_transaccion='PLA_DATPLAEMP_SEL')then
  		begin     
+        --#83
+    	IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+        ELSE
+               v_esquema = 'plani';
+        END IF;
+        
+        
         --#77
         if pxp.f_existe_parametro(p_tabla , 'fecha')then  
-          if(v_parametros.fecha is not null) then
+        
+          if(v_parametros.fecha is not null) then 
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
           else
-             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             execute 'select distinct plani.fecha_planilla 
+                     from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+	                 where tp.codigo=''PLASUE'' and plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+
+          
+             v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
           end if;
         else
-             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+        
+        	 execute 'select distinct plani.fecha_planilla 
+                     from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+	                 where tp.codigo=''PLASUE'' and plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+                    
+             v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
         end if;
-        
-        
+
+
         if(v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
          /*  for v_registros in (select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
 							on p.id_periodo=pl.id_periodo
@@ -339,24 +369,30 @@ BEGIN
         	v_id_periodo_min=coalesce (v_id_periodo_min,v_id_periodo);
            
         else*/
-           for v_registros in (
-                              select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
+        	--#83
+           v_cons:='select distinct p.id_periodo, p.fecha_ini from param.tperiodo p 
+                              inner join '||v_esquema||'.tplanilla pl
                               on p.id_periodo=pl.id_periodo
-                              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
-                              where p.id_periodo<=v_id_periodo
-                              and pl.estado!='registro_horas'
+                              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo=''PLASUE''
+                              where p.id_periodo<='||v_id_periodo||'
+                              and pl.estado!=''registro_horas''
                               order by p.fecha_ini desc
-                              limit 1 offset 2) loop
+                              limit 1 offset 2';
+        
+           for v_registros in execute (v_cons) loop
                               v_id_periodo_min:=v_registros.id_periodo;
            end loop;
            if(v_id_periodo_min is null) then 
-               for v_registros in (select distinct p.id_periodo, p.fecha_ini from param.tperiodo p inner join plani.tplanilla pl
+             v_cons:='select distinct p.id_periodo, p.fecha_ini from param.tperiodo p 
+             			    inner join '||v_esquema||'.tplanilla pl
 							on p.id_periodo=pl.id_periodo
-							inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo='PLASUE'
-							where p.id_periodo<=v_id_periodo
-                            and pl.estado!='registro_horas'
+							inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=pl.id_tipo_planilla and tp.codigo=''PLASUE''
+							where p.id_periodo<='||v_id_periodo||'
+                            and pl.estado!=''registro_horas''
                     	    order by p.fecha_ini desc
-                        	limit 1 offset 1) loop
+                        	limit 1 offset 1';
+           
+               for v_registros in execute (v_cons) loop
                             v_id_periodo_min:=v_registros.id_periodo;
                end loop;
                 v_id_periodo_min=coalesce (v_id_periodo_min,v_id_periodo);
@@ -368,7 +404,7 @@ BEGIN
                          
         v_tc:=(select round( param.f_get_tipo_cambio((select id_moneda from param.tmoneda where triangulacion='si' limit 1), v_fecha,'O'),2));
         v_col:='inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=plani.id_tipo_planilla 
-				inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+				inner join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
 				and tcol.codigo = colval.codigo_columna';
         v_ordenar:='fun.desc_funcionario2 ';
         
@@ -392,9 +428,11 @@ BEGIN
                     v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,fun.desc_funcionario2,tcol.codigo desc';
                     
                     --#77
-                    v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                    v_estado:='inner join '||v_esquema||'.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
                 	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
                	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
+                    
+                   v_condicion =v_condicion ||' and '|| v_parametros.filtro;
                     
                 elseif (v_parametros.tipo_reporte='no_sindicato' or v_parametros.tipo_reporte='aporte_sindicato') then
                 	if(v_parametros.tipo_reporte='no_sindicato') then
@@ -402,14 +440,17 @@ BEGIN
                     else
                     	v_col:=v_col||' and tcol.codigo in (''APSIND'') and colval.valor>0';
                     end if;
+                    v_condicion =v_condicion ||' and '|| v_parametros.filtro;
                 elseif (v_parametros.tipo_reporte='aporte_cacsel') then
                 		v_col:=v_col||' and tcol.codigo in (''CACSELFIJO'') and colval.valor>0';
+                        v_condicion =v_condicion || v_parametros.filtro;
                  elseif(v_parametros.tipo_reporte='reserva_beneficios') then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
+                    v_condicion =v_condicion ||' and '|| v_parametros.filtro;
 
                 elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
                     v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
-					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min || ' and fp.id_funcionario in (select funp.id_funcionario from  plani.tfuncionario_planilla funp inner join plani.tplanilla planil on planil.id_planilla=funp.id_planilla where planil.id_periodo='||v_id_periodo||')';
+					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min || ' and fp.id_funcionario in (select funp.id_funcionario from  '||v_esquema||'.tfuncionario_planilla funp inner join '||v_esquema||'.tplanilla planil on planil.id_planilla=funp.id_planilla where planil.id_periodo='||v_id_periodo||')';
                      if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                         if(v_parametros.id_tipo_contrato>0) then
                           v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
@@ -418,66 +459,73 @@ BEGIN
                     v_ordenar:=v_ordenar||', plani.fecha_planilla';
                     
                 else -- salarios CT
+               
                     create temp  table tt_totplan(id_funcionario integer,
                     total numeric, codigo varchar) on commit drop;
                 
-                    for v_registros in (SELECT sum(cv.valor) AS sum, fp_1.id_funcionario
-                  		FROM plani.tcolumna_valor cv
+                	v_cons:='SELECT sum(cv.valor) AS sum, fp_1.id_funcionario
+                  		FROM '||v_esquema||'.tcolumna_valor cv
                        JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
                         cv.id_tipo_columna
-                       JOIN plani.tfuncionario_planilla fp_1 ON
+                       JOIN '||v_esquema||'.tfuncionario_planilla fp_1 ON
                         fp_1.id_funcionario_planilla =
                          cv.id_funcionario_planilla
-                       JOIN plani.tplanilla p ON p.id_planilla =
+                       JOIN '||v_esquema||'.tplanilla plani ON plani.id_planilla =
                         fp_1.id_planilla
                        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
-                        p.id_tipo_planilla
-                  		WHERE 
-                        p.id_periodo = v_id_periodo AND
+                        plani.id_tipo_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  		WHERE '||v_parametros.filtro||' and
+                        plani.id_periodo = '||v_id_periodo||' AND
                       
-                        tp.codigo in ('PLASUB', 'PLASUE') AND
+                        tp.codigo in (''PLASUB'', ''PLASUE'') AND
                          
-                        tc.codigo IN( 'SUBSEP' ,
-                         'SUBPRE' , 'SUBLAC' , 'SUBNAT' ,
-                          'COTIZABLE' , 'AFP_APPAT' , 'AFP_RIEPRO'
-                           , 'AFP_VIVIE' , 'PREAGUI' ,
-                            'PREPRI' , 'CAJSAL' , 'PREVBS')
-                            group by fp_1.id_funcionario_planilla) loop
+                        tc.codigo IN( ''SUBSEP'' ,
+                         ''SUBPRE'' , ''SUBLAC'' , ''SUBNAT'' ,
+                          ''COTIZABLE'' , ''AFP_APPAT'' , ''AFP_RIEPRO''
+                           , ''AFP_VIVIE'' , ''PREAGUI'',
+                            ''PREPRI'' , ''CAJSAL'' , ''PREVBS'')
+                            group by fp_1.id_funcionario_planilla';
+                		
+                    for v_registros in execute(v_cons) loop
                             
-                            
-                        v_incap:=(    SELECT sum(cv.valor) 
-                  		FROM plani.tcolumna_valor cv
+                        execute 'SELECT sum(cv.valor) as valor
+                  		FROM '||v_esquema||'.tcolumna_valor cv
                        JOIN plani.ttipo_columna tc ON tc.id_tipo_columna =
                         cv.id_tipo_columna
-                       JOIN plani.tfuncionario_planilla fp_1 ON
+                       JOIN '||v_esquema||'.tfuncionario_planilla fp_1 ON
                         fp_1.id_funcionario_planilla =
                          cv.id_funcionario_planilla
-                       JOIN plani.tplanilla p ON p.id_planilla =
+                       JOIN '||v_esquema||'.tplanilla plani ON plani.id_planilla =
                         fp_1.id_planilla
                        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
-                        p.id_tipo_planilla
-                  		WHERE 
-                        p.id_periodo = v_id_periodo AND
+                        plani.id_tipo_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  		WHERE '||v_parametros.filtro||' and
+                        plani.id_periodo = '||v_id_periodo||' AND
                       
-                        tp.codigo in ( 'PLASUE') AND
+                        tp.codigo in ( ''PLASUE'') AND
                          
-                        tc.codigo IN( 'INCAP_TEMPORAL' ) and fp_1.id_funcionario=v_registros.id_funcionario);
-                            
-                            
-                            insert into tt_totplan values (v_registros.id_funcionario,( v_registros.sum-v_incap),'TOTPLANI');
+                        tc.codigo IN( ''INCAP_TEMPORAL'' ) and fp_1.id_funcionario='||v_registros.id_funcionario into v_registros_det;
+                        
+                        v_incap:=v_registros_det.valor;
+                        
+                        insert into tt_totplan values (v_registros.id_funcionario,( v_registros.sum-v_incap),'TOTPLANI');
                     end loop;
                     
                     
                     --cotizable
-                    
-                    for v_registros in (select fp.id_funcionario, colval.valor, tcol.codigo from plani.tfuncionario_planilla fp
-                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
-                        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE' and plani.estado!='registro_horas'
+                    v_cons:='select fp.id_funcionario, colval.valor, tcol.codigo 
+                    	from '||v_esquema||'.tfuncionario_planilla fp
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = fp.id_planilla
+                        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE'' and plani.estado!=''registro_horas''
                         inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=plani.id_tipo_planilla 
-						inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+						inner join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
 						and tcol.codigo = colval.codigo_columna
-                        and tcol.codigo in ('COTIZABLE')
-                        where  plani.id_periodo=v_id_periodo ) loop
+                        and tcol.codigo in (''COTIZABLE'')
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                        where '||v_parametros.filtro||' and plani.id_periodo='||v_id_periodo;
+                    for v_registros in execute (v_cons) loop
                       insert into tt_totplan values (v_registros.id_funcionario, v_registros.valor,v_registros.codigo);
                     end loop;
                     
@@ -489,13 +537,15 @@ BEGIN
                     --#77
                     v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,fun.desc_funcionario2,tcol.codigo desc';
                    
-                    v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                    v_estado:='inner join '||v_esquema||'.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
                 	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
                	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
+                    
+                    v_condicion =v_condicion ||' and '|| v_parametros.filtro;
                 end if;
 
         
-        if(v_parametros.tipo_reporte='reserva_beneficios2') then
+       /* if(v_parametros.tipo_reporte='reserva_beneficios2') then
            create temp table tt_reserva2(
               id_funcionario integer,
               nombre	text,
@@ -566,7 +616,7 @@ BEGIN
             end loop;
         	
           
-        end if;    
+        end if;    */
             
        -- else
 
@@ -632,8 +682,8 @@ BEGIN
                                 end )
                            end ) as dias_quinquenio
                            , esclim.haber_basico as basico_limite, esclim.codigo as nivel_limite
-                        from plani.tfuncionario_planilla fp
-                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
+                        from '||v_esquema||'.tfuncionario_planilla fp
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = fp.id_planilla
                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE'' and plani.estado!=''registro_horas''
                         
                          '||v_col||'
@@ -656,8 +706,9 @@ BEGIN
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato = car.id_tipo_contrato
                         inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion=per.id_gestion
+                        inner join plani.treporte repo on repo.id_tipo_planilla=tp.id_tipo_planilla
                         '||v_estado||' --#77
-                        where
+                        where '||v_parametros.filtro||' and
                         
                          (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))  <= '''||v_fecha||''' and
                         
@@ -672,27 +723,42 @@ BEGIN
         end;
      elsif(p_transaccion='PLA_DATAPORTE_SEL')then
  		begin 
-           
+        
+            --#83
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+            ELSE
+                   v_esquema = 'plani';
+            END IF;   
+        
            --#77
             if pxp.f_existe_parametro(p_tabla , 'fecha')then  
               if(v_parametros.fecha is not null) then
                  v_fecha=v_parametros.fecha;
                  v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
               else
-                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+                 v_fecha:=v_registros_det.fecha_planilla;
                  v_id_periodo:=v_parametros.id_periodo;
               end if;
             else
-                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+                 v_fecha:=v_registros_det.fecha_planilla;
                  v_id_periodo:=v_parametros.id_periodo;
             end if;
            
            v_condicion:=' and 0=0';
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
           		if(v_parametros.id_tipo_contrato>0) then
-        			v_condicion := 'and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+        			v_condicion := ' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
                 
           		end if;
         	end if;
@@ -721,36 +787,44 @@ BEGIN
               var2	numeric,
               var3	numeric --#45,
               ,tipo_jub varchar
+              --#83
+              ,ncotiz	numeric,
+              nvar1	numeric,
+              nvar2	numeric,
+              nvar3	numeric
               
             )on commit drop; 
-
-            for v_registros in (
-                  select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso 
-                  , f.fecha_finalizacion, cv.valor, (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='HORDIA'
+			v_cons:='select distinct fp.id_funcionario, 
+            		plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso 
+                  , f.fecha_finalizacion, cv.valor, 
+                  (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''HORDIA''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as hordia,
-                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='INCAP_DIAS'
+                  (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''INCAP_DIAS''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as incap
                   ,
-                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR1'
+                  (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''AFP_VAR1''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as var1,
-                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR2'
+                  (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''AFP_VAR2''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as var2,
-                  (select cvv.valor from plani.tcolumna_valor cvv where cvv.codigo_columna='AFP_VAR3'
+                  (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''AFP_VAR3''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as var3 --#45
-                  from plani.tfuncionario_planilla fp
-                  inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+                  from '||v_esquema||'.tfuncionario_planilla fp
+                  inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                   inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
-                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
-                  inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                 
-                  and cv.codigo_columna in ('HOREFEC')
+                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE''
+                  inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  and cv.codigo_columna in (''HOREFEC'')
                   and f.id_uo_funcionario=fp.id_uo_funcionario
-                  where p.id_periodo=v_id_periodo
+                  where '||v_parametros.filtro;
+                
+            for v_registros in execute( v_cons
+                  
                             ) loop 
                       
       			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
@@ -771,11 +845,55 @@ BEGIN
                   end if;*/
 
               		insert into tt_func 
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub );
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub, 0, 0, 0, 0 );
            
+          			--#84: si la planilla para la cual se consulta no es sueldo == añadir mas columnas porq es de reintegro (7 columnas)                         
+                   if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+                         if(v_parametros.id_tipo_planilla>0 and v_parametros.id_tipo_planilla in (select id_tipo_planilla from plani.ttipo_planilla where codigo='PLANRE' )) then
+                            
+                            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+                                if(v_parametros.id_tipo_contrato>0) then
+                                    v_condicion := ' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+                                end if;
+                            end if;
+                            
+							execute ' select cv.valor, 
+                            (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla
+                            and codigo_columna=''PRMAFP_VAR1'') as var1,
+                            (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla
+                            and codigo_columna=''PRMAFP_VAR2'') as var2,
+                            (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla
+                            and codigo_columna=''PRMAFP_VAR3'') as var3
+                            from '||v_esquema||'.tfuncionario_planilla fp inner join 
+                            '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla and plani.id_tipo_planilla='||v_parametros.id_tipo_planilla||'
+							inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla and repo.id_reporte='||v_parametros.id_reporte||'
+                            inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                            and cv.codigo_columna=''PRMCOTIZABLE''
+                            and id_funcionario='||v_registros.id_funcionario||' and '||v_parametros.filtro into v_registros_det;
+                           
+                         
+                            update tt_func
+                            set ncotiz=v_registros_det.valor,
+                            nvar1=v_registros_det.var1,
+                            nvar2=v_registros_det.var2,
+                            nvar3=v_registros_det.var3 where id_funcionario=v_registros.id_funcionario;
+                            
+                            
+                         else
+                             v_condicion:=' and repo.id_reporte='||v_parametros.id_reporte;
+                             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+                                if(v_parametros.id_tipo_contrato>0) then
+                                    v_condicion := v_condicion ||' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+                                end if;
+                             end if;
+                         end if;
+                   end if;
+         			
+          
+          
             end loop;
               
-            
+           
 
             --#72
             
@@ -797,27 +915,31 @@ BEGIN
                            null::date
                            end
                          ) as fecha_finalizacion, rep.nombre_afp, rep.id_afp,
-                         param.f_get_periodo_literal(p.id_periodo) as periodo,
+                         param.f_get_periodo_literal(plani.id_periodo) as periodo,
                          
    
     
    						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
-
-                         from plani.tplanilla p
-                         inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3 --#83
+                         from '||v_esquema||'.tplanilla plani
+                         inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
                          inner join orga.tfuncionario fun on fun.id_funcionario=fp.id_funcionario
                          inner join segu.tpersona per on per.id_persona=fun.id_persona
                          inner join plani.vrep_funcionario rep on rep.id_funcionario=fp.id_funcionario and fp.id_uo_funcionario=rep.id_uo_funcionario
-                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo in (''PLASUE'')
+                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo in (''PLASUE'')
                          inner join tt_func tt on tt.id_funcionario=fp.id_funcionario
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
-                         inner join plani.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                         inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar
-                         where p.id_periodo='||v_id_periodo||' and tcol.codigo in (''COTIZABLE'') 
+                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                         where '||v_parametros.filtro||' and tcol.codigo in (''COTIZABLE'') 
                          and rep.id_afp='||v_parametros.id_afp||v_condicion||'
                          
                          order by  rep.desc_funcionario2'; 
-                            
+                         raise notice '**%',v_consulta;  
+                         
+						
+ 
                          return v_consulta;
         end; 
     elsif (p_transaccion='PLA_DATPERSON_SEL') then
@@ -883,20 +1005,36 @@ BEGIN
       end;  
     elsif (p_transaccion='PLA_PLATRIB_SEL') then
       begin 
-    		
+     		--#83
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+            ELSE
+                   v_esquema = 'plani';
+            END IF;		
+      
           --#77
             if pxp.f_existe_parametro(p_tabla , 'fecha')then  
               if(v_parametros.fecha is not null) then
                  v_fecha=v_parametros.fecha;
                  v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
               else
-                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+              
+                 v_fecha:=v_registros_det.fecha_planilla;
                  v_id_periodo:=v_parametros.id_periodo;
               end if;
             else
-                 v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-                 where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+                 execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+              
+                 v_fecha:=v_registros_det.fecha_planilla;
                  v_id_periodo:=v_parametros.id_periodo;
             end if;     
       
@@ -917,14 +1055,16 @@ BEGIN
             
             )on commit drop;
 
-            for v_registros in (
-                  select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
-                  f.fecha_finalizacion
-                  from plani.tfuncionario_planilla fp
-                  inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
-                  inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
-                  and f.id_uo_funcionario=fp.id_uo_funcionario
-                  where p.id_periodo=v_id_periodo and f.codigo_tipo_contrato='PLA'
+			v_cons:=' select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
+                      f.fecha_finalizacion
+                      from '||v_esquema||'.tfuncionario_planilla fp
+                      inner join '||v_esquema||'.tplanilla p on p.id_planilla=fp.id_planilla
+                      inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
+                      and f.id_uo_funcionario=fp.id_uo_funcionario
+                      where p.id_periodo='||v_id_periodo||' and f.codigo_tipo_contrato=''PLA'' ';
+
+            for v_registros in execute(
+                 v_cons
                             ) loop
                       
                                   
@@ -960,18 +1100,18 @@ BEGIN
                                   ''V''
                              end)
                             end)::varchar as novedad, colval.valor
-						from plani.tfuncionario_planilla fp
-                        inner join plani.tplanilla plani on plani.id_planilla = fp.id_planilla
+						from '||v_esquema||'.tfuncionario_planilla fp
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = fp.id_planilla
 						inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
                         inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
-                        inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                        inner join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                         and repcol.codigo_columna = colval.codigo_columna
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
-                                                inner join plani.vrep_funcionario fun on fun.id_uo_funcionario = uofun.id_uo_funcionario
+						inner join plani.vrep_funcionario fun on fun.id_uo_funcionario = uofun.id_uo_funcionario
 						inner join orga.tfuncionario ff on ff.id_funcionario=fun.id_funcionario
 						inner join segu.tpersona per on per.id_persona=ff.id_persona
                         inner join tt_func tf on tf.id_funcionario=ff.id_funcionario 
-                        where plani.id_periodo='||v_id_periodo||' and repo.titulo_reporte ilike ''%Planilla%Tributaria%''
+                        where '||v_parametros.filtro||' and repo.titulo_reporte ilike ''%Planilla%Tributaria%''
                         order by fun.desc_funcionario2, repcol.orden
                        
                         ';
@@ -981,7 +1121,12 @@ BEGIN
        end;    
     elsif (p_transaccion='PLA_INFDEP_SEL') then
       begin 
-    		
+      --#83
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+            ELSE
+                   v_esquema = 'plani';
+            END IF;	
              
       --#77
         if pxp.f_existe_parametro(p_tabla , 'fecha')then  
@@ -989,13 +1134,21 @@ BEGIN
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
           else
-             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
-             v_id_periodo:=v_parametros.id_periodo;
+              execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+              v_fecha:=v_registros_det.fecha_planilla;
+              v_id_periodo:=v_parametros.id_periodo;
           end if;
         else
-             v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-             where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
+             execute ' select distinct plani.fecha_planilla 
+                 from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
+                 on tp.id_tipo_planilla=plani.id_tipo_planilla
+                 where tp.codigo=''PLASUE'' and 
+                 plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+             v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
         end if;   
             
@@ -1018,14 +1171,16 @@ BEGIN
               inner join segu.tpersona_relacion pr on pr.id_persona=p.id_persona
               inner join orga.tfuncionario fun on fun.id_persona=p.id_persona
               inner join plani.vrep_funcionario repf on repf.id_funcionario=fun.id_funcionario
-              inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
+              inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
                             --#66
               inner join orga.tcargo car on car.id_cargo=repf.id_cargo
               inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                             --#66
-              inner join plani.tplanilla pla on pla.id_planilla=fp.id_planilla 
-              inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=pla.id_tipo_planilla and tippla.codigo=''PLASUE''
-              where pla.id_periodo='||v_id_periodo||v_condicion||'
+              inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
+              inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
+              inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+              --where pla.id_periodo='||v_id_periodo||v_condicion||'
+              where '||v_parametros.filtro||v_condicion||'
               order by repf.desc_funcionario2, pr.relacion, pr.fecha_nacimiento';
             else
             
@@ -1055,14 +1210,15 @@ BEGIN
                             inner join segu.tpersona_relacion pr on pr.id_persona=p.id_persona
                             inner join orga.tfuncionario fun on fun.id_persona=p.id_persona
                             inner join plani.vrep_funcionario repf on repf.id_funcionario=fun.id_funcionario
-                            inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
+                            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
                             
                             inner join orga.tcargo car on car.id_cargo=repf.id_cargo
                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                             inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
-               				inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla 
+               				inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
                             inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
-                            where plani.id_periodo='||v_id_periodo||v_condicion||'
+                            inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                            where '||v_parametros.filtro||v_condicion||'
                             
                             and pr.relacion ilike ''%hij%''
                             and  date_part(''year'', age(pr.fecha_nacimiento)) between '||  v_contador ||' and '||  v_fin ||'
@@ -1204,6 +1360,8 @@ BEGIN
                 orden_centro	numeric,
                 bonant	numeric,
                 estado_afp varchar --#81
+                ,fecha_backup	text--#83
+                ,ruta varchar
             	)on commit drop;
        
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
@@ -1211,6 +1369,19 @@ BEGIN
                 v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
               end if;
             end if;
+            
+           
+            --#83
+            v_fecha_backup:=' ''01-01-1000'' ';
+            -- v_agrupar_por:='';
+            IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+                   if(v_esquema='planibk') then
+                      v_fecha_backup:='to_char(plani.fecha_backup,''dd-mm-YYYY'') || '' (''||plani.id_planilla||'')'' ';
+                   end if;
+            ELSE
+                   v_esquema = 'plani';
+            END IF;
             
             v_filtro:='select tf.id_funcionario,  trim (both ''FUNODTPR'' from tf.codigo) as codigo,p.ci, p.tipo_documento, p.expedicion, 
                                 fafp.nro_afp, 
@@ -1256,53 +1427,60 @@ BEGIN
                                 
                                 ,(select  nombre_uo_centro from orga.vuo_centro where id_uo= uof.id_uo) as nombre_centro
                                 ,(select  uo_centro_orden from orga.vuo_centro where id_uo= uof.id_uo) as orden_centro
+                                
+                                ,(select tc.codigo from '||v_esquema||'.tcolumna_valor 
+                                cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
+                                
+                                where cv.id_funcionario_planilla=fp.id_funcionario_planilla and tc.codigo in (''JUB55'',''JUB65'',''MAY65'')
+                                and cv.valor=0 ) as estado_afp,
+                                (select valor_col from '||v_esquema||'.vdatos_func_planilla 
+                                where id_funcionario_planilla=fp.id_funcionario_planilla and nombre_col=''total_gral'') as total_gral
+                                ,'||v_fecha_backup||'::text as fecha_backup, orden.ruta
                                 from orga.tfuncionario tf
                                 inner join segu.tpersona p on p.id_persona=tf.id_persona
                                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario=tf.id_funcionario and fafp.estado_reg=''activo''
                                 inner join plani.tafp afp on afp.id_afp=fafp.id_afp
                                 --left join orga.tfuncionario_especialidad  fe on fe.id_funcionario=tf.id_funcionario
                                 left join param.tcatalogo tes on tes.codigo=tf.profesion --#81
-                                inner join plani.tfuncionario_planilla fp on fp.id_funcionario=tf.id_funcionario
-                                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=tf.id_funcionario
+                                inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                                 inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla 
                                 inner join orga.tuo_funcionario uof on uof.id_funcionario=tf.id_funcionario and fp.id_funcionario=uof.id_funcionario
                                 and uof.id_uo_funcionario=fp.id_uo_funcionario
                                 inner join orga.tuo uo on uo.id_uo=uof.id_uo
                                 inner join orga.tnivel_organizacional niv on niv.id_nivel_organizacional=uo.id_nivel_organizacional
                                 inner join orga.tcargo car on car.id_cargo=uof.id_cargo
-
+								inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                                 inner join orga.tescala_salarial esc on esc.id_escala_salarial=car.id_escala_salarial
                                 inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                                 inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
                                 inner join orga.tfuncionario_cuenta_bancaria fcb on fcb.id_funcionario=tf.id_funcionario and fcb.estado_reg=''activo''
                                 and plani.fecha_planilla between fcb.fecha_ini and coalesce (fcb.fecha_fin,plani.fecha_planilla)
                                 inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion
-                                 inner join plani.vorden_planilla orden on orden.id_funcionario_planilla=fp.id_funcionario_planilla and orden.id_periodo=plani.id_periodo
-                                where 
+                                inner join '||v_esquema||'.vorden_planilla orden on orden.id_funcionario_planilla=fp.id_funcionario_planilla and orden.id_periodo=plani.id_periodo
+                                where '||v_parametros.filtro|| ' and
                                 plani.id_periodo='||v_id_periodo||v_condicion||' and 
-            					 plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla) and 
+            					plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla) and 
 
                                 tippla.codigo=''PLASUE'' 
                                 order by '||v_ordenar;
 
-            
+            raise notice '%', v_filtro;      
     		for v_registros in execute( v_filtro
 				) loop
-                
-					for v_registros_det in (select tc.codigo, cv.valor from plani.tcolumna_valor cv 
+                v_consulta_det:='select tc.codigo, cv.valor 
+                	from '||v_esquema||'.tcolumna_valor cv 
                     inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
-                    where cv.id_funcionario_planilla=v_registros.id_funcionario_planilla
+                    where cv.id_funcionario_planilla='||v_registros.id_funcionario_planilla||'
                     and tc.codigo in (
-                    'HABBAS','COTIZABLE','LIQPAG','DISPONIBILIDAD',
-                    'SUBPRE','SUBNAT','SUBLAC','TOTGAN','TOT_DESC','AFP_PAT'
+                    ''HABBAS'',''COTIZABLE'',''LIQPAG'',''DISPONIBILIDAD'',
+                    ''SUBPRE'',''SUBNAT'',''SUBLAC'',''TOTGAN'',''TOT_DESC'',''AFP_PAT''
                     
-                    ,'BONFRONTERA','HOREXT','EXTRA','HORNOC','NOCTURNO','SUELDOMES',
-                    'ASIGTRA','ASIGTRA_IT','ASIGESP','ASIGESP_IT','ASIGCAJA','ASIGCAJA_IT','ASIGNACIONES'
-                    ,'AFP_SSO','AFP_RCOM','AFP_CADM','AFP_APSOL','AFP_APNALSOL','BONANT'
-                    ))loop
+                    ,''BONFRONTERA'',''HOREXT'',''EXTRA'',''HORNOC'',''NOCTURNO'',''SUELDOMES'',
+                    ''ASIGTRA'',''ASIGTRA_IT'',''ASIGESP'',''ASIGESP_IT'',''ASIGCAJA'',''ASIGCAJA_IT'',''ASIGNACIONES''
+                    ,''AFP_SSO'',''AFP_RCOM'',''AFP_CADM'',''AFP_APSOL'',''AFP_APNALSOL'',''BONANT'')';
+					for v_registros_det in execute (v_consulta_det) loop
 					
-                    
-                 
 
 					 if (v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
 
@@ -1315,23 +1493,16 @@ BEGIN
                     end if;
                     --#81
 					v_estado_afp:='Activo';
-					if exists (select 1 from  plani.tcolumna_valor cvv inner join plani.ttipo_columna tcc on tcc.id_tipo_columna=cvv.id_tipo_columna
-                     	where cvv.id_funcionario_planilla=v_registros.id_funcionario_planilla and tcc.codigo in ('JUB55','JUB65','MAY65')
-                     	and cvv.valor=0
-                     ) then
-                          v_tipo_jub:=(select tcc.codigo from  plani.tcolumna_valor cvv inner join plani.ttipo_columna tcc on tcc.id_tipo_columna=cvv.id_tipo_columna
-                     	where cvv.id_funcionario_planilla=v_registros.id_funcionario_planilla and tcc.codigo in ('JUB55','JUB65','MAY65')
-                     	and cvv.valor=0);
-                     
-                     		if(v_tipo_jub='JUB55') then
-                                v_estado_afp:='Jubilado de 55';
-                            elsif (v_tipo_jub='JUB65') then
-                                v_estado_afp:='Jubilado de 65';
+                    
+                   
+                    if (v_registros.estado_afp='JUB55') then
+                          v_estado_afp:='Jubilado de 55';
+                          
+                    elsif (v_registros.estado_afp='JUB65') then
+                          v_estado_afp:='Jubilado de 65';
                             
-                            elsif (v_tipo_jub='MAY65') then
-                                v_estado_afp:='Mayor de 65';
-                            
-                            end if;
+                    elsif (v_registros.estado_afp='MAY65') then
+                          v_estado_afp:='Mayor de 65';
                     end if;
                  
                   
@@ -1406,7 +1577,7 @@ BEGIN
                        ---- 
                     elsif(v_registros_det.codigo='AFP_PAT') then --#81
                       --v_totgral:=v_registros_det.valor; --total_patronal_afp 
-                      v_totgral:=(select valor_col from plani.vdatos_func_planilla where id_funcionario_planilla=v_registros.id_funcionario_planilla and nombre_col='total_gral');
+                      v_totgral:=v_registros.total_gral;--(select valor_col from plani.vdatos_func_planilla where id_funcionario_planilla=v_registros.id_funcionario_planilla and nombre_col='total_gral');
                     elsif(v_registros_det.codigo='BONANT') then --#81
                       v_bonant:=v_registros_det.valor;
                     end if;
@@ -1465,6 +1636,8 @@ BEGIN
                 afp_apnal ,
                 afp_apsol, nombre_centro, orden_centro
                                 , bonant, estado_afp--#81
+                                ,fecha_backup --#83,
+                                ,ruta
                                 )
                   		values (
                                 v_registros.codigo, v_registros.ci, v_registros.tipo_documento, v_registros.expedicion, 
@@ -1507,15 +1680,71 @@ BEGIN
                 v_afp_apnal ,
                 v_afp_apsol, v_registros.nombre_centro, v_registros.orden_centro
                        ,v_bonant , v_estado_afp    --#81
+                       ,v_registros.fecha_backup --#83,
+                       ,v_registros.ruta
                   );
                    
                     
                 end loop;
-       
-       			v_consulta:='SELECT *
-                       	FROM tt_curva_sal 
-                      ';
-                      
+               if(v_parametros.tipo_reporte='curva_salarial') then
+                   v_ordenar:='codigo';
+               else
+                	v_ordenar:='ruta';
+               		
+                end if;
+                
+                
+                        v_consulta:='SELECT codigo ,num_documento , tipo_documento , expedicion , 
+                                nro_afp , apellido_paterno , apellido_materno , primer_nombre , 
+                                segundo_nombre , fecha_nacimiento , direccion , telefono1 , 
+                                grupo_sanguineo , genero , estado_civil  , profesion ,
+                                cargo , fecha_ingreso , tiempo_contrato , nombre_lugar ,
+                                codigo_centro ,  numero_nivel , nivel_salarial_cargo , lugar_pago ,
+                                nivel_salarial_categoria ,basico_limite ,fecha_quinquenio ,antiguedad_anterior, 
+                                fecha_planilla ,
+                                fecha_retiro ,
+                                motivo_retiro ,
+                                fecha_ingreso_ctto1 ,
+                                fecha_retiro_ctto1 ,
+                                fecha_ingreso_ctto2 ,
+                                fecha_retiro_ctto2 ,
+                                
+                                estado ,
+                                sueldo_mes ,
+                                cotizable ,
+                                liquido ,
+                                disponibilidad ,
+                                prenatal , 
+                                lactancia , 
+                                natalidad , 
+                                total_ganado ,
+                                total_descuentos  , 
+                                total_gral,
+                                celular1 , nro_cuenta , banco,
+                                
+                                bonofrontera ,
+               horext 	,
+               extra	,
+               hornoc 	,
+               nocturno ,
+               suelmes 	,
+               asigtra 	,
+               asigtra_it ,
+               asigesp	,
+               asigesp_it	,
+               asigcaja	,
+               asigcaja_it	,
+               asignaciones, nombre_afp
+               ,afp_sso  ,
+                afp_rcom ,
+                afp_cadm ,
+                afp_apnal ,
+                afp_apsol, nombre_centro, orden_centro
+                                , bonant, estado_afp
+                                ,fecha_backup
+                                FROM tt_curva_sal order by '||v_ordenar||'
+                              ';
+                
                       return v_consulta;
         
        end;
@@ -1584,14 +1813,19 @@ BEGIN
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
            end if;
        
-        	  v_condicion:=' and 0=0';
-              if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+           v_condicion:=' and 0=0';
+           if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                 if(v_parametros.id_tipo_contrato>0) then
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
-              end if;
+           end if;
    
-		     
+		    --#83
+           IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+           ELSE
+                   v_esquema = 'plani';
+           END IF; 
              
              
    
@@ -1601,9 +1835,9 @@ BEGIN
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
 				and uofunn.estado_reg=''activo''
                     --         and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
-                             inner join plani.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
-              inner join plani.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
-              
+              inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
+              inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
+              and ffp.id_planilla=plani.id_planilla
                where carr.id_tipo_cargo=tc.id_tipo_cargo
               and genero=''femenino'')::integer as femenino , 
               
@@ -1611,11 +1845,11 @@ BEGIN
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
               inner join orga.tuo_funcionario uofunn on uofunn.id_funcionario=funn.id_funcionario
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
-				and uofunn.estado_reg=''activo''
-                       --      and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
-              inner join plani.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
-              inner join plani.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
-              
+			  and uofunn.estado_reg=''activo''
+              --      and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
+              inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
+              inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
+              and ffp.id_planilla=plani.id_planilla
                where carr.id_tipo_cargo=tc.id_tipo_cargo
               and genero!=''femenino'')::integer as masculino
               from orga.ttipo_cargo tc
@@ -1623,8 +1857,8 @@ BEGIN
               inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo
               inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
               inner join orga.tfuncionario fun on fun.id_funcionario=uofun.id_funcionario
-              inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_uo_funcionario=uofun.id_uo_funcionario --#77
-              inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+              inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_uo_funcionario=uofun.id_uo_funcionario --#77
+              inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
               where ';
                           v_consulta:=v_consulta||v_parametros.filtro;
@@ -1644,12 +1878,17 @@ BEGIN
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
               end if;
-   
+    		  --#83
+              IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+              ELSE
+                   v_esquema = 'plani';
+              END IF;
               v_consulta:='select distinct c.codigo, c.nombre from orga.tcargo c 
                 inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
                 inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo 
-                inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
-                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
+                inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                 where ';
                           v_consulta:=v_consulta||v_parametros.filtro;
@@ -1669,7 +1908,12 @@ BEGIN
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
               end if;
-              
+              --#83
+              IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+              ELSE
+                   v_esquema = 'plani';
+              END IF;
 
    			  --#77
               v_consulta:='select distinct cat.descripcion as profesion, --#81
@@ -1682,8 +1926,8 @@ BEGIN
                           inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                           inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                           
-                          inner join plani.tfuncionario_planilla fp on fp.id_funcionario=uofun.id_funcionario
-                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=uofun.id_funcionario
+                          inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
 						  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                           left join param.tcatalogo cat on cat.codigo=fun.profesion
                           where ';
@@ -1693,27 +1937,37 @@ BEGIN
                           '||v_condicion||'
                           -- and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now() )
                           order by cat.descripcion, vfun.desc_funcionario2'; --#81
+
        			return v_consulta;
        end;
       
  elsif (p_transaccion='PLA_DIREMP_SEL') then  --#67
        begin 
        
+           --#83
+           IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+           ELSE
+                   v_esquema = 'plani';
+           END IF; 
+           
        		v_condicion:=' and 0=0';
-              if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                 if(v_parametros.id_tipo_contrato>0) then
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
                 end if;
-              end if;
+            end if;
               
               --#77
-		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
+		    if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
-       	   else
+       	    else
+               
                v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
-           end if;
+
+            end if;
        
        --#77
        v_estado:='';
@@ -1723,7 +1977,7 @@ BEGIN
            --#77
             v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,vrep.desc_funcionario2';
                    
-            v_estado:='inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+            v_estado:='inner join '||v_esquema||'.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
                 	and nivel.id_cargo=car.id_cargo and nivel.id_oficina=ofi.id_oficina and nivel.id_periodo=plani.id_periodo
                	    and nivel.id_tipo_contrato=tcon.id_tipo_contrato';
             
@@ -1750,8 +2004,8 @@ BEGIN
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=vrep.id_uo_funcionario and uofun.tipo=''oficial''
                           inner join orga.tfuncionario tfun on tfun.id_funcionario=vrep.id_funcionario
                           inner join segu.tpersona per on per.id_persona=tfun.id_persona
-                          inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
-                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
+                          inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                           inner join orga.ttipo_contrato tcon on vrep.codigo_tipo_contrato=tcon.codigo '||v_condicion||' 
                           and uofun.estado_reg=''activo'' and uofun.tipo=''oficial''
                           --and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now() )
@@ -1762,13 +2016,20 @@ BEGIN
                           ';
                            v_consulta:=v_consulta||v_parametros.filtro;
                            v_consulta:=v_consulta||' order by '||v_ordenar;
+                           raise notice '%',v_consulta;
             return v_consulta;
        
 	   end;
   
   elsif (p_transaccion='PLA_FRECPROF_SEL') then  --#77
        begin 
-    
+		   --#83
+           IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                   v_esquema = v_parametros.esquema;
+           ELSE
+                   v_esquema = 'plani';
+           END IF;   
+  
 		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
            end if;
@@ -1782,12 +2043,12 @@ BEGIN
 		      v_consulta:='select distinct cat.descripcion as profesion , --#81
               			   (select count(*) from orga.tfuncionario funn 
               			   inner join segu.tpersona pp on pp.id_persona=funn.id_persona   
-                           inner join plani.tfuncionario_planilla ffp on ffp.id_funcionario=funn.id_funcionario and ffp.id_planilla=plani.id_planilla
+                           inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_funcionario=funn.id_funcionario and ffp.id_planilla=plani.id_planilla
                            where fun.profesion=funn.profesion
                            and pp.genero=''femenino'')::integer as femenino , 
                            (select count(*) from orga.tfuncionario funn 
               			   inner join segu.tpersona pp on pp.id_persona=funn.id_persona   
-                           inner join plani.tfuncionario_planilla ffp on ffp.id_funcionario=funn.id_funcionario and ffp.id_planilla=plani.id_planilla
+                           inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_funcionario=funn.id_funcionario and ffp.id_planilla=plani.id_planilla
 	               		   where fun.profesion=funn.profesion
 			               and pp.genero!=''femenino'')::integer as masculino
               from orga.tuo_funcionario uofun 
@@ -1795,14 +2056,14 @@ BEGIN
               inner join orga.tcargo c on c.id_cargo=uofun.id_cargo
               inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
               inner join orga.tfuncionario fun on fun.id_funcionario=uofun.id_funcionario
-              inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_uo_funcionario=uofun.id_uo_funcionario --#77
-              inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+              inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_uo_funcionario=uofun.id_uo_funcionario --#77
+              inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
               left join param.tcatalogo cat on cat.codigo=fun.profesion
               where 
               
               ';
-                           v_consulta:=v_consulta||v_parametros.filtro;
+             v_consulta:=v_consulta||v_parametros.filtro;
              v_consulta:=v_consulta||' and uofun.estado_reg=''activo'' AND uofun.tipo=''oficial'' and plani.id_tipo_contrato=tcon.id_tipo_contrato  '||v_condicion||'
               and plani.id_periodo='||v_id_periodo||'
   			  order by cat.descripcion';
@@ -1811,6 +2072,13 @@ BEGIN
    elsif (p_transaccion='PLA_DETBONDESC_SEL') then  --#77
        begin 
        		  v_condicion:=' and 0=0';
+              
+              --#83
+               IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                       v_esquema = v_parametros.esquema;
+               ELSE
+                       v_esquema = 'plani';
+               END IF; 
               if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                 if(v_parametros.id_tipo_contrato>0) then
                   v_condicion = v_condicion|| ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
@@ -1822,14 +2090,14 @@ BEGIN
                           tcol.codigo as codigo_columna, tcol.nombre as nombre_columna, cv.valor 
                           , db.fecha_ini, db.fecha_fin
                           from orga.vfuncionario fun
-                          inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
-                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
+                          inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                           inner join plani.tdescuento_bono db on db.id_funcionario=fun.id_funcionario
                           inner join plani.ttipo_columna tcol on tcol.id_tipo_columna=db.id_tipo_columna
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
                           inner join orga.tcargo car on car.id_cargo= uofun.id_cargo
                           inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato= car.id_tipo_contrato
-                          inner join plani.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                          inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and cv.id_funcionario_planilla=fp.id_funcionario_planilla
                           inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
               			  where ';
               v_consulta:=v_consulta||v_parametros.filtro;

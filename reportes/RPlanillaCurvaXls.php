@@ -3,7 +3,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion
  #66	ETR				25.10.2019			MZM					Condicion para reporte por centros
- #81	ETR				06.11.2019			MZM					Adicion de columna estado AFP (Jubilado55, 65, mayor65, activo) 
+ #81	ETR				06.11.2019			MZM					Adicion de columna estado AFP (Jubilado55, 65, mayor65, activo)
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 */
 class RPlanillaCurvaXls
 {
@@ -266,9 +267,22 @@ class RPlanillaCurvaXls
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
-
-                $this->docexcel->getActiveSheet()->getStyle('A1:BR1')->getAlignment()->setWrapText(true);
-                $this->docexcel->getActiveSheet()->getStyle('A1:BR1')->applyFromArray($styleTitulos3);
+				//#83
+				$dr=substr($datos[0]['fecha_backup'],0,2);
+				$mr=substr($datos[0]['fecha_backup'],3,2);
+				$ar=substr($datos[0]['fecha_backup'],6);
+				$this->docexcel->getActiveSheet()->mergeCells("A1:BR1");
+				$this->docexcel->getActiveSheet()->getStyle('A1:BR1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				
+				
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y').' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
+				}else{
+					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y'));
+				}
+				
+                $this->docexcel->getActiveSheet()->getStyle('A2:BR2')->getAlignment()->setWrapText(true);
+                $this->docexcel->getActiveSheet()->getStyle('A2:BR2')->applyFromArray($styleTitulos3);
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
                 $fila=3;
                 $this->numero=1;
@@ -353,88 +367,88 @@ class RPlanillaCurvaXls
 				$this->docexcel->getActiveSheet()->getColumnDimension('BR')->setWidth(20);//mes#81
 				
 				
-                $this->docexcel->getActiveSheet()->setCellValue('A1','Cd_Empleado');//1
-                $this->docexcel->getActiveSheet()->setCellValue('B1','CI_RUN');//2
-                $this->docexcel->getActiveSheet()->setCellValue('C1','Tipo_Identificacion');//3
-                $this->docexcel->getActiveSheet()->setCellValue('D1','Lugar_Emision_DI');//4
-                $this->docexcel->getActiveSheet()->setCellValue('E1','Nro_AFP');//5
-                $this->docexcel->getActiveSheet()->setCellValue('F1','Apellido_P');//6
-                $this->docexcel->getActiveSheet()->setCellValue('G1','Apellido_M');//7
-                $this->docexcel->getActiveSheet()->setCellValue('H1','Primer_Nombre');//8
-                $this->docexcel->getActiveSheet()->setCellValue('I1','Segundo_Nombre');//9
-                $this->docexcel->getActiveSheet()->setCellValue('J1','Fecha_Nacimiento');//10
-                $this->docexcel->getActiveSheet()->setCellValue('K1','Dir_Domicilio');//11
-                $this->docexcel->getActiveSheet()->setCellValue('L1','Telef_Domicilio');//12
-                $this->docexcel->getActiveSheet()->setCellValue('M1','Grupo_Sanguineo');//13
-                $this->docexcel->getActiveSheet()->setCellValue('N1','Sexo');//14
-                $this->docexcel->getActiveSheet()->setCellValue('O1','Estado_Civil');//15
-                $this->docexcel->getActiveSheet()->setCellValue('P1','Profesion');//16
-                $this->docexcel->getActiveSheet()->setCellValue('Q1','Cargo');//17
-                $this->docexcel->getActiveSheet()->setCellValue('R1','Fecha_Ingreso');//18
-                $this->docexcel->getActiveSheet()->setCellValue('S1','Fecha_Retiro');//19
-                $this->docexcel->getActiveSheet()->setCellValue('T1','Motivo_Retiro');//20
-                $this->docexcel->getActiveSheet()->setCellValue('U1','Fecha_Ingreso_contrato1');//21
-                $this->docexcel->getActiveSheet()->setCellValue('V1','Fecha_Retiro_contrato1');//22
-                $this->docexcel->getActiveSheet()->setCellValue('W1','Fecha_Ingreso_contrato2');//23
-                $this->docexcel->getActiveSheet()->setCellValue('X1','Fecha_Retiro_contrato2');//24
-                $this->docexcel->getActiveSheet()->setCellValue('Y1','Estado');//25
-                $this->docexcel->getActiveSheet()->setCellValue('Z1','Tiempo de contratación');//26
-                $this->docexcel->getActiveSheet()->setCellValue('AA1','Distrito');//27
-                $this->docexcel->getActiveSheet()->setCellValue('AB1','CeBe');//28
-                $this->docexcel->getActiveSheet()->setCellValue('AC1','Jerarquia');//29
+                $this->docexcel->getActiveSheet()->setCellValue('A2','Cd_Empleado');//1
+                $this->docexcel->getActiveSheet()->setCellValue('B2','CI_RUN');//2
+                $this->docexcel->getActiveSheet()->setCellValue('C2','Tipo_Identificacion');//3
+                $this->docexcel->getActiveSheet()->setCellValue('D2','Lugar_Emision_DI');//4
+                $this->docexcel->getActiveSheet()->setCellValue('E2','Nro_AFP');//5
+                $this->docexcel->getActiveSheet()->setCellValue('F2','Apellido_P');//6
+                $this->docexcel->getActiveSheet()->setCellValue('G2','Apellido_M');//7
+                $this->docexcel->getActiveSheet()->setCellValue('H2','Primer_Nombre');//8
+                $this->docexcel->getActiveSheet()->setCellValue('I2','Segundo_Nombre');//9
+                $this->docexcel->getActiveSheet()->setCellValue('J2','Fecha_Nacimiento');//10
+                $this->docexcel->getActiveSheet()->setCellValue('K2','Dir_Domicilio');//11
+                $this->docexcel->getActiveSheet()->setCellValue('L2','Telef_Domicilio');//12
+                $this->docexcel->getActiveSheet()->setCellValue('M2','Grupo_Sanguineo');//13
+                $this->docexcel->getActiveSheet()->setCellValue('N2','Sexo');//14
+                $this->docexcel->getActiveSheet()->setCellValue('O2','Estado_Civil');//15
+                $this->docexcel->getActiveSheet()->setCellValue('P2','Profesion');//16
+                $this->docexcel->getActiveSheet()->setCellValue('Q2','Cargo');//17
+                $this->docexcel->getActiveSheet()->setCellValue('R2','Fecha_Ingreso');//18
+                $this->docexcel->getActiveSheet()->setCellValue('S2','Fecha_Retiro');//19
+                $this->docexcel->getActiveSheet()->setCellValue('T2','Motivo_Retiro');//20
+                $this->docexcel->getActiveSheet()->setCellValue('U2','Fecha_Ingreso_contrato1');//21
+                $this->docexcel->getActiveSheet()->setCellValue('V2','Fecha_Retiro_contrato1');//22
+                $this->docexcel->getActiveSheet()->setCellValue('W2','Fecha_Ingreso_contrato2');//23
+                $this->docexcel->getActiveSheet()->setCellValue('X2','Fecha_Retiro_contrato2');//24
+                $this->docexcel->getActiveSheet()->setCellValue('Y2','Estado');//25
+                $this->docexcel->getActiveSheet()->setCellValue('Z2','Tiempo de contratación');//26
+                $this->docexcel->getActiveSheet()->setCellValue('AA2','Distrito');//27
+                $this->docexcel->getActiveSheet()->setCellValue('AB2','CeBe');//28
+                $this->docexcel->getActiveSheet()->setCellValue('AC2','Jerarquia');//29
 				
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AD1','Nivel_Salarial_Categ');//30
+				$this->docexcel->getActiveSheet()->setCellValue('AD2','Nivel_Salarial_Categ');//30
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AE1','Lugar Pago');//31
-				$this->docexcel->getActiveSheet()->setCellValue('AF1','Subsidio_Frontera');//32
+				$this->docexcel->getActiveSheet()->setCellValue('AE2','Lugar Pago');//31
+				$this->docexcel->getActiveSheet()->setCellValue('AF2','Subsidio_Frontera');//32
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AG1','AsignacionxSitioTrabajo');//33
-				$this->docexcel->getActiveSheet()->setCellValue('AH1','IT AsignacionxSitioTrabajo');//34
-				$this->docexcel->getActiveSheet()->setCellValue('AI1','Asignacion Especial');//35
-				$this->docexcel->getActiveSheet()->setCellValue('AJ1','IT Asignacion Especial');//36
-				$this->docexcel->getActiveSheet()->setCellValue('AK1','Asignacion de Caja');	//37
-				$this->docexcel->getActiveSheet()->setCellValue('AL1','IT Asignacion de Caja');//38
-				$this->docexcel->getActiveSheet()->setCellValue('AM1','Total Asignaciones');//39
-				$this->docexcel->getActiveSheet()->setCellValue('AN1','BonoAntiguedad');//40
-				$this->docexcel->getActiveSheet()->setCellValue('AO1','Hras Extra');//41
-				$this->docexcel->getActiveSheet()->setCellValue('AP1','Sobretiempos');//42
-				$this->docexcel->getActiveSheet()->setCellValue('AQ1','Hras Nocturnas');//43	
-				$this->docexcel->getActiveSheet()->setCellValue('AR1','Recargo Nocturno');//44
-				$this->docexcel->getActiveSheet()->setCellValue('AS1','Basico');//45
-				$this->docexcel->getActiveSheet()->setCellValue('AT1','AFP');//46
+				$this->docexcel->getActiveSheet()->setCellValue('AG2','AsignacionxSitioTrabajo');//33
+				$this->docexcel->getActiveSheet()->setCellValue('AH2','IT AsignacionxSitioTrabajo');//34
+				$this->docexcel->getActiveSheet()->setCellValue('AI2','Asignacion Especial');//35
+				$this->docexcel->getActiveSheet()->setCellValue('AJ2','IT Asignacion Especial');//36
+				$this->docexcel->getActiveSheet()->setCellValue('AK2','Asignacion de Caja');	//37
+				$this->docexcel->getActiveSheet()->setCellValue('AL2','IT Asignacion de Caja');//38
+				$this->docexcel->getActiveSheet()->setCellValue('AM2','Total Asignaciones');//39
+				$this->docexcel->getActiveSheet()->setCellValue('AN2','BonoAntiguedad');//40
+				$this->docexcel->getActiveSheet()->setCellValue('AO2','Hras Extra');//41
+				$this->docexcel->getActiveSheet()->setCellValue('AP2','Sobretiempos');//42
+				$this->docexcel->getActiveSheet()->setCellValue('AQ2','Hras Nocturnas');//43	
+				$this->docexcel->getActiveSheet()->setCellValue('AR2','Recargo Nocturno');//44
+				$this->docexcel->getActiveSheet()->setCellValue('AS2','Basico');//45
+				$this->docexcel->getActiveSheet()->setCellValue('AT2','AFP');//46
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AU1','Estado AFP');//46#81
+				$this->docexcel->getActiveSheet()->setCellValue('AU2','Estado AFP');//46
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AV1','Nivel_Salarial_Cargo');//47							
+				$this->docexcel->getActiveSheet()->setCellValue('AV2','Nivel_Salarial_Cargo');//47							
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AW1','Basico_Límite');//48
-				$this->docexcel->getActiveSheet()->setCellValue('AX1','FechaIngresoNeto');//49
-				$this->docexcel->getActiveSheet()->setCellValue('AY1','AntiguedadExterna');//50
-				$this->docexcel->getActiveSheet()->setCellValue('AZ1','Periodo');//51
-				$this->docexcel->getActiveSheet()->setCellValue('BA1','Sueldo_Mes'); //52
-				$this->docexcel->getActiveSheet()->setCellValue('BB1','Cotizable');//53
+				$this->docexcel->getActiveSheet()->setCellValue('AW2','Basico_Límite');//48
+				$this->docexcel->getActiveSheet()->setCellValue('AX2','FechaIngresoNeto');//49
+				$this->docexcel->getActiveSheet()->setCellValue('AY2','AntiguedadExterna');//50
+				$this->docexcel->getActiveSheet()->setCellValue('AZ2','Periodo');//51
+				$this->docexcel->getActiveSheet()->setCellValue('BA2','Sueldo_Mes'); //52
+				$this->docexcel->getActiveSheet()->setCellValue('BB2','Cotizable');//53
 
-				$this->docexcel->getActiveSheet()->setCellValue('BC1','LQ_Pagable');//54
-				$this->docexcel->getActiveSheet()->setCellValue('BD1','Asig_Disp');//55
-				$this->docexcel->getActiveSheet()->setCellValue('BE1','Prenatal');//56
-				$this->docexcel->getActiveSheet()->setCellValue('BF1','Lactancia');//57
-				$this->docexcel->getActiveSheet()->setCellValue('BG1','Natalidad');//58
+				$this->docexcel->getActiveSheet()->setCellValue('BC2','LQ_Pagable');//54
+				$this->docexcel->getActiveSheet()->setCellValue('BD2','Asig_Disp');//55
+				$this->docexcel->getActiveSheet()->setCellValue('BE2','Prenatal');//56
+				$this->docexcel->getActiveSheet()->setCellValue('BF2','Lactancia');//57
+				$this->docexcel->getActiveSheet()->setCellValue('BG2','Natalidad');//58
 				
 				///////
-				$this->docexcel->getActiveSheet()->setCellValue('BH1','C_Indiv');//59
-				$this->docexcel->getActiveSheet()->setCellValue('BI1','Riesgo_Comun');//60
-				$this->docexcel->getActiveSheet()->setCellValue('BJ1','C_Administ');//61
-				$this->docexcel->getActiveSheet()->setCellValue('BK1','AporteSolidarioNacional');//62
-				$this->docexcel->getActiveSheet()->setCellValue('BL1','AporteSolidarioEmpl');//63
+				$this->docexcel->getActiveSheet()->setCellValue('BH2','C_Indiv');//59
+				$this->docexcel->getActiveSheet()->setCellValue('BI2','Riesgo_Comun');//60
+				$this->docexcel->getActiveSheet()->setCellValue('BJ2','C_Administ');//61
+				$this->docexcel->getActiveSheet()->setCellValue('BK2','AporteSolidarioNacional');//62
+				$this->docexcel->getActiveSheet()->setCellValue('BL2','AporteSolidarioEmpl');//63
 				//////
 				
-				$this->docexcel->getActiveSheet()->setCellValue('BM1','TotalGanado');//59
-				$this->docexcel->getActiveSheet()->setCellValue('BN1','TotalDescuentos');//60
-				$this->docexcel->getActiveSheet()->setCellValue('BO1','TotalGeneral');//61
-				$this->docexcel->getActiveSheet()->setCellValue('BP1','Telef_Celular');//62
-				$this->docexcel->getActiveSheet()->setCellValue('BQ1','Banco');//63
-				$this->docexcel->getActiveSheet()->setCellValue('BR1','Cuenta_Banco');//64
+				$this->docexcel->getActiveSheet()->setCellValue('BM2','TotalGanado');//59
+				$this->docexcel->getActiveSheet()->setCellValue('BN2','TotalDescuentos');//60
+				$this->docexcel->getActiveSheet()->setCellValue('BO2','TotalGeneral');//61
+				$this->docexcel->getActiveSheet()->setCellValue('BP2','Telef_Celular');//62
+				$this->docexcel->getActiveSheet()->setCellValue('BQ2','Banco');//63
+				$this->docexcel->getActiveSheet()->setCellValue('BR2','Cuenta_Banco');//64
 
 				$nombre_centro='';
 				foreach ($datos as $value){

@@ -12,6 +12,7 @@
  #38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
  #47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
  #78    ETR      18/11/2019        Adicionar listado de backups de planilla
+ #83	ETR		 11.12.2019		   Adicion de filtro a listado de backup de planilla para reportes
  */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -280,6 +281,16 @@ class ACTPlanilla extends ACTbase{
         
         if ($this->objParam->getParametro('id_planilla_original') != '') {
             $this->objParam->addFiltro("plani.id_planilla_original = ". $this->objParam->getParametro('id_planilla_original'));
+        }
+		//#83
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+            $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+        }
+		if ($this->objParam->getParametro('id_periodo') != '') {
+            $this->objParam->addFiltro("per.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+        }
+		if ($this->objParam->getParametro('id_tipo_contrato') != '') {
+            $this->objParam->addFiltro("tc.id_tipo_contrato = ". $this->objParam->getParametro('id_tipo_contrato'));
         }
 
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){

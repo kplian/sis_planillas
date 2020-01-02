@@ -7,6 +7,7 @@
 //#70			MZM			31.10.2019				adicion de totales cuando no existen columnas fijas
 //#77			MZM			14.11.2019				Ajuste reportes varios
 //#80			MZM			22.11.2019				Reporte bono-desc y formato de numero
+//#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
 class RPlanillaGenerica extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -26,11 +27,26 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
 		$this->Ln(1);
-		$this->Cell($this->ancho_hoja+20,3,$this->datos_titulo['depto'],0,1,'R');
-		$this->Cell($this->ancho_hoja+20,3,$this->datos_titulo['uo'],0,1,'R');
+		$this->Cell($this->ancho_hoja-20,3,'',0,0,'R');
+		$this->Cell(40,3,$this->datos_titulo['depto'],0,1,'C');
+		$this->Cell($this->ancho_hoja-20,3,'',0,0,'R');
+		$this->Cell(40,3,$this->datos_titulo['uo'],0,1,'R');
 		
 		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
-		$this->Cell($this->ancho_hoja+20, 3, $pagenumtxt, '', 1, 'R');
+		$this->Cell($this->ancho_hoja-20,3,'',0,0,'R');
+		$this->Cell(40, 3, $pagenumtxt, '', 1, 'R');
+		
+		//#83
+		$dr=substr($this->datos_titulo['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo['fecha_backup'],6);
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			$this->Cell($this->ancho_hoja-20, 3, '', '', 0, 'R');
+			$this->Cell(40, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'C');
+		}else{
+			$this->Cell($this->ancho_hoja+20, 3, '', '', 1, 'R');
+		}
+		
 		
 		$this->SetFont('','B',12);
 		$tipo_con='';
@@ -80,7 +96,14 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,$this->gerencia,0,1,'L');
+		
+		if($this->objParam->getParametro('nombre_afp')!=''){
+			$this->Cell($this->ancho_hoja/2,5,$this->gerencia ,0,0,'L');
+			$this->Cell($this->ancho_hoja/2+20,5,$this->objParam->getParametro('nombre_afp') ,0,1,'R');
+		}else{
+			$this->Cell($this->ancho_hoja/2,5,$this->gerencia ,0,1,'L');
+		}
+		
 		$this->Ln(2);
 		$this->SetFont('','B',8);
 		
@@ -196,12 +219,12 @@ class RPlanillaGenerica extends  ReportePDF {
 			$this->cantidad_columnas_estaticas++;
 		}
 		if ($this->datos_titulo['mostrar_ufv'] == 'si' ) {
-			$this->SetMargins(5, 47, 5); //**********++ 
+			$this->SetMargins(5, 50, 5); //**********++ 
 		}else{
 			if ($this->datos_titulo['tipo_reporte']=='bono_descuento'){
-				$this->SetMargins(5, 49, 5); //**********++ 
+				$this->SetMargins(5, 52, 5); //**********++ 
 			}else{
-				$this->SetMargins(5, 40, 5); //**********++ 
+				$this->SetMargins(5, 43, 5); //**********++ 
 			}
 				
 			
@@ -251,8 +274,11 @@ class RPlanillaGenerica extends  ReportePDF {
 						if ($this->gerencia != $value['gerencia']) {
 							//generar subtotales
 							$this->SetFont('','B',10);
-							if ($this->ancho_sin_totales>0){
+							if ($this->ancho_sin_totales>5){
 								$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+							}else{
+								if ($this->ancho_sin_totales!=0){
+								$this->Cell($this->ancho_sin_totales,3,'','RBT',0,'R');}
 							}
 			 				
 							for ($i = 0; $i < $this->cantidad_columnas_repo; $i++) {//#80
@@ -297,12 +323,17 @@ class RPlanillaGenerica extends  ReportePDF {
 						//Si cambia la gerencia
 						if ($this->gerencia != $value['gerencia']) {
 							//generar subtotales
-							$this->SetFont('','B',8);
-							if ($this->ancho_sin_totales>0){
+							$this->SetFont('','B',8); 
+							
+							if ($this->ancho_sin_totales>5){
 								$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+							}else{
+								if ($this->ancho_sin_totales!=0){
+								$this->Cell($this->ancho_sin_totales,3,'','RBT',0,'R');}
 							}
 			 				
 							for ($i = 0; $i < $this->cantidad_columnas_repo; $i++) {//#80
+							
 							  if($this->cant_col_suman > 0){//#80
 								if ($this->datos_detalle[$i]['sumar_total'] == 'si') {
 									$this->Cell($this->tablewidths[$i + $this->cantidad_columnas_estaticas],3,number_format($sum_subtotal[$i],2,'.',','),1,0,'R');//#50
@@ -345,7 +376,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		  			array_push($array_show, $value['valor_columna']); 
 					
 		  		}else{
-		  			array_push($array_show, $value['valor_columna']);
+		  			array_push($array_show, mb_strcut($value['valor_columna'],0,$value['ancho_columna']/2,"UTF-8"));
 		  		}
 			
 	  				
@@ -354,7 +385,6 @@ class RPlanillaGenerica extends  ReportePDF {
 				$columnas++;	
 	  		
 		}
-		
 		$this->SetFont('','',8);
 		//Añade al ultimo empleado de la lista
 		//#77
@@ -388,8 +418,12 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		if ($this->gerencia!=''){
 			
-			if ($this->ancho_sin_totales>0){
+			if ($this->ancho_sin_totales>5){
 				$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
+			}else{
+				if ($this->ancho_sin_totales!=0){
+				$this->Cell($this->ancho_sin_totales,3,'','RBT',0,'R');
+				}
 			}
 			for ($i = 0; $i < $this->cantidad_columnas_repo; $i++) {//#80
 			  if($this->cant_col_suman > 0){//#80
@@ -411,9 +445,12 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		//planilla
 		//#70
-		if($this->ancho_sin_totales > 0){
+		if($this->ancho_sin_totales > 5){
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
-		}
+		}else{
+			if ($this->ancho_sin_totales!=0){
+				$this->Cell($this->ancho_sin_totales,3,'','RBT',0,'R');}
+			}
 		if($this->cant_col_suman > 0){//#80
 			for ($i = 0; $i < $this->cantidad_columnas_repo; $i++) {//#80
 				if ($this->datos_detalle[$i]['sumar_total'] == 'si') 
