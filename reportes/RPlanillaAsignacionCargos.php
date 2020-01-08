@@ -5,6 +5,7 @@
  #67	ETR				16.10.2019			MZM		 			Creacion
  #77	ETR				13.11.2019			MZM					Ajustes varios
  #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
+ #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
 */
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	
@@ -34,6 +35,9 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		if($cadena_nomina!=''){
 			$cadena_nomina='('.$cadena_nomina.')';
 		}
+		
+		
+		
 		
 		if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
 			$this->Cell(0,5,'DESIGNACIÓN DE CARGOS '.$cadena_nomina,0,1,'C');

@@ -2,7 +2,10 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion
- #80    ETR            27/11/2019           MZM                 ajuste formato numeric 
+ #80    ETR            27/11/2019           MZM                 ajuste formato numeric
+ #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
+ #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
+ *  
 */
 class RPlanillaAportesXls
 {
@@ -178,7 +181,7 @@ class RPlanillaAportesXls
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
-				
+			if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){	
                if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){     
 	                $this->docexcel->getActiveSheet()->getStyle('A3:S3')->getAlignment()->setWrapText(true);
 	                $this->docexcel->getActiveSheet()->getStyle('A3:S3')->applyFromArray($styleTitulos3);
@@ -186,6 +189,17 @@ class RPlanillaAportesXls
                 	$this->docexcel->getActiveSheet()->getStyle('A3:Q3')->getAlignment()->setWrapText(true);
 	                $this->docexcel->getActiveSheet()->getStyle('A3:Q3')->applyFromArray($styleTitulos3);
                 }
+             }else{
+             	$this->docexcel->getActiveSheet()->getStyle('A3:Y3')->getAlignment()->setWrapText(true);
+	                $this->docexcel->getActiveSheet()->getStyle('A3:Y3')->applyFromArray($styleTitulos3);
+					$this->docexcel->getActiveSheet()->getColumnDimension('T3')->setWidth(15);
+					$this->docexcel->getActiveSheet()->getColumnDimension('U3')->setWidth(15);
+					$this->docexcel->getActiveSheet()->getColumnDimension('V3')->setWidth(15);
+					$this->docexcel->getActiveSheet()->getColumnDimension('W3')->setWidth(15);
+					$this->docexcel->getActiveSheet()->getColumnDimension('X3')->setWidth(15);
+					$this->docexcel->getActiveSheet()->getColumnDimension('Y3')->setWidth(15);
+					
+             }
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
                 $fila=4;
                 $this->numero=1;
@@ -237,10 +251,25 @@ class RPlanillaAportesXls
 					$this->docexcel->getActiveSheet()->setCellValue('P3','Tot Jub<65');
 					$this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Jub>65');
 				}else{
-					$this->docexcel->getActiveSheet()->setCellValue('N3','Tot Ganado Solidario');
-					$this->docexcel->getActiveSheet()->setCellValue('O3','Tot Gan Sol - 13000 Bs');
-					$this->docexcel->getActiveSheet()->setCellValue('P3','Tot Gan Sol - 25000 Bs');
-					$this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Gan Sol - 35000 Bs');
+					if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+						$this->docexcel->getActiveSheet()->setCellValue('N3','Tot Ganado Solidario');
+						$this->docexcel->getActiveSheet()->setCellValue('O3','Tot Gan Sol - 13000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('P3','Tot Gan Sol - 25000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Gan Sol - 35000 Bs');
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValue('N3','Tot Solidario SIN Incr.');
+						$this->docexcel->getActiveSheet()->setCellValue('O3','Tot Sol sin incr. - 13000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('P3','Tot Sol sin incr. - 25000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Sol sin incr. - 35000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('R3','Tot Sol CON Incremento');
+						$this->docexcel->getActiveSheet()->setCellValue('S3','Tot Sol con incr. - 13000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('T3','Tot Sol con incr. - 25000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('U3','Tot Sol con incr. - 35000 Bs');
+						$this->docexcel->getActiveSheet()->setCellValue('V3','Aporte Solidario 1%');
+						$this->docexcel->getActiveSheet()->setCellValue('W3','Aporte Solidario 5%');
+						$this->docexcel->getActiveSheet()->setCellValue('X3','Aporte Solidario 10%');
+						$this->docexcel->getActiveSheet()->setCellValue('Y3','Total Aporte Solidario');
+					}
 				}
 				if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){  
 					$this->docexcel->getActiveSheet()->setCellValue('R3','Tot FV');
@@ -256,9 +285,21 @@ class RPlanillaAportesXls
 if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 	$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];
 }else{
-	$tit_rep='FORMULARIO DE PAGO DE CONTRIBUCIONES - '.$datos[0]['nombre_afp'];
-
+	if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+	$tit_rep='FORMULARIO DE PAGO DE CONTRIBUCIONES - '.$datos[0]['nombre_afp'];}
+	else{
+		$tit_rep='APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SUELDOS - '.$datos[0]['nombre_afp'];
+	}
 }
+
+		//#83
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
+		}
+
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:S1"); 
 				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -389,7 +430,40 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 							  	
 						}
 							  	
-							
+								
+						if($this->objParam->getParametro('codigo_planilla')=='PLANRE'){//#86
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila ,number_format(($value['valor']+$value['ncotiz']),2,'.',','));
+						}
+						$ncotiz=($value['valor']+$value['ncotiz']);
+						if($ncotiz>13000){
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila ,number_format(($ncotiz-13000),2,'.',','));
+							  	
+						}else{
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila ,'');
+							  	
+						}
+						
+						if($ncotiz>25000){
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila ,number_format(($ncotiz-25000),2,'.',','));
+							  	
+						}else{
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila ,'');
+							  	
+						}
+						
+						
+						if($ncotiz>35000){
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila ,number_format(($ncotiz-35000),2,'.',','));
+							  	
+						}else{
+							  	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila ,'');
+							  	
+						}
+
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21, $fila ,number_format($value['nvar1'],2,'.',','));
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(22, $fila ,number_format($value['nvar2'],2,'.',','));
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(23, $fila ,number_format($value['nvar3'],2,'.',','));
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(24, $fila ,number_format(($value['nvar1']+$value['nvar2']+$value['nvar3']),2,'.',','));
 						
 					}
 					

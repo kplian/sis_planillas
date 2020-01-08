@@ -4,6 +4,7 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion 
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
+ 
 */
 class RRelacionSaldosDet extends  ReportePDF {
 	var $datos;	

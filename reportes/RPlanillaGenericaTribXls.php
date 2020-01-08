@@ -3,6 +3,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
  #77	ETR			   19/11/2019			MZM					Cambio en for
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ * 
 */
 class RPlanillaGenericaTribXls
 {
@@ -253,8 +255,14 @@ class RPlanillaGenericaTribXls
                 
 
 				$tit_rep='PLANILLA TRIBUTARIA';
-	
-
+	    //#83
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			
+			$tit_rep= $tit_rep. " [Backup: ".$dr.'/'.$mr.'/'.$ar.']';
+		}
                 $this->docexcel->getActiveSheet()->mergeCells("A1:X1"); 
 				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);

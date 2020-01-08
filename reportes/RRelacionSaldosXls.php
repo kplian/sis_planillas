@@ -2,6 +2,9 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
+ #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
+ #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
+ *  
 */
 class RRelacionSaldosXls
 {
@@ -209,7 +212,15 @@ class RRelacionSaldosXls
 				 
                 
 
-				$tit_rep='RESUMEN RELACION DE SALDOS';
+				$tit_rep=$datos[0]['titulo_reporte'];
+				//#83
+				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+				$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+				if($this->objParam->getParametro('fecha_backup')!=''){
+					$tit_rep=$tit_rep.' [Backup: '.$dr.'/'.$mr.'/'.$ar.']';
+				}
+		
 	
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 
@@ -217,7 +228,14 @@ class RRelacionSaldosXls
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 				$this->docexcel->getActiveSheet()->mergeCells("A2:C2");
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+				
+				if($datos[0]['periodo']>0){
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+				}else{
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['gestion']);
+				}
+				
+				
 				 
 				
 				$tipo_contrato='';

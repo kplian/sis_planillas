@@ -7,7 +7,9 @@
  *#44	ETR				18.09.2019			MZM					Adicion de totales para columnas numericas
  *#45	ETR				19.09.2019			MZM					Adicion de incap en dias_cotizable, cambio de var1, var2, var3
   #45	ETR				20.09.2019			MZM					Reposicion de calculo para valores 13000, 25000 y 35000
- *#80	ETR				27.11.2019			MZM					ajuste formato numeric
+  #80	ETR				27.11.2019			MZM					ajuste formato numeric
+  #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
+  #83 	ETR				03.01.2020			MZM					Adicion de fecha backup
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -22,15 +24,40 @@ class RPlanillaAportes extends  ReportePDF {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$this->Cell(227, 3, '', '', 0, 'R');
+			$this->Cell(10, 3, "[Backup: ", '', 0, 'L');
+			$this->Cell(3, 3, '', '', 0, 'L');
+			//$this->SetFont('','',7);
+			$this->Cell(10, 3, $dr.'/'.$mr.'/'.$ar.']', '', 1, 'L');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
+		
+		
 		
 		$this->SetFont('','B',12);
 		$this->SetY(20);
-		if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+		
+		if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+			if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 			$this->Cell(0,5,'APORTES AL SISTEMA INTEGRAL DE PENSIONES',0,1,'C');
-		}else{
-			$this->Cell(0,5,'FORMULARIO DE PAGO DE CONTRIBUCIONES',0,1,'C');
-			$this->Cell(0,5,'FONDO SOLIDARIO',0,1,'C');
+			}else{
+				$this->Cell(0,5,'FORMULARIO DE PAGO DE CONTRIBUCIONES',0,1,'C');
+				$this->Cell(0,5,'FONDO SOLIDARIO',0,1,'C');
+			}
+		}else{//reintegros
+			if($this->objParam->getParametro('tipo_reporte')!='aporte_afp'){
+			  $this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO ',0,1,'C');
+			  $this->Cell(0,5,'DE SUELDOS',0,1,'C');
+			}
 		}
+		
 		
 		$this->SetFont('','B',10);
 		
@@ -52,10 +79,17 @@ class RPlanillaAportes extends  ReportePDF {
 			  }else{
 			  	$this->Cell(100,5,'Nombre del Empleado','LTR',0,'C');
 			  }
+			
+			if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
 			  $this->Cell(21,5,'Departamento','LTR',0,'C');
+				$subtit='Tot. Ganado';
+		    }else{
+		    	$subtit='Tot. Solidario';
+		    }
+		    
 			  $this->Cell(21,5,'Novedad','LTR',0,'C');
 			  $this->Cell(8,5,'Dias','LTR',0,'C');
-			  $this->Cell(15,5,'Tot.Ganado','LTR',0,'C');
+			  $this->Cell(15,5,$subtit,'LTR',0,'C');
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 				  $this->Cell(15,5,'Tot.Ganado','LTR',0,'C');
 				  $this->Cell(15,5,'Tot','LTR',0,'C');
@@ -63,9 +97,24 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(16,5,'Tot','LTR',0,'C');
 				  $this->Cell(16,5,'Tot.Ganado','LTR',1,'C');
 			}else{
-				  $this->Cell(17,5,'Total Ganado','LTR',0,'C');
-				  $this->Cell(17,5,'Total Ganado','LTR',0,'C');
-				  $this->Cell(17,5,'Total Ganado','LTR',1,'C');
+				  $this->Cell(17,5,$subtit,'LTR',0,'C');
+				  $this->Cell(17,5,$subtit,'LTR',0,'C');
+				  
+				  
+				  if($this->objParam->getParametro('codigo_planilla')=='PLANRE'){
+				  	  $this->Cell(17,5,$subtit,'LTR',0,'C');
+				  	  $this->Cell(15,5,$subtit,'LTR',0,'C');
+					  $this->Cell(15,5,$subtit,'LTR',0,'C');
+					  $this->Cell(15,5,$subtit,'LTR',0,'C');
+					  $this->Cell(15,5,$subtit,'LTR',0,'C');
+					  $this->Cell(10,5,'Aporte','LTR',0,'C');
+					  $this->Cell(10,5,'Aporte','LTR',0,'C');
+					  $this->Cell(10,5,'Aporte','LTR',0,'C');
+				  	  $this->Cell(10,5,'Total','LTR',1,'C');
+				  
+				  }else{
+				  	 $this->Cell(17,5,$subtit,'LTR',1,'C');
+				  }  
 			}
 		//titulo inferior
 		
@@ -90,7 +139,8 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(24,5,'Segundo Nombre','LTR',0,'C');
 			  }
 			  //---------
-			  $this->Cell(21,5,'','LTR',0,'C');
+			  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+			  $this->Cell(21,5,'','LTR',0,'C');}
 			  //----
 			  $this->Cell(11,5,'Novedad','LTR',0,'C');
 			  $this->Cell(10,5,'Fecha','LTR',0,'C');
@@ -109,10 +159,26 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(16,5,'FV','LTR',0,'C');
 				  $this->Cell(16,5,'FS','LTR',1,'C');
 			  }else{
-			  	 $this->Cell(15,5,'Solidario','LTR',0,'C');
-			  	 $this->Cell(17,5,'Sol(13000 Bs)','LTR',0,'C');
+			  	if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+			  	  $this->Cell(15,5,'Solidario','LTR',0,'C');
+			  	  $this->Cell(17,5,'Sol(13000 Bs)','LTR',0,'C');
 				  $this->Cell(17,5,'Sol(25000 Bs)','LTR',0,'C');
 				  $this->Cell(17,5,'Sol(35000 Bs)','LTR',1,'C');
+				}else{
+				  $this->Cell(15,5,'SIN','LTR',0,'C');
+			  	  $this->Cell(17,5,'Sin Incremen','LTR',0,'C');
+				  $this->Cell(17,5,'Sin Incremen','LTR',0,'C');
+				  $this->Cell(17,5,'Sin Incremen','LTR',0,'C');
+				  $this->Cell(15,5,'CON','LTR',0,'C');
+				  $this->Cell(15,5,'Con Incremen','LTR',0,'C');
+				  $this->Cell(15,5,'Con Incremen','LTR',0,'C');
+				  $this->Cell(15,5,'Con Incremen','LTR',0,'C');
+				  $this->Cell(10,5,'Solidario','LTR',0,'C');
+				  $this->Cell(10,5,'Solidario','LTR',0,'C');
+				  $this->Cell(10,5,'Solidario','LTR',0,'C');
+			  	  $this->Cell(10,5,'Aporte','LTR',1,'C');
+				  
+				}
 			  }
 			  
 		$this->SetX(5);
@@ -135,14 +201,19 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(24,5,'','LBR',0,'C');
 			  }
 			  //---------
-			  $this->Cell(21,5,'','LBR',0,'C');
+			  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+			  $this->Cell(21,5,'','LBR',0,'C');}
 			  //----
 			  $this->Cell(11,5,'I/R/L/S','LBR',0,'C');
 			  $this->Cell(10,5,'Novedad','LBR',0,'C');
 			  //-------
 			  $this->Cell(8,5,'','LBR',0,'C');
 			  //-----
-			  $this->Cell(15,5,'','LBR',0,'C');
+			  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+			  	$this->Cell(15,5,'','LBR',0,'C');
+			  }else{
+			  	$this->Cell(15,5,'Incremento','LBR',0,'C');
+			  }
 			  //----
 			  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 				  $this->Cell(15,5,'','LBR',0,'C');
@@ -153,9 +224,23 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(16,5,'','LBR',0,'C');
 				  $this->Cell(16,5,'','LBR',1,'C');
 			}else{
+				if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
 				  $this->Cell(17,5,'','LBR',0,'C');
 				  $this->Cell(17,5,'','LBR',0,'C');
 				  $this->Cell(17,5,'','LBR',1,'C');
+				}else{
+				  $this->Cell(17,5,'(13000 Bs.)','LBR',0,'C');
+				  $this->Cell(17,5,'(25000 Bs.)','LBR',0,'C');
+				  $this->Cell(17,5,'(35000 Bs.)','LBR',0,'C');
+				  $this->Cell(15,5,'Incremento','LBR',0,'C');
+				  $this->Cell(15,5,'(13000 Bs.)','LBR',0,'C');
+				  $this->Cell(15,5,'(25000 Bs.)','LBR',0,'C');
+				  $this->Cell(15,5,'(35000 Bs.)','LBR',0,'C');
+				  $this->Cell(10,5,'1%','LBR',0,'C');
+				  $this->Cell(10,5,'5%','LBR',0,'C');
+				  $this->Cell(10,5,'10%','LBR',0,'C');
+				  $this->Cell(10,5,'Solid','LBR',1,'C');
+				}
 			}
 		
 	
@@ -286,7 +371,12 @@ class RPlanillaAportes extends  ReportePDF {
 							  	
 							  }  
 							  $array_datos[$cont][14]=$this->datos[$i]['tipo_jubilado'];
-					
+							  
+							  //#86
+							 $array_datos[$cont][18]=$this->datos[$i]['ncotiz'];
+							 $array_datos[$cont][19]=$this->datos[$i]['nvar1'];
+							 $array_datos[$cont][20]=$this->datos[$i]['nvar2'];
+							 $array_datos[$cont][21]=$this->datos[$i]['nvar3'];
 					$cont++;
 				}
 
@@ -302,17 +392,31 @@ class RPlanillaAportes extends  ReportePDF {
 		$tot18=0;
 		$tot19=0;
 		
+		$totncotiz=0;
+		$totnvar1=0;
+		$totnvar2=0;
+		$totnvar3=0;
+		$nvar1=0;
+		$nvar2=0;
+		$nvar3=0;
+		$tot1n=0;
+		$tot5n=0;
+		$tot10n=0;
+		
+		   $var_planre=0; 
 		   $code=$array_datos[0][14]; 
 			for ($i=0; $i<$cont;$i++){
-			  	
 				
-										
-					
-					  $this->Cell(5,5,$array_datos[$i][0],'',0,'R');
+				
+				$var_planre=$array_datos[$i][19]+$array_datos[$i][20]+$array_datos[$i][21];
+				
+				    if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+				      $this->Cell(5,5,$array_datos[$i][0],'',0,'R');
 					  $this->Cell(7,5,$array_datos[$i][1],'',0,'L');
 					  $this->Cell(16,5,$array_datos[$i][2],'',0,'R');
 					  $this->Cell(7,5,$array_datos[$i][3],'',0,'L');
 					  $this->Cell(15,5,$array_datos[$i][4],'',0,'R');
+					}
 					  //---------
 					 if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					  
@@ -321,14 +425,20 @@ class RPlanillaAportes extends  ReportePDF {
 						  $this->Cell(17,5,$array_datos[$i][7],'',0,'L');
 						  $this->Cell(19,5,$array_datos[$i][8],'',0,'L');
 					  }else{
-					  	  $this->Cell(27,5,$array_datos[$i][5],'',0,'L');
-						  $this->Cell(27,5,$array_datos[$i][6],'',0,'L');
-						  $this->Cell(22,5,$array_datos[$i][7],'',0,'L');
-						  $this->Cell(24,5,$array_datos[$i][8],'',0,'L');
+					  	
+						  if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+						  	  $this->Cell(27,5,$array_datos[$i][5],'',0,'L');
+							  $this->Cell(27,5,$array_datos[$i][6],'',0,'L');
+							  $this->Cell(22,5,$array_datos[$i][7],'',0,'L');
+							  $this->Cell(24,5,$array_datos[$i][8],'',0,'L');
+						  }
 					  }
 					  //---------
-					  $this->Cell(21,5,$array_datos[$i][9],'',0,'L');
+					  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+					  	$this->Cell(21,5,$array_datos[$i][9],'',0,'L');
+					  }
 					  //----
+					if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
 					  $this->Cell(11,5,$array_datos[$i][10],'',0,'L');
 					  $this->Cell(10,5,$array_datos[$i][11],'',0,'C');
 					  //-------
@@ -339,22 +449,67 @@ class RPlanillaAportes extends  ReportePDF {
 					  $tot15=$tot15+$array_datos[$i][15];
 					  $tot16=$tot16+$array_datos[$i][16];
 					  $tot17=$tot17+$array_datos[$i][17];
+					}
 					  //----
 					  if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					
-						  $this->Cell(15,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
+						  $this->Cell(15,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');//#80
 						  //---
-						  $this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
-						  $this->Cell(15,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');
+						  $this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//#80
+						  $this->Cell(15,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');//#80
 						  $tot18=$tot18+$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17];
 						  $tot19=$tot19+$array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17];
-						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',0,'R');
-						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',1,'R');
+						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',0,'R');//#80
+						  $this->Cell(16,5,number_format($array_datos[$i][13]+$array_datos[$i][15]+$array_datos[$i][16]+$array_datos[$i][17],2,'.',','),'',1,'R');//#80
 					  }else{
-					  	  $this->Cell(17,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
+					  	
+						if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+					  	  $this->Cell(17,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');//#80
 						  //---
-						  $this->Cell(17,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
-						  $this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',1,'R');
+						  $this->Cell(17,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//#80
+						}
+						  if($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ){//#86
+						  $this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');//#80
+						  
+						  	  
+							  $totncotiz=$totncotiz+ ($array_datos[$i][13]+$array_datos[$i][18]);
+							  if($array_datos[$i][13]+$array_datos[$i][18]>13000){
+							  	$nvar1=$array_datos[$i][13]+$array_datos[$i][18]-13000;
+							  }else{
+							  	$nvar1=0;
+							  }
+							  
+							  if($array_datos[$i][13]+$array_datos[$i][18]>25000){
+							  	$nvar2=$array_datos[$i][13]+$array_datos[$i][18]-25000;
+							  }else{
+							  	$nvar2=0;
+							  }
+							  
+							  if($array_datos[$i][13]+$array_datos[$i][18]>35000){
+							  	$nvar3=$array_datos[$i][13]+$array_datos[$i][18]-35000;
+							  }else{
+							  	$nvar3=0;
+							  }
+								$totnvar1=$totnvar1+$nvar1;
+								$totnvar2=$totnvar2+$nvar2;
+								$totnvar3=$totnvar3+$nvar3;
+								$tot1n=$tot1n+$array_datos[$i][19];
+								$tot5n=$tot5n+$array_datos[$i][20];
+								$tot10n=$tot10n+$array_datos[$i][21];
+						  	  $this->Cell(15,5,number_format($array_datos[$i][13]+$array_datos[$i][18],2,'.',','),'',0,'R');
+						  	  $this->Cell(15,5,number_format($nvar1,2,'.',','),'',0,'R');
+							  $this->Cell(15,5,number_format($nvar2,2,'.',','),'',0,'R');
+							  $this->Cell(15,5,number_format($nvar3,2,'.',','),'',0,'R');
+						  	  $this->Cell(10,5,number_format($array_datos[$i][19],2,'.',','),'',0,'R');
+							  $this->Cell(10,5,number_format($array_datos[$i][20],2,'.',','),'',0,'R');
+						  	  $this->Cell(10,5,number_format($array_datos[$i][21],2,'.',','),'',0,'R');
+							  $this->Cell(10,5,number_format($array_datos[$i][19]+$array_datos[$i][20]+$array_datos[$i][21],2,'.',','),'',1,'R');
+						  }else{
+						  	if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+						  	$this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',1,'R');}
+						  }
+						  
+						  
 					  }
 			 
 			}
@@ -374,13 +529,31 @@ class RPlanillaAportes extends  ReportePDF {
 				$this->Cell(16,5,number_format($tot19,2,'.',','),'',1,'R');//#80
 				
 			}else{
-				
-				$this->Cell(197,5,'TOTALES','',0,'R');
-				$this->Cell(3,5,'','',0,'R');
-				$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
-				$this->Cell(17,5,number_format($tot15,2,'.',','),'',0,'R');//#80
-				$this->Cell(17,5,number_format($tot16,2,'.',','),'',0,'R');//#80
-				$this->Cell(17,5,number_format($tot17,2,'.',','),'',1,'R');//#80
+				if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+					$this->Cell(197,5,'TOTALES','',0,'R');
+					$this->Cell(3,5,'','',0,'R');
+					$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
+					$this->Cell(17,5,number_format($tot15,2,'.',','),'',0,'R');//#80
+					$this->Cell(17,5,number_format($tot16,2,'.',','),'',0,'R');//#80
+					$this->Cell(17,5,number_format($tot17,2,'.',','),'',1,'R');//#80
+				}else{//#86
+					
+					$this->Cell(176,5,'TOTALES','',0,'R');
+					$this->Cell(3,5,'','',0,'R');
+					$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');
+					$this->Cell(17,5,number_format($tot15,2,'.',','),'',0,'R');
+					$this->Cell(17,5,number_format($tot16,2,'.',','),'',0,'R');
+					$this->Cell(17,5,number_format($tot17,2,'.',','),'',0,'R');
+					$this->Cell(15,5,number_format($totncotiz,2,'.',','),'',0,'R');
+					$this->Cell(15,5,number_format($totnvar1,2,'.',','),'',0,'R');
+					$this->Cell(15,5,number_format($totnvar2,2,'.',','),'',0,'R');
+					$this->Cell(15,5,number_format($totnvar3,2,'.',','),'',0,'R');
+					$this->Cell(10,5,number_format($tot1n,2,'.',','),'',0,'R');
+					$this->Cell(10,5,number_format($tot5n,2,'.',','),'',0,'R');
+					$this->Cell(10,5,number_format($tot10n,2,'.',','),'',0,'R');
+					$this->Cell(10,5,number_format(($tot1n+$tot5n+$tot10n),2,'.',','),'',1,'R');
+					
+				}
 			}
 				
 		
