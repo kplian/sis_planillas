@@ -3,7 +3,8 @@
 //ISSUE			AUTHOR			FECHA				DESCRIPCION
 //#40 			MZM			16/09/2019	        	Inclusion de pie de firma
 //#50			MZM			25.09.2019				Ajuste para el titulo del ultimo grupo de grilla y ajuste de espacio entre grilla y subtotal
-//#80			MZM			25.11.2019				Ajuste a formato numeric 
+//#80			MZM			25.11.2019				Ajuste a formato numeric
+//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -44,38 +45,56 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
 	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  ){
-	    	$tipo_con='('.$this->datos_detalle[0]['nombre'].')';
+	    	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
 	    }
 		$this->Ln(1);
-		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['depto'],0,1,'R');
-		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['uo'],0,1,'R');
-		//$this->Cell($this->ancho_hoja+12,3,'No Patronal: 511-2247',0,1,'R');
-		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();
-		$this->Cell($this->ancho_hoja+12, 3, $pagenumtxt, '', 1, 'R');
+		$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+		$this->Cell(30,3,$this->datos_titulo['depto'],'',1,'C');
+		$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+		$this->Cell(30,3,$this->datos_titulo['uo'],'',1,'C');
+		
+		$this->Cell($this->ancho_hoja-20, 3, '', '', 0, 'R');
+		$di=$this->getAliasNumPage(); $df=$this->getAliasNbPages();
+		$xx='Pagina '.$di.' de '.$df;
+		$this->Cell(20,3, ''.$xx, '', 1, 'C');
+		
+		//#83
+		$dr=substr($this->datos_titulo['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo['fecha_backup'],6);
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+			$this->Cell(30, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'C');
+		}else{
+			$this->Cell($this->ancho_hoja-30, 3, '', '', 1, 'R');
+		}
 		
 				
 		$this->SetFont('','B',12);
-		$this->Cell(0,5,'PLANILLA DE SUELDOS '.$tipo_con,0,1,'C');
+		
+		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		if($this->datos_titulo['id_periodo']>0){
+			$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		}else{
+			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
+		}
 		
 		//$this->Cell(0,5, $nro_pla,0,1,'C');
 		$this->SetFont('','B',10);
-		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
 		
 		
-		/*if($this->datos_titulo['ordenar_por']=='centro' && $this->gerencia!=''){//#17
-				$this->tipo_ordenacion='CENTRO ';
-		 	
-		}//fin #17
-		*/
+		if(strpos($this->gerencia, '*') !== false){
+			$this->Cell(0,5,$this->tipo_ordenacion.'Ciudad: '.substr($this->gerencia,0,strpos($this->gerencia, '*')),0,1,'L');
+			$this->Cell(0,5,$this->tipo_ordenacion.'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
+		}else{
+			$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
+		}
 		
 		
-		$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
 		$this->Ln(2);
 		$this->SetFont('','B',8);
-		
 		
 			$columnas=0;
 			$fila=0;
@@ -115,17 +134,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//Titulos de columnas inferiores e iniciacion de los arreglos para la tabla
 		$this->ancho_sin_totales = 0;
 		$this->cantidad_columnas_estaticas = 0;
-		$this->SetMargins(5,$this->GetY()+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*9), 5);
+		
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
 		$this->AddPage();
+		$this->SetMargins(15,$this->posY+5, 15);
 		
-		$this->SetY($this->GetY()+ $this->getHeightV2($this->datos_detalle[0]['id_funcionario'],1)+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*2));
-		
-		
-	
-		$this->SetMargins(5,$this->alto_grupo*2+9, 5);
 		//iniciacion de datos 
 		$id_funcionario = $this->datos_detalle[0]['id_funcionario'];
 		$this->gerencia=$this->datos_detalle[0]['gerencia'];
@@ -159,6 +174,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$this->SetFont('','',6);
 				
 				$this->SetY($this->posY);
+				
 				$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0,$this->datos_titulo['num_columna_multilinea']);
 				
 				
@@ -208,7 +224,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					
 				 ){
 				 	if($this->datos_detalle[$i]['valor_columna']>0){
-				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
 				 	}else{
 				 		array_push($detalle_col_mod, '');
 				 	}
@@ -261,7 +277,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
-				 				array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+				 				array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -298,7 +314,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -397,27 +413,32 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//#50
 		
 		
-		//31.08.2019
-		$this->ln(40);
-		$ancho_firma= (($this->ancho_hoja) / count($this->datos_firma));
-		$ancho_sep=(($this->ancho_hoja) / (count($this->datos_firma)+1));
 		
 		
-		//$this->Cell($ancho_sep/,2,'',0,0,'C');
-		$this->Cell($ancho_firma,2,'________________________________________________________________',0,0,'C');
+		if(count($this->datos_firma)>0){
+			//31.08.2019
+			$this->ln(40);
+			$ancho_firma= (($this->ancho_hoja) / count($this->datos_firma));
+			$ancho_sep=(($this->ancho_hoja) / (count($this->datos_firma)+1));
+			
+			
+			//$this->Cell($ancho_sep/,2,'',0,0,'C');
+			$this->Cell($ancho_firma,2,'________________________________________________________________',0,0,'C');
+			
+			//$this->Cell($ancho_sep/2,2,'',0,0,'C');
+			$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
+			
 		
-		//$this->Cell($ancho_sep/2,2,'',0,0,'C');
-		$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
+			
+			
+			
+			$this->Cell($ancho_firma,3,$this->datos_firma[0]['abreviatura_titulo'].' '.$this->datos_firma[0]['nombre_empleado_firma'],'',0,'C');
+			$this->Cell($ancho_firma,3,$this->datos_firma[1]['abreviatura_titulo'].' '.$this->datos_firma[1]['nombre_empleado_firma'],'',1,'C');
+			$this->SetFont('','B',8);
+			$this->Cell($ancho_firma,3,$this->datos_firma[0]['nombre_cargo_firma'],'',0,'C');
+			$this->Cell($ancho_firma,3,$this->datos_firma[1]['nombre_cargo_firma'],'',1,'C');	
 		
-	
-		
-		
-		
-		$this->Cell($ancho_firma,3,$this->datos_firma[0]['abreviatura_titulo'].' '.$this->datos_firma[0]['nombre_empleado_firma'],'',0,'C');
-		$this->Cell($ancho_firma,3,$this->datos_firma[1]['abreviatura_titulo'].' '.$this->datos_firma[1]['nombre_empleado_firma'],'',1,'C');
-		$this->SetFont('','B',8);
-		$this->Cell($ancho_firma,3,$this->datos_firma[0]['nombre_cargo_firma'],'',0,'C');
-		$this->Cell($ancho_firma,3,$this->datos_firma[1]['nombre_cargo_firma'],'',1,'C');	
+		}
 		
 			
 	}

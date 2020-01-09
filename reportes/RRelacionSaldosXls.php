@@ -4,7 +4,6 @@
  #77    ETR            14/11/2019           MZM                 Creacion 
  #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
  #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
- *  
 */
 class RRelacionSaldosXls
 {
@@ -213,6 +212,7 @@ class RRelacionSaldosXls
                 
 
 				$tit_rep=$datos[0]['titulo_reporte'];
+
 				//#83
 				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
 				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
@@ -221,6 +221,7 @@ class RRelacionSaldosXls
 					$tit_rep=$tit_rep.' [Backup: '.$dr.'/'.$mr.'/'.$ar.']';
 				}
 		
+
 	
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 

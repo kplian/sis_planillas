@@ -4,7 +4,7 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion 
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- 
+ #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario 
 */
 class RRelacionSaldosDet extends  ReportePDF {
 	var $datos;	
@@ -95,7 +95,13 @@ class RRelacionSaldosDet extends  ReportePDF {
 			$this->SetFont('','B',8);
 			$this->Cell(25,5,'Codigo','LBTR',0,'C');
 			$this->Cell(1,5,'','',0,'C');
-			$this->Cell(94,5,'Nombre','LBTR',0,'C');
+			if($this->objParam->getParametro('tipo_reporte')=='relacion_saldos_det_ci'){//#84
+			    $this->Cell(76,5,'Nombre','LBTR',0,'C');
+				$this->Cell(1,5,'','',0,'C');
+				$this->Cell(18,5,'CI','LBTR',0,'C');
+			}else{
+				$this->Cell(94,5,'Nombre','LBTR',0,'C');
+			}
 			$this->Cell(1,5,'','',0,'C');
 			$this->Cell(34,5,'Nro. Cuenta','LBTR',0,'C');
 			$this->Cell(1,5,'','',0,'C');
@@ -196,7 +202,14 @@ class RRelacionSaldosDet extends  ReportePDF {
 					$this->SetFont('','',8);
 					//$this->Cell(5,5,'','',0,'C');
 					$this->Cell(25,5,$this->detalle[$i]['codigo'],'',0,'L');
-					$this->Cell(95,5,$this->detalle[$i]['det_desc_funcionario2'],'',0,'L');
+					
+					if($this->objParam->getParametro('tipo_reporte')=='relacion_saldos_det_ci'){//#84
+						$this->Cell(77,5,$this->detalle[$i]['det_desc_funcionario2'],'',0,'L');
+						$this->Cell(18,5,$this->detalle[$i]['ci'],'',0,'L');
+					}else{
+						$this->Cell(95,5,$this->detalle[$i]['det_desc_funcionario2'],'',0,'L');	
+					}
+					
 					$this->Cell(35,5,$this->detalle[$i]['det_nro_cuenta'],'',0,'L');
 					$this->Cell(30,5,number_format($this->detalle[$i]['det_importe'],2,'.',','),'',1,'R');//#80
 					$this->Cell(5,5,'','',0,'C');

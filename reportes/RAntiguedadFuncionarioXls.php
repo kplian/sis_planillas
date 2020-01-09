@@ -3,7 +3,6 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
  #83	ETR			   10.12.2019			MZM					Habilitacion de opcion historico de planilla
- * 
 */
 class RAntiguedadFuncionarioXls
 {
@@ -257,6 +256,18 @@ if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				$this->docexcel->getActiveSheet()->setCellValue('A2', $subtit);
 				 
+				
+				//#83
+				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
+				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
+				$ar=substr($data_titulo[0]['fecha_backup'],6);
+				$this->docexcel->getActiveSheet()->mergeCells("A3:G3");
+				$this->docexcel->getActiveSheet()->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				
+				
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+					$this->docexcel->getActiveSheet()->setCellValue('A3', 'Backup: '.$dr.'/'.$mr.'/'.$ar);
+				}
 				
 				
 				

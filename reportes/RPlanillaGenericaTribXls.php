@@ -4,7 +4,6 @@
  #77    ETR            14/11/2019           MZM                 Creacion 
  #77	ETR			   19/11/2019			MZM					Cambio en for
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- * 
 */
 class RPlanillaGenericaTribXls
 {

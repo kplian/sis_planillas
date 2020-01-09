@@ -35,6 +35,7 @@ $body$
    #76		ETR			06.11.2019			MZM					Reconfiguracion de ordenamiento en reporte multilinea
    #77		ETR			13.11.2019			MZM					Ajustes varios reportes
    #82		ETR			27.11.2019			MZM					Adicion de opcion organigrama en check ordenar_por
+   #83		ETR			09.12.2019			MZM					Habilitacion de reporte para backup de planilla
   ***************************************************************************/
 
   DECLARE
@@ -74,9 +75,9 @@ $body$
     v_tc					numeric;
     v_filtro_tc				varchar;
     
-    --
-    
-    
+    --#83
+    v_esquema				varchar;
+    v_fecha_backup			varchar;
     
     
   BEGIN
@@ -180,7 +181,18 @@ $body$
     elsif(p_transaccion='PLA_REPOMAES_SEL')then
 
       begin
-
+		--#83
+        v_fecha_backup:=' ''01-01-1000'' ';
+       -- v_agrupar_por:='';
+    	IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+               if(v_esquema='planibk') then
+                  v_fecha_backup:='to_char(plani.fecha_backup,''dd-mm-YYYY'') || '' (''||plani.id_planilla||'')'' ';
+                  --v_agrupar_por:=',to_char(plani.fecha_backup,''dd-mm-YYYY''), plani.id_planilla';
+               end if;
+        ELSE
+               v_esquema = 'plani';
+        END IF;
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -228,7 +240,8 @@ $body$
                             ,repo.tipo_reporte
                            , repo.id_pie_firma --#71
                            ,repo.bordes, repo.interlineado --#77
-						from plani.tplanilla plani
+                           ,'||v_fecha_backup||'::text as fecha_backup
+						from '||v_esquema||'.tplanilla plani
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
@@ -350,18 +363,32 @@ $body$
 
       begin 
       
-      if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
+      	if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
       
-        if (not exists(	select 1
+        	if (not exists(	select 1
                          from plani.treporte r
                          where r.id_tipo_planilla = v_parametros.id_tipo_planilla and r.estado_reg = 'activo' and
                                r.tipo_reporte = 'boleta')) then
-          raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
-        end if;
-	end if;
+          		raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
+        	end if;
+	    end if;
+    
+    	--#83
+        v_fecha_backup:=' ''01-01-1000'' ';
+        v_agrupar_por:='';
+    	IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+               if(v_esquema='planibk') then
+                  v_fecha_backup:='to_char(plani.fecha_backup,''dd-mm-YYYY'') || '' (''||plani.id_planilla||'')'' ';
+                  v_agrupar_por:=',to_char(plani.fecha_backup,''dd-mm-YYYY''), plani.id_planilla';
+               end if;
+        ELSE
+               v_esquema = 'plani';
+        END IF;
+
         --Sentencia de la consulta
         v_consulta:='select
-                            repo.titulo_reporte,
+                            pxp.f_iif(split_part(repo.titulo_reporte,'':'',2)='''',repo.titulo_reporte,trim(both '' '' from split_part(repo.titulo_reporte,'':'',2)))::varchar as titulo_reporte, --#77
                             plani.nro_planilla,
                            pxp.f_iif(plani.id_periodo is null, (select pxp.f_obtener_literal_periodo( cast(extract(month from plani.fecha_planilla) as integer) ,30)) ,
                             param.f_literal_periodo(per.id_periodo)) as periodo, --#71
@@ -390,15 +417,15 @@ $body$
                             repo.vista_datos_externos,
                             repo.num_columna_multilinea,
                             plani.id_periodo as id_periodo --#71
-
-						from plani.tplanilla plani
+							,'||v_fecha_backup||'::text as fecha_backup
+						from '||v_esquema||'.tplanilla plani
                         inner join param.tdepto dep on  dep.id_depto = plani.id_depto
                         inner join param.tentidad ent on  ent.id_entidad = dep.id_entidad
 						inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
                         inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
                         inner join param.tempresa emp on emp.estado_reg = ''activo''
-                        inner join plani.tfuncionario_planilla fp  on fp.id_planilla = plani.id_planilla
+                        inner join '||v_esquema||'.tfuncionario_planilla fp  on fp.id_planilla = plani.id_planilla
                         inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
 				        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
 				        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
@@ -428,8 +455,8 @@ $body$
                             repo.num_columna_multilinea, repo.id_reporte
                            ,plani.id_periodo --#71
                            ,plani.fecha_planilla --#71
-			';
-
+			'||v_agrupar_por; --#83
+			
 
         return v_consulta;
 
@@ -992,10 +1019,19 @@ $body$
 elsif(p_transaccion='PLA_REPODET_SEL')then
  --para obtener la columna de ordenacion para el reporte
  begin
+ 
+ 	   --#83
+    	IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+               v_esquema = v_parametros.esquema;
+        ELSE
+               v_esquema = 'plani';
+        END IF;
+ 
+ 
         execute	'select distinct repo.ordenar_por
-           			from plani.tplanilla plani
+           			from '||v_esquema||'.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
-                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+                    inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_ordenar_por;
                     
 		                   
@@ -1003,20 +1039,24 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     --por gerencia
        
         execute	'select distinct repo.agrupar_por
-           			from plani.tplanilla plani
+           			from '||v_esquema||'.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
-                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
-           			where '||v_parametros.filtro into v_agrupar_por;                   
-             
+                    inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+           			where '||v_parametros.filtro into v_agrupar_por;  
+                                     
+        v_tipo_contrato:='0=0 and ' ;    
         if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
           if(length(v_parametros.tipo_contrato)>0) then
-        	v_tipo_contrato = 'tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
+        	v_tipo_contrato =v_tipo_contrato|| ' tcon.codigo = '''||v_parametros.tipo_contrato||''' and ';
           else
              v_tipo_contrato = '';
           end if;
         else
         	v_tipo_contrato = '';
       	end if;
+        
+        
+       
                    
         --#50                    
         if (v_ordenar_por = 'nombre')then --#39 - 12.02.2019
@@ -1063,8 +1103,8 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 --            v_ordenar_por='nivel.ruta, nivel.prioridad,'||v_ordenar_por;
                  -- fin 28..06.2019 
         elsif(v_agrupar_por='distrito_banco') then --#71  -------------------------------------------*****
-        	v_consulta_orden:='ofi.id_oficina,(ofi.nombre ||''*''|| inst.nombre)::varchar , ';
-            v_ordenar_por ='ofi.orden,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
+        	v_consulta_orden:='nivel.id_oficina,(nivel.oficina ||''*''|| inst.nombre)::varchar , ';
+            v_ordenar_por ='nivel.orden_oficina,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
         else --gerencia (id_uo, nombre_unidad)
          	v_consulta_orden:=' nivel.id_uo, nivel.nombre_unidad,';
          	v_ordenar_por =v_consulta_orden||v_ordenar_por; -- 12.09.2019
@@ -1086,9 +1126,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                             ,repo.titulo_reporte
                             , repo.tipo_reporte--#80
         
-           			from plani.tplanilla plani
+           			from '||v_esquema||'.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
-                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+                    inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_datos_externos;
                     
                   
@@ -1111,8 +1151,10 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                          end)
                        end)
                      end)::varchar as valor';
-                   v_consulta_externa:='left join '|| v_datos_externos.vista_datos_externos || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_funcionario_planilla=fp.id_funcionario_planilla
+                   v_consulta_externa:='left join '|| replace(v_datos_externos.vista_datos_externos,'plani.',v_esquema||'.') || ' vista on vista.nombre_col=repcol.columna_vista and vista.id_funcionario_planilla=fp.id_funcionario_planilla
                    ';
+                   
+                   
                 else
                 	v_consulta_externa:='';
                     v_columnas_externas:=' colval.codigo_columna,
@@ -1126,8 +1168,8 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         
 	--#71
 	if(v_agrupar_por='distrito_banco') then
-		v_consulta_externa:=v_consulta_externa ||' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
-                            inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
+		v_consulta_externa:=v_consulta_externa ||' inner join '||v_esquema||'.tobligacion obli on obli.id_planilla=plani.id_planilla
+                            inner join '||v_esquema||'.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
 							inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
                             ';
     end if;
@@ -1149,11 +1191,33 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         
  */
  
-         if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna') and v_parametros.id_tipo_columna>0 ) then
-			v_consulta:='(';
+         if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna') ) then
+ 
+          if(v_parametros.id_tipo_columna>0) then
+				v_consulta:='(';
+            else
+                v_consulta:='';
+            end if;
          ELSE
         	v_consulta:='';
          end if;
+         
+         
+          --#83
+         if pxp.f_existe_parametro(p_tabla , 'id_afp')then 
+          if(v_parametros.id_afp>0) then
+            v_consulta_externa:=v_consulta_externa || ' inner join plani.tfuncionario_afp afp on afp.id_funcionario=fun.id_funcionario
+            and afp.estado_reg=''activo''
+                  and plani.fecha_planilla between afp.fecha_ini and coalesce(afp.fecha_fin,plani.fecha_planilla)
+            
+            ';
+          
+        	v_tipo_contrato = v_tipo_contrato ||' afp.id_afp = '||v_parametros.id_afp ||' and ';
+          
+          end if;
+        
+      	end if;
+         
             --Sentencia de la consulta
             v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, ''''::varchar, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,
                       '||v_consulta_orden||'
@@ -1161,26 +1225,26 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       '||v_columnas_externas||'
                       ,tcon.nombre, repcol.espacio_previo
                       , repcol.orden --#80
-                      from plani.vorden_planilla nivel
-                      inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+                      from '||v_esquema||'.vorden_planilla nivel
+                      inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario_planilla=nivel.id_funcionario_planilla
                       inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
                       inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
-                      inner join plani.tplanilla plani on plani.id_periodo=nivel.id_periodo and plani.id_planilla=fp.id_planilla
+                      inner join '||v_esquema||'.tplanilla plani on /* plani.id_periodo=nivel.id_periodo and*/ plani.id_planilla=fp.id_planilla
                       inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
                       inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
-                      left join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                      left join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                       and repcol.codigo_columna = colval.codigo_columna
                       inner join orga.ttipo_contrato tcon on
                       tcon.id_tipo_contrato=car.id_tipo_contrato and nivel.id_oficina=car.id_oficina
-        
+
         '||v_consulta_externa||' where '||v_tipo_contrato;
          v_consulta:=v_consulta||v_parametros.filtro;
          raise notice '****%',v_consulta;
          v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
-        if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna') and v_parametros.id_tipo_columna>0 ) then
+        if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna')) then
+              if  (v_parametros.id_tipo_columna>0) then
             
-            
-              v_consulta:=v_consulta ||')
+                  v_consulta:=v_consulta ||')
             		union
                       
                       (select fun.id_funcionario,  substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2 , ''''::varchar as descripcion, 
@@ -1190,8 +1254,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''(Bs.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, cv.valor::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +1 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
-                      from plani.tfuncionario_planilla fp inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                      inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                      from '||v_esquema||'.tfuncionario_planilla fp 
+                      inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
+                      inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                       inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna=cv.id_tipo_columna and tipcol.id_tipo_columna='||v_parametros.id_tipo_columna||'
                       inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                       inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -1209,8 +1274,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''($us.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, (cv.valor/(param.f_get_tipo_cambio(2,plani.fecha_planilla,''O'')))::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +2 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
-                      from plani.tfuncionario_planilla fp inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                      inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                      from '||v_esquema||'.tfuncionario_planilla fp 
+                      inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
+                      inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                       inner join plani.ttipo_columna tipcol on tipcol.id_tipo_columna=cv.id_tipo_columna and tipcol.id_tipo_columna='||v_parametros.id_tipo_columna||'
                       inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                       inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -1221,9 +1287,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       
                       
                       order by desc_funcionario2, orden';
-                       
+                end if;       
             end if;    
-        
+        raise notice '**%',v_consulta;
         
          return v_consulta;
 	/*else
@@ -1334,14 +1400,27 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
   elsif (p_transaccion='PLA_FIRREP_SEL')then
          --para obtener la columna de ordenacion para el reporte #32
          begin
-              
+              --#83
+              IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
+                     v_esquema = v_parametros.esquema;
+              ELSE
+                     v_esquema = 'plani';
+              END IF;
                v_consulta:='select distinct car.nombre, fc.desc_funcionario1,per.abreviatura_titulo,piedet.orden  from plani.treporte repo
-                                inner join plani.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
+                                inner join '||v_esquema||'.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
                                 inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
                                 inner join orga.tcargo car on car.id_cargo=piedet.id_cargo
                                 inner join orga.vfuncionario_cargo fc on fc.id_cargo=piedet.id_cargo
                                 inner join orga.tfuncionario fun on fun.id_funcionario=fc.id_funcionario
 		                        inner join segu.tpersona per on per.id_persona=fun.id_persona
+                                 inner join orga.tuo_funcionario uofun on uofun.id_funcionario=fun.id_funcionario
+                                
+                                and uofun.fecha_asignacion <= plani.fecha_planilla
+     and coalesce(uofun.fecha_finalizacion, plani.fecha_planilla)>=plani.fecha_planilla
+     and uofun.estado_reg = ''activo''
+     and uofun.tipo in (''oficial'',''funcional'')
+     and uofun.id_cargo = car.id_cargo
+                                
                                 where ';
                v_consulta:=v_consulta||v_parametros.filtro;  
                v_consulta:=v_consulta||' order by piedet.orden '  ;             

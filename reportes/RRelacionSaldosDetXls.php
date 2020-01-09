@@ -4,7 +4,7 @@
  #77    ETR            14/11/2019           MZM                 Creacion 
  #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
  #83	ETR			   08.01.2020			MZM					Habilitacion de opcion historico de planilla*
- * 
+
 */
 class RRelacionSaldosDetXls
 {

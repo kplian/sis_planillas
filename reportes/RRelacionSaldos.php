@@ -4,9 +4,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
- #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
- * 
+ #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
+ #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla  
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	

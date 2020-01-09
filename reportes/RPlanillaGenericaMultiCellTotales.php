@@ -4,7 +4,7 @@
 //#33			etr-MZM		02.09.2019				reporte multilinea pro totales
 //#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0	
-//#80			MZM			24.11.2019				Ajuste formato numeric 
+//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -52,17 +52,36 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
 	    }
 		$this->Ln(1);
-		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['depto'],0,1,'R');
-		$this->Cell($this->ancho_hoja+12,3,$this->datos_titulo['uo'],0,1,'R');
-		//$this->Cell($this->ancho_hoja+12,3,'No Patronal: 511-2247',0,1,'R');
-		$pagenumtxt = 'Página'.' '.$this->getAliasNumPage().' de '.$this->getAliasNbPages();//#40
-		$this->Cell($this->ancho_hoja+12, 3, $pagenumtxt, '', 1, 'R');
+		$this->Ln(1);
+		$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+		$this->Cell(30,3,$this->datos_titulo['depto'],'',1,'C');
+		$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+		$this->Cell(30,3,$this->datos_titulo['uo'],'',1,'C');
+		
+		$this->Cell($this->ancho_hoja-20, 3, '', '', 0, 'R');
+		$di=$this->getAliasNumPage(); $df=$this->getAliasNbPages();
+		$xx='Pagina '.$di.' de '.$df;
+		$this->Cell(20,3, ''.$xx, '', 1, 'C');
+		
+		//#83
+		$dr=substr($this->datos_titulo['fecha_backup'],0,2);
+		$mr=substr($this->datos_titulo['fecha_backup'],3,2);
+		$ar=substr($this->datos_titulo['fecha_backup'],6);
+		if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+			$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
+			$this->Cell(30, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar, '', 1, 'C');
+		}else{
+			$this->Cell($this->ancho_hoja-30, 3, '', '', 1, 'R');
+		}
 		
 		$this->SetFont('','B',12);
-		$this->Cell(0,5,'PLANILLA DE SUELDOS '.$tipo_con,0,1,'C');
+		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10);
-		$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');//#40
-		
+		if($this->datos_titulo['id_periodo']>0){
+			$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		}else{
+			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
+		}
 		//$this->Cell(0,5, $nro_pla,0,1,'C');
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
@@ -191,7 +210,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 				 ){
 				 	
 				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	
 				 	}else{
 				 		array_push($detalle_col_mod, '');
 				 	}
@@ -230,7 +249,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -260,7 +279,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -374,7 +393,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	    		array_push($result, $data[$i]);
 				array_push($result, $data[$i+1]);
 				if($data_sub[$cc]>0){//#50
-					array_push($result, number_format($data_sub[$cc],2,'.',','));//#80
+					array_push($result, number_format($data_sub[$cc],2,'.',','));
 				}else{
 					array_push($result, '');
 				}

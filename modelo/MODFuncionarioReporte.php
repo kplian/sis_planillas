@@ -19,6 +19,7 @@
  *#81	ETR				05.12.2019			MZM					Adicion de campo estado_afp para curva salarial
  *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema
+ *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla	
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -141,7 +142,9 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer');	//#77	
 		$this->setParametro('id_tipo_planilla','id_tipo_planilla','integer');	//#84
 		$this->setParametro('id_reporte','id_reporte','integer');	//#84
+
 		$this->setParametro('esquema','esquema','varchar');	//#83
+
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('apellido_paterno','varchar');

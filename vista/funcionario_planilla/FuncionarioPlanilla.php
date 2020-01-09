@@ -9,6 +9,7 @@ HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019               MMV          Columna Codigo Funcionario
 #62 ETR        01/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
+#83	ETR			09.12.2019				MZM			Habilitacion de reporte para backup de planilla 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -403,7 +404,9 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
                 		'id_gestion' : this.maestro.id_gestion,
                 		'id_periodo' : this.maestro.id_periodo,
                 		'id_funcionario_planilla' : data.id_funcionario_planilla,
-                		'tipo_reporte' : 'boleta'},
+                		'tipo_reporte' : 'boleta'
+                		,'esquema':this.esquema//#83 
+                		},
                 success:this.successExport,
                 failure: this.conexionFailure,
                 timeout:this.timeout,

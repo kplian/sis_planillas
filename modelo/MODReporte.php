@@ -10,7 +10,8 @@
  * #65	ETR			MZM		10.10.2019	Adicion de 2 campos para q en reportes de listado solo se muestren los q tengan valor diferente a 0
  * #71	ETR			MZM		31.10.2019	Refactorizacion de campo periodo cuando son anuales, obteniendo el periodo en funcion a la fecha de planilla
  * #77	ETR			MZM		14.11.2019	Interlineado y bordes de reporte
- * #80	ETR			MZM		22.11.2019	Reportes bono/desc 
+ * #80	ETR			MZM		22.11.2019	Reportes bono/desc
+ * #83	ETR			MZM		09.12.2019	Habilitacion de reporte para backup de planilla 
 **/
 
 class MODReporte extends MODbase{
@@ -178,7 +179,7 @@ class MODReporte extends MODbase{
 		$this->transaccion='PLA_REPOMAES_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-				
+		$this->setParametro('esquema','esquema','varchar');	//#83
 		//Datos del tipo de reporte
 		$this->captura('numerar','varchar');
 		$this->captura('hoja_posicion','varchar');
@@ -216,9 +217,10 @@ class MODReporte extends MODbase{
 		
 		$this->captura('bordes','integer');//#77
 		$this->captura('interlineado','numeric');//#77
+		$this->captura('fecha_backup','text');//#83
 		//Ejecuta la instruccion
 		$this->armarConsulta();
-		//echo $this->getConsulta(); exit;
+		//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -269,6 +271,8 @@ class MODReporte extends MODbase{
 		$this->setParametro('tipo_contrato','tipo_contrato','varchar');
 		//**************************
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
+			
+		$this->setParametro('esquema','esquema','varchar');//#83
 						
 		//Datos del tipo de reporte
 		
@@ -293,10 +297,10 @@ class MODReporte extends MODbase{
         $this->captura('vista_datos_externos','varchar');
         $this->captura('num_columna_multilinea','integer');
 		$this->captura('id_periodo','integer');//#71
-		
+		$this->captura('fecha_backup','text');//#83
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	//echo "****".$this->getConsulta(); exit;
+		//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -315,7 +319,8 @@ class MODReporte extends MODbase{
 		$this->setParametro('totales','totales','varchar');
 		
 		$this->setParametro('id_tipo_columna','id_tipo_columna','integer');//#80
-			
+		$this->setParametro('esquema','esquema','varchar');//#83
+		$this->setParametro('id_afp','id_afp','integer');//#83
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('nombre_empleado','text');
@@ -559,7 +564,7 @@ function listarReporteDetalleMultiCell(){
 		$this->transaccion='PLA_FIRREP_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-		
+		$this->setParametro('esquema','esquema','varchar');//#83
 			
 		//Datos del empleado
 		$this->captura('nombre_cargo_firma','varchar');
@@ -569,7 +574,7 @@ function listarReporteDetalleMultiCell(){
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		
-		//echo "****".$this->getConsulta(); exit;
+	//echo "****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
