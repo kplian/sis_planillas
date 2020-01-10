@@ -10,6 +10,7 @@
  * #77	ETR			MZM		15.11.2019	Ajuste Reportes
    #81	ETR			MZM		20.11.2019	Ampliacion de visualizacion de nombre de reportes
  * #83	ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
+ * #87	ETR			MZM		10.01.2020	Habilitacion de opcion detalle de aguinaldo
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -761,8 +762,8 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 							}
 							
-						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes' || r.data.control_reporte=='dependientes_edad'
-){
+						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes' || r.data.control_reporte=='dependientes_edad' || r.data.control_reporte=='detalle_aguinaldo'
+){//#87
 							this.ocultarComponente(this.Cmp.formato_reporte);
 						}
 

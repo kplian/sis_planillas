@@ -18,8 +18,8 @@
  *#81	ETR				25.11.2019			MZM					Curva salarial jeerarquia por nivel arbol y prioridad
  *#81	ETR				05.12.2019			MZM					Adicion de campo estado_afp para curva salarial
  *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema
- *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla	
+ *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema 
+ *#87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos	
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -621,6 +621,66 @@ class MODFuncionarioReporte extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	//#87
+	function listarDetalleAguinaldo(){
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_DETAGUIN_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
+		$this->setParametro('fecha','fecha','date');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('id_gestion','id_gestion','integer');
+		$this->setParametro('esquema','esquema','varchar');//#83
+		
+		//Datos del empleado
+		
+		$this->captura('id_funcionario','integer');
+            	$this->captura('tipo_documento','varchar');
+                $this->captura('num_documento','varchar'); 
+                $this->captura('expedicion','varchar'); 
+                $this->captura('fecha_nacimiento','date');
+                $this->captura('paterno','varchar');
+                $this->captura('materno','varchar');
+                $this->captura('nombre','varchar');
+                $this->captura('nacionalidad','varchar');
+                $this->captura('genero','varchar');
+                $this->captura('jubilado','varchar');
+                $this->captura('aporta_afp','varchar');
+                $this->captura('persona_discapacidad','varchar');
+                $this->captura('tutor_discapacidad','varchar');
+                $this->captura('fecha_ingreso','date');
+                $this->captura('fecha_retiro','date');
+                $this->captura('motivo_retiro','varchar');
+                $this->captura('caja_salud','varchar');
+                $this->captura('nombre_afp','varchar');
+                $this->captura('nro_afp','varchar');
+                $this->captura('sucursal','varchar');
+                $this->captura('clasificacion_laboral','varchar');
+                $this->captura('cargo','varchar');
+                $this->captura('modalidad_ctto','varchar');
+                $this->captura('haber_basico','numeric');
+                $this->captura('bono_ant','numeric');
+                $this->captura('bono_prod','numeric');
+                $this->captura('bono_frontera','numeric');
+                $this->captura('extra_noct','numeric');
+                $this->captura('otros','numeric');
+                $this->captura('meses','numeric');
+				$this->captura('gestion','integer');
+		
+		 $this->armarConsulta(); 		   
+        //Ejecuta la instruccion
+        
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		//echo '----'.$this->getConsulta(); exit;
+		//Devuelve la respuesta
+		return $this->respuesta;
+		
+	}
+
 
 }
 ?>
