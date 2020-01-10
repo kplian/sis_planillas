@@ -4,7 +4,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
+ #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
+ #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla  
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -36,20 +37,36 @@ class RRelacionSaldos extends  ReportePDF {
 		$this->SetY(10);
 		$fecha_rep = date("d/m/Y");
 		
-		$this->SetFont('','B',8);
+		$this->SetFont('','B',7);
 		$pagenumtxt = $this->getAliasNumPage();
 		$this->Cell(160, 3, '', '', 0, 'R');
 		$this->Cell(10, 3, 'Página:', '', 0, 'L');
 		$this->Cell(3, 3, '', '', 0, 'L');
-		$this->SetFont('','',8);
+		$this->SetFont('','',7);
 		$this->Cell(10, 3, $pagenumtxt, '', 1, 'L');
 			
-		$this->SetFont('','B',8);
+		$this->SetFont('','B',7);
 		$this->Cell(160, 3, '', '', 0, 'R');
 		$this->Cell(10, 3, "Fecha : ", '', 0, 'L');
 		$this->Cell(3, 3, '', '', 0, 'L');
-		$this->SetFont('','',8);
+		$this->SetFont('','',7);
 		$this->Cell(10, 3, $fecha_rep, '', 1, 'L');	
+		
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$this->Cell(160, 3, '', '', 0, 'R');
+			$this->Cell(10, 3, "Backup: ", '', 0, 'L');
+			$this->Cell(3, 3, '', '', 0, 'L');
+			$this->SetFont('','',7);
+			$this->Cell(10, 3, $dr.'/'.$mr.'/'.$ar, '', 1, 'L');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
+		
 		
 		$this->SetFont('','B',15);
 		

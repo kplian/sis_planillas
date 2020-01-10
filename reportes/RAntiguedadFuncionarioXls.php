@@ -2,7 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #83	ETR			   10.12.2019			MZM					Habilitacion de opcion historico de planilla
 */
 class RAntiguedadFuncionarioXls
 {
@@ -232,13 +232,29 @@ if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 	$tit_rep='CLASIFICACION DEL PERSONAL POR EDADES';
 	$this->etiqueta='Edad';
 }
+//#83
+if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+			$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+		}
 
+//#83
+				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
+				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
+				$ar=substr($data_titulo[0]['fecha_backup'],6);
+				//$this->docexcel->getActiveSheet()->mergeCells("A3:G3");
+				$this->docexcel->getActiveSheet()->getStyle('A3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				 
+				$subtit='A: '.date_format(date_create($datos[0]['fecha_rep']),'d/m/Y');			
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+					$subtit=$subtit. '[Backup: '.$dr.'/'.$mr.'/'.$ar.']';
+				}
+	
                 $this->docexcel->getActiveSheet()->mergeCells("A1:G1"); 
 				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 				$this->docexcel->getActiveSheet()->mergeCells("A2:G2");
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.date_format(date_create($this->datos[0]['fecha_rep']),'d/m/Y'));
+				$this->docexcel->getActiveSheet()->setCellValue('A2', $subtit);
 				 
 				
 				//#83
@@ -252,6 +268,8 @@ if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
 					$this->docexcel->getActiveSheet()->setCellValue('A3', 'Backup: '.$dr.'/'.$mr.'/'.$ar);
 				}
+				
+				
 				
 				
 				$nombre_centro='';
