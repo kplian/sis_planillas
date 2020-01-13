@@ -44,7 +44,6 @@ class RDetalleAguinaldo
             60=>'BI',61=>'BJ',62=>'BK',63=>'BL',64=>'BM',65=>'BN',66=>'BO',67=>'BP',
             68=>'BQ',69=>'BR',70=>'BS',71=>'BT',72=>'BU',73=>'BV',74=>'BW',75=>'BX',
             76=>'BY',77=>'BZ');
-
     }
 
     public function addHoja($name,$index){
