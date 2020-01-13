@@ -9,6 +9,7 @@
   #45	ETR				20.09.2019			MZM					Reposicion de calculo para valores 13000, 25000 y 35000
   #80	ETR				27.11.2019			MZM					ajuste formato numeric
   #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
+  #83 	ETR				03.01.2020			MZM					Adicion de fecha backup
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -22,6 +23,22 @@ class RPlanillaAportes extends  ReportePDF {
 	function Header() {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
+		
+		//#83
+		$this->SetFont('','B',7);
+		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+		if($this->objParam->getParametro('fecha_backup')!=''){
+			$this->Cell(227, 3, '', '', 0, 'R');
+			$this->Cell(10, 3, "[Backup: ", '', 0, 'L');
+			$this->Cell(3, 3, '', '', 0, 'L');
+			//$this->SetFont('','',7);
+			$this->Cell(10, 3, $dr.'/'.$mr.'/'.$ar.']', '', 1, 'L');
+		}else{
+			$this->Cell(0, 3, '', '', 1, 'R');
+		}
+		
 		
 		
 		$this->SetFont('','B',12);
