@@ -281,7 +281,7 @@ class RDetalleAguinaldo
 				$nombre_centro='';
 				$cont=1;
 				foreach ($datos as $value){
-					//date_format(date_create($value['fecha_nacimiento']),'d/m/Y')
+					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $cont);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['tipo_documento']);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['num_documento']);
