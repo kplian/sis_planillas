@@ -349,7 +349,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->subtotales($detalle_col_mod,$sum_total);			
 		
 			
-			
+	if(count($this->datos_firma)>0){//#89
 		//#40
 		$this->ln(40);
 		$ancho_firma= (($this->ancho_hoja) / count($this->datos_firma));
@@ -372,7 +372,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->Cell($ancho_firma,3,$this->datos_firma[0]['nombre_cargo_firma'],'',0,'C');
 		$this->Cell($ancho_firma,3,$this->datos_firma[1]['nombre_cargo_firma'],'',1,'C');			
 		
-		
+	}	
 
 			
 	}
