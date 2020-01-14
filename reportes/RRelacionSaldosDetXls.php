@@ -4,7 +4,7 @@
  #77    ETR            14/11/2019           MZM                 Creacion 
  #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
  #83	ETR			   08.01.2020			MZM					Habilitacion de opcion historico de planilla*
-
+ #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
 */
 class RRelacionSaldosDetXls
 {
@@ -226,7 +226,12 @@ class RRelacionSaldosDetXls
 	             
 	            $tit_rep= $datos[0]['titulo_reporte']; //  'RELACION DE SALDOS';
 	
-
+				//#89
+				$tipcon='';
+				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+					$tipcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					$tit_rep=$tit_rep.$tipcon;
+				}
 				//#83
 				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
 				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);

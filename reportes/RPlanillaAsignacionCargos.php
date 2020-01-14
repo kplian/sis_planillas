@@ -6,6 +6,7 @@
  #77	ETR				13.11.2019			MZM					Ajustes varios
  #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
  #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
+ #89	ETR				14.01.2020			MZM					Ajuste a primer registro de clasif. de personal por profesiones, quitar alineado a la izq.
 */
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -299,8 +300,8 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 						}
 						$m_cargo=$this->datos[$i]['profesion'];
 						$cont_cargo++;
-						if($i ==0){
-					   		$this->SetX($this->GetX()-5);
+						if($i ==0){//#89
+					   		//$this->SetX($this->GetX()-5);
 					  	}
 						$this->SetFont('','',8);	
 						$this->Cell(50,5,$this->datos[$i]['codigo'],'',0,'C');

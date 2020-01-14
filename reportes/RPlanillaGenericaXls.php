@@ -4,6 +4,7 @@
 //include_once(dirname(__FILE__).'/../PHPExcel/Classes/PHPExcel.php');
 //#77 	ETR		MZM		15.11.2019	Ajsute reprote
 //#83	ETR				07.01.2020			MZM					Habilitacion de opcion historico de planilla
+//#89	ETR				14.01.2020			MZM					Inclusion de condicion bono/descuento para imprimir el concepto que se consulta
 
 class RPlanillaGenericaXls
 {
@@ -62,38 +63,38 @@ class RPlanillaGenericaXls
 		
 		//*************************************Cabecera*****************************************
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(20);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'Gerencia');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Gerencia');
 		$columnas++;
 		if ($config['numerar'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(8);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'No');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'No');
 			$columnas++;
 		}
 		if ($config['mostrar_nombre'] == 'si'){
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(33);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'Nombre Completo');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Nombre Completo');
 			$columnas++;			
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'Cod.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Cod.');
 			$columnas++;			
 		}
 		if ($config['mostrar_doc_id'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'CI.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'CI.');
 			$columnas++;
 		}
 		if ($config['mostrar_codigo_cargo'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,'Item');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Item');
 			$columnas++;
 		}
 		
 		$columnas_basicas = $columnas;
 		foreach($datos as $value) {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,3,$value['titulo_reporte_superior']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,$value['titulo_reporte_superior']);
 			$columnas++;
 			if ($columnas - $columnas_basicas == $config['cantidad_columnas']) {
 				break;
@@ -109,7 +110,7 @@ class RPlanillaGenericaXls
 			$columnas++;			
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Emp.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,5,'Emp.');
 			$columnas++;			
 		}
 		if ($config['mostrar_doc_id'] == 'si') {			
@@ -121,7 +122,7 @@ class RPlanillaGenericaXls
 		
 		
 		foreach($datos as $value) {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,$value['titulo_reporte_inferior']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,5,$value['titulo_reporte_inferior']);
 			$columnas++;
 			if ($columnas - $columnas_basicas == $config['cantidad_columnas']) {
 				break;
@@ -129,7 +130,11 @@ class RPlanillaGenericaXls
 		}
 		//*************************************Fin Cabecera*****************************************
 		$id_funcionario = -1;
-		$fila = 4;
+		$fila = 5;
+		//#89
+		if ($this->objParam->getParametro('tipo_reporte')=='bono_descuento'){
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,3,$this->objParam->getParametro('nombre_descuento'));
+		}
 		
 		/////////////////////***********************************Detalle***********************************************
 		foreach($datos as $value) {			
