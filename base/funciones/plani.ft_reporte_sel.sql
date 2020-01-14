@@ -36,6 +36,7 @@ $body$
    #77		ETR			13.11.2019			MZM					Ajustes varios reportes
    #82		ETR			27.11.2019			MZM					Adicion de opcion organigrama en check ordenar_por
    #83		ETR			09.12.2019			MZM					Habilitacion de reporte para backup de planilla
+   #89		ETR			14.01.2020			MZM					Ajuste a esquema para obtencion de ufv_ini y ufv_fin
   ***************************************************************************/
 
   DECLARE
@@ -218,16 +219,16 @@ $body$
                             ,param.f_get_periodo_literal(plani.id_periodo) as periodo_lite
                             --#58
                             ,repo.mostrar_ufv,
-                            (select cv.valor from plani.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
-                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                            (select cv.valor from '||v_esquema||'.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
+                            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
                             and fp.id_planilla=plani.id_planilla 
-                            and tc.codigo=''UFV_INI''
+                            and tc.codigo=''UFV_INI'' --#89
                             limit 1
                             ) as ufv_ini,
-                            (select cv.valor from plani.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
-                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                            (select cv.valor from '||v_esquema||'.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
+                            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
                             and fp.id_planilla=plani.id_planilla 
-                            and tc.codigo=''UFV_FIN''
+                            and tc.codigo=''UFV_FIN'' --#89
                             limit 1
                             ) as ufv_fin
 							,
