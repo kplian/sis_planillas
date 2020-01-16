@@ -27,6 +27,7 @@ $body$
  #81	ETR				04.12.2019			MZM					Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
  #83	ETR				09.12.2019			MZM					Habilitacion de reporte para backup de planilla
  #87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos
+ #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
  ***************************************************************************/
 
 DECLARE
@@ -1436,7 +1437,7 @@ BEGIN
                                 and cv.valor=0 ) as estado_afp,
                                 (select valor_col from '||v_esquema||'.vdatos_func_planilla 
                                 where id_funcionario_planilla=fp.id_funcionario_planilla and nombre_col=''total_gral'') as total_gral
-                                ,'||v_fecha_backup||'::text as fecha_backup, orden.ruta
+                                ,'||v_fecha_backup||'::text as fecha_backup, orden.ruta                                 
                                 from orga.tfuncionario tf
                                 inner join segu.tpersona p on p.id_persona=tf.id_persona
                                 inner join plani.tfuncionario_afp fafp on fafp.id_funcionario=tf.id_funcionario and fafp.estado_reg=''activo''
@@ -1479,7 +1480,7 @@ BEGIN
                     
                     ,''BONFRONTERA'',''HOREXT'',''EXTRA'',''HORNOC'',''NOCTURNO'',''SUELDOMES'',
                     ''ASIGTRA'',''ASIGTRA_IT'',''ASIGESP'',''ASIGESP_IT'',''ASIGCAJA'',''ASIGCAJA_IT'',''ASIGNACIONES''
-                    ,''AFP_SSO'',''AFP_RCOM'',''AFP_CADM'',''AFP_APSOL'',''AFP_APNALSOL'',''BONANT'')';
+                    ,''AFP_SSO'',''AFP_RCOM'',''AFP_CADM'',''AFP_APSOL'',''AFP_APNALSOL'',''BONANT'',''INCAP_TEMPORAL'')'; --#90
 					for v_registros_det in execute (v_consulta_det) loop
 					
 
@@ -1581,6 +1582,8 @@ BEGIN
                       v_totgral:=v_registros.total_gral;--(select valor_col from plani.vdatos_func_planilla where id_funcionario_planilla=v_registros.id_funcionario_planilla and nombre_col='total_gral');
                     elsif(v_registros_det.codigo='BONANT') then --#81
                       v_bonant:=v_registros_det.valor;
+                    elsif(v_registros_det.codigo='INCAP_TEMPORAL') then --#90
+                      v_incap:=v_registros_det.valor;
                     end if;
                       
                  
@@ -1660,7 +1663,7 @@ BEGIN
                                 
                                 v_totgan,
                                 v_totdesc,
-	                  			(v_totgral),
+	                  			(v_totgral-v_incap), --#90
                                 v_registros.celular1, v_registros.nro_cuenta, v_registros.banco,
                                 
                                 v_bonofron, v_horext,	
