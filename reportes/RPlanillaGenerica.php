@@ -8,7 +8,7 @@
 //#77			MZM			14.11.2019				Ajuste reportes varios
 //#80			MZM			22.11.2019				Reporte bono-desc y formato de numero
 //#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
-class RPlanillaGenerica extends  ReportePDF {
+class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
 	var $ancho_hoja;
