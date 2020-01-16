@@ -376,7 +376,8 @@ class RPlanillaGenerica extends  ReportePDF {
 		  			array_push($array_show, $value['valor_columna']); 
 					
 		  		}else{
-		  			array_push($array_show, mb_strcut($value['valor_columna'],0,$value['ancho_columna']/2,"UTF-8"));
+		  			array_push($array_show, mb_strcut($value['valor_columna'],0,$value['ancho_columna']/1.79,"UTF-8"));
+					
 		  		}
 			
 	  				

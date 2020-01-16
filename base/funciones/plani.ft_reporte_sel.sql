@@ -37,6 +37,7 @@ $body$
    #82		ETR			27.11.2019			MZM					Adicion de opcion organigrama en check ordenar_por
    #83		ETR			09.12.2019			MZM					Habilitacion de reporte para backup de planilla
    #89		ETR			14.01.2020			MZM					Ajuste a esquema para obtencion de ufv_ini y ufv_fin
+   #90		ETR			15.01.2020			MZM					Ajuste a ancho de columna para reporte bono-descuento
   ***************************************************************************/
 
   DECLARE
@@ -1244,14 +1245,14 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
          v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
         if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna')) then
               if  (v_parametros.id_tipo_columna>0) then
-            
+            --#90
                   v_consulta:=v_consulta ||')
             		union
                       
                       (select fun.id_funcionario,  substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2 , ''''::varchar as descripcion, 
                       fun.codigo, fun.ci,'||v_consulta_orden||'
                       ''si''::varchar as sumar_total,
-                      ((repo.ancho_total-repo.ancho_utilizado)/3*2)::integer as ancho_columna,
+                      ((repo.ancho_total-repo.ancho_utilizado)/2)+5::integer as ancho_columna,
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''(Bs.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, cv.valor::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +1 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
@@ -1271,7 +1272,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       (select fun.id_funcionario,  substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2 , ''''::varchar as descripcion, 
                       fun.codigo, fun.ci,'||v_consulta_orden||'
                       ''si''::varchar as sumar_total,
-                      ((repo.ancho_total-repo.ancho_utilizado)/3*2)::integer as ancho_columna,
+                      ((repo.ancho_total-repo.ancho_utilizado)/2)+5::integer as ancho_columna,
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''($us.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, (cv.valor/(param.f_get_tipo_cambio(2,plani.fecha_planilla,''O'')))::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +2 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
