@@ -8,6 +8,7 @@
 //#77			MZM			14.11.2019				Ajuste reportes varios
 //#80			MZM			22.11.2019				Reporte bono-desc y formato de numero
 //#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
+//#93			MZM			13.02.2020				Ajuste en obtencion de subtotales para columnas no numericas
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
@@ -379,11 +380,11 @@ class RPlanillaGenerica extends  ReportePDF {
 		  			array_push($array_show, mb_strcut($value['valor_columna'],0,$value['ancho_columna']/1.79,"UTF-8"));
 					
 		  		}
-			
-	  				
+			    //#93 
+	  			if($value['sumar_total']=='si'){	
 				$sum_subtotal[$columnas] += $value['valor_columna'];
 				$sum_total[$columnas] += $value['valor_columna'];
-				$columnas++;	
+				}$columnas++;	
 	  		
 		}
 		$this->SetFont('','',8);
