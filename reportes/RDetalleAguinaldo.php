@@ -1,7 +1,9 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #87	ETR				10.01.2020			MZM					Habilitacion de opcion detalle de aguinaldo 
+ #87	ETR				10.01.2020			MZM					Habilitacion de opcion detalle de aguinaldo
+ #92	ETR				13.02.2020			MZM					Ajuste a nombre de pagina cuando el valor es null
+ * *  
 */
 class RDetalleAguinaldo
 {
@@ -173,7 +175,7 @@ class RDetalleAguinaldo
             
            // if($tipo_contrato != $value['estado']){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
-                $this->addHoja($value['tipo_contrato'],$index);
+                $this->addHoja($this->objParam->getParametro('tipo_reporte'),$index);//#92
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
 				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
