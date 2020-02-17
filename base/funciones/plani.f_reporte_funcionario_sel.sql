@@ -1007,7 +1007,6 @@ BEGIN
                         --and (uof.fecha_finalizacion is null or uof.fecha_finalizacion>now())
                         order by  plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uof.fecha_asignacion)';
             
-            
             end if;
       		return v_consulta;
       end;  
@@ -2253,7 +2252,6 @@ BEGIN
 										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
                                         group by cv.codigo_columna
                                         ';
-
 
 						for v_registros_det in execute (v_consulta_det) loop
                         
