@@ -3,6 +3,9 @@
 //echo dirname(__FILE__);
 //include_once(dirname(__FILE__).'/../PHPExcel/Classes/PHPExcel.php');
 //#77 	ETR		MZM		15.11.2019	Ajsute reprote
+//#83	ETR				07.01.2020			MZM					Habilitacion de opcion historico de planilla
+//#89	ETR				14.01.2020			MZM					Inclusion de condicion bono/descuento para imprimir el concepto que se consulta
+
 class RPlanillaGenericaXls
 {
 	private $docexcel;
@@ -54,43 +57,44 @@ class RPlanillaGenericaXls
 	function imprimeDatos(){
 		$datos = $this->objParam->getParametro('datos');
 		
-		$config = $this->objParam->getParametro('config');
+		$config = $this->objParam->getParametro('config'); 
 		$columnas = 0;
+		
 		
 		//*************************************Cabecera*****************************************
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(20);
-		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'Gerencia');
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Gerencia');
 		$columnas++;
 		if ($config['numerar'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(8);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'No');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'No');
 			$columnas++;
 		}
 		if ($config['mostrar_nombre'] == 'si'){
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(33);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'Nombre Completo');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Nombre Completo');
 			$columnas++;			
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'Cod.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Cod.');
 			$columnas++;			
 		}
 		if ($config['mostrar_doc_id'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'CI.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'CI.');
 			$columnas++;
 		}
 		if ($config['mostrar_codigo_cargo'] == 'si') {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,'Item');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Item');
 			$columnas++;
 		}
 		
 		$columnas_basicas = $columnas;
 		foreach($datos as $value) {
 			$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(10);
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,1,$value['titulo_reporte_superior']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,$value['titulo_reporte_superior']);
 			$columnas++;
 			if ($columnas - $columnas_basicas == $config['cantidad_columnas']) {
 				break;
@@ -106,7 +110,7 @@ class RPlanillaGenericaXls
 			$columnas++;			
 		}
 		if ($config['mostrar_codigo_empleado'] == 'si') {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,2,'Emp.');
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,5,'Emp.');
 			$columnas++;			
 		}
 		if ($config['mostrar_doc_id'] == 'si') {			
@@ -118,7 +122,7 @@ class RPlanillaGenericaXls
 		
 		
 		foreach($datos as $value) {			
-			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,2,$value['titulo_reporte_inferior']);
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,5,$value['titulo_reporte_inferior']);
 			$columnas++;
 			if ($columnas - $columnas_basicas == $config['cantidad_columnas']) {
 				break;
@@ -126,7 +130,11 @@ class RPlanillaGenericaXls
 		}
 		//*************************************Fin Cabecera*****************************************
 		$id_funcionario = -1;
-		$fila = 2;
+		$fila = 5;
+		//#89
+		if ($this->objParam->getParametro('tipo_reporte')=='bono_descuento'){
+			$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,3,$this->objParam->getParametro('nombre_descuento'));
+		}
 		
 		/////////////////////***********************************Detalle***********************************************
 		foreach($datos as $value) {			
@@ -141,6 +149,53 @@ class RPlanillaGenericaXls
 			$columnas++;
 		}
 		//************************************************Fin Detalle***********************************************
+		
+		$start = PHPExcel_Cell::stringFromColumnIndex(0);
+		$end=PHPExcel_Cell::stringFromColumnIndex($columnas-1);
+		$merge=$start.'1:'.$end.'1';
+		
+		$tit_rep=$config['titulo_reporte'];
+		if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+			$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+		}
+		
+		//#83
+		$dr=substr($config['fecha_backup'],0,2);
+		$mr=substr($config['fecha_backup'],3,2);
+		$ar=substr($config['fecha_backup'],5);
+		if($config['fecha_backup']!='' && $config['fecha_backup']!='01-01-1000'){
+			
+			$tit_rep= $tit_rep. " [Backup: ".$dr.'/'.$mr.'/'.$ar.']';
+		}
+		
+		
+		$this->docexcel->getActiveSheet()->mergeCells("$merge"); 
+		$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(20);
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,1,$tit_rep);
+		
+		$subtit='Correspondiente a: ';
+		
+		if($config['periodo']!=''){
+			$subtit=$subtit.$config['periodo_lite'];
+		}else{
+			$subtit=$subtit.$config['gestion'];
+		}
+		$merge=$start.'2:'.$end.'2';
+		$this->docexcel->getActiveSheet()->mergeCells("$merge"); 
+		$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(20);
+		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,2,$subtit);
+		
+		
+		
+		/*		$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
+				$this->docexcel->getActiveSheet()->mergeCells("A2:X2");
+				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos['periodo_lite']);
+			*/	 
+	
 		
 	}
 

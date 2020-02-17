@@ -4,7 +4,8 @@
 //#40 			MZM			16/09/2019	        	Inclusion de pie de firma
 //#50			MZM			25.09.2019				Ajuste para el titulo del ultimo grupo de grilla y ajuste de espacio entre grilla y subtotal
 //#80			MZM			25.11.2019				Ajuste a formato numeric
-//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla 
+//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla
+//#91	ETR		MZM			02.02.2020 				Para planillas que tienen un solo funcionario, el dibujado de la informacion no se hace en el for, por tanto la posicion en Y para el ultimo registro (que se hace fuera del loop, no considera el alto del grupo titulos) 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -371,9 +372,14 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//Si cambia la gerencia
 		
 		//Añade el ultimo subtotal de la gerencia
-		
+		//#91
+		if($this->datos_titulo['cantidad_columnas']==sizeof($this->datos_detalle)){
+			$this->SetY($this->posY);
+		}else{
+			$this->ln(-4);
+		}
 		$this->SetFont('','',6);
-		$this->ln(-4);
+		
 		$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
 		$ultima_ger=$this->gerencia;
 		$ultima_ord=$this->tipo_ordenacion;

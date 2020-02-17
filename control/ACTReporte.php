@@ -16,6 +16,7 @@
  * #77			MZM			15.11.2019				Ajuste reportes
  * #80			MZM			22.11.2019				Reporte para bono/descuento
  * #83			MZM			09.12.2019				Habilitacion de Reporte para backup de planillas
+ * #87			MZM			09.01.2020				Reporte detalle de aguinaldos
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -54,6 +55,7 @@ require_once(dirname(__FILE__).'/../reportes/RAntiguedadFuncionarioXls.php');//#
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosXls.php'); //#77
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosDetXls.php'); //#77
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaTribXls.php');
+require_once(dirname(__FILE__).'/../reportes/RDetalleAguinaldo.php');//#87
 
 class ACTReporte extends ACTbase{
 
@@ -716,8 +718,13 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 											}else{
 												if($this->objParam->getParametro('control_reporte')=='detalle_bono_desc'){
 												    $this->reporteDetalleBonoDesc($titulo,$id_tipo_contrato,$id_reporte);
-												}else{ 
-													$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
+												}else{
+													 if($this->objParam->getParametro('control_reporte')=='detalle_aguinaldo'){
+														$this->reporteDetalleAguinaldo($titulo,$fecha,$id_tipo_contrato,$id_gestion,$esquema); 
+													 }else{
+													 	$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
+													 }
+													
 												}
 													
 											}
@@ -1429,6 +1436,42 @@ function reporteDetalleBonoDesc($tipo_reporte,$id_tipo_contrato,$id_reporte)	{
         $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
     }
+
+//#87
+function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gestion,$esquema)	{
+
+	      
+			$titulo ='DetalleAguinaldo';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+			$nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
+            $this->objParam->addParametro('titulo_archivo',$titulo);
+            $this->objParam->addParametro('datos',$this->res->datos);
+			$this->objParam->addParametro('fecha',$fecha);
+			$this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+			$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
+			$this->objParam->addParametro('id_gestion',$id_gestion); 
+			$this->objParam->addParametro('esquema',$esquema); 
+            //Instancia la clase de excel
+            $this->objFunc=$this->create('MODFuncionarioReporte');
+	
+	        $this->res=$this->objFunc->listarDetalleAguinaldo($this->objParam);
+            $this->objReporteFormato=new RDetalleAguinaldo($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos); 
+			
+
+	        $this->mensajeExito=new Mensaje();
+	        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+	            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+	        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+	        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
+
 
 }
 

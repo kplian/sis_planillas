@@ -7,6 +7,7 @@
  #77	ETR				20.11.2019			MZM					Uniformizacion de tamaño de letra
  #80	ETR				25.11.2019			MZM					Reporte Bono Desc
  #83	MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla 
+ #90	ETR				15.01.2019			MZM					cambio de dato matricula_dep por edad_dep
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -118,7 +119,7 @@ class REmpleadoDep extends  ReportePDF {
 				 	  	 
 						 
 						  $this->SetFont('','B',8);
-				 	  	  $this->Cell(20,5,'Hist. Clinica','LB',0,'L');
+				 	  	  $this->Cell(20,5,'Edad','LB',0,'L');
 						  $this->SetFont('','',8);
 						  $this->Cell(50,5,$this->datos[$i]['historia_clinica'],'B',0,'L');
 						  
@@ -136,19 +137,21 @@ class REmpleadoDep extends  ReportePDF {
 						  
 						  $this->Ln(2); 
 				 	  	  $this->SetFont('','B',8);
+						  $this->Cell(15,5,'','',0,'C');
 						  $this->Cell(20,5,'Tipo Dep','',0,'C');
 						  $this->Cell(75,5,'Nombre Dependiente','',0,'C');
 						  $this->Cell(30,5,'Fecha Nacimiento','',0,'C');
-				 	  	  $this->Cell(30,5,'Hist. Clinica','',0,'C');
-						  $this->Cell(30,5,'# Matricula','',1,'C');
+				 	  	  //$this->Cell(30,5,'Hist. Clinica','',0,'C');
+						  $this->Cell(30,5,'Edad','',1,'C');//#90
 						  
 						  $this->SetFont('','',8);
+						  $this->Cell(15,5,'','',0,'C');//#909
 						  $this->Cell(20,5,$this->datos[$i]['relacion'],'',0,'C');
 						  $this->Cell(10,5,'','',0,'C');
 						  $this->Cell(65,5,$this->datos[$i]['nombre_dep'],'',0,'L');
 						  $this->Cell(30,5,substr($this->datos[$i]['fecha_nacimiento_dep'],8,2).'/'.substr($this->datos[$i]['fecha_nacimiento_dep'],5,2).'/'.substr($this->datos[$i]['fecha_nacimiento_dep'],0,4),'',0,'C');
-				 	  	  $this->Cell(30,5,$this->datos[$i]['historia_clinica_dep'],'',0,'C');
-						  $this->Cell(30,5,$this->datos[$i]['matricula_dep'],'',1,'C');
+				 	  	  //$this->Cell(30,5,$this->datos[$i]['historia_clinica_dep'],'',0,'C');
+						  $this->Cell(30,5,$this->datos[$i]['edad_dep'],'',1,'C');//#90
 						  
 						  
 				 	  }else{

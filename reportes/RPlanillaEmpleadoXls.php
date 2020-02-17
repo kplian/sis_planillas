@@ -3,7 +3,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
  #80	ETR				25.11.2019			MZM					Ajuste formato numeric, inclusion de totales, campo de columna en nomina salarios ct
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla  
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato en titulo de reporte  
 */
 class RPlanillaEmpleadoXls
 {
@@ -308,20 +309,25 @@ class RPlanillaEmpleadoXls
 				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
 					$fecha_backup=' [Backup:'.($dr.'/'.$mr.'/'.$ar).']';
 				}
-				             
+				//#89				      
+				$tipcon='';
+				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+					$tipcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+				}	  
+					         
 if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
-	$tit_rep='BENEFICIOS SOCIALES - RESUMEN'.$fecha_backup;
+	$tit_rep='BENEFICIOS SOCIALES - RESUMEN'.$tipcon.$fecha_backup;
 }elseif($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
-	$tit_rep='PLANILLA DE RESERVA PARA BENEFICIOS SOCIALES'.$fecha_backup;
+	$tit_rep='PLANILLA DE RESERVA PARA BENEFICIOS SOCIALES'.$tipcon.$fecha_backup;
 
 }elseif($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios'){
-	$tit_rep='BENEFICIOS SOCIALES - 1 MES'.$fecha_backup;
+	$tit_rep='BENEFICIOS SOCIALES - 1 MES'.$tipcon.$fecha_backup;
 }elseif ($this->objParam->getParametro('tipo_reporte')=='nomina_salario'){
-	$tit_rep='NOMINA DE SALARIOS BC'.$fecha_backup;
+	$tit_rep='NOMINA DE SALARIOS BC'.$tipcon.$fecha_backup;
 }elseif ($this->objParam->getParametro('tipo_reporte')=='nomina_salario1'){
-	$tit_rep='NOMINA DE SALARIOS CT'.$fecha_backup;
+	$tit_rep='NOMINA DE SALARIOS CT'.$tipcon.$fecha_backup;
 }elseif ($this->objParam->getParametro('tipo_reporte')=='no_sindicato'){
-	$tit_rep='NOMINA DE PERSONAL NO SINDICALIZADO'.$fecha_backup;
+	$tit_rep='NOMINA DE PERSONAL NO SINDICALIZADO'.$tipcon.$fecha_backup;
 }
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:G1"); 

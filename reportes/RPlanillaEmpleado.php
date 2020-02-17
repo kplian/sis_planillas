@@ -9,6 +9,7 @@
  #77 	ETR				20.11.2019			MZM					Cambio de ubicacion de columas nomina CT
  #80 	ETR				27.11.2019			MZM					Cambio de formato numeric, ajuste a beneficios reserva detalel
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #90	ETR				15.01.2019			MZM					Inclusion de TC a reporte Reserva de beneficios sociales - resumen
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -26,7 +27,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		$this->SetFont('','B',7);
-		if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3'){
+		if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){//#90
 			
 			$this->Cell(0,5,'T.C. '.$this->datos[0]['tc'],0,1,'R');
 		}

@@ -3,6 +3,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion 
  #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
+ #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
+ #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
 */
 class RRelacionSaldosXls
 {
@@ -211,6 +213,22 @@ class RRelacionSaldosXls
                 
 
 				$tit_rep=$datos[0]['titulo_reporte'];
+				//#89
+				$tipcon='';
+				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+					$tipcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					$tit_rep=$tit_rep.$tipcon;
+				}
+				
+				//#83
+				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+				$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+				if($this->objParam->getParametro('fecha_backup')!=''){
+					$tit_rep=$tit_rep.' [Backup: '.$dr.'/'.$mr.'/'.$ar.']';
+				}
+		
+
 	
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 
