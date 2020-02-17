@@ -28,6 +28,7 @@ $body$
  #83	ETR				09.12.2019			MZM					Habilitacion de reporte para backup de planilla
  #87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos
  #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
+ #94	ETR				17.02.2020			MZM					Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
  ***************************************************************************/
 
 DECLARE
@@ -978,7 +979,9 @@ BEGIN
                         inner join orga.tescala_salarial esc on esc.id_escala_salarial=c.id_escala_salarial
                         where uof.tipo=''oficial''
                         and uof.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
-                        and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'')
+                        --#94
+                        --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'')
+                        and uof.observaciones_finalizacion not in (''transferencia'',''promocion'')
                 		'||v_condicion||'
 		                and uof.estado_reg=''activo'' 
                         order by uof.fecha_finalizacion
@@ -995,12 +998,14 @@ BEGIN
                         inner join orga.ttipo_contrato t on t.id_tipo_contrato=c.id_tipo_contrato --and t.codigo=''PLA''
                         inner join  orga.vuo_centro uop ON uop.id_uo = uof.id_uo
                         inner join orga.tescala_salarial esc on esc.id_escala_salarial=c.id_escala_salarial
-                        where uof.tipo=''oficial'' and (uof.fecha_finalizacion is null or uof.fecha_finalizacion>now())
+                        where uof.tipo=''oficial'' 
                         and uof.estado_reg=''activo''
                         '||v_condicion||'
                         and ( plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uof.fecha_asignacion)) between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
+                        --#94 (se omite que esten vigentes, y para no duplicar por las transferencias, se iguala la fecha del primer contrato con el de la asignacion)
+                        and ( plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uof.fecha_asignacion)) = uof.fecha_asignacion
+                        --and (uof.fecha_finalizacion is null or uof.fecha_finalizacion>now())
                         order by  plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uof.fecha_asignacion)';
-            
             
             end if;
       		return v_consulta;
@@ -2247,7 +2252,6 @@ BEGIN
 										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
                                         group by cv.codigo_columna
                                         ';
-
 
 						for v_registros_det in execute (v_consulta_det) loop
                         
