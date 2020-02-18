@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION plani.f_plaquin_insert_empleados (
+CREATE OR REPLACE FUNCTION plani.f_plaguin_insert_empleados (
   p_id_planilla integer
 )
 RETURNS varchar AS
@@ -34,7 +34,7 @@ DECLARE
   v_id_cuenta_bancaria	integer;
 BEGIN
 	
-    v_nombre_funcion = 'plani.f_plaquin_insert_empleados';
+    v_nombre_funcion = 'plani.f_plaguin_insert_empleados';
     v_filtro_uo = '';
 	select id_tipo_planilla, per.id_periodo, fecha_ini, fecha_fin, id_uo, p.id_usuario_reg
     into v_planilla 
