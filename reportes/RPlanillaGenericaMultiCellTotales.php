@@ -4,7 +4,8 @@
 //#33			etr-MZM		02.09.2019				reporte multilinea pro totales
 //#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0	
-//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla 
+//#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla
+//#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos) 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -77,7 +78,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->SetFont('','B',12);
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10);
-		if($this->datos_titulo['id_periodo']>0){
+		if($this->datos_titulo['periodo']>0){//#97
 			$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
 		}else{
 			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
