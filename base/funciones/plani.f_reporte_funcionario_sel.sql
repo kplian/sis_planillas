@@ -1,11 +1,18 @@
-CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:      Sistema de Planillas
  FUNCION:      plani.f_reporte_funcionario_sel
@@ -29,6 +36,7 @@ $body$
  #87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos
  #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
  #94	ETR				17.02.2020			MZM					Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
+ #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
  ***************************************************************************/
 
 DECLARE
@@ -981,7 +989,7 @@ BEGIN
                         and uof.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
                         --#94
                         --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'')
-                        and uof.observaciones_finalizacion not in (''transferencia'',''promocion'')
+                        and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')--#96
                 		'||v_condicion||'
 		                and uof.estado_reg=''activo'' 
                         order by uof.fecha_finalizacion
@@ -2320,5 +2328,7 @@ EXCEPTION
             v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
             raise exception '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql';
+$BODY$;
+
+ALTER FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
