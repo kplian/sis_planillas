@@ -1,13 +1,14 @@
---------------- SQL ---------------
+CREATE OR REPLACE FUNCTION plani.ft_tipo_planilla_ime(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
 
-CREATE OR REPLACE FUNCTION plani.ft_tipo_planilla_ime (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_tipo_planilla_ime
@@ -21,6 +22,7 @@ HISTORIAL DE MODIFICACIONES:
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado	
+ #100			  05/03/2020		MZM KPLIAN		Adicion de columna habilitar_impresion_boleta
 ***************************************************************************/
 
 DECLARE
@@ -66,6 +68,7 @@ BEGIN
               funcion_calculo_horas,
               recalcular_desde,
               sw_devengado      --#79
+              ,habilitar_impresion_boleta --#100
           	) values(
               v_parametros.id_proceso_macro,
               v_parametros.tipo_presu_cc,
@@ -83,6 +86,7 @@ BEGIN
               v_parametros.funcion_calculo_horas,
               v_parametros.recalcular_desde,
               v_parametros.sw_devengado  --#79
+              ,v_parametros.habilitar_impresion_boleta --#100
 							
 			)RETURNING id_tipo_planilla into v_id_tipo_planilla;
 			
@@ -120,6 +124,7 @@ BEGIN
               funcion_calculo_horas = v_parametros.funcion_calculo_horas,
               recalcular_desde = v_parametros.recalcular_desde,
               sw_devengado = v_parametros.sw_devengado --#79
+              ,habilitar_impresion_boleta=v_parametros.habilitar_impresion_boleta --#100
 			where id_tipo_planilla=v_parametros.id_tipo_planilla;
                
 			--Definicion de la respuesta
@@ -170,9 +175,7 @@ EXCEPTION
 		raise exception '%',v_resp;
 				        
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_tipo_planilla_ime(integer, integer, character varying, character varying)
+    OWNER TO postgres;

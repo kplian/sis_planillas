@@ -1,13 +1,14 @@
---------------- SQL ---------------
+CREATE OR REPLACE FUNCTION plani.ft_tipo_planilla_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
 
-CREATE OR REPLACE FUNCTION plani.ft_tipo_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:		Sistema de Planillas
  FUNCION: 		plani.ft_tipo_planilla_sel
@@ -20,7 +21,8 @@ $body$
        
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
- #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado
+ #79              21/11/2019       RAC KPLIAN       adiciona sw_devengado para habilitar o no boton de devegado
+ #100			  05/03/2020		MZM	KPLIAN		Adicion de columna habilitar_impresion_boleta (para que los funcionarios puedan generar sus boletas para ciertos tipos de planilla)
 ***************************************************************************/
 
 DECLARE
@@ -68,6 +70,7 @@ BEGIN
 						tippla.recalcular_desde,
                         tippla.sw_devengado,                 --#79
                         tippla.nombre as desc_tipo_plantilla --#79
+                        ,tippla.habilitar_impresion_boleta --#100
 						from plani.ttipo_planilla tippla
 						inner join segu.tusuario usu1 on usu1.id_usuario = tippla.id_usuario_reg
 						left join segu.tusuario usu2 on usu2.id_usuario = tippla.id_usuario_mod
@@ -124,9 +127,7 @@ EXCEPTION
 			v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
 			raise exception '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_tipo_planilla_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
