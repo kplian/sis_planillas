@@ -80,8 +80,8 @@ class ACTObligacion extends ACTbase{
 		$id_obligacion=$this->objParam->getParametro('id_obligacion');
 		
 		$nombre_archivo = 'B03'.$periodo.".CTD";
-
-		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= null ){
+		
+		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= undefined ){
 			if($this->objParam->getParametro('tipo_contrato')=='Planta' ){
 				$nombre_archivo = 'B03'.$periodo."1.CTD";
 			}else{
