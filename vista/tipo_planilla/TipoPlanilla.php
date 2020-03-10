@@ -18,6 +18,7 @@
  #1              22-02-2019        Rarteaga           agregaga  hoja_calculo
  #9 EndeETR      22/05/2019        EGS           	  btn de plantilla para exportar datos del tipo planilla
  #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado
+ #100			 05/03/2020		   MZM	KPLIAN		Adicion de columna habilitar_impresion_boleta
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -386,6 +387,28 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},
+		{//#100
+			config:{
+				name: 'habilitar_impresion_boleta',
+				fieldLabel: 'Funcionario puede imprimir boleta',
+				allowBlank:false,
+				emptyText:'Funcionario puede imprimir boleta...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['si','no'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		}
 	],
 	tam_pag:50,	
@@ -414,7 +437,7 @@ Phx.vista.TipoPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'funcion_calculo_horas', type: 'string'},		
 		{name:'calculo_horas', type: 'string'},
 		{name:'periodicidad', type: 'string'},'desc_tipo_plantilla','sw_devengado'
-		
+		,{name:'habilitar_impresion_boleta', type: 'string'}//#100
 	],
 	sortInfo:{
 		field: 'id_tipo_planilla',

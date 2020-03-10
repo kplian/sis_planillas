@@ -12,6 +12,7 @@
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #79              21/11/2019       RAC KPLIAN      adiciona sw_devengado para habilitar o no boton de devegado
+ #100			  05/03/2020	   MZM	KPLIAN		Adicion de columna habilitar_impresion_pago
 */
 
 class MODTipoPlanilla extends MODbase{
@@ -48,7 +49,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->captura('recalcular_desde','int4');		
 		$this->captura('sw_devengado','varchar');		
 		$this->captura('desc_tipo_plantilla','varchar');
-		
+		$this->captura('habilitar_impresion_boleta','varchar');//#100
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta(); //echo '---'.$this->getConsulta(); exit;
@@ -77,7 +78,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
 		$this->setParametro('recalcular_desde','recalcular_desde','int4');
 		$this->setParametro('sw_devengado','sw_devengado','varchar');
-		
+		$this->setParametro('habilitar_impresion_boleta','habilitar_impresion_boleta','varchar');//#100
 		
 		
 
@@ -109,6 +110,7 @@ class MODTipoPlanilla extends MODbase{
 		$this->setParametro('funcion_calculo_horas','funcion_calculo_horas','varchar');
 		$this->setParametro('recalcular_desde','recalcular_desde','int4');
 		$this->setParametro('sw_devengado','sw_devengado','varchar');
+		$this->setParametro('habilitar_impresion_boleta','habilitar_impresion_boleta','varchar');//#100
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();

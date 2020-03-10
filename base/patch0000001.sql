@@ -1517,3 +1517,11 @@ ALTER TABLE plani.treporte
 
   
 /***********************************F-SCP-MZM-PLANI-82-28/11/2019****************************************/
+
+/***********************************I-SCP-MZM-PLANI-100-05/03/2020****************************************/
+ALTER TABLE plani.ttipo_planilla
+  ADD COLUMN habilitar_impresion_boleta VARCHAR(2);
+
+ALTER TABLE plani.ttipo_planilla
+  ALTER COLUMN habilitar_impresion_boleta SET DEFAULT 'no';
+/***********************************F-SCP-MZM-PLANI-100-05/03/2020****************************************/
