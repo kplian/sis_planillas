@@ -4,7 +4,8 @@
  #30    ETR            30/07/2019           MZM                 Creacion
  #66	ETR				25.10.2019			MZM					Condicion para reporte por centros
  #81	ETR				06.11.2019			MZM					Adicion de columna estado AFP (Jubilado55, 65, mayor65, activo)
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #104	ETR				11.03.2020			MZM					Correccion de variable par titulo de hoja de excel 
 */
 class RPlanillaCurvaXls
 {
@@ -264,7 +265,9 @@ class RPlanillaCurvaXls
             //var_dump($value['tipo_contrato']);exit;
            // if($tipo_contrato != $value['estado']){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
-                $this->addHoja($value['tipo_contrato'],$index);
+                //$this->addHoja($value['tipo_contrato'],$index);
+				$this->addHoja($this->objParam->getParametro('nombre_tipo_contrato'),$index);
+				
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
 				//#83
@@ -291,7 +294,7 @@ class RPlanillaCurvaXls
                 $total_bono = 0;
                 $total_sueldo = 0;
                 $total_frontera = 0;
-                $this->docexcel->getActiveSheet()->setTitle($value['tipo_contrato']);
+                $this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('nombre_tipo_contrato'));
                 $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);//categoria
                 $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);//pres
@@ -882,7 +885,7 @@ class RPlanillaCurvaXls
                 //$this->numero++;
             }
 */
-            $tipo_contrato = $value['tipo_contrato'];
+            $tipo_contrato = $this->objParam->getParametro('nombre_tipo_contrato');
             $desc_func = $value['desc_func'];
             $codigo_pres = $value['codigo_pres'];
         //}
