@@ -259,9 +259,7 @@ class ACTReporte extends ACTbase{
 			//echo "llega aqui".$_SESSION["ss_id_funcionario"]; exit;
 			//var_dump($_SESSION['ss_id_funcionario']); exit;
             $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' ");
-			
-			 
-        }
+		}
 
 
         $this->objFunc=$this->create('MODReporte');
