@@ -173,7 +173,7 @@ BEGIN
                 			from ' || p_nombre_tabla || '
                             where id_funcionario_planilla = ' || v_registros.id_funcionario_planilla || '
                             	and id_tipo_obligacion = ' || p_id_tipo_obligacion || '
-                            		and es_ultimo = ''si''  and valor > 0
+                            		and es_ultimo = ''si''  and valor >= 0
                             order by valor desc
                             limit 1') into v_max_tipo_columna,v_valor_columna_resta;
                 -- Si existe una columna de resta cuyo valor es mayor a 0
@@ -222,7 +222,8 @@ BEGIN
       where fp.id_planilla = p_id_planilla;
       
       --#7 condiera los pagos contable para la valicion de la boligacion
-      SELECT sum(cv.valor) into v_suma_pago_contable
+    SELECT coalesce(sum(cv.valor), 0)
+    into v_suma_pago_contable
       from plani.tfuncionario_planilla fp
       inner join plani.tcolumna_valor cv on fp.id_funcionario_planilla = cv.id_funcionario_planilla
       inner join plani.ttipo_obligacion_columna toc
@@ -231,19 +232,19 @@ BEGIN
       
       
 
-      EXECUTE('select  sum(valor)
+      EXECUTE('select coalesce(sum(valor), 0.00)
               from ' || p_nombre_tabla
               || ' where id_tipo_obligacion = ' || p_id_tipo_obligacion) into v_suma_detalle;
               
               
  	--raise exception ' p_nombre_tabla -> %, v_suma_pago: %, v_suma_detalle: %',p_nombre_tabla, v_suma_pago, v_suma_detalle;
      
-      if (round(v_suma_pago,2) <> round(v_suma_detalle,2)) then
+      if (round(v_suma_pago,2) <> round((v_suma_detalle + v_suma_pago_contable), 2)) then
       	select tob.nombre
         into v_nombre_obligacion
         from plani.ttipo_obligacion tob
         where id_tipo_obligacion = p_id_tipo_obligacion;
-      	 raise exception 'Los montos presupuestarios no igualan a los montos de pago para la obligacion: %, diferencia: %, v_suma_pago: %, v_suma_detalle: %',v_nombre_obligacion,round(v_suma_pago,2) - round(v_suma_detalle,2), v_suma_pago, v_suma_detalle;
+      	 raise exception 'Los montos presupuestarios no igualan a los montos de pago para la obligacion: %, diferencia: %, v_suma_pago: %, v_suma_detalle: %',v_nombre_obligacion,round(v_suma_pago,2) - round((v_suma_detalle + v_suma_pago_contable),2), v_suma_pago, v_suma_detalle;
       end if;
 
   	return 'exito';
