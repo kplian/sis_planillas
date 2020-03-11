@@ -120,4 +120,5 @@ header("content-type: text/javascript; charset=UTF-8");
 		tipo:'reporte',
 		fileUpload:false
 })
+
 </script>
