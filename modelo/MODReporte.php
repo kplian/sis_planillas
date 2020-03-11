@@ -11,7 +11,9 @@
  * #71	ETR			MZM		31.10.2019	Refactorizacion de campo periodo cuando son anuales, obteniendo el periodo en funcion a la fecha de planilla
  * #77	ETR			MZM		14.11.2019	Interlineado y bordes de reporte
  * #80	ETR			MZM		22.11.2019	Reportes bono/desc
- * #83	ETR			MZM		09.12.2019	Habilitacion de reporte para backup de planilla 
+ * #83	ETR			MZM		09.12.2019	Habilitacion de reporte para backup de planilla
+ * #98	ETR			MZM		03.03.2020  Adicion de opciones estado_funcionario (activo, retirado, todos) 
+ *  
 **/
 
 class MODReporte extends MODbase{
@@ -180,6 +182,11 @@ class MODReporte extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
 		$this->setParametro('esquema','esquema','varchar');	//#83
+		//#98
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
+		$this->setParametro('consolidar','consolidar','varchar');//#98
+		$this->setParametro('id_periodo','id_periodo','integer');//#98
+		
 		//Datos del tipo de reporte
 		$this->captura('numerar','varchar');
 		$this->captura('hoja_posicion','varchar');
@@ -273,6 +280,9 @@ class MODReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');
 			
 		$this->setParametro('esquema','esquema','varchar');//#83
+		//#98			
+		$this->setParametro('consolidar','consolidar','varchar');//#98
+		$this->setParametro('id_periodo','id_periodo','integer');//#98	
 						
 		//Datos del tipo de reporte
 		
@@ -321,6 +331,11 @@ class MODReporte extends MODbase{
 		$this->setParametro('id_tipo_columna','id_tipo_columna','integer');//#80
 		$this->setParametro('esquema','esquema','varchar');//#83
 		$this->setParametro('id_afp','id_afp','integer');//#83
+		//#98
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
+		$this->setParametro('consolidar','consolidar','varchar');//#98
+		$this->setParametro('id_periodo','id_periodo','integer');//#98
+		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('nombre_empleado','text');

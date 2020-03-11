@@ -17,6 +17,7 @@
  * #80			MZM			22.11.2019				Reporte para bono/descuento
  * #83			MZM			09.12.2019				Habilitacion de Reporte para backup de planillas
  * #87			MZM			09.01.2020				Reporte detalle de aguinaldos
+ * #99			MZM			03.03.2020				Adicion de filtro sesion de funcionario
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -220,9 +221,13 @@ class ACTReporte extends ACTbase{
             $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
         }
 
-        if ($this->objParam->getParametro('id_periodo') != '') {
-            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
-        }
+		//#98
+		if ($this->objParam->getParametro('consolidar')=='no' || $this->objParam->getParametro('consolidar')==''){
+
+	        if ($this->objParam->getParametro('id_periodo') != '') {
+	            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+	        }
+		}
 
 		//10.06.2019
 
@@ -247,6 +252,17 @@ class ACTReporte extends ACTbase{
 		if ($this->objParam->getParametro('id_tipo_contrato') != '') {
             $this->objParam->addFiltro("plani.id_tipo_contrato = ". $this->objParam->getParametro('id_tipo_contrato'));
         }
+
+
+		//#99
+		if ($this->objParam->getParametro('origen') == 'boleta_personal') {
+			//echo "llega aqui".$_SESSION["ss_id_funcionario"]; exit;
+			//var_dump($_SESSION['ss_id_funcionario']); exit;
+            $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' ");
+			
+			 
+        }
+
 
         $this->objFunc=$this->create('MODReporte');
 
@@ -317,8 +333,12 @@ class ACTReporte extends ACTbase{
                 $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
             }
 
-            if ($this->objParam->getParametro('id_periodo') != '') {
-                $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+           			//#98
+			if ($this->objParam->getParametro('consolidar')=='no'){
+				if ($this->objParam->getParametro('id_periodo') != '') {
+                	$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+            	}
+
             }
 			
 			///////**********
