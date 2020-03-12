@@ -98,13 +98,11 @@ header("content-type: text/javascript; charset=UTF-8");
 					this.ocultarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = true;
 					this.Cmp.id_periodo.reset();
-					this.mostrarComponente(this.Cmp.fecha_planilla);
-					this.Cmp.fecha_planilla.allowBlank = false;
+					
 				} else {
 					this.mostrarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = false;
-					this.ocultarComponente(this.Cmp.fecha_planilla);
-					this.Cmp.fecha_planilla.allowBlank = true;
+				
 	
 				}
 			},this);
