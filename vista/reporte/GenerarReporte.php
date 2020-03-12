@@ -11,6 +11,7 @@
    #81	ETR			MZM		20.11.2019	Ampliacion de visualizacion de nombre de reportes
  * #83	ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
  * #87	ETR			MZM		10.01.2020	Habilitacion de opcion detalle de aguinaldo
+ * #98	ETR			MZM		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -424,7 +425,7 @@ header("content-type: text/javascript; charset=UTF-8");
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['Solo Personal Activo','Solo Personal Retirado','Personal Activo y Retirado']
+				store:['activo','retirado','todos']
 			},
 				type:'ComboBox',				
 				id_grupo:0,
@@ -538,6 +539,22 @@ header("content-type: text/javascript; charset=UTF-8");
 			},
 			type:'Field',
 			form:true 
+		},{//#98
+			config:{
+				name: 'consolidar',
+				fieldLabel: 'Consolidar',
+				allowBlank:false,
+				emptyText:'Consolidar...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['si','no']
+			},
+				type:'ComboBox',				
+				id_grupo:0,
+				grid:true
 		}
 		
 		],
@@ -561,6 +578,8 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.ocultarComponente(this.Cmp.fecha);
 						this.ocultarComponente(this.Cmp.personal_activo);
 						this.ocultarComponente(this.Cmp.id_tipo_columna);//#80
+						this.ocultarComponente(this.Cmp.consolidar);//#98
+						this.Cmp.consolidar.setValue('no');//#98
 												
 			//********
 			//#83
@@ -602,6 +621,8 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.mostrarComponente(this.Cmp.id_tipo_contrato);
 				this.mostrarComponente(this.Cmp.id_gestion);
 				this.ocultarComponente(this.Cmp.personal_activo);
+				this.ocultarComponente(this.Cmp.consolidar);//#98
+				
 								
 				this.Cmp.periodicidad.setValue(r.data.periodicidad);
 				this.Cmp.codigo_planilla.setValue(r.data.codigo);//#83
@@ -622,8 +643,12 @@ header("content-type: text/javascript; charset=UTF-8");
 				
 				if(r.data.codigo=='PLANRE' ){
 					this.mostrarComponente(this.Cmp.personal_activo);
+					this.mostrarComponente(this.Cmp.consolidar);//#98
 				}else{
-					this.ocultarComponente(this.Cmp.personal_activo);		
+					this.ocultarComponente(this.Cmp.personal_activo);	
+					this.ocultarComponente(this.Cmp.consolidar);//#98	
+					this.Cmp.consolidar.setValue('no');//#98
+					this.Cmp.personal_activo.setValue('todos');//#98
 				}
 				this.Cmp.id_planillabk.reset();//#83
 				this.Cmp.consultar_backup.setValue('no');//#83
@@ -664,6 +689,8 @@ header("content-type: text/javascript; charset=UTF-8");
 			this.Cmp.id_reporte.on('select',function(c,r,i){ //#33
 				this.Cmp.tipo_reporte.setValue(r.data.tipo_reporte);
 				this.Cmp.control_reporte.setValue(r.data.control_reporte);
+				this.Cmp.id_tipo_columna.setValue('');
+				this.Cmp.nombre_descuento.setValue('');
 				//***************
 				if(r.data.tipo_reporte=='formato_especifico'){
 					  //***************************     
