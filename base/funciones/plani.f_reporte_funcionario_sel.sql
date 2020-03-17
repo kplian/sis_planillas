@@ -35,6 +35,7 @@ AS $BODY$
  #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
  #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
  #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
+ 
  ***************************************************************************/
 
 DECLARE
