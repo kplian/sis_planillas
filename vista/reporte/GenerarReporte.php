@@ -571,6 +571,8 @@ header("content-type: text/javascript; charset=UTF-8");
 			this.ocultarComponente(this.Cmp.totales);
 			this.ocultarComponente(this.Cmp.id_planillabk);//#83
 			
+			this.Cmp.id_gestion.disable();//#107
+			this.Cmp.totales.setValue('no');//#107
 			//********
 						this.ocultarComponente(this.Cmp.rango_fin);
 						this.ocultarComponente(this.Cmp.rango_inicio);
@@ -611,6 +613,11 @@ header("content-type: text/javascript; charset=UTF-8");
 			},this);
 			
 			this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
+				this.Cmp.id_gestion.enable();//#107
+				this.Cmp.id_gestion.reset();//#107
+				this.Cmp.id_gestion.modificado=true;//#107
+				this.Cmp.id_periodo.reset();//#107
+				
 				this.ocultarComponente(this.Cmp.fecha);
 				this.ocultarComponente(this.Cmp.rango_fin);
 				this.ocultarComponente(this.Cmp.rango_inicio);
@@ -626,10 +633,25 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 				this.Cmp.periodicidad.setValue(r.data.periodicidad);
 				this.Cmp.codigo_planilla.setValue(r.data.codigo);//#83
+				
+				// obtener la ultima planilla del tipo seleccionado
+				 Ext.Ajax.request({
+	                // form:this.form.getForm().getEl(),
+	                url:'../../sis_planillas/control/Planilla/listarPlanillaUltima',
+	                params: { id_tipo_planilla: r.data.id_tipo_planilla },
+	                success: this.successTipoPlani,
+	                failure: this.conexionFailure,
+	                timeout:this.timeout,
+	                scope:this
+            	});
+            	
+            	  
 				if (r.data.periodicidad == 'anual') {
 					this.ocultarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = true;
-					this.Cmp.id_periodo.reset();					
+					this.Cmp.id_periodo.reset();	
+					
+									
 				} else {
 					this.mostrarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = false;		
@@ -655,6 +677,11 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.ocultarComponente(this.Cmp.id_planillabk);//#83
 				this.Cmp.esquema.setValue('plani');
 			},this);
+			
+			
+			
+				
+			
 			
 			this.Cmp.id_gestion.on('select',function(c,r,i){
 				this.Cmp.id_periodo.reset();
@@ -867,7 +894,28 @@ header("content-type: text/javascript; charset=UTF-8");
 				}
 			},this);
 			
-		},
+		}, successTipoPlani:function(resp){ //#107
+			            Phx.CP.loadingHide();
+			            
+			            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+			            
+			            if(reg.total>0){ 
+				            this.Cmp.id_gestion.setValue(reg.datos['0'].id_gestion);
+				            this.Cmp.id_gestion.setRawValue(reg.datos['0'].gestion);
+				            this.Cmp.id_gestion.store.baseParams.gestion_min = reg.datos['0'].min_gestion;
+				            this.Cmp.id_gestion.modificado=true;
+				            if (this.Cmp.periodicidad.getValue() != 'anual') {
+				            	this.Cmp.id_periodo.setValue(reg.datos['0'].id_periodo);
+				            	this.Cmp.id_periodo.setRawValue(reg.datos['0'].periodo);
+				            }
+			            }else{
+			            	this.Cmp.id_gestion.store.baseParams.gestion_min = '2000';
+				            this.Cmp.id_gestion.modificado=true;
+			            }
+			            
+			            
+			           }
+     				,
 		tipo : 'reporte',
 		clsSubmit : 'bprint'
 })

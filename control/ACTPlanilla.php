@@ -13,6 +13,7 @@
  #47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
  #78    ETR      18/11/2019        Adicionar listado de backups de planilla
  #83	ETR		 11.12.2019		   Adicion de filtro a listado de backup de planilla para reportes
+ #107	ETR		16.03.2020		   Adicion de filtro id_tipo_planilla para obtener gestion/periodo de la ultima planilla del tipo consultado
  */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -56,6 +57,7 @@ class ACTPlanilla extends ACTbase{
 
         }
 
+		
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODPlanilla','listarPlanilla');
@@ -300,6 +302,29 @@ class ACTPlanilla extends ACTbase{
             $this->objFunc=$this->create('MODPlanilla');
 
             $this->res=$this->objFunc->listarPlanillaBk($this->objParam);
+        }
+        $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+	
+	
+	function listarPlanillaUltima(){//#107
+        $this->objParam->defecto('ordenacion','id_planilla');
+
+        $this->objParam->defecto('dir_ordenacion','asc');
+
+        
+		
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+            $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+        }
+
+        if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
+            $this->objReporte = new Reporte($this->objParam,$this);
+            $this->res = $this->objReporte->generarReporteListado('MODPlanilla','listarPlanillaUltima');
+        } else{
+            $this->objFunc=$this->create('MODPlanilla');
+
+            $this->res=$this->objFunc->listarPlanillaUltima($this->objParam);
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
