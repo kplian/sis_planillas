@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_planilla_sel(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_planilla_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    SISTEMA:        Sistema de Planillas
    FUNCION:         plani.ft_planilla_sel
@@ -29,7 +34,7 @@ $body$
    #68    ETR             24/10/2019            RAC                  Registrar  calcular_prima_rciva
    #78    ETR             18/11/2019            RAC                  Adcionar listado del historico de backup planilla  
    #79    ETR             27/11/2019            RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
-   
+   #107   ETR             16/03/2020            MZM KPLIAN           listar ultima planilla segun tipo_planilla enviado
  ***************************************************************************/
 
 
@@ -1435,7 +1440,75 @@ $body$
         return v_consulta;
 
       end;    
+	/*********************************
+     #TRANSACCION:  'PLA_PLANIUL_SEL'
+     #DESCRIPCION:  #107 listado del la ultima planilla procesada
+     #AUTOR:        admin
+     #FECHA:        16-03-2020
+    ***********************************/
 
+    elsif(p_transaccion='PLA_PLANIUL_SEL')then
+
+      begin
+
+        v_filtro = '';
+        
+
+        --Sentencia de la consulta
+        v_consulta:='select
+                        plani.id_planilla,
+                        plani.id_periodo,
+                        plani.id_gestion,
+                        ges.gestion,
+                        param.f_literal_periodo(per.id_periodo) as periodo
+                         ,(select extract (month from min(p.fecha_planilla)) from plani.tplanilla p
+                         inner join param.tgestion g on g.id_gestion=p.id_gestion
+                         where id_tipo_planilla=plani.id_tipo_planilla)::integer as min_periodo
+                         , (select extract (year from min(p.fecha_planilla)) from plani.tplanilla p
+                         inner join param.tgestion g on g.id_gestion=p.id_gestion
+                          where id_tipo_planilla=plani.id_tipo_planilla)::integer as min_gestion,
+                         (select min(p.fecha_planilla) from plani.tplanilla p
+                         inner join param.tgestion g on g.id_gestion=p.id_gestion
+                         where id_tipo_planilla=plani.id_tipo_planilla)::date as min_fecha
+                  from plani.tplanilla plani
+                  inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
+                  left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                  where  ' || v_filtro;
+
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||' order by ges.gestion desc, per.periodo desc limit 1 ';
+       
+        --Devuelve la respuesta
+        return v_consulta;
+
+      end;
+    /*********************************
+     #TRANSACCION:  'PLA_PLANIUL_CONT'
+     #DESCRIPCION:    Conteo de registros
+     #AUTOR:        admin
+     #FECHA:        16-03-2020
+    ***********************************/
+
+    elsif(p_transaccion='PLA_PLANIUL_CONT')then
+
+      begin
+        --Sentencia de la consulta de conteo de registros
+
+         v_filtro = '';
+        v_consulta:='select count(id_planilla)
+                        from plani.tplanilla plani
+                  inner join param.tgestion ges on ges.id_gestion = plani.id_gestion
+                  left join param.tperiodo per on per.id_periodo = plani.id_periodo
+                  where ' || v_filtro;
+
+        --Definicion de la respuesta
+        v_consulta:=v_consulta||v_parametros.filtro;
+      
+        --Devuelve la respuesta
+        return v_consulta;
+
+      end;
     else
 
       raise exception 'Transaccion inexistente';
@@ -1451,9 +1524,7 @@ $body$
       v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
       raise exception '%',v_resp;
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
