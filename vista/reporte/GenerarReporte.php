@@ -12,6 +12,7 @@
  * #83	ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
  * #87	ETR			MZM		10.01.2020	Habilitacion de opcion detalle de aguinaldo
  * #98	ETR			MZM		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
+ * #107	ETR			MZM		16.03.2020	Carga automatica de ultima gestion y periodo procesado
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -907,6 +908,10 @@ header("content-type: text/javascript; charset=UTF-8");
 				            if (this.Cmp.periodicidad.getValue() != 'anual') {
 				            	this.Cmp.id_periodo.setValue(reg.datos['0'].id_periodo);
 				            	this.Cmp.id_periodo.setRawValue(reg.datos['0'].periodo);
+				            	//#107
+				            	this.Cmp.id_periodo.store.baseParams.id_gestion = reg.datos['0'].id_gestion;
+								this.Cmp.id_periodo.modificado = true;
+				            	
 				            }
 			            }else{
 			            	this.Cmp.id_gestion.store.baseParams.gestion_min = '2000';
