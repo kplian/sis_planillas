@@ -1,7 +1,3 @@
--- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
-
--- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
-
 CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
 	p_administrador integer,
 	p_id_usuario integer,
@@ -37,6 +33,9 @@ AS $BODY$
  #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
  #94	ETR				17.02.2020			MZM					Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
  #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
+ #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
+ #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
+ 
  ***************************************************************************/
 
 DECLARE
@@ -158,7 +157,7 @@ BEGIN
        		)on commit drop;
          	v_filtro:='0=0';
             
-            v_consulta:='select uofunc.id_funcionario, uofunc.fecha_asignacion, 0, fu.antiguedad_anterior 
+            v_consulta:='select distinct uofunc.id_funcionario, uofunc.fecha_asignacion, 0, fu.antiguedad_anterior 
             from orga.tuo_funcionario uofunc
             inner join orga.tfuncionario fu on fu.id_funcionario=uofunc.id_funcionario
             inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fu.id_funcionario
@@ -213,7 +212,7 @@ BEGIN
           
           v_contador:=v_parametros.rango_inicio;
           v_fin=v_parametros.rango_fin;
-          
+
           if(v_parametros.tipo_reporte='empleado_edad') then
             v_bandera:=100;
                         
@@ -864,7 +863,7 @@ BEGIN
                             
                             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                                 if(v_parametros.id_tipo_contrato>0) then
-                                    v_condicion := ' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+                                    v_condicion := v_condicion ||' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') '; --#108
                                 end if;
                             end if;
                             
@@ -891,7 +890,7 @@ BEGIN
                             
                             
                          else
-                             v_condicion:=' and repo.id_reporte='||v_parametros.id_reporte;
+                             v_condicion:=v_condicion ||' and repo.id_reporte='||v_parametros.id_reporte;--#108
                              if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
                                 if(v_parametros.id_tipo_contrato>0) then
                                     v_condicion := v_condicion ||' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
@@ -947,6 +946,7 @@ BEGIN
                          and rep.id_afp='||v_parametros.id_afp||v_condicion||'
                          
                          order by  rep.desc_funcionario2'; 
+                        
                          raise notice '**%',v_consulta;  
                          
 						
@@ -1883,6 +1883,7 @@ BEGIN
               and plani.id_periodo='||v_id_periodo||'
              
               order by tc.nombre';
+              raise notice '%',v_consulta;
               return v_consulta;
       end;
       

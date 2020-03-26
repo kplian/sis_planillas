@@ -17,6 +17,7 @@
 #68 ETR             24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
 #78 ETR             18/11/2019          RAC KPLIAN          Listado de backups de planilla  
 #79 ETR             27/11/2019          RAC KPLIAN          nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
+#107ETR				16.03.2020			MZM					Listado de los datos de la ultima planilla procesada para un tipo especifico	 
  ***/
 
 class MODPlanilla extends MODbase{
@@ -775,6 +776,34 @@ class MODPlanilla extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+	//#107
+	function listarPlanillaUltima(){
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_planilla_sel';
+		$this->transaccion='PLA_PLANIUL_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+
+		$this->setParametro('tipo_interfaz','tipo_interfaz','varchar');
+
+		//Definicion de la lista del resultado del query
+			$this->captura('id_planilla','int4');
+			$this->captura('id_periodo','int4');
+			$this->captura('id_gestion','int4');
+			$this->captura('gestion','int4');
+			$this->captura('periodo','varchar');
+			$this->captura('min_periodo','int4');
+			$this->captura('min_gestion','int4');
+			$this->captura('min_fecha','date');
+			
+			//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+
+		//echo $this->getConsulta(); exit;
+		//Devuelve la respuesta
+		return $this->respuesta;
+		}
 				
 }
 ?>
