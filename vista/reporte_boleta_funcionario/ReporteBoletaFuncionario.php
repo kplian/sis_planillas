@@ -93,7 +93,10 @@ header("content-type: text/javascript; charset=UTF-8");
 			Phx.vista.ReporteBoletaFuncionario.superclass.constructor.call(this, config);
 			this.init();
 			this.Cmp.origen.setValue('boleta_personal');
+			this.Cmp.id_periodo.disable();
 			this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
+				this.Cmp.id_periodo.reset();
+				this.Cmp.id_gestion.reset();
 				if (r.data.periodicidad == 'anual') {
 					this.ocultarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = true;
@@ -102,14 +105,15 @@ header("content-type: text/javascript; charset=UTF-8");
 				} else {
 					this.mostrarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = false;
-				
-	
+					this.Cmp.id_periodo.disable();
 				}
 			},this);
 			
 			this.Cmp.id_gestion.on('select',function(c,r,i){
+				this.Cmp.id_periodo.enable();
 				this.Cmp.id_periodo.reset();
 				this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
+				this.Cmp.id_periodo.modificado=true;
 			},this);
 			
 			
