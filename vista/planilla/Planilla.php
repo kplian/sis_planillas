@@ -7,11 +7,11 @@
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
  *HISTORIAL DE MODIFICACIONES:
  *#ISSUE				FECHA				AUTOR				DESCRIPCION
- #5	ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
- #25 ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
- #26 ETR				20/08/2019			kplian MMV			corrección de bug combo tipo contrato button new
- #68 ETR                24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
-
+ #5		ETR				30/04/2019			kplian MMV			Registrar planilla por tipo de contrato
+ #25 	ETR				07/08/2019			RAC      			Registrar  calcular_reintegro_rciva
+ #26 	ETR				20/08/2019			kplian MMV			corrección de bug combo tipo contrato button new
+ #68 	ETR             24/10/2019          RAC KPLIAN          Registrar calcular_prima_rciva 
+ #103	ETR				10.02.2020			MZM					Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -27,7 +27,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 		this.iniciarEventos();
 		this.store.baseParams.pes_estado = 'otro';  
 		this.load({params:{start:0, limit:this.tam_pag}});
-		 
+		this.loadValoresIniciales();
 		this.finCons = true;
 		this.addButton('ant_estado',{grupo:[0],argument: {estado: 'anterior'},text:'Anterior',iconCls: 'batras',disabled:true,handler:this.antEstado,tooltip: '<b>Pasar al Anterior Estado</b>'});
         this.addButton('sig_estado',{grupo:[0],text:'Siguiente',iconCls: 'badelante',disabled:true,handler:this.sigEstado,tooltip: '<b>Pasar al Siguiente Estado</b>'});
@@ -113,6 +113,17 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 tooltip: 'Detalle de Obligaciones'                
             }
         );
+        
+        //#103
+        this.addButton('btnEnvioCorreo',{
+                    text :'Boletas de Pago',
+                    iconCls : 'bemail',
+                    disabled: true,
+                    handler : this.onReenviar,
+                    tooltip : '<b>Enviar</b><br/><b>Envia las boletas de pago via correo</b>'
+          });
+        
+        
         function diagramGantt(){            
             var data=this.sm.getSelected().data.id_proceso_wf;
             Phx.CP.loadingShow();
@@ -547,7 +558,30 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
-		}
+		},
+		{
+            config:{
+                name: 'asunto',
+                fieldLabel: 'Asunto',
+                allowBlank: true,
+                anchor: '90%',
+                gwidth: 100,
+                maxLength: 100
+            },
+            type:'TextField',
+            id_grupo:1,
+            form:true
+        },
+        {
+            config:{
+                name: 'body',
+                fieldLabel: 'Mensaje',
+                anchor: '90%'
+            },
+            type:'HtmlEditor',
+             id_grupo:1,
+            form:true
+        },
 	],
 	tam_pag:50,	
 	title:'Planilla',
@@ -706,6 +740,134 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     this.idContenedor,
                     'Obligacion');
     },
+    //#103
+    onReenviar: function(){
+         
+            /*var d= this.sm.getSelected().data;
+            Phx.CP.loadingShow();
+            
+            Ext.Ajax.request({
+                // form:this.form.getForm().getEl(),
+                url:'../../sis_planillas/control/DisparaCorreo/enviarCorreo',
+                params: { id_planilla: d.id_planilla },
+                success: this.successSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });*/
+           
+           //Phx.CP.loadingShow();
+           var rec=this.sm.getSelected();
+            
+            var data = {id_funcionario:this.id_funcionario}
+            Ext.apply(data,rec.data)
+             Phx.CP.loadWindows('../../../sis_adquisiciones/vista/solicitud/SolModPresupuesto.php',
+                    'Solicitar Traspaso presupuestario',
+                    {
+                        modal:true,
+                        width:700,
+                        height:500
+                    },data ,this.idContenedor,'SolModPresupuesto');
+           
+        /*var CuerpoCorreo = " <b>SOLICITUD DE TRASPASO PRESUPUESTARIO <br></b><br>" ;
+        CuerpoCorreo+= '<b>Funcionario: '+ this.desc_funcionario+'<br></b>';
+        CuerpoCorreo+='Tramite: '+ this.num_tramite+'<br>';
+        CuerpoCorreo+='Numero: '+this.numero+'</BR>';
+        CuerpoCorreo+='<br>Solicitado por: <br> '+Phx.CP.config_ini.nombre_usuario+'<br>';
+        CuerpoCorreo+='Se adjunta el solicitud de compra para referencia de los montos </BR>';
+         
+        Phx.vista.Planilla.superclass.loadValoresIniciales.call(this);
+        
+        */
+
+        //this.getComponente('id_cotizacion').setValue(this.id_cotizacion); 
+       
+        
+        this.getComponente('asunto').setValue('ADQ: Solicitud de Presupuesto: '+this.numero); 
+        this.getComponente('body').setValue(CuerpoCorreo); 
+        
+       // this.getComponente('id_solicitud').setValue(this.id_solicitud); 
+      //  this.getComponente('estado').setValue(this.estado); 
+           
+       		/*Ext.Ajax.request({
+                // form:this.form.getForm().getEl(),
+                url:'../../sis_organigrama/control/Funcionario/getEmailEmpresa',
+                params:{id_funcionario: this.id_funcionario},
+                success:this.successSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+         }); */
+           
+    }, 
+    /*successSinc:function(resp){
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+            if(!reg.ROOT.error){
+                 this.reload();
+               
+            }else{
+                
+                alert('ocurrio un error')
+            } 
+    }*/
+   successSinc:function(resp){
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+            if(reg.ROOT.datos.resultado!='falla'){
+                 if(!reg.ROOT.datos.email_notificaciones_2){
+                     
+                     alert('Confgure el EMAIL de notificaciones 1, en el archivo de datos generales');
+                 }
+                
+                 this.getComponente('email').setValue(reg.ROOT.datos.email_notificaciones_2);
+                 this.getComponente('email_cc').setValue(reg.ROOT.datos.email_empresa);
+               
+             }else{
+                alert(reg.ROOT.datos.mensaje)
+            }
+     }
+    
+    /*
+     obtenerCorreo:function(){
+       Phx.CP.loadingShow();
+       Ext.Ajax.request({
+                // form:this.form.getForm().getEl(),
+                url:'../../sis_organigrama/control/Funcionario/getEmailEmpresa',
+                params:{id_funcionario: this.id_funcionario},
+                success:this.successSinc,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+         }); 
+        
+        
+    },
+    
+    
+    successSinc:function(resp){
+            Phx.CP.loadingHide();
+            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+            if(reg.ROOT.datos.resultado!='falla'){
+                 if(!reg.ROOT.datos.email_notificaciones_2){
+                     
+                     alert('Confgure el EMAIL de notificaciones 1, en el archivo de datos generales');
+                 }
+                
+                 this.getComponente('email').setValue(reg.ROOT.datos.email_notificaciones_2);
+                 this.getComponente('email_cc').setValue(reg.ROOT.datos.email_empresa);
+               
+             }else{
+                alert(reg.ROOT.datos.mensaje)
+            }
+     }
+     * */
+    
+    
+    ,
+    
+    
+    
     
     onButtonNew : function () {
     	this.mostrarComponente(this.Cmp.id_depto);
@@ -752,6 +914,11 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	this.getBoton('btnHoras').enable();
         }
         this.getBoton('btnColumnas').enable();
+        //#103
+        this.getBoton('btnEnvioCorreo').enable();    
+        
+        
+        
         if (rec.data.estado== 'calculo_columnas') {
         	this.getBoton('btnColumnas').menu.items.items[0].enable();
         	this.getBoton('btnColumnas').menu.items.items[1].enable(); 
@@ -778,6 +945,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').disable();
 			 this.getBoton('del').disable(); 
+			 this.getBoton('btnEnvioCorreo').enable();//#103
         } else if(rec.data.estado == 'vbpoa' || rec.data.estado == 'suppresu' || rec.data.estado == 'vbpresupuestos'){
 			this.getBoton('ant_estado').disable();
 			this.getBoton('sig_estado').disable();
