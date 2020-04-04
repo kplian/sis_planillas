@@ -5,16 +5,16 @@
  *@author  (admin)
  *@date 22-01-2014 16:11:04
  *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
- * 
- * 
-    HISTORIAL DE MODIFICACIONES:       
- ISSUE            FECHA:              AUTOR                 DESCRIPCION   
- #38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
- #47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
- #78    ETR      18/11/2019        Adicionar listado de backups de planilla
- #83	ETR		 11.12.2019		   Adicion de filtro a listado de backup de planilla para reportes
- #107	ETR		16.03.2020		   Adicion de filtro id_tipo_planilla para obtener gestion/periodo de la ultima planilla del tipo consultado
- */
+ *
+ *
+    HISTORIAL DE MODIFICACIONES:
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#38             10/09/2019        RAC KPLIAN     lsitado de vobo_conta, metodos paragenerar cbte contable
+#47    ETR      24-09-2019        Manuel Guerra  reporte de verificacion presupuestaria
+#78    ETR      18/11/2019       MZM             Adicionar listado de backups de planilla
+#83    ETR      11.12.2019       MZM             Adicion de filtro a listado de backup de planilla para reportes
+#107   ETR      16.03.2020       MZM             Adicion de filtro id_tipo_planilla para obtener gestion/periodo de la ultima planilla del tipo consultado
+ * */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RPrimaXLS.php');
@@ -22,6 +22,8 @@ require_once(dirname(__FILE__).'/../reportes/RAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RSegAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RCertificacionPresupuestaria.php');
 require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestaria.php');
+
+
 class ACTPlanilla extends ACTbase{
 
     function listarPlanilla(){
@@ -42,14 +44,14 @@ class ACTPlanilla extends ACTbase{
         } else if($this->objParam->getParametro('pes_estado') == 'suppresu'){
             $this->objParam->addFiltro("plani.estado  in (''suppresu'')");
         } else if($this->objParam->getParametro('pes_estado') == 'vbpresupuestos'){
-            $this->objParam->addFiltro("plani.estado  in (''vbpresupuestos'')");        
-		} else if($this->objParam->getParametro('pes_estado') == 'vobo_conta'){  //#38 añade vobo conta
+            $this->objParam->addFiltro("plani.estado  in (''vbpresupuestos'')");
+        } else if($this->objParam->getParametro('pes_estado') == 'vobo_conta'){  //#38 añade vobo conta
             $this->objParam->addFiltro("plani.estado   in (''vobo_conta'')");
         }
         else if($this->objParam->getParametro('pes_estado') == 'consultas'){
             $this->objParam->addFiltro("plani.estado  not in (''todos'')");
         }
-		
+
 
         if ($this->objParam->getParametro('id_gestion') != '') {
 
@@ -57,7 +59,7 @@ class ACTPlanilla extends ACTbase{
 
         }
 
-		
+
         if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
             $this->objReporte = new Reporte($this->objParam,$this);
             $this->res = $this->objReporte->generarReporteListado('MODPlanilla','listarPlanilla');
@@ -219,7 +221,7 @@ class ACTPlanilla extends ACTbase{
         $this->objParam->defecto('dir_ordenacion','asc');*/
 
         /////////////////
-        //	FILTROS
+        //    FILTROS
         ////////////////
         /*if($this->objParam->getParametro('id_gestion')!='') {
             $this->objParam->addFiltro("obj.id_gestion = ".$this->objParam->getParametro('id_gestion'));
@@ -234,64 +236,64 @@ class ACTPlanilla extends ACTbase{
         $this->res=$this->objFunc->listarPartidaObjetivo($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-	#38 +
-	function generarCbteContable(){
+    #38 +
+    function generarCbteContable(){
         $this->objFunc=$this->create('MODPlanilla');
         $this->res=$this->objFunc->generarCbteContable($this->objParam);
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-	//#47
-	function listaVerPresu(){
-		if($this->objParam->getParametro('id_planilla')!=''){
-			$this->objParam->addFiltro("conpre.id_planilla =".$this->objParam->getParametro('id_planilla'));
-		}
-		$this->objFunc=$this->create('MODPlanilla');		
-		$cbteHeader = $this->objFunc->listaVerPresu($this->objParam);					
-		if($cbteHeader->getTipo() == 'EXITO'){										
-			return $cbteHeader;			
-		}
-		else{
-			$cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
-			exit;
-		}			
-	}
-	//#47
-	function reporteVerifPresu(){
-        $nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria]').'.pdf';	
-		$dataSource = $this->listaVerPresu();
-		$orientacion = 'P';		
-		$tamano = 'LETTER';
-		$titulo = 'Consolidado';		
-		$this->objParam->addParametro('orientacion',$orientacion);
-		$this->objParam->addParametro('tamano',$tamano);		
-		$this->objParam->addParametro('titulo_archivo',$titulo);	
-		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-		$reporte = new RVerificacionPresupuestaria($this->objParam);  
-		$reporte->datosHeader($dataSource->getDatos());		
-		$reporte->generarReporte();
-		$reporte->output($reporte->url_archivo,'F');
-		$this->mensajeExito=new Mensaje();
-		$this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
-		$this->mensajeExito->setArchivoGenerado($nombreArchivo);
-		$this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
-	}
-	
-	#78 listarPlanillaBk
-	function listarPlanillaBk(){
+    //#47
+    function listaVerPresu(){
+        if($this->objParam->getParametro('id_planilla')!=''){
+            $this->objParam->addFiltro("conpre.id_planilla =".$this->objParam->getParametro('id_planilla'));
+        }
+        $this->objFunc=$this->create('MODPlanilla');
+        $cbteHeader = $this->objFunc->listaVerPresu($this->objParam);
+        if($cbteHeader->getTipo() == 'EXITO'){
+            return $cbteHeader;
+        }
+        else{
+            $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+            exit;
+        }
+    }
+    //#47
+    function reporteVerifPresu(){
+        $nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria]').'.pdf';
+        $dataSource = $this->listaVerPresu();
+        $orientacion = 'P';
+        $tamano = 'LETTER';
+        $titulo = 'Consolidado';
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        $reporte = new RVerificacionPresupuestaria($this->objParam);
+        $reporte->datosHeader($dataSource->getDatos());
+        $reporte->generarReporte();
+        $reporte->output($reporte->url_archivo,'F');
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    }
+
+    #78 listarPlanillaBk
+    function listarPlanillaBk(){
         $this->objParam->defecto('ordenacion','id_planilla');
         $this->objParam->defecto('dir_ordenacion','asc');
-        
+
         if ($this->objParam->getParametro('id_planilla_original') != '') {
             $this->objParam->addFiltro("plani.id_planilla_original = ". $this->objParam->getParametro('id_planilla_original'));
         }
-		//#83
-		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+        //#83
+        if ($this->objParam->getParametro('id_tipo_planilla') != '') {
             $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
         }
-		if ($this->objParam->getParametro('id_periodo') != '') {
+        if ($this->objParam->getParametro('id_periodo') != '') {
             $this->objParam->addFiltro("per.id_periodo = ". $this->objParam->getParametro('id_periodo'));
         }
-		if ($this->objParam->getParametro('id_tipo_contrato') != '') {
+        if ($this->objParam->getParametro('id_tipo_contrato') != '') {
             $this->objParam->addFiltro("tc.id_tipo_contrato = ". $this->objParam->getParametro('id_tipo_contrato'));
         }
 
@@ -305,16 +307,16 @@ class ACTPlanilla extends ACTbase{
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-	
-	
-	function listarPlanillaUltima(){//#107
+
+
+    function listarPlanillaUltima(){//#107
         $this->objParam->defecto('ordenacion','id_planilla');
 
         $this->objParam->defecto('dir_ordenacion','asc');
 
-        
-		
-		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+
+
+        if ($this->objParam->getParametro('id_tipo_planilla') != '') {
             $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
         }
 
@@ -328,7 +330,7 @@ class ACTPlanilla extends ACTbase{
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
     }
-		
+
 }
 
 ?>
