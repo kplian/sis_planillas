@@ -18,14 +18,12 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
         this.loadValoresIniciales();
     },
 
-
     loadValoresIniciales:function()
     {
-        console.log('datos...', this)
-        var CuerpoCorreo = " <b>Boleta de Pago <br></b><br>" ;
-        CuerpoCorreo+= '<b>Planilla: '+ this.nro_planilla+'<br></b>';
-        CuerpoCorreo+='Tramite: '+ this.nro_planilla+'<br>';
-        CuerpoCorreo+='Se adjunta la boleta de Pago </BR>';
+
+        var CuerpoCorreo = " <b>Gerencia Administrativa Financiera</b><br/>" ;
+        CuerpoCorreo+= '<b>Planilla: '+ this.nro_planilla+'</b><br/>';
+        CuerpoCorreo+='Se adjunta la boleta de Pago <BR/>';
 
         Phx.vista.CorreoBoleta.superclass.loadValoresIniciales.call(this);
 
@@ -34,13 +32,18 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
         this.getComponente('id_tipo_planilla').setValue(this.id_tipo_planilla);
         this.getComponente('id_gestion').setValue(this.id_gestion);
         this.getComponente('id_periodo').setValue(this.id_periodo);
+        this.getComponente('id_planilla').setValue(this.id_planilla);
 
     },
 
     successSave:function(resp) {
+        console.log('respuesta server...',resp)
+
         Phx.CP.loadingHide();
         Phx.CP.getPagina(this.idContenedorPadre).reload();
         this.panel.close();
+        var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+        alert(reg.ROOT.detalle.mensaje);
     },
 
     Atributos:[
@@ -54,6 +57,16 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
             type:'Field',
             form:true
         },
+        {
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'id_planilla'
+            },
+            type:'Field',
+            form:true
+        },
+
         {
             config:{
                 labelSeparator:'',

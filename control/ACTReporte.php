@@ -1493,40 +1493,64 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 
         //p: {"id_tipo_planilla":"1","id_gestion":"4","id_periodo":"38","origen":"boleta_personal"}
 
-        $correo=new CorreoExterno();
+
         //destinatario
         $email = $this->objParam->getParametro('email');
-        $correo->addDestinatario('rensi@kplian.com');
-
         $body = $this->objParam->getParametro('body');
-        $correo->setMensaje($body);
-
         $asunto = $this->objParam->getParametro('asunto');
-        $correo->setAsunto($asunto);
+        $id_tipo_planilla = $this->objParam->getParametro('id_tipo_planilla');
+        $id_periodo = $this->objParam->getParametro('id_periodo');
+        $id_gestion = $this->objParam->getParametro('id_gestion');
 
-        //genera archivo adjunto
-        $file = $this->reporteBoletaCorreo(406,1,4,38);
-        if($file != 'ERROR') {
-            $correo->addAdjunto($file, 'test.pdf');
-            $correo->setDefaultPlantilla();
-            $resp=$correo->enviarCorreo();
-            if($resp == 'OK') {
-                    $mensajeExito = new Mensaje();
-                    $mensajeExito->setMensaje('EXITO','ACTReporte.php','Correo de Bolestas de Pago enviado'.$file,
-                    'Se mando el correo con exito: OK','control' );
-                    $this->res = $mensajeExito;
-                    $this->res->imprimirRespuesta($this->res->generarJson());
-                    echo $file;
-                   // unlink($file);
-             } else {
-                  echo "{\"ROOT\":{\"error\":true,\"detalle\":{\"mensaje\":\" Error al enviar correo\"}}}";
-             }
+        $this->objFunc = $this->create('MODReporte');
+        $res = $this->objFunc->listarFunPlanillaAll($this->objParam);
+        $contador = 0;
+        $contadorFallas = 0;
+        $fallos = '';
+
+        if($res->getTipo() == 'EXITO') {
+
+                 for ($j = 0; $j < count($res->datos); $j++) {
+                      //genera archivo adjunto
+                      $file = $this->reporteBoletaCorreo($res->datos[$j]['id_funcionario'],$id_tipo_planilla,$id_gestion,$id_periodo);
+                      //echo '<br>--->'.$res->datos[$j]['id_funcionario'];
+                      //echo '<br>--->'.$res->datos[$j]['email_empresa'];
+                      if($file != 'ERROR') {
+                          $correo = new CorreoExterno();
+                          $correo->addDestinatario($res->datos[$j]['email_empresa']);
+                          $correo->setMensaje($body);
+                          $correo->setAsunto($asunto);
+                          $correo->addAdjunto($file);
+                          $correo->setDefaultPlantilla();
+                          $resp=$correo->enviarCorreo();
+                          $contador ++;
+                      } else {
+                          $contadorFallas ++;
+                          $fallos = $fallos.'|'.$res->datos[$j]['id_funcionario'];
+                      }
+
+                 }
+
+                  if($contador > 0) {
+                        $mensajeExito = new Mensaje();
+                        $mensajeExito->setMensaje('EXITO','ACTReporte.php','Se mandaron: '.$contador.' correos y fallaron: '.$contadorFallas,
+                        'Se mando el correo con exito: OK'.$contadorFallas,'control' );
+                        $this->res = $mensajeExito;
+                        $this->res->imprimirRespuesta($this->res->generarJson());
+                        unlink($file);
+                 } else {
+                      echo "{\"ROOT\":{\"error\":true,\"detalle\":{\"mensaje\":\" Error al enviar correo (id: $fallos)\"}}}";
+                 }
+
+        } else {
+            $res->imprimirRespuesta($res->generarJson());
         }
         exit;
    }
 
    function reporteBoletaCorreo($id_funcionario,$id_tipo_planilla,$id_gestion,$id_periodo) {
 
+        $this->objParam->parametros_consulta['filtro']=' 0=0 ';//reset filter
         $this->objParam->addFiltro("plani.id_tipo_planilla = ". $id_tipo_planilla);
         $this->objParam->addFiltro("plani.id_gestion = ". $id_gestion);
         $this->objParam->addFiltro("plani.id_periodo = ". $id_periodo);
@@ -1539,29 +1563,38 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
             //obtener titulo del reporte
             $titulo = $this->res->datos[0]['titulo_reporte'];
             //Genera el nombre del archivo (aleatorio + titulo)
-            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo = uniqid(md5(session_id()));
             $this->objParam->addParametro('titulo_archivo',$titulo);
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             //Instancia la clase de pdf
-            $this->objReporteFormato=new RBoletaGenerica($this->objParam);
+            $this->objReporteFormato = new RBoletaGenerica($this->objParam);
 
-            $filtro_previo=$this->objParam->parametros_consulta['filtro'];
-            $this->objFunc=$this->create('MODReporte');
+            $filtro_previo = $this->objParam->parametros_consulta['filtro'];
+            $this->objFunc = $this->create('MODReporte');
 
-            if($this->res->datos[0]['multilinea']=='si' || $this->res->datos[0]['id_periodo']==''){
-                 $i=0;
-                 $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
+            if($this->res->datos[0]['multilinea'] == 'si' || $this->res->datos[0]['id_periodo'] == ''){
+                 $i = 0;
+                 $this->res2 = $this->objFunc->listarReporteDetalle($this->objParam);
                  $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                  $this->objReporteFormato->generarReporte();
             } else {
                 for ($i = 0; $i < count($this->res->datos); $i++){
-                    $this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+                    $this->res2 = $this->objFunc->listarReporteDetalleBoleta($this->objParam);
                     $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                     $this->objReporteFormato->generarReporte();
                 }
             }
-            return dirname(__FILE__).'/../../reportes_generados/'.$nombreArchivo;
+
+
+            if($this->res2->getTipo()=='EXITO'){
+                $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+                return dirname(__FILE__).'/../../reportes_generados/'.$nombreArchivo;
+            } else {
+                $this->res->imprimirRespuesta($this->res->generarJson());
+                return 'ERROR';
+            }
+
 
         } else {
             $this->res->imprimirRespuesta($this->res->generarJson());

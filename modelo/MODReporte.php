@@ -589,21 +589,17 @@ function listarReporteDetalleMultiCell(){
         $this->captura('orden','integer');
         //Ejecuta la instruccion
         $this->armarConsulta();
-
-    //echo "****".$this->getConsulta(); exit;
-        //var_dump($this->aParam->getParametrosConsulta()); exit;
         $this->ejecutarConsulta();
-
         //Devuelve la respuesta
         return $this->respuesta;
     }
 
-     function listarFuncionarioPlanillaAll() {
+     function listarFunPlanillaAll() {
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento = 'plani.ft_funcionario_planilla_sel';
         $this->transaccion = 'PLA_FUNPLANALL_SEL';
-        $this->tipo_procedimiento =' SEL';//tipo de transaccion
-        $this->count = false;
+        $this->tipo_procedimiento = 'SEL';//tipo de transaccion
+        $this->setCount(false);
         $this->setParametro('id_planilla','id_planilla','integer');
         //Definicion de la lista del resultado del query
         $this->captura('id_funcionario_planilla','int4');
