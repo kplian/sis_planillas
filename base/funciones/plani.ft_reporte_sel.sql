@@ -1254,9 +1254,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
             if(v_parametros.estado_funcionario='activo') then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and nivel.id_periodo=plani.id_periodo)
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
         		) ';
-                
+                 
             elsif (v_parametros.estado_funcionario='retirado') then
                    v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
                           -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
@@ -1268,7 +1268,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                 and 
                  (
                 (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and nivel.id_periodo=plani.id_periodo)
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
         		)
                 or
                 (
