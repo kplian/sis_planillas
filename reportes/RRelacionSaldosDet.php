@@ -4,7 +4,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #56    ETR            30/09/2019           MZM                 Creacion 
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario 
+ #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
+ #98	ETR				04.03.2020			MZM					Adecuacion para generacion de reporte consolidado (caso planilla reintegros) 
 */
 class RRelacionSaldosDet extends  ReportePDF {
 	var $datos;	
@@ -56,9 +57,14 @@ class RRelacionSaldosDet extends  ReportePDF {
 			$this->SetFont('','B',10);
 			
 			
+			if ($this->objParam->getParametro('consolidar')=='si'){//#98
+				$this->Cell(0,5,'Acumulado a: ' . $this->detalle[0]['det_periodo'],0,1,'C');
+			}else{
+				$this->Cell(0,5,'Correspondiente a: '.$this->detalle[0]['det_periodo'],0,1,'C');
+			}
+				
 			
 			
-			$this->Cell(0,5,'Correspondiente a: '.$this->detalle[0]['det_periodo'],0,1,'C');
 			
 		
 		$this->SetLineWidth(0.5);
@@ -74,10 +80,15 @@ class RRelacionSaldosDet extends  ReportePDF {
 		
 		$this->alto_header =$this->GetY(); 
 		
-		
+		 
 		
 			$this->SetFont('','B',12);
-			$this->Cell(0,5,'Personal '.$this->tipo_contrato,'',1,'C');
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$this->Cell(0,5,'Personal '.$this->tipo_contrato. ' ('.$this->objParam->getParametro('personal_activo').')','',1,'C');
+			}else{
+				$this->Cell(0,5,'Personal '.$this->tipo_contrato,'',1,'C');	
+			}
+			
 			$this->Ln(1);	
 			
 			

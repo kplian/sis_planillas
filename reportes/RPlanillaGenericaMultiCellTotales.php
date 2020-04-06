@@ -5,7 +5,8 @@
 //#40 			MZM			16/09/2019	        	Modificacion a formato de cabecera en reporte totales multicel
 //#50			MZM			24.09.2019				Ajuste de forma en reporte: omitir en titulo centro, quitar autollenado de 0	
 //#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla
-//#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos) 
+//#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
+//#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros) 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -49,8 +50,17 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
 	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  ){
-	    	$tipo_con='('.$this->datos_detalle[0]['nombre'].')';
+	    	if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+		 		$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+		 	}else{
+		 		$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+		 	}
+	    	
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
+	    }else{
+	    	if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+		 		$tipo_con='('.$this->objParam->getParametro('personal_activo').')';
+			 }
 	    }
 		$this->Ln(1);
 		$this->Ln(1);

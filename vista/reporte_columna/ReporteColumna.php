@@ -364,6 +364,8 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=m;
 		this.store.baseParams={id_reporte:this.maestro.id_reporte}; //#23 manda el id_reporte como parametro para todas las paginas
 		if (this.maestro.tipo_reporte == 'boleta') {
+			
+			
 			this.mostrarComponente(this.Cmp.tipo_columna);
 			this.Cmp.tipo_columna.allowBlank = false;
 						
@@ -391,6 +393,8 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
     	//this.ocultarComponente(this.Cmp.codigo_columna);
     	//this.ocultarComponente(this.Cmp.columna_vista);
     	this.Cmp.espacio_previo.setValue(0);
+    	
+    	
     	this.Cmp.origen.on('select',function(cmp,rec){
     		if(rec.json=='vista_externa'){
     			this.Cmp.origen.setValue('vista_externa');
@@ -406,26 +410,13 @@ Phx.vista.ReporteColumna=Ext.extend(Phx.gridInterfaz,{
 				this.Cmp.codigo_columna.allowBlank=false;
 				this.Cmp.columna_vista.allowBlank=true;
     		}
-    		
-    		
-			/*if(this.isInArray(rec.json, this.arrayStore['vista_externa'])){
-					this.Cmp.origen.setValue('vista_externa');
-					
-			}else{
-				this.Cmp.origen.setValue('columna_planilla');
-				
-			}
+    	
 			
-			if(this.Cmp.tipo.getValue() == 'vista_externa'){
-				this.mostrarComponente(this.Cmp.columna_vista);
-				this.ocultarComponente(this.Cmp.codigo_columna);
-			}else{
-				this.mostrarComponente(this.Cmp.codigo_columna);
-				this.ocultarComponente(this.Cmp.columna_vista);
-			}
-			*/
-		
-			},this);
+    		},this);
+			
+			
+			
+			
     }
 	}
 )

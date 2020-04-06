@@ -156,7 +156,19 @@ class RPlanillaGenericaXls
 		
 		$tit_rep=$config['titulo_reporte'];
 		if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
-			$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				
+				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';	
+			}else{
+				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+			}
+			
+			
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('personal_activo').')';
+			}
 		}
 		
 		//#83

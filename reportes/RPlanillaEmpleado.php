@@ -10,6 +10,7 @@
  #80 	ETR				27.11.2019			MZM					Cambio de formato numeric, ajuste a beneficios reserva detalel
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #90	ETR				15.01.2019			MZM					Inclusion de TC a reporte Reserva de beneficios sociales - resumen
+ #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -46,8 +47,18 @@ class RPlanillaEmpleado extends  ReportePDF {
 		$cadena_nomina='';
 		
 		if($this->objParam->getParametro('id_tipo_contrato')!='' && $this->objParam->getParametro('id_tipo_contrato')>0){
-			$cadena_nomina='('.$this->datos[0]['tipo_contrato'].')';
 			
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$cadena_nomina=' ('.$this->datos[0]['tipo_contrato'].' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$cadena_nomina=' ('.$this->datos[0]['tipo_contrato'].')';
+				
+			}
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$cadena_nomina=' ('.$this->objParam->getParametro('personal_activo').')';
+			}
 		}
 		
 		

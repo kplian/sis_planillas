@@ -35,7 +35,6 @@ AS $BODY$
  #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
  #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
  #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
- 
  ***************************************************************************/
 
 DECLARE
@@ -114,6 +113,15 @@ DECLARE
    v_consulta_det	varchar;
    v_cons		varchar;
    v_fecha_backup	varchar;
+   
+   --#98
+   v_sum_group	varchar;
+   v_group	varchar;
+   v_filtro_periodo	varchar;
+   
+   v_fecha_estado	date;
+   v_filtro_estado	varchar;
+   v_filtro_estado1	varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -132,11 +140,13 @@ BEGIN
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
         end if;
 
 		--#83
@@ -157,6 +167,33 @@ BEGIN
        		)on commit drop;
          	v_filtro:='0=0';
             
+            --#98
+            v_filtro_estado:='';
+
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  and uofunc.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+          		else
+                     v_filtro_estado:=' 
+                    and (( uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                      ( uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  and uofunc.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                          
+               end if;
+			end if;
+            
             v_consulta:='select distinct uofunc.id_funcionario, uofunc.fecha_asignacion, 0, fu.antiguedad_anterior 
             from orga.tuo_funcionario uofunc
             inner join orga.tfuncionario fu on fu.id_funcionario=uofunc.id_funcionario
@@ -164,8 +201,8 @@ BEGIN
             inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
             where '||v_parametros.filtro||' and uofunc.estado_reg!=''inactivo'' and uofunc.id_uo_funcionario=fp.id_uo_funcionario
-                                                    and uofunc.tipo=''oficial'' ';
-                                                    
+                                                    and uofunc.tipo=''oficial''  '||v_filtro_estado;
+                           raise notice '**%',v_consulta;                         
             for v_registros in execute(v_consulta ) loop
                    v_bonant:=0;         
 
@@ -346,6 +383,7 @@ BEGIN
           if(v_parametros.fecha is not null) then 
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
              execute 'select distinct plani.fecha_planilla 
                      from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
@@ -354,6 +392,7 @@ BEGIN
           
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else
         
@@ -363,6 +402,7 @@ BEGIN
                     
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
         end if;
 
 
@@ -629,8 +669,43 @@ BEGIN
         end if;    */
             
        -- else
-
-          
+ 			--#98
+            v_filtro_estado:='';
+			
+            if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
+            	v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                        ) ';
+            
+            
+            else
+            
+                if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                    if(v_parametros.estado_funcionario='activo') then
+                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                        ) ';
+                    elsif (v_parametros.estado_funcionario='retirado') then
+                           v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                                 and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                              ';
+                    else
+                       v_filtro_estado:=' 
+                        and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                        )
+                         ) or
+                         
+                         
+                          ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                                 and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                              ';
+                   end if;
+                end if;
+          end if;
                  v_consulta:='select
                             fun.id_funcionario,
                             substring(fun.desc_funcionario2 from 1 for 36),
@@ -722,18 +797,18 @@ BEGIN
                         
                          (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))  <= '''||v_fecha||''' and
                         
-                        '||v_condicion||'
-                       
+                        '||v_condicion||v_filtro_estado||'
+                         
                        
                         order by '||v_ordenar;
-             raise notice 'aaa%',v_consulta;
+           --  raise notice 'condicion: %, filtro: %',v_tc, v_filtro_estado;
         --  end if;              
                         
                         return v_consulta;
         end;
      elsif(p_transaccion='PLA_DATAPORTE_SEL')then
  		begin 
-        
+
             --#83
             IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
                    v_esquema = v_parametros.esquema;
@@ -763,6 +838,8 @@ BEGIN
                  plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
                  v_fecha:=v_registros_det.fecha_planilla;
                  v_id_periodo:=v_parametros.id_periodo;
+                 
+                  
             end if;
            
            v_condicion:=' and 0=0';
@@ -775,9 +852,11 @@ BEGIN
            
             --19.09.2019#45
             if(v_parametros.tipo_reporte='fondo_solidario') then
-               v_condicion:=v_condicion||' and cv.valor>=13000';
+                v_condicion:=v_condicion||' and cv.valor>=13000';
+                
             end if;
-        
+            
+           
                SELECT
                   per.fecha_ini,
                   per.fecha_fin
@@ -787,6 +866,39 @@ BEGIN
               FROM param.tperiodo per
               WHERE id_periodo = v_id_periodo;
               
+              
+               --#98
+               v_filtro:='';
+                
+                 --falta contemplar el consolidar para aplicar sumatorias y groups
+                 v_sum_group:='';
+                 v_group:='';
+                 v_filtro_periodo:='';
+                 if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+                     if (v_parametros.consolidar='si') then
+                       v_filtro:=v_filtro ||' and plani.id_periodo <= '||v_parametros.id_periodo;
+                       
+                       if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+                          if(v_parametros.id_tipo_contrato>0) then
+                              v_filtro := v_filtro||' and tc.id_tipo_contrato='||v_parametros.id_tipo_contrato;
+                          end if;
+                       end if;
+                        	v_fecha_ini:=(select g.fecha_ini from param.tgestion g
+                                  inner join param.tperiodo p on p.id_gestion=g.id_gestion
+                                  where p.id_periodo=v_parametros.id_periodo);
+                                  
+                       		v_filtro_periodo:=' and plani.id_periodo <= '||v_parametros.id_periodo;
+                       		v_sum_group:='select id_funcionario, fecha_ingreso, 
+                       				 fecha_finalizacion, 
+                                    sum(valor) as valor, sum(hordia) as hordia, sum(incap) as incap,
+                                    sum (var1) as var1,sum(var2) as var2,sum(var3) as var3
+                                    from (';
+                      		v_group:=') as foo
+                  				group by 1,2,3';
+                     else
+                          v_filtro:=v_filtro ||' and plani.id_periodo = '||v_parametros.id_periodo;
+                     end if;
+                  end if;
               
           create temp table tt_func(
               id_funcionario integer,
@@ -801,12 +913,23 @@ BEGIN
               ,ncotiz	numeric,
               nvar1	numeric,
               nvar2	numeric,
-              nvar3	numeric
+              nvar3	numeric,
+              fecha_finalizacion date
               
             )on commit drop; 
-			v_cons:='select distinct fp.id_funcionario, 
+			v_cons:=v_sum_group||'select fp.id_funcionario, 
             		plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso 
-                  , f.fecha_finalizacion, cv.valor, 
+                  , 
+                  	(select fecha_finalizacion from orga.tuo_funcionario uoff
+									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
+  									 where id_funcionario=fp.id_funcionario
+									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
+									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+									 and cc.id_tipo_contrato=tc.id_tipo_contrato
+									 order by fecha_finalizacion desc limit 1
+									) as fecha_finalizacion
+                  
+                  , cv.valor, 
                   (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''HORDIA''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as hordia,
@@ -828,14 +951,17 @@ BEGIN
                   inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE''
                   inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  --inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+                  inner join orga.tcargo tt on tt.id_cargo=uofun.id_cargo 
+                  inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=tt.id_tipo_contrato
+                  
                   and cv.codigo_columna in (''HOREFEC'')
                   and f.id_uo_funcionario=fp.id_uo_funcionario
-                  where '||v_parametros.filtro;
-                
+                  where '||v_parametros.filtro||v_filtro||v_group;
+                raise notice 'consulta: %',v_cons;
             for v_registros in execute( v_cons
-                  
-                            ) loop 
+                  ) loop 
                       
       			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
                   
@@ -855,19 +981,14 @@ BEGIN
                   end if;*/
 
               		insert into tt_func 
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub, 0, 0, 0, 0 );
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub, 0, 0, 0, 0 ,v_registros.fecha_finalizacion );
            
           			--#84: si la planilla para la cual se consulta no es sueldo == añadir mas columnas porq es de reintegro (7 columnas)                         
                    if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
                          if(v_parametros.id_tipo_planilla>0 and v_parametros.id_tipo_planilla in (select id_tipo_planilla from plani.ttipo_planilla where codigo='PLANRE' )) then
-                            
-                            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
-                                if(v_parametros.id_tipo_contrato>0) then
-                                    v_condicion := v_condicion ||' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') '; --#108
-                                end if;
-                            end if;
-                            
-							execute ' select cv.valor, 
+                           
+							execute ' select sum(valor) as valor, sum(var1) as var1, sum(var2) as var2, sum(var3) as var3 from 
+                            (select cv.valor, 
                             (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla
                             and codigo_columna=''PRMAFP_VAR1'') as var1,
                             (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla
@@ -879,7 +1000,10 @@ BEGIN
 							inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla and repo.id_reporte='||v_parametros.id_reporte||'
                             inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                             and cv.codigo_columna=''PRMCOTIZABLE''
-                            and id_funcionario='||v_registros.id_funcionario||' and '||v_parametros.filtro into v_registros_det;
+                            inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                            inner join orga.tcargo tt on tt.id_cargo=uofun.id_cargo 
+		                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=tt.id_tipo_contrato
+                            and fp.id_funcionario='||v_registros.id_funcionario||' and '||v_parametros.filtro ||v_filtro|| ' )as foo' into v_registros_det;
                            
                          
                             update tt_func
@@ -887,31 +1011,36 @@ BEGIN
                             nvar1=v_registros_det.var1,
                             nvar2=v_registros_det.var2,
                             nvar3=v_registros_det.var3 where id_funcionario=v_registros.id_funcionario;
-                            
-                            
-                         else
-                             v_condicion:=v_condicion ||' and repo.id_reporte='||v_parametros.id_reporte;--#108
-                             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
-                                if(v_parametros.id_tipo_contrato>0) then
-                                    v_condicion := v_condicion ||' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
-                                end if;
-                             end if;
+                         
                          end if;
                    end if;
          			
-          
-          
             end loop;
               
            
-
-            --#72
-            
+           
+           if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+                  if(v_parametros.id_tipo_planilla>0 and v_parametros.id_tipo_planilla in (select id_tipo_planilla from plani.ttipo_planilla where codigo='PLANRE' )) then
+                  else
+                  		--v_condicion:=v_condicion ||' and repo.id_reporte='||v_parametros.id_reporte;--#108
+                  end if; 
+           end if;
+          
+           --#72
+           v_filtro:='';
+           if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+                     if (v_parametros.consolidar='si') then
+                       v_filtro:=' and plani.id_periodo <= '||v_parametros.id_periodo;
+                     else
+                       v_filtro:=' and plani.id_periodo = '||v_parametros.id_periodo;
+           			end if;
+           end if;
         	v_consulta:='select distinct fp.id_funcionario,per.apellido_paterno, per.apellido_materno,split_part(per.nombre,'' '',1)::varchar as primer_nombre, 
 						(split_part(per.nombre,'' '',2)||'' ''||split_part(per.nombre,'' '',3))::varchar as segundo_nombre,rep.ci,
                          ''CI''::varchar as ci, rep.expedicion,
-                         cv.valor, tcol.codigo,  rep.edad::integer, rep.nro_afp, tt.tipo_jub  ,
-                         (select nombre from param.tlugar where id_lugar =(select param.f_get_id_lugar_tipo(fp.id_lugar,''departamento'')))::varchar as departamento,  rep.desc_funcionario2
+                         sum(cv.valor), tcol.codigo,  rep.edad::integer, rep.nro_afp, tt.tipo_jub  ,
+                         (select nombre from param.tlugar where id_lugar =(select param.f_get_id_lugar_tipo(fp.id_lugar,''departamento'')))::varchar as departamento,  
+                         rep.desc_funcionario2
                          , 
 						(case when 
                             tt.fecha_ingreso between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''  then
@@ -919,16 +1048,14 @@ BEGIN
                             else 
                             null::date
                             end) as fecha_ingreso,
-                         ( case when rep.fecha_finalizacion is not null and rep.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||''' then
-                            rep.fecha_finalizacion
+                         ( case when tt.fecha_finalizacion is not null and tt.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||''' then
+                            tt.fecha_finalizacion
                          else
                            null::date
                            end
                          ) as fecha_finalizacion, rep.nombre_afp, rep.id_afp,
-                         param.f_get_periodo_literal(plani.id_periodo) as periodo,
+                         param.f_get_periodo_literal('||v_parametros.id_periodo||') as periodo,
                          
-   
-    
    						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
 						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3 --#83
                          from '||v_esquema||'.tplanilla plani
@@ -941,16 +1068,21 @@ BEGIN
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
                          inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar
-                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                        -- inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                          where '||v_parametros.filtro||' and tcol.codigo in (''COTIZABLE'') 
-                         and rep.id_afp='||v_parametros.id_afp||v_condicion||'
+                         and rep.id_afp='||v_parametros.id_afp||v_condicion||v_filtro||'
                          
+                         group by fp.id_funcionario,per.apellido_paterno, per.apellido_materno,per.nombre,
+                         rep.ci, rep.expedicion,tcol.codigo,  rep.edad,nro_afp, tt.tipo_jub,rep.desc_funcionario2, tt.fecha_ingreso,  tt.fecha_finalizacion,
+                         rep.nombre_afp, rep.id_afp, fp.id_lugar,
+                         
+   						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
+						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3
                          order by  rep.desc_funcionario2'; 
                         
                          raise notice '**%',v_consulta;  
                          
-						
- 
+					
                          return v_consulta;
         end; 
     elsif (p_transaccion='PLA_DATPERSON_SEL') then
@@ -1071,7 +1203,14 @@ BEGIN
             )on commit drop;
 
 			v_cons:=' select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
-                      f.fecha_finalizacion
+                     (select fecha_finalizacion from orga.tuo_funcionario uoff
+									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
+  									 where id_funcionario=fp.id_funcionario
+									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
+									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+									 and cc.id_cargo=f.id_cargo
+									 order by fecha_finalizacion desc limit 1
+									) as fecha_finalizacion
                       from '||v_esquema||'.tfuncionario_planilla fp
                       inner join '||v_esquema||'.tplanilla p on p.id_planilla=fp.id_planilla
                       inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
@@ -1104,7 +1243,7 @@ BEGIN
       
 		    v_consulta:='select fun.id_funcionario,
                             per.apellido_paterno, per.apellido_materno, per.nombre,
-                            fun.ci,
+                            per.ci,
                            
                             (select periodo from param.tperiodo where id_periodo=plani.id_periodo),
                             (select gestion from param.tgestion where id_gestion=plani.id_gestion),
@@ -1122,7 +1261,7 @@ BEGIN
                         inner join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                         and repcol.codigo_columna = colval.codigo_columna
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
-						inner join plani.vrep_funcionario fun on fun.id_uo_funcionario = uofun.id_uo_funcionario
+						inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
 						inner join orga.tfuncionario ff on ff.id_funcionario=fun.id_funcionario
 						inner join segu.tpersona per on per.id_persona=ff.id_persona
                         inner join tt_func tf on tf.id_funcionario=ff.id_funcionario 
@@ -1148,6 +1287,7 @@ BEGIN
           if(v_parametros.fecha is not null) then
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
               execute ' select distinct plani.fecha_planilla 
                  from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
@@ -1156,6 +1296,7 @@ BEGIN
                  plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
               v_fecha:=v_registros_det.fecha_planilla;
               v_id_periodo:=v_parametros.id_periodo;
+              v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else
              execute ' select distinct plani.fecha_planilla 
@@ -1165,6 +1306,7 @@ BEGIN
                  plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
         end if;   
             
             
@@ -1175,6 +1317,36 @@ BEGIN
               end if;
             end if;
              
+            
+            
+            --#98
+            v_filtro_estado:='';
+
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+          		else
+                     v_filtro_estado:=' 
+                    and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                     
+                     
+                      ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                          
+               end if;
+			end if;
              
             if (v_parametros.tipo_reporte='dependientes') then --#89
              
@@ -1194,9 +1366,12 @@ BEGIN
               inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
               inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+              inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
               --where pla.id_periodo='||v_id_periodo||v_condicion||'
-              where '||v_parametros.filtro||v_condicion||'
+              where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
               order by repf.desc_funcionario2, pr.relacion, pr.fecha_nacimiento';
+              raise notice 'dep%', v_consulta;
+              
             else
             
                  create temp table tt_func_antiguedad(
@@ -1233,7 +1408,8 @@ BEGIN
                				inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla 
                             inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
                             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
-                            where '||v_parametros.filtro||v_condicion||'
+                            inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+                            where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
                             
                             and pr.relacion ilike ''%hij%''
                             and  date_part(''year'', age(pr.fecha_nacimiento)) between '||  v_contador ||' and '||  v_fin ||'
@@ -1275,15 +1451,21 @@ BEGIN
           if(v_parametros.fecha is not null) then
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
+             --#98
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
-        else
+        else  
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
+             --#98
+             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+             
         end if;
           
         --#66
@@ -1398,6 +1580,36 @@ BEGIN
                    v_esquema = 'plani';
             END IF;
             
+            --#98
+            v_filtro_estado:='';
+
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  and uof.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+                          
+            	else
+                     v_filtro_estado:=' 
+                    and (( uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                     
+                     
+                      ( uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  and uof.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+               end if;
+			end if;
+            
+            
             v_filtro:='select tf.id_funcionario,  trim (both ''FUNODTPR'' from tf.codigo) as codigo,p.ci, p.tipo_documento, p.expedicion, 
                                 fafp.nro_afp, 
                                 p.apellido_paterno, p.apellido_materno, 
@@ -1477,10 +1689,10 @@ BEGIN
                                 plani.id_periodo='||v_id_periodo||v_condicion||' and 
             					plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla) and 
 
-                                tippla.codigo=''PLASUE'' 
+                                tippla.codigo=''PLASUE'' '||v_filtro_estado||'
                                 order by '||v_ordenar;
 
-            raise notice '%', v_filtro;      
+            raise notice '----%', v_filtro;      
     		for v_registros in execute( v_filtro
 				) loop
                 v_consulta_det:='select tc.codigo, cv.valor 
@@ -1813,7 +2025,7 @@ BEGIN
                         and uofun.estado_reg=''activo'' '||v_condicion||'
                         and uofun.tipo=''oficial''
                         order by uofun.fecha_finalizacion,fun.desc_funcionario2, fun.codigo';
-       
+       raise notice '***%',v_consulta;
        		return v_consulta;
        			
         end;
@@ -1824,10 +2036,12 @@ BEGIN
 			--#77
 		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
+                 v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
        	   else
                v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
+                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
            end if;
        
            v_condicion:=' and 0=0';
@@ -1844,7 +2058,51 @@ BEGIN
                    v_esquema = 'plani';
            END IF; 
              
-             
+            -- #98
+            v_filtro_estado:='';
+			v_filtro_estado1:='';
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                    
+                    v_filtro_estado1:='  and uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+                          
+                          v_filtro_estado1:='  and uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  and uofunn.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+                          
+                else
+                     v_filtro_estado:=' 
+                    and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                      ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                           
+                    v_filtro_estado1:=' 
+                    and (( uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                      ( uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  and uofunn.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';      
+               end if;
+			end if;
    
               v_consulta:='select distinct tc.codigo, tc.nombre, (select count(*) from segu.tpersona pp inner join 
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
@@ -1856,7 +2114,7 @@ BEGIN
               inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
               and ffp.id_planilla=plani.id_planilla
                where carr.id_tipo_cargo=tc.id_tipo_cargo
-              and genero=''femenino'')::integer as femenino , 
+              and genero=''femenino'' '||v_filtro_estado1||' )::integer as femenino , 
               
               (select count(*) from segu.tpersona pp inner join 
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
@@ -1868,7 +2126,7 @@ BEGIN
               inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
               and ffp.id_planilla=plani.id_planilla
                where carr.id_tipo_cargo=tc.id_tipo_cargo
-              and genero!=''femenino'')::integer as masculino
+              and genero!=''femenino'' '||v_filtro_estado1||')::integer as masculino
               from orga.ttipo_cargo tc
               inner join orga.tcargo c on c.id_tipo_cargo=tc.id_tipo_cargo
               inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo
@@ -1880,7 +2138,7 @@ BEGIN
               where ';
                           v_consulta:=v_consulta||v_parametros.filtro;
                            v_consulta:=v_consulta||' and tc.estado_reg=''activo'' AND uofun.estado_reg=''activo'' and plani.id_tipo_contrato=tcon.id_tipo_contrato '||v_condicion||'
-              and plani.id_periodo='||v_id_periodo||'
+              and plani.id_periodo='||v_id_periodo||v_filtro_estado||'
              
               order by tc.nombre';
               raise notice '%',v_consulta;
@@ -1902,6 +2160,49 @@ BEGIN
               ELSE
                    v_esquema = 'plani';
               END IF;
+              
+              --#98
+              if (pxp.f_existe_parametro(p_tabla , 'id_periodo'))then  
+        		 v_id_periodo:=v_parametros.id_periodo;
+                 v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             else
+                 v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
+                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
+                 where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
+                  v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             end if;
+             
+             
+             -- #98
+            v_filtro_estado:='';
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+            	else
+                     v_filtro_estado:=' 
+                    and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                     
+                     
+                      ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                
+                
+                
+                end if;
+			end if;
+              
               v_consulta:='select distinct c.codigo, c.nombre from orga.tcargo c 
                 inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
                 inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo 
@@ -1912,8 +2213,9 @@ BEGIN
                           v_consulta:=v_consulta||v_parametros.filtro;
                            v_consulta:=v_consulta||' and c.estado_reg=''activo'' '||v_condicion||' and uofun.estado_reg=''activo''
                -- and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now())
-                and uofun.tipo=''oficial''
+                and uofun.tipo=''oficial'' '||v_filtro_estado||'
                 order by c.nombre';
+                raise notice '***%', v_consulta;
               return v_consulta;
       end;
       
@@ -1933,6 +2235,40 @@ BEGIN
                    v_esquema = 'plani';
               END IF;
 
+			  if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
+        		v_id_periodo:=v_parametros.id_periodo;
+                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+       	      end if;
+				
+              --#98
+            	v_filtro_estado:='';
+
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+          		else
+                     v_filtro_estado:=' 
+                    and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                     
+                     
+                      ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                          
+               end if;
+			end if;
+
    			  --#77
               v_consulta:='select distinct cat.descripcion as profesion, --#81
               				trim (both ''FUNODTPR'' from fun.codigo)::varchar as codigo ,vfun.desc_funcionario2  
@@ -1944,7 +2280,7 @@ BEGIN
                           inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                           inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                           
-                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=uofun.id_funcionario
+                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
                           inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
 						  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                           left join param.tcatalogo cat on cat.codigo=fun.profesion
@@ -1952,10 +2288,10 @@ BEGIN
                           v_consulta:=v_consulta||v_parametros.filtro;
                            v_consulta:=v_consulta||' and 
                           car.estado_reg=''activo'' and uofun.estado_reg=''activo'' and uofun.tipo=''oficial''
-                          '||v_condicion||'
+                          '||v_condicion||v_filtro_estado||'
                           -- and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now() )
                           order by cat.descripcion, vfun.desc_funcionario2'; --#81
-
+raise notice '***:%',v_consulta;
        			return v_consulta;
        end;
       
@@ -1979,12 +2315,13 @@ BEGIN
               --#77
 		    if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
+                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
        	    else
                
                v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
-
+				v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
             end if;
        
        --#77
@@ -2006,6 +2343,31 @@ BEGIN
        elsif(v_parametros.tipo_reporte='nacimiento_mes') then
        		v_ordenar:='(SELECT EXTRACT(MONTH FROM vrep.fecha_nacimiento)),(SELECT EXTRACT(DAY FROM vrep.fecha_nacimiento)), vrep.desc_funcionario2';
        end if;
+       
+        -- #98
+            v_filtro_estado:='';
+            if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                    v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    ) ';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                       v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          ';
+            	else
+                     v_filtro_estado:=' 
+                    and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
+                    )
+                     ) or
+                      ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                          ';
+                end if;
+			end if;
        
   			v_consulta:='select ofi.nombre as nombre_oficina, 
                           trim(both ''FUNODTPR'' from vrep.codigo)::varchar as codigo_funcionario,vrep.desc_funcionario2,vrep.nombre_cargo
@@ -2032,7 +2394,7 @@ BEGIN
                           '||v_estado||'
                           where
                           ';
-                           v_consulta:=v_consulta||v_parametros.filtro;
+                           v_consulta:=v_consulta||v_parametros.filtro||v_filtro_estado;
                            v_consulta:=v_consulta||' order by '||v_ordenar;
                            raise notice '%',v_consulta;
             return v_consulta;

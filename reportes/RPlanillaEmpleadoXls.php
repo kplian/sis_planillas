@@ -312,7 +312,14 @@ class RPlanillaEmpleadoXls
 				//#89				      
 				$tipcon='';
 				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
-					$tipcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					//#98
+					if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
+					}else{
+						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					}
+					
+					
 				}	  
 					         
 if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){

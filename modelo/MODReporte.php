@@ -363,7 +363,7 @@ class MODReporte extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 		
-		//echo "**REP**".$this->getConsulta(); exit;
+		 //echo "**REP**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		

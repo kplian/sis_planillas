@@ -7,7 +7,8 @@
  #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
  #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
  #89	ETR				14.01.2020			MZM					Ajuste a primer registro de clasif. de personal por profesiones, quitar alineado a la izq.
-*/
+ #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
+**/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
 	var $ancho_hoja;
@@ -53,7 +54,15 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$this->SetY(20);
 		$cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($cadena_nomina!=''){
-			$cadena_nomina='('.$cadena_nomina.')';
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$cadena_nomina=' ('.$cadena_nomina.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$cadena_nomina='('.$cadena_nomina.')';
+			}
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+			$cadena_nomina=' ('.$this->objParam->getParametro('personal_activo').')';}
 		}
 		
 

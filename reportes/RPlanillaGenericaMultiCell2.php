@@ -7,6 +7,7 @@
 //#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla
 //#91	ETR		MZM			02.02.2020 				Para planillas que tienen un solo funcionario, el dibujado de la informacion no se hace en el for, por tanto la posicion en Y para el ultimo registro (que se hace fuera del loop, no considera el alto del grupo titulos)
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
+//#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -47,9 +48,21 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
 	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  ){
-	    	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+	    	
+		 if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+		 }else{
+		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+		 }
+			
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
 	    }
+		else{
+			
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+		 		$tipo_con='('.$this->objParam->getParametro('personal_activo').')';
+			 }
+		}
 		$this->Ln(1);
 		$this->Cell($this->ancho_hoja-30, 3, '', '', 0, 'R');
 		$this->Cell(30,3,$this->datos_titulo['depto'],'',1,'C');
@@ -74,6 +87,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		
 				
 		$this->SetFont('','B',12);
+		
+	
+		
 		
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 

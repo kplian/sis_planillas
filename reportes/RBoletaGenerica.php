@@ -6,6 +6,8 @@
  * #71		ETR			MZM		12.11.2019	Refactorizacion de reporte boleta para planillas anuales
  * #80		ETR			MZM		28.11.2019	Ajuste formato numeric
  * #83		ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
+ * #98		ETR			MZM		04.03.2020	Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+ * 
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -39,7 +41,7 @@ class RBoletaGenerica extends  ReportePDF {
 		
 		if($this->datos_titulo['multilinea']=='si'){
 			
-			
+		
 				$x=($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*2*4)+15;
 				
 				$id_fun=$this->datos_detalle[0]['id_funcionario'];
@@ -101,8 +103,19 @@ class RBoletaGenerica extends  ReportePDF {
 						if(strpos ( $this->datos_titulo['titulo_reporte'] , 'REINTEGRO')> 0 ){
 							$tipo_bol='Reintegro';
 						}
+					
+					    //$this->Cell(0,5, $tipo_bol.' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+					    //#98 
+						if ($this->objParam->getParametro('consolidar')=='si'){
+							$tipo_bol=$tipo_bol. ' acumulado a '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+						}else{
+							$tipo_bol=$tipo_bol. ' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+						}
 						
-					    $this->Cell(0,5, $tipo_bol.' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+						
+					    $this->Cell(0,5, $tipo_bol,0,1,'C');//#98
+					    
+					    
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					  
@@ -293,7 +306,28 @@ class RBoletaGenerica extends  ReportePDF {
 						$this->SetFont('','B',15);
 					    $this->Cell(0,5,$this->datos_titulo['titulo_reporte'],0,1,'C');
 					    $this->SetFont('','B',10);
-					    $this->Cell(0,5, 'Sueldo del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+					   
+						
+						$tipo_bol='Sueldo';
+						if(strpos ( $this->datos_titulo['titulo_reporte'] , 'REINTEGRO')> 0 ){
+							$tipo_bol='Reintegro';
+						}
+					
+					    //$this->Cell(0,5, $tipo_bol.' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'],0,1,'C');
+					    //#98 
+						if ($this->objParam->getParametro('consolidar')=='si'){
+							$tipo_bol=$tipo_bol. ' acumulado a '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+						}else{
+							$tipo_bol=$tipo_bol. ' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+						}
+						
+						
+					    $this->Cell(0,5, $tipo_bol,0,1,'C');//#98
+					    
+						
+						
+						
+						
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					   

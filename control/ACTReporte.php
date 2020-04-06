@@ -18,6 +18,7 @@
  * #83			MZM			09.12.2019				Habilitacion de Reporte para backup de planillas
  * #87			MZM			09.01.2020				Reporte detalle de aguinaldos
  * #99			MZM			03.03.2020				Adicion de filtro sesion de funcionario
+   #98			MZM			03.03.2020  				Adicion de opciones estado_funcionario (activo, retirado, todos) 
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -640,7 +641,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 		$this->objParam->addParametro('id_gestion',$id_gestion);
 		
 		//#83
-		if( $this->objParam->getParametro('tipo_reporte')=='formato_especifico' && $this->objParam->getParametro('control_reporte')=='fondo_solidario'){
+		if( $this->objParam->getParametro('control_reporte')=='fondo_solidario' ||  $this->objParam->getParametro('control_reporte')=='aporte_afp' ){
         }else{
         	$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte); //#83
 		}
@@ -1079,9 +1080,17 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)	{
             $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
         }
 
-        if ($this->objParam->getParametro('id_periodo') != '') {
-            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
-        }
+        //if ($this->objParam->getParametro('id_periodo') != '') {
+          //  $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+        //}
+		
+		//#98
+		if ($this->objParam->getParametro('consolidar')=='no' || $this->objParam->getParametro('consolidar')==''){
+
+	        if ($this->objParam->getParametro('id_periodo') != '') {
+	            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+	        }
+		}
 		
 		
 		if ($this->objParam->getParametro('id_reporte') != '') {
@@ -1170,10 +1179,17 @@ function reporteBancosDet()	{ //#56
             $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
         }
 
-        if ($this->objParam->getParametro('id_periodo') != '') {
+        /*if ($this->objParam->getParametro('id_periodo') != '') {
             $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
-        }
+        }*/
 		
+		//#98
+		if ($this->objParam->getParametro('consolidar')=='no' || $this->objParam->getParametro('consolidar')==''){
+
+	        if ($this->objParam->getParametro('id_periodo') != '') {
+	            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
+	        }
+		}
 		
 			//***************
 		if ($this->objParam->getParametro('id_reporte') != '') {

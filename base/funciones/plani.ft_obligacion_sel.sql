@@ -1,11 +1,18 @@
-CREATE OR REPLACE FUNCTION plani.ft_obligacion_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- FUNCTION: plani.ft_obligacion_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.ft_obligacion_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_obligacion_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Planillas
  FUNCION:         plani.ft_obligacion_sel
@@ -28,6 +35,7 @@ $body$
  #84			  18.12.2019		MZM						Considerar tipo_contrato para planilla resumen de aguinaldos
  #83	ETR		  09.12.2019		MZM						Habilitacion de reporte para backup de planilla
  #88	ETR		  14.01.2020		MZM						Modificacion a PLA_ABOCUE_SEL para abono en planilla de aguinaldo
+ #98	ETR		  23.03.2020		MZM						Inclusion de condiciones para manejo de personal activo/retirado y consolidado
 */
 
 DECLARE
@@ -38,7 +46,17 @@ DECLARE
     v_resp                varchar;
     v_esquema             varchar; --#78
     v_condicion			  varchar; --#84
-            
+    
+    v_fecha_backup 		date;--#98
+    v_filtro			varchar;--#98
+    v_group				varchar;--#98
+    v_sum_group			varchar;--#98
+    v_periodo_group		varchar; --#98
+    v_periodo_fin		varchar; --#98
+    v_oficina_inner		varchar; --#98
+    v_oficina_dato		varchar; --#98
+    v_oficina_group		varchar;
+    v_oficina_orden		varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.ft_obligacion_sel';
@@ -250,6 +268,44 @@ BEGIN
               v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
             end if;
           end if; 
+          
+          --#98
+          v_filtro:='';
+          if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
+          		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+                
+                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                      if(v_parametros.estado_funcionario='activo') then
+                          v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                                or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
+                                and plani.id_periodo='||v_parametros.id_periodo||'
+                                )
+                                ) ';
+                          
+                	  elsif (v_parametros.estado_funcionario='retirado') then
+                          v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                                     --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                                      and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                                ';
+                      else
+                     v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                and 
+                 (
+                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and plani.id_periodo='||v_parametros.id_periodo||')
+        		)
+                or
+                (
+                  uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                          -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                          and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                )
+                )';
+                      end if;
+                      
+                  end if;
+          end if;
             
            v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
@@ -269,7 +325,7 @@ BEGIN
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         where ';
-                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
+                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
                         v_consulta:=v_consulta||'
                         group by  tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre
@@ -290,7 +346,7 @@ BEGIN
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
                         and o.tipo_pago = ''cheque'' and tob.tipo_obligacion = ''pago_empleados''
                         where ';
-                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
+                        v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
                         v_consulta:=v_consulta||'
                         group by 
                         tc.nombre , ofi.orden,
@@ -317,10 +373,87 @@ BEGIN
           ELSE
                  v_esquema = 'plani';
           END IF;
-            v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar ,
-                        upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
+          
+          --#98
+          v_filtro:='';
+          if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
+          		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+                
+                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                      if(v_parametros.estado_funcionario='activo') then
+                          v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                                or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
+                                and plani.id_periodo='||v_parametros.id_periodo||'
+                                )
+                                ) ';
+                          
+                	  elsif (v_parametros.estado_funcionario='retirado') then
+                          v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                                     --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                                      and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                                ';
+                      else
+                     v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                and 
+                 (
+                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and plani.id_periodo='||v_parametros.id_periodo||')
+        		)
+                or
+                (
+                  uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                          -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                          and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                )
+                )';
+                      end if;
+                      
+                  end if;
+          end if;
+          
+          
+          v_sum_group:='';
+          v_group:='';
+          v_periodo_group:='upper( param.f_get_periodo_literal(plani.id_periodo))';
+          v_periodo_fin:='';
+          v_oficina_inner:='';
+          v_oficina_dato:='ofi.nombre';
+          v_oficina_group:=v_oficina_dato;
+          v_oficina_orden:='ofi.orden';
+          if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+              if(v_parametros.consolidar='si') then
+                  v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo;
+                  v_sum_group:='select oficina, sum(monto_pagar),periodo_lite, banco, tipo_pago, tipo_contrato, desc_funcionario2, nro_cuenta
+                  ,orden, codigo, ci
+                   from (';
+                  v_group:=') as foo
+                        group by 1,3,4,5,6,7,8,9,10,11';
+                  v_periodo_group:='upper( param.f_get_periodo_literal('||v_parametros.id_periodo||'))';
+                  
+                  
+                  
+                   if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                      /* if(v_parametros.estado_funcionario!='retirado') then
+                      
+                           v_oficina_inner:=' inner join '||v_esquema||'.vorden_planilla v on v.id_funcionario=fun.id_funcionario
+                   				and v.id_periodo= '||v_parametros.id_periodo;
+                           v_oficina_dato:='v.oficina';
+                           v_oficina_group:=v_oficina_dato;
+                           v_oficina_orden:='v.orden_oficina';
+                       end if;*/
+        
+           		   end if;
+                   
+                  
+              end if;
+          end if;
+          
+   
+            v_consulta:=v_sum_group||'select '||v_oficina_dato||' as oficina,sum(df.monto_transferencia)  as monto_pagar ,
+                        '||v_periodo_group||' as periodo_lite,ins.nombre as banco,
                         ''Banco'' as tipo_pago,  tc.nombre as tipo_contrato, fun.desc_funcionario2,df.nro_cuenta 
-                        , ofi.orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
+                        , '||v_oficina_orden||' as orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
                         --#84
                         ,fun.ci
                         from '||v_esquema||'.tdetalle_transferencia df
@@ -334,16 +467,17 @@ BEGIN
                         inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                        '||v_oficina_inner||'
                         where ';
-            v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
-            v_consulta:=v_consulta||' group by  tc.nombre , ofi.orden,
-            ofi.nombre ,o.tipo_pago
+            v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
+            v_consulta:=v_consulta||' group by  tc.nombre , '||v_oficina_orden||',
+            '||v_oficina_group||' ,o.tipo_pago
             , plani.id_periodo , ins.nombre,fun.desc_funcionario2, df.nro_cuenta, fun.codigo, fun.ci
                         union all
-                        select ofi.nombre as oficina,sum(o.monto_obligacion) as monto_pagar ,
-                        upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,''SIN BANCO'' as banco,
+                        select '||v_oficina_dato||' as oficina,sum(o.monto_obligacion) as monto_pagar ,
+                        '||v_periodo_group||' as periodo_lite,''SIN BANCO'' as banco,
                         ''cheque'' as tipo_pago,  tc.nombre as tipo_contrato, fun.desc_funcionario2 ,''''::varchar as nro_cuenta
-                        ,ofi.orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
+                        ,'||v_oficina_orden||' as orden, trim (both ''FUNODTPR'' from fun.codigo) as codigo
                         --#84
                         ,fun.ci
                         from '||v_esquema||'.tobligacion o 
@@ -356,20 +490,21 @@ BEGIN
                         join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina 
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
+                        '||v_oficina_inner||'
                         and o.tipo_pago = ''cheque'' and tob.tipo_obligacion = ''pago_empleados'' 
                         where ';
-            v_consulta:=v_consulta||v_parametros.filtro||v_condicion;--#84
+            v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
             v_consulta:=v_consulta||' group by 
-            tc.nombre , ofi.orden,
-            ofi.nombre ,o.tipo_pago
+            tc.nombre , '||v_oficina_orden||',
+            '||v_oficina_group||' ,o.tipo_pago
             , plani.id_periodo
             , fun.desc_funcionario2, fun.codigo, fun.ci
                         order by  6 desc, 5 desc,  9 asc,
                         1 asc,4 asc
                         , 7 asc
-                        ';
+                        '||v_group;
 
-                        
+                   raise notice '%', v_consulta;     
             
             return v_consulta;
         
@@ -412,5 +547,7 @@ EXCEPTION
             v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
             raise exception '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql';
+$BODY$;
+
+ALTER FUNCTION plani.ft_obligacion_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
