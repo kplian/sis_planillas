@@ -279,7 +279,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				$columnas++;
 			}else{
 				if($this->GetY()<$this->posY ){
-					$this->SetY($this->posY);
+					$this->SetY($this->posY+1);
 				}
 				
 				
