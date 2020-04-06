@@ -278,7 +278,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				$columnas++;
 			}else{
-				
+				echo '-else-'.$this->GetY().'---'.$this->posY; exit;
 				if($id_funcionario!=$this->datos_detalle[$i+1]['id_funcionario'] ){
 					
 					
