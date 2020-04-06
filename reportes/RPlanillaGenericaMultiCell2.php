@@ -187,7 +187,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$subtotal=array();	
 		setlocale(LC_MONETARY, 'it_IT');
 		for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
-			echo $this->posY.'---'.$this->gerencia.'***'.$this->datos_detalle[$i]['gerencia']; exit;
+			
 			if($this->gerencia!=$this->datos_detalle[$i]['gerencia']){
 				$this->SetFont('','',6);
 				
