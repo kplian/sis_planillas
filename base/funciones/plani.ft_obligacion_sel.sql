@@ -352,7 +352,7 @@ BEGIN
                         tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo
                         order by 6 desc, 5 desc, 7 asc,1 asc, 4 asc
-                        ';
+                        '; raise notice '%',v_consulta;
            return v_consulta;
         
         END; 
