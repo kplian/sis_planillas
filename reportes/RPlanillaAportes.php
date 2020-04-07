@@ -394,7 +394,7 @@ class RPlanillaAportes extends  ReportePDF {
 						}
 					}
 					
-					$cont++;
+					//$cont++;
 				}
 
 

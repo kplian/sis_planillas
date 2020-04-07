@@ -763,7 +763,9 @@ BEGIN
 								pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))),'''||v_fecha||''')
                            else
                                (case when ff.fecha_quinquenio>'''||v_fecha||''' then
-                                   30
+                                  
+                                   pxp.f_get_dias_mes_30( (ff.fecha_quinquenio -  interval ''60 month'')::date, '''||v_fecha||''')
+                                   
                                 else
 		                           pxp.f_get_dias_mes_30( ff.fecha_quinquenio, '''||v_fecha||''')
                                 end )
@@ -857,7 +859,7 @@ BEGIN
            
             --19.09.2019#45
             if(v_parametros.tipo_reporte='fondo_solidario') then
-                v_condicion:=v_condicion||' and cv.valor>=13000';
+                --v_condicion:=v_condicion||' and cv.valor>=13000';
                 
             end if;
             
