@@ -997,7 +997,7 @@ BEGIN
                             and codigo_columna=''PRMAFP_VAR3'') as var3
                             from '||v_esquema||'.tfuncionario_planilla fp inner join 
                             '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla and plani.id_tipo_planilla='||v_parametros.id_tipo_planilla||'
-							inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla and repo.id_reporte='||v_parametros.id_reporte||'
+							
                             inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                             and cv.codigo_columna=''PRMCOTIZABLE''
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
@@ -1647,8 +1647,15 @@ BEGIN
 
                                 pxp.f_iif(tf.fecha_quinquenio is null,(plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario)))||'''', tf.fecha_quinquenio||'''')::date as fecha_quinquenio,
                                 tf.antiguedad_anterior, plani.fecha_planilla,
-                                p.celular1, fcb.nro_cuenta, ins.nombre as banco
-
+                                p.celular1,
+                                
+                                (select fcb.nro_cuenta from orga.tfuncionario_cuenta_bancaria fcb where fcb.id_funcionario=tf.id_funcionario and fcb.estado_reg=''activo''
+                                and plani.fecha_planilla between fcb.fecha_ini and coalesce (fcb.fecha_fin,plani.fecha_planilla))
+                                 as nro_cuenta
+                                ,
+                                (select ins.nombre from orga.tfuncionario_cuenta_bancaria fcb inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion where fcb.id_funcionario=tf.id_funcionario and fcb.estado_reg=''activo''
+                                and plani.fecha_planilla between fcb.fecha_ini and coalesce (fcb.fecha_fin,plani.fecha_planilla) )
+                                as banco
                                 ,fp.id_funcionario_planilla, uof.fecha_finalizacion, uof.observaciones_finalizacion,
                                 afp.nombre as nombre_afp
                                 
@@ -1681,9 +1688,6 @@ BEGIN
                                 inner join orga.tescala_salarial esc on esc.id_escala_salarial=car.id_escala_salarial
                                 inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                                 inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
-                                inner join orga.tfuncionario_cuenta_bancaria fcb on fcb.id_funcionario=tf.id_funcionario and fcb.estado_reg=''activo''
-                                and plani.fecha_planilla between fcb.fecha_ini and coalesce (fcb.fecha_fin,plani.fecha_planilla)
-                                inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion
                                 inner join '||v_esquema||'.vorden_planilla orden on orden.id_funcionario_planilla=fp.id_funcionario_planilla and orden.id_periodo=plani.id_periodo
                                 where '||v_parametros.filtro|| ' and
                                 plani.id_periodo='||v_id_periodo||v_condicion||' and 
