@@ -349,7 +349,11 @@ class RPlanillaAportes extends  ReportePDF {
 							  		     $array_datos[$cont][15]=round($this->datos[$i]['valor']-13000,2);
 							  	
 							  	}else{
-							  		$array_datos[$cont][15]=0.00;
+							  		
+										$array_datos[$cont][15]=0.00;
+									
+									
+							  		
 							  		
 							  	}
 							  	
@@ -381,6 +385,15 @@ class RPlanillaAportes extends  ReportePDF {
 							 $array_datos[$cont][19]=$this->datos[$i]['nvar1'];
 							 $array_datos[$cont][20]=$this->datos[$i]['nvar2'];
 							 $array_datos[$cont][21]=$this->datos[$i]['nvar3'];
+					
+					if(($this->objParam->getParametro('codigo_planilla')=='PLASUE' )){
+						$cont++;
+					}else{
+						if(($this->datos[$i]['nvar1']+$this->datos[$i]['nvar2']+$this->datos[$i]['nvar3']) >0){
+							$cont++;
+						}
+					}
+					
 					$cont++;
 				}
 
