@@ -918,7 +918,7 @@ BEGIN
               
             )on commit drop; 
 			v_cons:=v_sum_group||'select fp.id_funcionario, 
-            		plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso 
+            		plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion) as fecha_ingreso 
                   , 
                   	(select fecha_finalizacion from orga.tuo_funcionario uoff
 									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
@@ -948,7 +948,7 @@ BEGIN
                   ) as var3 --#45
                   from '||v_esquema||'.tfuncionario_planilla fp
                   inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
-                  inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
+                  --inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE''
                   inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                   --inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
@@ -957,7 +957,7 @@ BEGIN
                   inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=tt.id_tipo_contrato
                   
                   and cv.codigo_columna in (''HOREFEC'')
-                  and f.id_uo_funcionario=fp.id_uo_funcionario
+                  --and f.id_uo_funcionario=fp.id_uo_funcionario
                   where '||v_parametros.filtro||v_filtro||v_group;
                 raise notice 'consulta: %',v_cons;
             for v_registros in execute( v_cons
@@ -1064,7 +1064,7 @@ BEGIN
                          inner join segu.tpersona per on per.id_persona=fun.id_persona
                          inner join plani.vrep_funcionario rep on rep.id_funcionario=fp.id_funcionario and fp.id_uo_funcionario=rep.id_uo_funcionario
                          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo in (''PLASUE'')
-                         inner join tt_func tt on tt.id_funcionario=fp.id_funcionario
+                         inner join tt_func tt on tt.id_funcionario=fp.id_funcionario and tt.tipo_jub =rep.tipo_jubilado
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
                          inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar

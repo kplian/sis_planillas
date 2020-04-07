@@ -61,8 +61,12 @@ class RPlanillaAportes extends  ReportePDF {
 		
 		$this->SetFont('','B',10);
 		
-		$this->Cell(0,5,'Correspondiente al Periodo : '.$this->datos[0]['periodo'],0,1,'C');
-	
+		if ($this->objParam->getParametro('consolidar')=='si'){//#98
+							
+				$this->Cell(0,5,'Acumulado a: ' . $this->datos[0]['periodo'],0,1,'C');
+		}else{
+				$this->Cell(0,5,'Correspondiente al Periodo : '.$this->datos[0]['periodo'],0,1,'C');
+		}
 		
 		$this->Ln(4);			
 		//Titulos de columnas superiores

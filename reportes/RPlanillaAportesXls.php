@@ -306,7 +306,13 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 				 $this->docexcel->getActiveSheet()->mergeCells("A2:S2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo']);
+				if ($this->objParam->getParametro('consolidar')=='si'){//#98
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'Acumulado a : '.$datos[0]['periodo']);
+				}else{
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo']);
+				}
+				
+				
 				
 				
 				

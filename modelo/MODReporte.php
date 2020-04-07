@@ -228,7 +228,6 @@ class MODReporte extends MODbase{
         $this->captura('fecha_backup','text');//#83
         //Ejecuta la instruccion
         $this->armarConsulta();
-        //echo "****".$this->getConsulta(); exit;
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
@@ -337,7 +336,7 @@ class MODReporte extends MODbase{
 		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		$this->setParametro('consolidar','consolidar','varchar');//#98
 		$this->setParametro('id_periodo','id_periodo','integer');//#98
-		
+		$this->setParametro('id_gestion','id_gestion','integer');//#98
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('nombre_empleado','text');
