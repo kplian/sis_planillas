@@ -757,15 +757,20 @@ BEGIN
                            
                            
                            , 
-                           (case when ff.fecha_quinquenio is null then
-                                date_part(''day'' ::text, age('''||v_fecha||''',(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))))::integer 
+                           
+                           
+                          (case when ff.fecha_quinquenio is null then
+								pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))),'''||v_fecha||''')
                            else
                                (case when ff.fecha_quinquenio>'''||v_fecha||''' then
-                                      date_part(''day'' ::text, age('''||v_fecha||''',(ff.fecha_quinquenio -  interval ''60 month'')::date))::integer 
+                                   30
                                 else
-		                             date_part(''day'' ::text, age('''||v_fecha||''',ff.fecha_quinquenio))::integer 
+		                           pxp.f_get_dias_mes_30( ff.fecha_quinquenio, '''||v_fecha||''')
                                 end )
                            end ) as dias_quinquenio
+                           
+                           
+                           
                            , esclim.haber_basico as basico_limite, esclim.codigo as nivel_limite
                         from '||v_esquema||'.tfuncionario_planilla fp
                         inner join '||v_esquema||'.tplanilla plani on plani.id_planilla = fp.id_planilla
@@ -801,7 +806,7 @@ BEGIN
                          
                        
                         order by '||v_ordenar;
-           --  raise notice 'condicion: %, filtro: %',v_tc, v_filtro_estado;
+             raise notice 'cons:% ',v_consulta;
         --  end if;              
                         
                         return v_consulta;
