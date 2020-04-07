@@ -256,8 +256,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					
 				}
 				
-				
-				
 				array_push($detalle_col_mod,'');
 				array_push($detalle_col_mod,'0');
 				if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' ) {
