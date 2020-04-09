@@ -1,15 +1,20 @@
---------------- SQL ---------------
+-- FUNCTION: plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
 
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
-  p_id_funcionario_planilla integer,
-  p_fecha_ini date,
-  p_fecha_fin date,
-  p_id_tipo_columna integer,
-  p_codigo varchar,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
+-- DROP FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer);
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica(
+	p_id_funcionario_planilla integer,
+	p_fecha_ini date,
+	p_fecha_fin date,
+	p_id_tipo_columna integer,
+	p_codigo character varying,
+	p_id_columna_valor integer)
+    RETURNS numeric
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    PLANI
   ***************************************************************************
@@ -43,6 +48,7 @@ $body$
  #63              22-02-2019        Rarteaga  KPLIAN    cambio de logica de la claculo de dias aguinaldo, DIASAGUI
  #68              17-10-2019        RARTEAGA  KPLIAN    refactorizacion planilla de primas
  #85              23-12-2019        RARTEAGA  KPLIAN    Correcion de funcion basica de calculo de planillas para incluir personal que no recibe incremento salarial en planilla de retroactivos, código columna PRMCOTIZABLE_MES
+ #111			  08-04-2020		MZM	KPLIAN			Correcion a prmcotizable_mes considerando proporcion de horas trabajadas en el mes
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -1188,7 +1194,7 @@ $body$
    
       select sum(  case when ( orga.f_get_haber_basico_a_fecha(car.id_escala_salarial,v_planilla.fecha_planilla) >= ht.sueldo ) then  --#85 considera mayor o igual
 
-                    cv.valor
+                    cv.valor*ht.porcentaje_sueldo/100 --#111
                   else
                     0
                   end) 
@@ -2511,9 +2517,7 @@ $body$
       raise exception '%',v_resp;
 
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+    OWNER TO postgres;
