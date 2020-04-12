@@ -1229,10 +1229,10 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         v_filtro:='';
      if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
         
-           if(v_parametros.id_periodo is null) then -- planilla anual 
+        if(v_parametros.id_periodo is null) then -- planilla anual 
               if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
         	   v_fecha_backup:=(select fecha_fin from param.tgestion where id_gestion=v_parametros.id_gestion);
-           end if;
+              end if;
         else
         	if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
         		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
@@ -1253,7 +1253,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
             if(v_parametros.estado_funcionario='activo') then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
         		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
         		) ';
                  
@@ -1267,7 +1267,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
               v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and 
                  (
-                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
         		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
         		)
                 or
@@ -1311,12 +1311,13 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 
         '||v_consulta_externa||' where '||v_tipo_contrato;
         
-        raise notice 'llegaaa%', v_consulta;
+        
          v_consulta:=v_consulta||v_parametros.filtro||v_filtro;
          --#98
          v_consulta:=v_consulta||v_group;
         
          v_consulta:=v_consulta||' order by '||v_ordenar_por||' ,repcol.orden asc';
+--         raise notice 'llegaaa%', v_consulta;
         if( v_datos_externos.tipo_reporte='bono_descuento' and pxp.f_existe_parametro(p_tabla , 'id_tipo_columna')) then
               if  (v_parametros.id_tipo_columna>0) then
             --#90

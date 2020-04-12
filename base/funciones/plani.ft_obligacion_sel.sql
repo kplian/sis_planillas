@@ -272,14 +272,18 @@ BEGIN
           --#98
           v_filtro:='';
           if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
-          		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
-                
+          
+          		if(v_parametros.id_periodo is null) then
+                    v_fecha_backup:=(select fecha_fin from param.tgestion where id_gestion=v_parametros.id_gestion);
+                else
+                	v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+                end if;
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                       if(v_parametros.estado_funcionario='activo') then
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                                 or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
-                                and plani.id_periodo='||v_parametros.id_periodo||'
+                               
                                 )
                                 ) ';
                           
@@ -292,8 +296,9 @@ BEGIN
                      v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and 
                  (
-                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and plani.id_periodo='||v_parametros.id_periodo||')
+                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' 
+                )
         		)
                 or
                 (
@@ -382,7 +387,7 @@ BEGIN
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                       if(v_parametros.estado_funcionario='activo') then
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                         		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                                 or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
                                 and plani.id_periodo='||v_parametros.id_periodo||'
                                 )
@@ -397,7 +402,7 @@ BEGIN
                      v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and 
                  (
-                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
         		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and plani.id_periodo='||v_parametros.id_periodo||')
         		)
                 or

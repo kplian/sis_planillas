@@ -190,7 +190,8 @@ class MODObligacion extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
 		$this->setParametro('esquema','esquema','varchar');//#83
 		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
-		$this->setParametro('id_periodo','id_periodo','integer');//#98	
+		$this->setParametro('id_periodo','id_periodo','integer');//#98
+		$this->setParametro('id_gestion','id_gestion','integer');//#98	
 		//Datos de la planilla
 		$this->captura('nombre','varchar');
 		$this->captura('importe','numeric');

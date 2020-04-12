@@ -173,7 +173,7 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  
-                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -183,7 +183,7 @@ BEGIN
           		else
                      v_filtro_estado:=' 
                     and (( uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  
-                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -674,7 +674,7 @@ BEGIN
 			
             if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
             	v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                         or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                         ) ';
             
@@ -684,7 +684,7 @@ BEGIN
                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                     if(v_parametros.estado_funcionario='activo') then
                         v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                         or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                         ) ';
                     elsif (v_parametros.estado_funcionario='retirado') then
@@ -694,7 +694,7 @@ BEGIN
                     else
                        v_filtro_estado:=' 
                         and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                         or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                         )
                          ) or
@@ -1332,7 +1332,7 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -1342,7 +1342,7 @@ BEGIN
           		else
                      v_filtro_estado:=' 
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -1593,7 +1593,7 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
-                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -1604,7 +1604,7 @@ BEGIN
             	else
                      v_filtro_estado:=' 
                     and (( uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
-                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -2075,12 +2075,12 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                     
                     v_filtro_estado1:='  and uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  
-                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -2095,7 +2095,7 @@ BEGIN
                 else
                      v_filtro_estado:=' 
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -2105,7 +2105,7 @@ BEGIN
                            
                     v_filtro_estado1:=' 
                     and (( uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  
-                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -2189,7 +2189,7 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -2199,7 +2199,7 @@ BEGIN
             	else
                      v_filtro_estado:=' 
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -2257,7 +2257,7 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -2267,7 +2267,7 @@ BEGIN
           		else
                      v_filtro_estado:=' 
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
@@ -2360,7 +2360,7 @@ raise notice '***:%',v_consulta;
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
@@ -2370,7 +2370,7 @@ raise notice '***:%',v_consulta;
             	else
                      v_filtro_estado:=' 
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
