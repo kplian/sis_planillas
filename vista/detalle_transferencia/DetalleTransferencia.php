@@ -19,7 +19,7 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.DetalleTransferencia.superclass.constructor.call(this,config);
 		this.init();
-		//this.store.baseParams.id_obligacion = this.maestro.id_obligacion;//#112
+		this.store.baseParams.id_obligacion = this.maestro.id_obligacion;//#112
 		this.load({params:{start:0, limit:this.tam_pag, id_obligacion:this.maestro.id_obligacion}})
 		
 	},
