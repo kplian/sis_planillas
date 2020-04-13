@@ -203,6 +203,13 @@ AS $BODY$
         ELSE
                v_esquema = 'plani';
         END IF;
+        
+        v_codigo_pres:='param.f_get_periodo_literal(plani.id_periodo)';
+        if(v_parametros.consolidar='si') then
+            IF (pxp.f_existe_parametro(p_tabla, 'id_periodo')) THEN --#105
+                  v_codigo_pres:='param.f_get_periodo_literal('||v_parametros.id_periodo||')';
+            end if;
+        end if;
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -225,7 +232,9 @@ AS $BODY$
                             repo.vista_datos_externos,
                             repo.num_columna_multilinea
                             --#40 - 12.09.2019
-                            ,param.f_get_periodo_literal(plani.id_periodo) as periodo_lite
+                            
+                            
+                            ,'||v_codigo_pres||' as periodo_lite
                             --#58
                             ,repo.mostrar_ufv,
                             (select cv.valor from '||v_esquema||'.tcolumna_valor cv inner join plani.ttipo_columna tc on tc.id_tipo_columna=cv.id_tipo_columna
@@ -270,7 +279,7 @@ AS $BODY$
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro||v_filtro;
         --v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-
+raise notice 'aaa%',v_consulta;
         --Devuelve la respuesta
         return v_consulta;
 

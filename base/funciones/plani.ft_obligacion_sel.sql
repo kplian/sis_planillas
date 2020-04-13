@@ -389,7 +389,7 @@ BEGIN
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                          		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                                 or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
-                                and plani.id_periodo='||v_parametros.id_periodo||'
+                               -- and plani.id_periodo='||v_parametros.id_periodo||'
                                 )
                                 ) ';
                           
@@ -403,7 +403,9 @@ BEGIN
                 and 
                  (
                 (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' and plani.id_periodo='||v_parametros.id_periodo||')
+        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' 
+                --and plani.id_periodo='||v_parametros.id_periodo||'
+                )
         		)
                 or
                 (
