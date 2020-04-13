@@ -131,7 +131,14 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->SetX(30);
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
-				$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
+				
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRI'){
+					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
+				}else{//aguinaldo
+					$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
+				}
+				
+				
 				
 			}
 			
