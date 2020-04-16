@@ -271,13 +271,17 @@ BEGIN
           
           --#98
           v_filtro:='';
+          execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
+          
           if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
           
-          		if(v_parametros.id_periodo is null) then
+          		/*if(v_parametros.id_periodo is null) then
                     v_fecha_backup:=(select fecha_fin from param.tgestion where id_gestion=v_parametros.id_gestion);
                 else
                 	v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
-                end if;
+                end if;*/
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                       if(v_parametros.estado_funcionario='activo') then
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -381,8 +385,12 @@ BEGIN
           
           --#98
           v_filtro:='';
+          execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
+                             
           if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
-          		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+          		--v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
                 
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                       if(v_parametros.estado_funcionario='activo') then
