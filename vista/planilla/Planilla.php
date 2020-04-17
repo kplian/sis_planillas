@@ -607,6 +607,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     bdel:true,
     bsave:true,
     iniciarEventos : function() {
+    	
         this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
             if (r.data.periodicidad == 'anual') {
                 this.ocultarComponente(this.Cmp.id_periodo);
@@ -633,7 +634,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.ocultarComponente(this.Cmp.id_periodo);
         this.ocultarComponente(this.Cmp.id_gestion);
         this.ocultarComponente(this.Cmp.id_tipo_contrato); //#25 id_tipo_contrato
-
+		this.Cmp.fecha_planilla.disable();
         Phx.vista.Planilla.superclass.onButtonEdit.call(this);
 
     },
@@ -742,6 +743,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.mostrarComponente(this.Cmp.id_periodo);
         this.mostrarComponente(this.Cmp.id_gestion);
         this.mostrarComponente(this.Cmp.id_tipo_contrato); //#26
+        this.Cmp.fecha_planilla.enable();
         Phx.vista.Planilla.superclass.onButtonNew.call(this);
     },
     onButtonColumnasCsv : function() {
