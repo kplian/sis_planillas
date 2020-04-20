@@ -51,12 +51,12 @@ BEGIN
         tc.codigo as tipo_contrato
   INTO v_reg_funcionario
   FROM orga.tuo_funcionario uf
-  INNER JOIN orga.tcargo car on car.id_cargo = uofun.id_cargo
+  INNER JOIN orga.tcargo car on car.id_cargo = uf.id_cargo
   INNER JOIN orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato
   WHERE uf.id_funcionario = p_id_funcionario
     AND uf.fecha_asignacion = p_fecha_ini
     AND uf.estado_reg != 'inactivo'
-    AND uofun.tipo = 'oficial';
+    AND uf.tipo = 'oficial';
 
   IF v_reg_funcionario IS NULL THEN
       return plani.f_get_fecha_primer_contrato_empleado_aux(v_reg_funcionario.id_uo_funcionario,
