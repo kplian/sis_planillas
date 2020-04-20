@@ -411,7 +411,7 @@ BEGIN
 
 		execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
 						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
-						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+						 where '||v_parametros.filtro||' and plani.id_periodo='||v_id_periodo||' limit 1' into v_fecha_estado;
 
 
         if(v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
