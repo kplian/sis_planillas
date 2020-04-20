@@ -35,6 +35,7 @@ AS $BODY$
  #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
  #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
  #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
+ #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
  ***************************************************************************/
 
 DECLARE
@@ -2365,7 +2366,7 @@ raise notice '***:%',v_consulta;
        --#77
        v_estado:='';
               
-       if(v_parametros.tipo_reporte='directorio_empleados') then
+       if(v_parametros.tipo_reporte='directorio_empleados' or v_parametros.tipo_reporte='listado_centros') then --#115
            -- v_ordenar:='vrep.uo_centro_orden, vrep.desc_funcionario2';
            --#77
             v_ordenar:='nivel.ruta, nivel.prioridad,nivel.valor_col,vrep.desc_funcionario2';
@@ -2381,14 +2382,14 @@ raise notice '***:%',v_consulta;
        elsif(v_parametros.tipo_reporte='nacimiento_mes') then
        		v_ordenar:='(SELECT EXTRACT(MONTH FROM vrep.fecha_nacimiento)),(SELECT EXTRACT(DAY FROM vrep.fecha_nacimiento)), vrep.desc_funcionario2';
        end if;
-       
+
         -- #98
             v_filtro_estado:='';
             execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
 						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
 						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
-                         
-                         
+                        
+                     
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -2439,7 +2440,7 @@ raise notice '***:%',v_consulta;
                           ';
                            v_consulta:=v_consulta||v_parametros.filtro||v_filtro_estado;
                            v_consulta:=v_consulta||' order by '||v_ordenar;
-                           raise notice '%',v_consulta;
+                           raise notice 'xxx%',v_consulta;
             return v_consulta;
        
 	   end;

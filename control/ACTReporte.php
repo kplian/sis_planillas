@@ -20,6 +20,7 @@
  * #99            MZM            03.03.2020                Adicion de filtro sesion de funcionario
 * #103            RAC KPLIAN     02/04/2020                envio de boletas de pago
  * #98			  MZM			 03.04.2020  				Adicion de opciones estado_funcionario (activo, retirado, todos)
+ * #115			  MZM			 20.04.2020					REporte listado por centros
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -730,7 +731,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
                                         if($this->objParam->getParametro('control_reporte')=='relacion_saldos_det' || $this->objParam->getParametro('control_reporte')=='relacion_saldos_det_ci'  ){//#56
                                             $this->reporteBancosDet($titulo,$fecha);
                                         }else{
-                                            if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){//#67
+                                            if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' ||  $this->objParam->getParametro('control_reporte')=='listado_centros'){//#67
 
                                                 $this->reporteAsignacionCargos($titulo,$id_gestion,$id_tipo_contrato);
                                             }else{
@@ -1238,7 +1239,7 @@ function reporteBancosDet()    { //#56
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()));
         //#77
-         if($this->objParam->getParametro('control_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('control_reporte')=='lista_cargos' || $this->objParam->getParametro('control_reporte')=='profesiones' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes' || $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){
+         if($this->objParam->getParametro('control_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('control_reporte')=='lista_cargos' || $this->objParam->getParametro('control_reporte')=='profesiones' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes' || $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' || $this->objParam->getParametro('control_reporte')=='listado_centros'){//#115
             $this->objParam->addParametro('orientacion','P');}
         else{
             $this->objParam->addParametro('orientacion','L');
@@ -1268,7 +1269,8 @@ function reporteBancosDet()    { //#56
                 if($this->objParam->getParametro('control_reporte')=='profesiones'){
                     $this->res=$this->objFunc->listarProfesiones($this->objParam);
                 }else{
-                    if($this->objParam->getParametro('control_reporte')=='directorio_empleados' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes'){
+                    if($this->objParam->getParametro('control_reporte')=='directorio_empleados' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes'  || $this->objParam->getParametro('control_reporte')=='listado_centros'){//#115
+                    
                         $this->res=$this->objFunc->listarDirectorioEmpleados($this->objParam);
                     }
                     elseif($this->objParam->getParametro('control_reporte')=='frecuencia_profesiones'){//#77
