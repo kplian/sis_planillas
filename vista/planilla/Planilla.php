@@ -559,30 +559,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 id_grupo:1,
                 grid:true,
                 form:false
-        },
-        {
-            config:{
-                name: 'asunto',
-                fieldLabel: 'Asunto',
-                allowBlank: true,
-                anchor: '90%',
-                gwidth: 100,
-                maxLength: 100
-            },
-            type:'TextField',
-            id_grupo:1,
-            form:true
-        },
-        {
-            config:{
-                name: 'body',
-                fieldLabel: 'Mensaje',
-                anchor: '90%'
-            },
-            type:'HtmlEditor',
-             id_grupo:1,
-            form:true
-        },
+        }
     ],
     tam_pag:50,
     title:'Planilla',
@@ -621,7 +598,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         {name:'usr_mod', type: 'string'},
         {name:'dividir_comprobante', type: 'string'},
         {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato','calcular_prima_rciva'
-
+		,'habilitar_impresion_boleta','text_rep_boleta'
     ],
     sortInfo:{
         field: 'id_planilla',
@@ -630,6 +607,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     bdel:true,
     bsave:true,
     iniciarEventos : function() {
+    	
         this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
             if (r.data.periodicidad == 'anual') {
                 this.ocultarComponente(this.Cmp.id_periodo);
@@ -656,7 +634,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.ocultarComponente(this.Cmp.id_periodo);
         this.ocultarComponente(this.Cmp.id_gestion);
         this.ocultarComponente(this.Cmp.id_tipo_contrato); //#25 id_tipo_contrato
-
+		this.Cmp.fecha_planilla.disable();
         Phx.vista.Planilla.superclass.onButtonEdit.call(this);
 
     },
@@ -765,6 +743,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.mostrarComponente(this.Cmp.id_periodo);
         this.mostrarComponente(this.Cmp.id_gestion);
         this.mostrarComponente(this.Cmp.id_tipo_contrato); //#26
+        this.Cmp.fecha_planilla.enable();
         Phx.vista.Planilla.superclass.onButtonNew.call(this);
     },
     onButtonColumnasCsv : function() {
@@ -800,7 +779,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         }
         this.getBoton('btnColumnas').enable();
         //#103
-        this.getBoton('btnEnvioCorreo').enable();
+        this.getBoton('btnEnvioCorreo').disable();
 
         if (rec.data.estado== 'calculo_columnas') {
             this.getBoton('btnColumnas').menu.items.items[0].enable();
@@ -821,6 +800,10 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
              this.getBoton('ant_estado').disable();
              this.getBoton('sig_estado').disable();
              this.getBoton('del').disable();
+             if(rec.data.habilitar_impresion_boleta=='si'){
+             	this.getBoton('btnEnvioCorreo').enable();
+             }else{this.getBoton('btnEnvioCorreo').disable();
+             }
 
         } else if (rec.data.estado == 'obligaciones_generadas' ||
              rec.data.estado == 'comprobante_presupuestario_validado' ||
@@ -828,13 +811,26 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
              this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').disable();
              this.getBoton('del').disable();
-             this.getBoton('btnEnvioCorreo').enable();//#103
+			 if(rec.data.habilitar_impresion_boleta=='si'){
+             	this.getBoton('btnEnvioCorreo').enable();//#103
+             }else{
+             	this.getBoton('btnEnvioCorreo').disable();//#103
+             }
+             
         } else if(rec.data.estado == 'vbpoa' || rec.data.estado == 'suppresu' || rec.data.estado == 'vbpresupuestos'){
             this.getBoton('ant_estado').disable();
             this.getBoton('sig_estado').disable();
-        } else {
-             this.getBoton('ant_estado').enable();
+            
+        } else  if(rec.data.estado =='planilla_finalizada' || rec.data.estado == 'vobo_conta'){
+        	if(rec.data.habilitar_impresion_boleta=='si'){
+             	this.getBoton('btnEnvioCorreo').enable();//#103
+             }else{
+             	this.getBoton('btnEnvioCorreo').disable();//#103
+             }
+        }else{
+        	 this.getBoton('ant_estado').enable();
              this.getBoton('sig_estado').enable();
+        	//}
         }
 
 

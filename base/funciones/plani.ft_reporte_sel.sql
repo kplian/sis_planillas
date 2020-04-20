@@ -1239,26 +1239,23 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
      if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
         
         if(v_parametros.id_periodo is null) then -- planilla anual 
-              if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
-        	   v_fecha_backup:=(select fecha_fin from param.tgestion where id_gestion=v_parametros.id_gestion);
-              end if;
+             
         else
-        	if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
-        		v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
-        	end if;
+        	
 			if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
               if(v_parametros.consolidar='si') then
                   v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo;
               end if;
             end if;
         end if;
-    else 
-       v_fecha_backup:='1000-01-01';
+    
     end if;
         
-    
+    	execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
        
-    if(v_fecha_backup!='1000-01-01') then
+
         if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
             if(v_parametros.estado_funcionario='activo') then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -1289,7 +1286,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                 
              end if;
         end if;
-    end if;   
+
            
             --Sentencia de la consulta
             v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, ''''::varchar, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,

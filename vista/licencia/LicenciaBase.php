@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 07-03-2019 13:53:18
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ ISSUE      AUTOR       FECHA        DESCRIPCION
+#114        EGS         16/04/2020  agregando  Combo de Funcionario en licencias 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -101,16 +103,26 @@ Phx.vista.LicenciaBase=Ext.extend(Phx.gridInterfaz,{
 			type:'Field',
 			form:true 
 		},
-		{
-			//configuracion del componente
-			config:{
-					labelSeparator:'',
-					inputType:'hidden',
-					name: 'id_funcionario'
-			},
-			type:'Field',
-			form:true 
-		},
+        {//#114
+            config:{
+                name:'id_funcionario',
+                hiddenName: 'id_funcionario',
+                origen:'FUNCIONARIOCAR',
+                fieldLabel:'Funcionario',
+                allowBlank:false,
+                gwidth:200,
+                valueField: 'id_funcionario',
+                gdisplayField: 'desc_funcionario',
+                baseParams: { es_combo_solicitud : 'si' },
+                renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario1']);}
+            },
+            type:'ComboRec',//ComboRec
+            id_grupo:0,
+            filters:{pfiltro:'fun.desc_funcionario1',type:'string'},
+            bottom_filter:true,
+            grid:true,
+            form:true
+        },
 		{
 			//configuracion del componente
 			config:{
@@ -388,7 +400,8 @@ Phx.vista.LicenciaBase=Ext.extend(Phx.gridInterfaz,{
 		{name:'desc_tipo_lic', type: 'string'},
 		{name:'id_estado_wf', type: 'numeric'},		
 		{name:'id_proceso_wf', type: 'numeric'},		
-		{name:'nro_tramite', type: 'string'},		
+		{name:'nro_tramite', type: 'string'},
+        {name:'desc_funcionario1', type: 'string'},
 		
 	],
 	sortInfo:{

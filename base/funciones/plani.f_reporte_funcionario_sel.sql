@@ -140,13 +140,13 @@ BEGIN
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+            
           end if;
         else
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+            
         end if;
 
 		--#83
@@ -169,7 +169,10 @@ BEGIN
             
             --#98
             v_filtro_estado:='';
-
+			execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_estado;
+                             
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  
@@ -383,7 +386,7 @@ BEGIN
           if(v_parametros.fecha is not null) then 
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
              execute 'select distinct plani.fecha_planilla 
                      from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
@@ -392,7 +395,7 @@ BEGIN
           
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else
         
@@ -402,8 +405,13 @@ BEGIN
                     
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
         end if;
+
+
+		execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' and plani.id_periodo='||v_id_periodo||' limit 1' into v_fecha_estado;
 
 
         if(v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
@@ -1294,7 +1302,7 @@ BEGIN
           if(v_parametros.fecha is not null) then
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
               execute ' select distinct plani.fecha_planilla 
                  from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp 
@@ -1303,7 +1311,7 @@ BEGIN
                  plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
               v_fecha:=v_registros_det.fecha_planilla;
               v_id_periodo:=v_parametros.id_periodo;
-              v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else
              execute ' select distinct plani.fecha_planilla 
@@ -1313,7 +1321,7 @@ BEGIN
                  plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
              v_fecha:=v_registros_det.fecha_planilla;
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+            -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
         end if;   
             
             
@@ -1328,7 +1336,12 @@ BEGIN
             
             --#98
             v_filtro_estado:='';
-
+			execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
+                         
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -1459,19 +1472,19 @@ BEGIN
         	 v_fecha=v_parametros.fecha;
              v_id_periodo:=(select id_periodo from param.tperiodo where v_parametros.fecha between fecha_ini and fecha_fin);
              --#98
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+            -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           else
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+             --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
           end if;
         else  
              v_fecha:=(select distinct plani.fecha_planilla from plani.tplanilla plani inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
              where tp.codigo='PLASUE' and plani.id_periodo=v_parametros.id_periodo);
              v_id_periodo:=v_parametros.id_periodo;
              --#98
-             v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
+            -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
              
         end if;
           
@@ -1589,7 +1602,10 @@ BEGIN
             
             --#98
             v_filtro_estado:='';
-
+			execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
@@ -2047,12 +2063,12 @@ BEGIN
 			--#77
 		   if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
-                 v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+                -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
        	   else
                v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
-                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+                --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
            end if;
        
            v_condicion:=' and 0=0';
@@ -2072,6 +2088,10 @@ BEGIN
             -- #98
             v_filtro_estado:='';
 			v_filtro_estado1:='';
+            execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -2175,17 +2195,21 @@ BEGIN
               --#98
               if (pxp.f_existe_parametro(p_tabla , 'id_periodo'))then  
         		 v_id_periodo:=v_parametros.id_periodo;
-                 v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+                 --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
              else
                  v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                  where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
-                  v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+                 -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
              end if;
              
              
              -- #98
             v_filtro_estado:='';
+            execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -2248,12 +2272,15 @@ BEGIN
 
 			  if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
-                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+                --v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
        	      end if;
 				
               --#98
             	v_filtro_estado:='';
-
+				execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -2326,13 +2353,13 @@ raise notice '***:%',v_consulta;
               --#77
 		    if (pxp.f_existe_parametro(p_tabla , 'id_periodo') and v_parametros.id_periodo >0 )then  
         		v_id_periodo:=v_parametros.id_periodo;
-                v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+               -- v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
        	    else
                
                v_id_periodo:=(select distinct p.id_periodo from plani.tplanilla p 
                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla 
                where tp.codigo='PLASUE' order by p.fecha_planilla desc limit 1);
-				v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
+				--v_fecha_estado:=(select fecha_fin from param.tperiodo where id_periodo=v_id_periodo);--#98
             end if;
        
        --#77
@@ -2357,6 +2384,11 @@ raise notice '***:%',v_consulta;
        
         -- #98
             v_filtro_estado:='';
+            execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+						 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						 where '||v_parametros.filtro||' limit 1' into v_fecha_estado;
+                         
+                         
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  

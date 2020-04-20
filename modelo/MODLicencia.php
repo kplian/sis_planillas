@@ -5,7 +5,9 @@
 *@author  (admin)
 *@date 07-03-2019 13:53:18
 *@description Clase que envia los parametros requeridos a la Base de datos para la ejecucion de las funciones, y que recibe la respuesta del resultado de la ejecucion de las mismas
-*/
+ISSUE      AUTOR       FECHA        DESCRIPCION
+#114        EGS        16/04/2020  agregando  desc funcionario por Combo de Funcionario 
+ */
 
 class MODLicencia extends MODbase{
 	
@@ -41,8 +43,10 @@ class MODLicencia extends MODbase{
 		$this->captura('desc_tipo_lic','varchar');
 		$this->captura('id_proceso_wf','int4');
 		$this->captura('id_estado_wf','int4');
-		$this->captura('nro_tramite','varchar');		
-		//Ejecuta la instruccion
+		$this->captura('nro_tramite','varchar');
+        $this->captura('desc_funcionario1','varchar');//#114
+
+        //Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
 		
