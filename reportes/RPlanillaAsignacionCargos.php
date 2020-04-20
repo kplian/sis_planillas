@@ -200,9 +200,9 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(25,5,'Mujeres','LRTB',0,'C');
 								$this->Cell(25,5,'Total','LRTB',1,'C');
 							}elseif($this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
-								$this->Cell(22,5,'Cod. Emp.','LRTB',0,'C');
-								$this->Cell(80,5,'Nombre','LRTB',0,'C');
-								$this->Cell(80,5,'Cargo','LRTB',1,'C');
+								$this->Cell(22,5,'Cod. Emp.','TB',0,'C');
+								$this->Cell(80,5,'Nombre','TB',0,'C');
+								$this->Cell(80,5,'Cargo','TB',1,'C');
 								
 							}
 						}
