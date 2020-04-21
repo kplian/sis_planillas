@@ -20,6 +20,7 @@
  *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema 
  *#87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos	
+ *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -49,6 +50,8 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer');
 		$this->setParametro('esquema','esquema','varchar'); //#83 
 		
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
+		
 		$this->captura('nombre_uo_pre','varchar');
 		$this->captura('codigo','varchar');
 		$this->captura('desc_funcionario2','text');
@@ -68,7 +71,7 @@ class MODFuncionarioReporte extends MODbase{
 		//Ejecuta la funcion
 		$this->armarConsulta();		
 		//echo 'listarFuncionarioReporte - '.
-		//echo '***'.$this->getConsulta(); exit;
+		//echo '1:***'.$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//var_dump('hola',$this->respuesta);exit;
@@ -90,6 +93,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer');	//#77
 		
 		$this->setParametro('esquema','esquema','varchar');	//#83
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
@@ -119,7 +123,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('nivel_limite','varchar');
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "**1:**".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "**2:**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -141,10 +145,13 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
 		$this->setParametro('id_periodo','id_periodo','integer');	//#77	
 		$this->setParametro('id_tipo_planilla','id_tipo_planilla','integer');	//#84
-		$this->setParametro('id_reporte','id_reporte','integer');	//#84
+		//$this->setParametro('id_reporte','id_reporte','integer');	//#84
 
 		$this->setParametro('esquema','esquema','varchar');	//#83
-
+		//#98
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
+		$this->setParametro('consolidar','consolidar','varchar');//#98
+		
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('apellido_paterno','varchar');
@@ -179,7 +186,7 @@ class MODFuncionarioReporte extends MODbase{
 		
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "3****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -212,7 +219,7 @@ class MODFuncionarioReporte extends MODbase{
 		
 		
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "**2:**".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "**4:**".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -247,7 +254,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('novedad','varchar');	
 		$this->captura('valor','numeric');				
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "5****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -268,6 +275,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	//#66
 		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		$this->setParametro('esquema','esquema','varchar'); //#83
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		//Datos del empleado
 		if($this->objParam->getParametro('tipo_reporte')=='dependientes'){
 			
@@ -297,10 +305,9 @@ class MODFuncionarioReporte extends MODbase{
 			
 		}
 		 
-                  
-		
+        
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "6****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -321,6 +328,9 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
 		$this->setParametro('id_periodo','id_periodo','integer');
 		$this->setParametro('esquema','esquema','varchar');//#83
+		
+		//#98
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		
 		//Datos del empleado
 		 $this->captura('codigo','varchar');
@@ -436,7 +446,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('nueva_unidad','varchar');
 						
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "7****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -456,6 +466,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		$this->setParametro('esquema','esquema','varchar');//#83
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		//Datos del empleado
 		
 		$this->captura('codigo','varchar');
@@ -464,7 +475,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('total_masculino','integer');
 						
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "8****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -484,13 +495,14 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer'); //#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		$this->setParametro('esquema','esquema','varchar');//#83
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		//Datos del empleado
 		
 		$this->captura('codigo','varchar');
 		$this->captura('nombre','varchar');
 								
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "9****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -510,6 +522,9 @@ class MODFuncionarioReporte extends MODbase{
 		//$this->setParametro('id_gestion','id_gestion','integer');
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		$this->setParametro('esquema','esquema','varchar');//#83
+		
+		$this->setParametro('id_periodo','id_periodo','integer'); //#77
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		//Datos del empleado
 		
 		$this->captura('profesion','varchar');
@@ -518,7 +533,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('periodo_lite','varchar');
 								
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "10****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -538,6 +553,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_periodo','id_periodo','integer');//#77
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	
 		$this->setParametro('esquema','esquema','varchar');//#83
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		//Datos del empleado
 		
 		$this->captura('nombre_oficina','varchar');
@@ -556,7 +572,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('periodo_lite','varchar');
 		$this->captura('mes_lite','varchar');
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "11****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -583,7 +599,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('total_masculino','integer');
 						
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "12****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -614,7 +630,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('fecha_fin','date');
 						
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
+		$this->armarConsulta(); echo "13****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -675,7 +691,7 @@ class MODFuncionarioReporte extends MODbase{
         
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
-		//echo '----'.$this->getConsulta(); exit;
+		//echo '14----'.$this->getConsulta(); exit;
 		//Devuelve la respuesta
 		return $this->respuesta;
 		

@@ -312,7 +312,14 @@ class RPlanillaEmpleadoXls
 				//#89				      
 				$tipcon='';
 				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
-					$tipcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					//#98
+					if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
+					}else{
+						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					}
+					
+					
 				}	  
 					         
 if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
@@ -353,8 +360,8 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 				
 				foreach ($datos as $value){
 
-					$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
-					
+					//$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
+					$dias=$value['dias_quinquenio'];
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo_empleado']);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_empleado']);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila,date_format(date_create($value['fecha_quinquenio']),'d/m/Y') );
@@ -411,8 +418,8 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 								
 						  
 							
-							$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
-					
+							//$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
+							$dias=$value['dias_quinquenio'];
 							
 							
 							
@@ -433,7 +440,8 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 							$v0=$value['codigo_empleado'];
 							$v1=$value['nombre_empleado'];
 							$v2=date_format(date_create($value['fecha_quinquenio']),'d/m/Y');
-							$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
+							//$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
+							$dias=$value['dias_quinquenio'];
 							$v3=$dias;
 							$v4=$v4+$value['valor'];
 							$v5=($value['valor']/360*$dias);
@@ -482,8 +490,8 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 				$vt5=0;
 				$vt6=0;
 				foreach ($datos as $value){
-					$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
-					
+					//$dias=(($value['anos_quinquenio']*360)+($value['mes_quinquenio']*30)+($value['dias_quinquenio']));
+					$dias=$value['dias_quinquenio'];
 					if($id_fun!=$value['id_funcionario']){
 						  
 						 if($id_fun!=0){

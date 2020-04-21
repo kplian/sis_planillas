@@ -5,7 +5,9 @@
  #66	ETR				25.10.2019			MZM					Condicion para reporte por centros
  #81	ETR				06.11.2019			MZM					Adicion de columna estado AFP (Jubilado55, 65, mayor65, activo)
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- #104	ETR				11.03.2020			MZM					Correccion de variable par titulo de hoja de excel 
+ #104	ETR				11.03.2020			MZM					Correccion de variable par titulo de hoja de excel
+ #98	ETR				27.02.2020			MZM					Titulo considerando estado de fucnionarios y tipo contrato
+ * *  
 */
 class RPlanillaCurvaXls
 {
@@ -259,7 +261,7 @@ class RPlanillaCurvaXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        
+    
        // foreach ($datos as $value)
         //{
             //var_dump($value['tipo_contrato']);exit;
@@ -267,6 +269,17 @@ class RPlanillaCurvaXls
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
                 //$this->addHoja($value['tipo_contrato'],$index);
 				$this->addHoja($this->objParam->getParametro('nombre_tipo_contrato'),$index);
+				//#98
+				$tcon='';
+				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+					if($this->objParam->getParametro('personal_activo')!='todos'){
+					  $tcon='('.$this->objParam->getParametro('nombre_tipo_contrato').' - '. $this->objParam->getParametro('personal_activo').')';
+					}
+					else {
+						$tcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+					}
+				}
+				
 				
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
@@ -279,9 +292,9 @@ class RPlanillaCurvaXls
 				
 				
 				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
-					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y').' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
+					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL '.$tcon.' A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y').' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
 				}else{
-					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y'));
+					$this->docexcel->getActiveSheet()->setCellValue('A1', 'CURVA SALARIAL '.$tcon.' A ' .date_format(date_create($datos[0]['fecha_planilla']),'d/m/Y'));
 				}
 				
                 $this->docexcel->getActiveSheet()->getStyle('A2:BR2')->getAlignment()->setWrapText(true);

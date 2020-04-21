@@ -7,7 +7,8 @@
  #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
  #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
  #89	ETR				14.01.2020			MZM					Ajuste a primer registro de clasif. de personal por profesiones, quitar alineado a la izq.
-*/
+ #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
+**/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
 	var $ancho_hoja;
@@ -30,7 +31,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$mr=substr($this->datos_titulo[0]['fecha_backup'],3,2);
 		$ar=substr($this->datos_titulo[0]['fecha_backup'],6);
 		
-		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos'  && $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='profesiones'  && $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' && $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes'  && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
+		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos'  && $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='profesiones'  && $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' && $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes'  && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones' && $this->objParam->getParametro('tipo_reporte')!='listado_centros'){//#115
 			//$this->Cell($this->ancho_hoja+260, 3, $pagenumtxt, '', 1, 'R');
 			$this->Cell($this->ancho_hoja+260, 3, $pagenumtxt, '', 1, 'R');
 			if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
@@ -53,7 +54,15 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$this->SetY(20);
 		$cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($cadena_nomina!=''){
-			$cadena_nomina='('.$cadena_nomina.')';
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$cadena_nomina=' ('.$cadena_nomina.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$cadena_nomina='('.$cadena_nomina.')';
+			}
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+			$cadena_nomina=' ('.$this->objParam->getParametro('personal_activo').')';}
 		}
 		
 
@@ -86,6 +95,11 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(0,5,'FRECUENCIA DE PROFESIONES '.$cadena_nomina,0,1,'C');
 								
 							}
+							elseif($this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
+								$this->Cell(0,5,'LISTADO POR CENTROS '.$cadena_nomina,0,1,'C');
+								
+							}  
+							  
 							else{
 								$this->Cell(0,5,'CLASIFICACION DE PERSONAL POR PROFESIONES '.$cadena_nomina,0,1,'C');	
 							}
@@ -101,7 +115,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		
 		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			$this->SetFont('','B',10);
-			if($this->objParam->getParametro('tipo_reporte')=='profesiones'|| $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes'){
+			if($this->objParam->getParametro('tipo_reporte')=='profesiones'|| $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){ //#115
 				$this->Cell(0,5,'Correspondiente a : '.$this->datos[0]['periodo_lite'],0,1,'C');
 			}else{
 				$this->Cell(0,5,'Gestión : '.$this->datos[0]['gestion'],0,1,'C');	
@@ -185,6 +199,11 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(25,5,'Hombres','LRTB',0,'C');
 								$this->Cell(25,5,'Mujeres','LRTB',0,'C');
 								$this->Cell(25,5,'Total','LRTB',1,'C');
+							}elseif($this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
+								$this->Cell(22,5,'Cod. Emp.','TB',0,'C');
+								$this->Cell(80,5,'Nombre','TB',0,'C');
+								$this->Cell(80,5,'Cargo','TB',1,'C');
+								
 							}
 						}
 					}
@@ -213,7 +232,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$cont=0;
 		
 		
-		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes' &&  $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
+		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes' &&  $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='listado_centros'){//#115
 			for ($i=0; $i<count($this->datos);$i++){
 				
 			 if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){	
@@ -428,7 +447,31 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 							$this->Cell(25,5,$tot_fem+$tot_mas,'',1,'C');
 				}
 					else{
-							$tot_fem=0;
+						
+						if( $this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
+						$centro_uo='';
+						
+						for ($i=0; $i<count($this->datos);$i++){
+							if($i ==0){
+					   		$this->SetX($this->GetX()-5);
+					  	}
+							if($centro_uo!=$this->datos[$i]['nombre_uo_centro']){
+							
+								$this->SetFont('','B',8);
+								$this->Cell(50,5,$this->datos[$i]['nombre_uo_centro'],'',1,'L');
+								$this->Ln(2);
+								
+							}
+							$this->SetFont('','',8);
+							$centro_uo=$this->datos[$i]['nombre_uo_centro'];
+							$this->Cell(22,5,$this->datos[$i]['codigo_funcionario'],'',0,'C');
+							$this->Cell(80,5,mb_strcut($this->datos[$i]['desc_funcionario2'], 0, 45, "UTF-8"),'',0,'L');
+							$this->Cell(80,5,mb_strcut($this->datos[$i]['nombre_cargo'], 0, 45, "UTF-8"),'',1,'L');
+							
+						}
+						
+					}else{
+						$tot_fem=0;
 							$tot_mas=0;
 							for ($i=0; $i<count($this->datos);$i++){
 								$cont++; 
@@ -461,6 +504,11 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 							$this->Cell(25,5,$tot_mas,'',0,'C');
 							$this->Cell(25,5,$tot_fem,'',0,'C');
 							$this->Cell(25,5,$tot_fem+$tot_mas,'',1,'C');
+						
+							}
+						
+						
+							
 						}
 						
 						

@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 07-03-2019 13:53:18
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ ISSUE      AUTOR       FECHA        DESCRIPCION
+#114        EGS         16/04/2020  agregando parametros para Combo de Funcionario en licencia
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -18,11 +20,11 @@ Phx.vista.LicenciaReq={
 	constructor:function(config){
 		this.maestro=config.maestro;
 		console.log('maestro',Phx.CP.config_ini.id_funcionario);
-		this.Atributos[this.getIndAtributo('id_funcionario')].valorInicial = Phx.CP.config_ini.id_funcionario;
     	//llama al constructor de la clase padre
 		Phx.vista.LicenciaReq.superclass.constructor.call(this,config);
 		this.finCons = true;
 		this.init();
+		this.iniciarEventos();
 		this.load({params:{start:0, limit:this.tam_pag, nombreVista:this.nombreVista ,id_funcionario:Phx.CP.config_ini.id_funcionario ,estado:'borrador' }});
 		
 		this.addButton('ant_estado',
@@ -52,7 +54,7 @@ Phx.vista.LicenciaReq={
     bexcelGroups: [0,1,2,3,4],
     
     gruposBarraTareas:[	{name:'borrador',title:'<H1 align="center"><i class="fa fa-eye"></i>Borrador</h1>',grupo:0,height:0},
-    					{name:'vobo',title:'<H1 align="center"><i class="fa fa-eye"></i> Visto Bueno</h1>',grupo:0,height:0},
+    					{name:'vobo',title:'<H1 align="center"><i class="fa fa-eye"></i> Visto Bueno</h1>',grupo:1,height:0},
     					{name:'finalizado',title:'<H1 align="center"><i class="fa fa-eye"></i>Finalizado</h1>',grupo:1,height:0}                     
                        ],
     actualizarSegunTab: function(name, indice){
@@ -73,13 +75,14 @@ Phx.vista.LicenciaReq={
 
          if (data.estado == 'borrador') {
          	this.getBoton('ant_estado').disable();
-    		this.getBoton('sig_estado').enable();	
+    		this.getBoton('sig_estado').enable();
 
          }; 
          if(data.estado == ('vobo' ||'finalizado' )){
          	this.getBoton('ant_estado').disable();
-    		this.getBoton('sig_estado').disable();		
+    		this.getBoton('sig_estado').disable();
          };
+
          
 
        	
@@ -95,6 +98,11 @@ Phx.vista.LicenciaReq={
         }
        return tb
     },
+    iniciarEventos:function () {
+	    let v_fecha = new Date();
+        v_fecha = Ext.util.Format.date(v_fecha,'d/m/Y');
+        this.Cmp.id_funcionario.store.baseParams.fecha = v_fecha;
+    }
 
 	}
 </script>

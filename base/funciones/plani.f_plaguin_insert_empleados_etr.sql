@@ -20,7 +20,8 @@ $body$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #0               27/01/2014       Jaim Rivera (Kplian)    Creacion 
- #63              22-02-2019       Rarteaga     KPLIAN     refactorizacion plnailla aguinlados, comentarios, etc
+ #63              22-02-2020       Rarteaga     KPLIAN     refactorizacion plnailla aguinlados, comentarios, etc
+ #110             26/03/2020       RArteaga     KPLIAN     considerar funcionarios segun sus ultimos tres meses de trabajo       
  ********************************************************************************/
  
 DECLARE
@@ -43,7 +44,7 @@ DECLARE
   
 BEGIN
 	
-    v_nombre_funcion = 'plani.f_plaguin_insert_empleados';
+    v_nombre_funcion = 'plani.f_plaguin_insert_empleados';     
     
     v_filtro_uo = '';
 	
@@ -65,11 +66,12 @@ BEGIN
     	on ges.id_gestion = p.id_gestion
     where p.id_planilla = p_id_planilla;
     
-    if (v_planilla.fecha_planilla >= ('20/12/' || v_planilla.gestion)::date) then
-    	v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date;        
-    ELSE
-    	v_fecha_fin_planilla = v_planilla.fecha_planilla;    	
-    end if;
+    --#110 la fecha para ahcer los calculor siempre es el 31 de diciembre
+    -- no importa si la planilla se calcula y pago el el 4 de diciembre (cualquier fecha antes del 31 de diciembre)
+    -- se calcula e pago seun ultimos 90 dias
+    -- pero solo se considera los funcionarios vigentes al 31 de diciembre
+    v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date;        
+    
     
     
     --si es necesario filtra los miembro de una determinada UO o por determinado tipo de contrato
@@ -220,4 +222,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;
