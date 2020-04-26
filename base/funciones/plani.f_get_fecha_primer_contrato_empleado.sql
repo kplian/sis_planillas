@@ -18,18 +18,34 @@ DECLARE
   v_resp	            	varchar;
   v_nombre_funcion      	text;
   v_mensaje_error       	text;
+  v_separar_ctto			varchar;
 BEGIN
   v_fecha_ini = null;
+  v_separar_ctto:='no';
   v_nombre_funcion = 'plani.f_kp_get_fecha_primer_contrato_empleado';
-  select uofun.id_uo_funcionario, uofun.fecha_asignacion
-  into	v_id_uo_funcionario, v_fecha_ini
-  from orga.tuo_funcionario uofun
-  inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
-  inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato 
-  where uofun.id_funcionario = p_id_funcionario and uofun.fecha_finalizacion = p_fecha_ini - interval '1 day'
-  		and uofun.estado_reg != 'inactivo' and uofun.tipo = 'oficial' and tc.codigo in ('PLA','EVE');
   
-  if (v_fecha_ini is not null) then
+      select uofun.id_uo_funcionario, uofun.fecha_asignacion, uofun.separar_contrato
+      into	v_id_uo_funcionario, v_fecha_ini, v_separar_ctto
+      from orga.tuo_funcionario uofun
+      inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+      inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato 
+      where uofun.id_funcionario = p_id_funcionario and uofun.fecha_asignacion = p_fecha_ini 
+      and uofun.estado_reg != 'inactivo' and uofun.tipo = 'oficial' and tc.codigo in ('PLA','EVE');
+  
+  if (v_separar_ctto='si') then
+  	v_fecha_ini = p_fecha_ini;
+  else
+      select uofun.id_uo_funcionario, uofun.fecha_asignacion
+      into	v_id_uo_funcionario, v_fecha_ini
+      from orga.tuo_funcionario uofun
+      inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+      inner join orga.ttipo_contrato tc on tc.id_tipo_contrato = car.id_tipo_contrato 
+      where uofun.id_funcionario = p_id_funcionario and uofun.fecha_finalizacion = p_fecha_ini - interval '1 day'
+      and uofun.estado_reg != 'inactivo' and uofun.tipo = 'oficial' and tc.codigo in ('PLA','EVE');
+  end if;
+  
+  
+  if (v_fecha_ini is not null and v_separar_ctto='no' ) then
   	v_fecha_ini = plani.f_get_fecha_primer_contrato_empleado(v_id_uo_funcionario, p_id_funcionario, v_fecha_ini);
   else
   	v_fecha_ini = p_fecha_ini;

@@ -12,7 +12,8 @@ HISTORIAL DE MODIFICACIONES:
 #46 ETR				23.09.2019			MZM					Listado de informacion para abono en cuentas
  * 															omision de extension txt
 #56 ETR				30.09.2019			MZM					Listado de resumen de saldos
-#56 ETR				10.10.2019			MZM					Inclusion de filtro en cabecera de reporte  
+#56 ETR				10.10.2019			MZM					Inclusion de filtro en cabecera de reporte
+#117ETR				22.04.2020			MZM					Ajuste por actualizacion de php7  
 */
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldos.php'); //#56
 class ACTObligacion extends ACTbase{    
@@ -81,7 +82,7 @@ class ACTObligacion extends ACTbase{
 		
 		$nombre_archivo = 'B03'.$periodo.".CTD";
 		
-		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= undefined ){
+		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= 'undefined' ){//#117
 			if($this->objParam->getParametro('tipo_contrato')=='Planta' ){
 				$nombre_archivo = 'B03'.$periodo."1.CTD";
 			}else{
