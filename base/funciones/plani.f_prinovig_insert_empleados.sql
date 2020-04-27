@@ -1,6 +1,6 @@
 --------------- SQL ---------------
 
-CREATE OR REPLACE FUNCTION plani.f_plaprivig_insert_empleados (
+CREATE OR REPLACE FUNCTION plani.f_prinovig_insert_empleados (
   p_id_planilla integer
 )
 RETURNS varchar AS
@@ -11,7 +11,7 @@ $body$
    SCRIPT:
    COMENTARIOS:
    AUTOR:
-   DESCRIP:  inserta a todo el personal al cual le corresponde pago de prima para la gestion
+   DESCRIP:  inserta el personal no vigente con derecho a prima (que ya no trabaja a la fecha de la planilla)
    Fecha: 16-04-2020
 
 
@@ -26,30 +26,29 @@ DECLARE
   v_planilla                     record;
   v_planilla_prev                record;
   v_planilla_aux                 record;
-  v_pla_aux_novig                record;
   v_id_funcionario_planilla      integer;
   v_columnas                     record;
-  v_resp                         varchar;
-  v_nombre_funcion               text;
-  v_mensaje_error                text;
-  v_filtro_query                 varchar;
-  v_id_afp                       integer;
-  v_id_cuenta_bancaria           integer;
-  v_fecha_ini                    date;
-  v_entra                        varchar;
-  v_fecha_fin_planilla           date;
-  v_dias                         integer = 0;
-  v_tipo_contrato                varchar;
-  v_id_funcionario               integer = 0;
-  v_bandera                      integer;
-  v_main_query                   varchar;
+  v_resp                varchar;
+  v_nombre_funcion      text;
+  v_mensaje_error       text;
+  v_filtro_query            varchar;
+  v_id_afp                integer;
+  v_id_cuenta_bancaria    integer;
+  v_fecha_ini            date;
+  v_entra                varchar;
+  v_fecha_fin_planilla    date;
+  v_dias                integer = 0;
+  v_tipo_contrato        varchar;
+  v_id_funcionario        integer = 0;
+  v_bandera                integer;
+  v_main_query          varchar;
 
   v_fecha_ini_gestion   date;
   v_fecha_fin_gestion   date;
 
 BEGIN
 
-    v_nombre_funcion = 'plani.f_plaprivig_insert_empleados';
+    v_nombre_funcion = 'plani.f_prinovig_insert_empleados';
     v_filtro_query = '';
 
     -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
@@ -99,6 +98,7 @@ BEGIN
     --   pero solo los que tiene contrato vigente a la fecha
     ------------------------------------------------------------------------------------------
 
+
     SELECT
           p.id_planilla,
           p.fecha_planilla,
@@ -109,9 +109,6 @@ BEGIN
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'PLAPREPRI';
 
-
-    --verifica si existe otra planillade personal vigente
-    -- esta ambas planillas debe ser de la misma fecha para tener un cálculo exacto
     SELECT
           p.id_planilla,
           p.fecha_planilla,
@@ -122,60 +119,35 @@ BEGIN
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'PLAPRIVIG';
 
-
-    --si exsite alguna prima de no vigentes debe ser de la misma fecha
-    SELECT
-          p.id_planilla,
-          p.fecha_planilla,
-          p.estado
-    INTO v_pla_aux_novig
-    FROM plani.tplanilla p
-    INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
-    WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PRINOVIG';
-
-
-
-
-    IF v_planilla_prev IS NULL THEN
-       raise exception 'primero  tiene que definir  su planilla de previsiones de prima';
+    IF v_planilla_aux IS NULL THEN
+       raise exception 'primero  tiene que definir  su planilla de primas para personal vigente';
     END IF;
 
-    IF v_planilla_prev.estado != 'finalizado' AND 0!=0  THEN --TODO deja pasar temporalmente
+    IF v_planilla_aux.fecha_planilla !=  v_planilla.fecha_planilla THEN
+       raise exception 'Esta planilla debe tener la misma fecha que la planilla de personal vigente para tener un cálculo exacto (%)', v_planilla_aux.fecha_planilla;
+    END IF;
+
+    IF v_planilla_aux.estado != 'finalizado' AND 0!=0  THEN --TODO deja pasar temporalmente
        raise exception 'La planilla de previsiones de prima debe estar finalizada para proceder con la planilla de pagos';
     END IF;
 
-    --verificar si eiste otra planilla del mismo tipo tiene que ser de la misma fecha
-    IF v_planilla_aux.fecha_planilla !=  v_planilla.fecha_planilla THEN
-       raise exception 'Esta planilla debe tener la misma fecha que las otras planilla de personal vigente para tener un cálculo exacto (%)',v_planilla_aux.fecha_planilla ;
-    END IF;
-
-    -- previficar que no exista la plnailla de no vigentes
-    IF v_pla_aux_novig.fecha_planilla !=  v_planilla.fecha_planilla THEN
-       raise exception 'Esta planilla debe tener la misma fecha que las otras planilla de personal no vigente para tener un cálculo exacto (%)',v_pla_aux_novig.fecha_planilla ;
-    END IF;
-
-
-
-     v_main_query = '
+    v_main_query = '
                      SELECT
-                      DISTINCT ON (fp.id_funcionario)
-                      fp.id_funcionario,
-                      uofun.id_uo_funcionario,
-                      ofi.id_lugar,
-                      uofun.tipo,
-                      car.id_tipo_contrato,
-                      uofun.fecha_asignacion,
-                      COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion
+                            DISTINCT ON (fp.id_funcionario)
+                            fp.id_funcionario,
+                            uofun.id_uo_funcionario,
+                            ofi.id_lugar,
+                            uofun.tipo,
+                            car.id_tipo_contrato,
+                            uofun.fecha_asignacion,
+                            COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion
                       FROM plani.tfuncionario_planilla fp
                       INNER JOIN orga.tuo_funcionario uofun ON     fp.id_funcionario = uofun.id_funcionario
-                                                               AND (uofun.fecha_finalizacion IS NULL
-                                                                     OR
-                                                                    uofun.fecha_finalizacion > '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla
                       INNER JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                       INNER JOIN orga.toficina ofi ON car.id_oficina = ofi.id_oficina
                       INNER JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'',''EVE'')
                       WHERE uofun.estado_reg != ''inactivo''
+                            AND NOT plani.f_es_funcionario_vigente(fp.id_funcionario, '''||v_planilla.fecha_planilla::varchar||'''::Date)
                             AND uofun.tipo = ''oficial''
                             AND ' || v_filtro_query  || '   fp.id_planilla = '|| v_planilla_prev.id_planilla ||'
                             AND uofun.id_funcionario NOT IN (
