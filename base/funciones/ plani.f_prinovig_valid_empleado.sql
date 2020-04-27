@@ -86,6 +86,9 @@ BEGIN
                             COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion,
                             tcon.codigo as tipo_contrato
                       FROM plani.tfuncionario_planilla fp
+                      INNER JOIN plani.tcolumna_valor cv ON     cv.id_funcionario_planilla = fp.id_funcionario_planilla
+                                                            AND cv.codigo_columna = ''PREPRIMA''
+                                                            AND cv.valor > 0
                       INNER JOIN orga.tuo_funcionario uofun ON     fp.id_funcionario = uofun.id_funcionario
                       INNER JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                       INNER JOIN orga.toficina ofi ON car.id_oficina = ofi.id_oficina
