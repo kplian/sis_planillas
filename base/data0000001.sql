@@ -325,14 +325,14 @@ VALUES (E'plani_generar_comprobante_obligaciones', E'no', E'bandera para generar
 
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'plani_generar_comprobante_obligaciones', E'si', E'genera cbte de obligaciones al validar cbte de planilla');
-  
-  
+
+
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'plani_cuenta_bancaria_defecto', E'1', E'Cuenta bancaria por defecto para pagos generados por planillas');
-  
+
 /***********************************F-DAT-RAC-PLANI-1-24/01/2019****************************************/
 /***********************************I-DAT-EGS-PLANI-0-05/02/2019****************************************/
 select pxp.f_insert_tgui ('Agrupador de Obligaciones', 'Agrupa el tipo de Obligacion ', 'AGRTO', 'si', 3, 'sis_planillas/vista/tipo_obligacion_agrupador/TipoObligacionAgrupador.php', 3, '', 'TipoObligacionAgrupador', 'PLANI');
@@ -354,7 +354,7 @@ select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'');
 select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'');
 
 ------------------------------------------------
---catalog de AFP para dividir la obligaciones 
+--catalog de AFP para dividir la obligaciones
 -------------------------------------------------
 
 select param.f_import_tcatalogo_tipo ('insert','tafp_empleado','PLANI','tafp');
@@ -393,16 +393,16 @@ select pxp.f_insert_tgui ('Reporte Funcionario Planillas', 'Reporte Funcionario 
 /***********************************I-DAT-RAC-PLANI-19-04/07/2019****************************************/
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'plani_csv_imp_columna', E'CI', E'Define la columnas por la que se importan los archivos csv a planillas, CI o CODIGO,   carnet de identidad o codigo de empleado ');
- 
-/***********************************F-DAT-RAC-PLANI-19-04/07/2019****************************************/ 
-  
+
+/***********************************F-DAT-RAC-PLANI-19-04/07/2019****************************************/
+
 
 /***********************************I-DAT-RAC-PLANI-21-17/07/2019****************************************/
 
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
-VALUES 
+VALUES
   (E'plani_csv_imp_pref_codemp', E'', E'los datos de esta configuracion se eliminan del frepijo de empleado para facilitar la introduccion de datos al importar columnas desde CSV');
 
 
@@ -414,10 +414,10 @@ VALUES
 /***********************************I-DAT-RAC-PLANI-38-10/09/2019****************************************/
 
 INSERT INTO pxp.variable_global ("variable", "descripcion", "valor")
-VALUES 
+VALUES
   (E'plani_cbte_independiente', E'Si el cbte se genera N veces independiente al flujo de planilla, SI/NO', E'NO');
-  
-  
+
+
 /***********************************F-DAT-RAC-PLANI-38-10/09/2019****************************************/
 
 
@@ -428,4 +428,17 @@ select pxp.f_insert_testructura_gui ('PLAVOBOCTA', 'PLANI');
 /***********************************F-DAT-RAC-PLANI-38-16/09/2019****************************************/
 
 
-  
+/***********************************I-DAT-RAC-PLANI-113-20/04/2020****************************************/
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES
+  (E'plani_dividir_antiguedad_tipo_contrato', E'si', E'no o si, si dividimos la antiguedad del contrato segun  el tipo de contrato en la funcion f_get_fecha_primer_contrato_empleado'),
+  (E'plani_dividir_antiguedad_carga_horaria', E'si', E'no o si, si  consideramos separar la antiguedad de contratos con diferente carga horaria en la funcion f_get_fecha_primer_contrato_empleado');
+
+/***********************************F-DAT-RAC-PLANI-113-20/04/2020****************************************/
+
+
+
+
+
+

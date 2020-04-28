@@ -7,6 +7,7 @@
  #77	ETR				15.11.2019			MZM					Ajsute reprote
  *77	ETR				20.11.2019			MZM					Uniformizado de tamaño de letra
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -46,7 +47,18 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		//#66
 		$tipo_cto=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($tipo_cto!=''){
-			$tipo_cto='('.$tipo_cto.')';
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$tipo_cto=' ('.$tipo_cto.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$tipo_cto='('.$tipo_cto.')';
+			}
+			
+			
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$tipo_cto=' ('.$this->objParam->getParametro('personal_activo').')';
+			}
 		}
 		
 		

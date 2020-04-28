@@ -193,8 +193,8 @@ header("content-type: text/javascript; charset=UTF-8");
 			config: {
 				name: 'id_tipo_contrato',
 				fieldLabel: 'Tipo Contrato',
-				allowBlank: true,
-				emptyText: 'Dejar en blanco para todos...',
+				allowBlank: false,
+				emptyText: 'Tipo Contrato...',
 				store: new Ext.data.JsonStore({
 					url: '../../sis_organigrama/control/TipoContrato/listarTipoContrato',
 					id: 'id_tipo_contrato',
@@ -579,7 +579,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.ocultarComponente(this.Cmp.rango_inicio);
 						this.ocultarComponente(this.Cmp.id_afp);
 						this.ocultarComponente(this.Cmp.fecha);
-						this.ocultarComponente(this.Cmp.personal_activo);
+						//this.ocultarComponente(this.Cmp.personal_activo);
 						this.ocultarComponente(this.Cmp.id_tipo_columna);//#80
 						this.ocultarComponente(this.Cmp.consolidar);//#98
 						this.Cmp.consolidar.setValue('no');//#98
@@ -628,7 +628,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.mostrarComponente(this.Cmp.id_uo);
 				this.mostrarComponente(this.Cmp.id_tipo_contrato);
 				this.mostrarComponente(this.Cmp.id_gestion);
-				this.ocultarComponente(this.Cmp.personal_activo);
+				//this.ocultarComponente(this.Cmp.personal_activo);
 				this.ocultarComponente(this.Cmp.consolidar);//#98
 				
 								
@@ -652,10 +652,14 @@ header("content-type: text/javascript; charset=UTF-8");
 					this.Cmp.id_periodo.allowBlank = true;
 					this.Cmp.id_periodo.reset();	
 					
+					this.ocultarComponente(this.Cmp.personal_activo);
+					this.Cmp.personal_activo.setValue('todos');
 									
 				} else {
 					this.mostrarComponente(this.Cmp.id_periodo);
 					this.Cmp.id_periodo.allowBlank = false;		
+					this.mostrarComponente(this.Cmp.personal_activo);
+					this.Cmp.personal_activo.setValue('todos');
 	
 				}
 				this.Cmp.id_reporte.setDisabled(false);
@@ -663,15 +667,15 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_reporte.store.baseParams.id_tipo_planilla = r.data.id_tipo_planilla;
 				this.Cmp.id_reporte.modificado = true;
 				
-				
+				this.Cmp.personal_activo.setValue('todos');//#98
 				if(r.data.codigo=='PLANRE' ){
-					this.mostrarComponente(this.Cmp.personal_activo);
+					//this.mostrarComponente(this.Cmp.personal_activo);
 					this.mostrarComponente(this.Cmp.consolidar);//#98
 				}else{
-					this.ocultarComponente(this.Cmp.personal_activo);	
+					//this.ocultarComponente(this.Cmp.personal_activo);	
 					this.ocultarComponente(this.Cmp.consolidar);//#98	
 					this.Cmp.consolidar.setValue('no');//#98
-					this.Cmp.personal_activo.setValue('todos');//#98
+					
 				}
 				this.Cmp.id_planillabk.reset();//#83
 				this.Cmp.consultar_backup.setValue('no');//#83
@@ -719,8 +723,12 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.control_reporte.setValue(r.data.control_reporte);
 				this.Cmp.id_tipo_columna.setValue('');
 				this.Cmp.nombre_descuento.setValue('');
+				this.mostrarComponente(this.Cmp.personal_activo);
+				
+				this.Cmp.id_afp.allowBlank=true;
+				this.Cmp.id_afp.setValue('');
 				//***************
-				if(r.data.tipo_reporte=='formato_especifico'){
+				if(r.data.tipo_reporte=='formato_especifico'){ //alert(r.data.control_reporte);
 					  //***************************     
 					    this.ocultarComponente(this.Cmp.totales);
 						//this.ocultarComponente(this.Cmp.formato_reporte);
@@ -735,7 +743,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.ocultarComponente(this.Cmp.id_afp);
 						this.Cmp.id_afp.allowBlank=true;
 						this.Cmp.id_afp.setValue('');
-						this.Cmp.id_tipo_contrato.allowBlank=true;
+						//this.Cmp.id_tipo_contrato.allowBlank=true;
 						this.Cmp.nombre_afp.setValue('');
 							
 						this.ocultarComponente(this.Cmp.fecha);
@@ -750,11 +758,15 @@ header("content-type: text/javascript; charset=UTF-8");
 						if (this.Cmp.periodicidad.getValue() == 'anual') {
 							this.ocultarComponente(this.Cmp.id_periodo);
 							this.Cmp.id_periodo.allowBlank = true;
-							this.Cmp.id_periodo.reset();					
+							this.Cmp.id_periodo.reset();		
+							
+							this.ocultarComponente(this.Cmp.personal_activo);
+							this.Cmp.personal_activo.setValue('todos');			
 						} else {
 							this.mostrarComponente(this.Cmp.id_periodo);
 							this.Cmp.id_periodo.allowBlank = false;		
-			
+							this.mostrarComponente(this.Cmp.personal_activo);
+							this.Cmp.personal_activo.setValue('todos');
 						}
 						
 
@@ -773,11 +785,12 @@ header("content-type: text/javascript; charset=UTF-8");
 								this.mostrarComponente(this.Cmp.rango_inicio);
 								this.Cmp.rango_inicio.allowBlank=false;
 								this.Cmp.rango_fin.allowBlank=false;
-								
+								this.mostrarComponente(this.Cmp.personal_activo);
+								this.Cmp.personal_activo.setValue('todos');
 								//this.ocultarComponente(this.Cmp.id_tipo_contrato);
 								//this.ocultarComponente(this.Cmp.formato_reporte);
 								
-						}else{  
+						}else{  this.mostrarComponente(this.Cmp.personal_activo);
 								/*this.ocultarComponente(this.Cmp.rango_fin);
 								this.ocultarComponente(this.Cmp.rango_inicio);
 								this.Cmp.rango_inicio.allowBlank=true;
@@ -788,7 +801,8 @@ header("content-type: text/javascript; charset=UTF-8");
 								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
 									this.mostrarComponente(this.Cmp.id_afp);
 									this.Cmp.id_afp.allowBlank=false;
-								
+									this.ocultarComponente(this.Cmp.personal_activo);
+									this.Cmp.personal_activo.setValue('todos');
 								}else{
 									if(r.data.control_reporte=='reserva_beneficios' || r.data.control_reporte=='reserva_beneficios2' || r.data.control_reporte=='reserva_beneficios3'){
 										this.mostrarComponente(this.Cmp.fecha);
@@ -801,19 +815,26 @@ header("content-type: text/javascript; charset=UTF-8");
 										
 										this.Cmp.id_periodo.allowBlank=true;
 										this.Cmp.id_periodo.setValue('');
+										
+										this.ocultarComponente(this.Cmp.personal_activo);
+										this.Cmp.personal_activo.setValue('todos');
+										
 									}else{
 										if(r.data.control_reporte=='asignacion_cargos' || r.data.control_reporte=='movimiento_personal' || r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc' ){
 											this.ocultarComponente(this.Cmp.id_periodo);
 											this.Cmp.id_periodo.allowBlank=true;
 											this.Cmp.id_periodo.setValue('');
+											this.ocultarComponente(this.Cmp.personal_activo);
+											this.Cmp.personal_activo.setValue('todos');
+										}else{
+											if(r.data.control_reporte=='planilla_tributaria'){
+												this.ocultarComponente(this.Cmp.personal_activo);
+											}
 										}
 										
 									}
 									
 								}
-								
-								
-								
 								
 							}
 							
@@ -845,7 +866,7 @@ header("content-type: text/javascript; charset=UTF-8");
 							this.ocultarComponente(this.Cmp.id_afp);
 							this.Cmp.id_afp.allowBlank=true;
 							this.Cmp.id_afp.setValue('');
-							this.Cmp.id_tipo_contrato.allowBlank=true;
+							//this.Cmp.id_tipo_contrato.allowBlank=true;
 						}
 						
 						

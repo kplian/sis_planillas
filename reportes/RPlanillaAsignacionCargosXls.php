@@ -2,7 +2,8 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -196,7 +197,7 @@ class RPlanillaAsignacionCargosXls
 						$this->docexcel->getActiveSheet()->getStyle('A3:E3')->getAlignment()->setWrapText(true);
 	                	$this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos3);
 						
-					}elseif($this->objParam->getParametro('tipo_reporte')=='profesiones'){
+					}elseif($this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
 						$this->docexcel->getActiveSheet()->getStyle('A3:C3')->getAlignment()->setWrapText(true);
 	                	$this->docexcel->getActiveSheet()->getStyle('A3:C3')->applyFromArray($styleTitulos3);
 						
@@ -302,6 +303,15 @@ class RPlanillaAsignacionCargosXls
                 $this->docexcel->getActiveSheet()->setCellValue('C3','Profesion');//3
                  
 			}
+			elseif($this->objParam->getParametro('tipo_reporte')=='listado_centros' ){
+				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(30);
+                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);//categori
+                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
+                $this->docexcel->getActiveSheet()->setCellValue('A3','Codigo');//1
+                $this->docexcel->getActiveSheet()->setCellValue('B3','Nombre');//2
+                $this->docexcel->getActiveSheet()->setCellValue('C3','Cargo');//3
+                 
+			}
 			
 			else 
 						
@@ -342,14 +352,25 @@ class RPlanillaAsignacionCargosXls
 				
  $cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($cadena_nomina!=''){
-			$cadena_nomina='('.$cadena_nomina.')';
-		}               
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$cadena_nomina=' ('.$cadena_nomina.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$cadena_nomina='('.$cadena_nomina.')';
+			}
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+			$cadena_nomina=' ('.$this->objParam->getParametro('personal_activo').')';}
+		}
+
+
+     
    //#83
 				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
 				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
 				$ar=substr($data_titulo[0]['fecha_backup'],6);
-				$fecha_backup='';
-				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000'){
+				$fecha_backup=''; 
+				if(($dr.'/'.$mr.'/'.$ar)!='01/01/1000' && $data_titulo[0]['fecha_backup']!=''){
 					$fecha_backup=' [Backup:'.($dr.'/'.$mr.'/'.$ar).']';
 				}          
                 
@@ -374,6 +395,8 @@ if($this->objParam->getParametro('tipo_reporte')=='asignacion_cargos'){
 	$tit_rep='CLASIFICACION DE PERSONAL POR PROFESIONES'.$cadena_nomina.$fecha_backup;
 }elseif( $this->objParam->getParametro('tipo_reporte')=='frecuencia_profesiones'){
 	$tit_rep='FRECUENCIA DE PROFESIONES '.$cadena_nomina.$fecha_backup;
+}elseif( $this->objParam->getParametro('tipo_reporte')=='listado_centros'){
+	$tit_rep='LISTADO POR CENTROS '.$cadena_nomina.$fecha_backup;
 }
 
 
@@ -398,7 +421,7 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 				
 }else{
 	
-	 if($this->objParam->getParametro('tipo_reporte')=='profesiones' ){
+	 if($this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){
 	 	 $this->docexcel->getActiveSheet()->mergeCells("A1:C1");
 		 $this->docexcel->getActiveSheet()->mergeCells("A2:C2"); 
 	 }else{
@@ -411,7 +434,7 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 				
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				
-				if($this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='directorio_empleados'){///////////////////
+				if($this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='directorio_empleados' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){///////////////////
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
 				}else{
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['gestion']);	
@@ -556,7 +579,22 @@ if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' || $this->objP
 				$ges=$value['profesion'];			
 			}
 		}
-		
+		elseif($this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
+			$centro_uo='';
+			foreach ($datos as $value){
+				
+				if($centro_uo!=$value['nombre_uo_centro']){
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['nombre_uo_centro']);
+					$fila++;
+				}
+				
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['codigo_funcionario']);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['desc_funcionario2']);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$value['nombre_cargo']);
+				$fila++;
+				$centro_uo=$value['nombre_uo_centro'];			
+			}
+		}
 		
 		
 		else{//lista_cargos
