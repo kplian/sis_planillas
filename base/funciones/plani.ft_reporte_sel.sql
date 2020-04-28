@@ -1,3 +1,7 @@
+-- FUNCTION: plani.ft_reporte_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.ft_reporte_sel(integer, integer, character varying, character varying);
+
 CREATE OR REPLACE FUNCTION plani.ft_reporte_sel(
 	p_administrador integer,
 	p_id_usuario integer,
@@ -1253,6 +1257,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         
     	execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
 							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                             inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
 							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
        
 
