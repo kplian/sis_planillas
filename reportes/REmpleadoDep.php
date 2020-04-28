@@ -8,6 +8,7 @@
  #80	ETR				25.11.2019			MZM					Reporte Bono Desc
  #83	MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla 
  #90	ETR				15.01.2019			MZM					cambio de dato matricula_dep por edad_dep
+ #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -41,7 +42,19 @@ class REmpleadoDep extends  ReportePDF {
 		//#66
 		$nombre_tc=$this->objParam->getParametro('nombre_tipo_contrato');
 		if($nombre_tc!=''){
-			$nombre_tc=' ('.$nombre_tc.')';
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$nombre_tc=' ('.$nombre_tc.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				$nombre_tc='('.$nombre_tc.')';
+			}
+			
+			
+		}else{
+			//#98
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$nombre_tc=' ('.$this->objParam->getParametro('personal_activo').')';
+			}
 		}
 		
 		if($this->objParam->getParametro('tipo_reporte')=='dependientes'){	

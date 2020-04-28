@@ -29,17 +29,20 @@ $body$
  #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
  #53 ETR        26/09/2019        RAC       listado para Interface que identifica empleado según centro de costo
  #78 ETR        18/11/2019        RAC       considerar esquema origen de datos para listado de backups, PLA_FUNPLAN_SEL
+ #103 ETR       02/04/2020        RAC       Listado de funcionario toda sin contador para envo de boletas de pago
+
 ***************************************************************************/
 
 DECLARE
 
     v_consulta            varchar;
     v_parametros          record;
-    v_nombre_funcion       text;
+    v_registros           record;
+    v_nombre_funcion      text;
     v_resp                varchar;
-    v_fecha_ini            date;
-    v_fecha_fin            date;
-    v_esquema              varchar;
+    v_fecha_ini           date;
+    v_fecha_fin           date;
+    v_esquema             varchar;
 
 BEGIN
 
@@ -56,14 +59,14 @@ BEGIN
     if(p_transaccion='PLA_FUNPLAN_SEL')then
 
         begin
-        
+
             -- #78
             IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
                v_esquema = v_parametros.esquema;
             ELSE
                v_esquema = 'plani';
-            END IF; 
-        
+            END IF;
+
             --Sentencia de la consulta
             v_consulta:='select
                         funplan.id_funcionario_planilla,
@@ -122,14 +125,14 @@ BEGIN
     elsif(p_transaccion='PLA_FUNPLAN_CONT')then
 
         begin
-            
+
             -- #78
             IF (pxp.f_existe_parametro(p_tabla, 'esquema')) THEN
                v_esquema = v_parametros.esquema;
             ELSE
                v_esquema = 'plani';
-            END IF; 
-            
+            END IF;
+
             --Sentencia de la consulta de conteo de registros
             v_consulta:='select count(id_funcionario_planilla)
                         from plani.tfuncionario_planilla funplan
@@ -154,6 +157,59 @@ BEGIN
             return v_consulta;
 
         end;
+
+
+    /*********************************
+     #TRANSACCION:  'PLA_FUNPLANALL_SEL'
+     #DESCRIPCION:  Listado de todos lso funcionarios de la planilla sin paginacion para envio de boeltas
+     #AUTOR:        RAC
+     #FECHA:        02-04-2020
+     #ISSUE:        103
+    ***********************************/
+
+    elseif(p_transaccion='PLA_FUNPLANALL_SEL')then
+
+        begin
+
+
+             select
+                p.estado,
+                tp.id_tipo_planilla
+             into
+                v_registros
+             from plani.tplanilla p
+             join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+             where p.id_planilla =  v_parametros.id_planilla;
+
+            -- validar estado de la planilla
+            IF v_registros.estado not in ('planilla_finalizada','comprobante_generado','vobo_conta') THEN --que estado se peude imprimir la boleta
+               raise exception 'no puede mandar boletas en el estado: %',v_registros.estado;
+            END IF;
+
+            --validar que el tipo de  planilla tenga boletas configuradas
+            if (not exists( select 1
+                         from plani.treporte r
+                         where r.id_tipo_planilla = v_registros.id_tipo_planilla and r.estado_reg = 'activo' and
+                               r.tipo_reporte = 'boleta')) then
+                raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
+            end if;
+
+
+            --Sentencia de la consulta
+            v_consulta:=' select
+                                funplan.id_funcionario_planilla,
+                                funplan.id_funcionario,
+                                funplan.id_planilla,
+                                funcio.desc_funcionario1,
+                                funcio.email_empresa
+                          from plani.tfuncionario_planilla funplan
+                          inner join orga.vfuncionario_persona funcio on funcio.id_funcionario = funplan.id_funcionario
+                          where  funplan.id_planilla = '||v_parametros.id_planilla;
+
+            return v_consulta;
+
+        end;
+
     /*********************************
      #TRANSACCION:  'PLA_ALTPER_SEL'
      #DESCRIPCION:    Listado de altas de personal en un periodo
@@ -461,7 +517,7 @@ BEGIN
                             funcio.ci,
                             (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
                             funplan.tipo_contrato,
-                            funcio.codigo as desc_codigo, 
+                            funcio.codigo as desc_codigo,
                             pro.id_presupuesto
                         from plani.tfuncionario_planilla funplan
                         inner join plani.tprorrateo pro ON pro.id_funcionario_planilla = funplan.id_funcionario_planilla
@@ -543,4 +599,5 @@ LANGUAGE 'plpgsql'
 VOLATILE
 CALLED ON NULL INPUT
 SECURITY INVOKER
+PARALLEL UNSAFE
 COST 100;

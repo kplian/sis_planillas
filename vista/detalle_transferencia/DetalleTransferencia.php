@@ -5,6 +5,8 @@
 *@author  (jrivera)
 *@date 14-07-2014 20:28:39
 *@description Archivo con la interfaz de usuario que permite la ejecucion de todas las funcionalidades del sistema
+ISSUE            FECHA:              AUTOR                 DESCRIPCION
+#112			 12.04.2020			MZM					Arreglo a reload para que no se pierda el id al paginar
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -17,7 +19,9 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.DetalleTransferencia.superclass.constructor.call(this,config);
 		this.init();
+		this.store.baseParams.id_obligacion = this.maestro.id_obligacion;//#112
 		this.load({params:{start:0, limit:this.tam_pag, id_obligacion:this.maestro.id_obligacion}})
+		
 	},
 			
 	Atributos:[
@@ -55,12 +59,12 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 		
 		{
 			config:{
-				name: 'desc_funcionario1',
+				name: 'desc_funcionario2',
 				fieldLabel: 'Funcionario',				
 				gwidth: 250
 			},
 				type:'TextField',
-				filters:{pfiltro:'fun.desc_funcionario1',type:'string'},				
+				filters:{pfiltro:'fun.desc_funcionario2',type:'string'},				
 				grid:true,
 				form:false
 		},
@@ -229,7 +233,7 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_obligacion', type: 'numeric'},
 		{name:'nro_cuenta', type: 'string'},
 		{name:'ci', type: 'string'},
-		{name:'desc_funcionario1', type: 'string'},
+		{name:'desc_funcionario2', type: 'string'},
 		{name:'nombre', type: 'string'},
 		{name:'monto_transferencia', type: 'numeric'},
 		{name:'estado_reg', type: 'string'},
@@ -249,6 +253,8 @@ Phx.vista.DetalleTransferencia=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true
+
+	
 	}
 )
 </script>

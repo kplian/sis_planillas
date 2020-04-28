@@ -9,6 +9,7 @@
 //#80			MZM			22.11.2019				Reporte bono-desc y formato de numero
 //#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
 //#93			MZM			13.02.2020				Ajuste en obtencion de subtotales para columnas no numericas
+//#98		ETR	MZM			04.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
@@ -53,8 +54,21 @@ class RPlanillaGenerica extends  ReportePDF {
 		$tipo_con='';
 		
 		if ($this->objParam->getParametro('id_tipo_contrato')!=''){//01.10.2019
-			$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+		    if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{
+				
+				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+			}
+		
+			
+		}else{
+			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+				$tipo_con=' ('.$this->objParam->getParametro('personal_activo').')';
+			}
 		}
+		
+		
 		
 		$this->Cell(0,5,$this->datos_titulo['titulo_reporte'] .$tipo_con.'',0,1,'C');
 		
@@ -63,8 +77,18 @@ class RPlanillaGenerica extends  ReportePDF {
 		$this->SetFont('','B',10);
 		
 		
+						
+					   
+		
+		
 		if($this->datos_titulo['periodo']!=''){
-			$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');	
+			if ($this->objParam->getParametro('consolidar')=='si'){//#98
+							
+							$this->Cell(0,5,'Acumulado a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+						}else{
+							$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+						}
+				
 		}else{
 			$this->Cell(0,5,'GESTION ' . $this->datos_titulo['gestion'],0,1,'C'); // planilla prima 31.10.2019
 		}
@@ -120,7 +144,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		if ($this->datos_titulo['mostrar_codigo_cargo'] == 'si')
 			$this->Cell(10,3.5,'Item','LTR',0,'C');
 		$columnas = 0;
-		
+		//var_dump($this->datos_detalle); exit;
 		foreach($this->datos_detalle as $value) {
 			$this->Cell($value['ancho_columna'],3.5,$value['titulo_reporte_superior'],'LTR',0,'C');
 			$columnas++;

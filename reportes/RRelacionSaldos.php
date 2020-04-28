@@ -5,7 +5,8 @@
  #56    ETR            30/09/2019           MZM                 Creacion
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
  #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
- #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla  
+ #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
+ #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)  
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -76,7 +77,7 @@ class RRelacionSaldos extends  ReportePDF {
 		  
 			$this->SetFont('','B',10);
 			if($this->detalle[0]['periodo']>0){
-				$this->Cell(0,5,'Correspondiente a'.$this->datos[0]['periodo'],0,1,'C');
+				$this->Cell(0,5,'Correspondiente a '.$this->datos[0]['periodo'],0,1,'C');
 			}else{
 				$this->Cell(0,5,'GESTION '.$this->detalle[0]['gestion'],0,1,'C');
 			}
@@ -101,9 +102,16 @@ class RRelacionSaldos extends  ReportePDF {
 				
 			$this->SetFont('','B',12);
 			if($this->tipo_contratoP!=''){
-				$this->Cell(0,5,'Personal '.$this->tipo_contratoP,'',1,'C');
+				if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+					$this->Cell(0,5,'Personal '.$this->tipo_contratoP. ' ('.$this->objParam->getParametro('personal_activo').')','',1,'C');
+				}else{
+					$this->Cell(0,5,'Personal '.$this->tipo_contratoP,'',1,'C');	
+				}
+				
 				$this->Ln(1);	
 			}
+			
+			
 			
 			
 			$this->SetFont('','B',8);
@@ -123,7 +131,14 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->SetX(30);
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
-				$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
+				
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRI'){
+					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
+				}else{//aguinaldo
+					$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
+				}
+				
+				
 				
 			}
 			
