@@ -36,6 +36,7 @@ AS $BODY$
  #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
  #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
  #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
+ #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
  ***************************************************************************/
 
 DECLARE
@@ -199,6 +200,7 @@ BEGIN
 			end if;
             
             v_consulta:='select distinct uofunc.id_funcionario, uofunc.fecha_asignacion, 0, fu.antiguedad_anterior 
+            ,uofunc.fecha_finalizacion, uofunc.observaciones_finalizacion
             from orga.tuo_funcionario uofunc
             inner join orga.tfuncionario fu on fu.id_funcionario=uofunc.id_funcionario
             inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fu.id_funcionario
@@ -206,11 +208,18 @@ BEGIN
             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
             where '||v_parametros.filtro||' and uofunc.estado_reg!=''inactivo'' and uofunc.id_uo_funcionario=fp.id_uo_funcionario
                                                     and uofunc.tipo=''oficial''  '||v_filtro_estado;
-                           raise notice '**%',v_consulta;                         
+            raise notice '**%',v_consulta;                         
             for v_registros in execute(v_consulta ) loop
-                   v_bonant:=0;         
+            v_bonant:=0;         
 
               v_fecha_ini_ctto:= (plani.f_get_fecha_primer_contrato_empleado(v_registros.id_funcionario, v_registros.id_funcionario, v_registros.fecha_asignacion));
+              --#120
+              select fecha_ini, fecha_fin into v_fecha_ini, v_fecha_fin
+              from param.tperiodo where id_periodo=v_id_periodo;
+              
+              if(v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin and v_registros.observaciones_finalizacion not in ('transferencia','promocion','')) then
+				    v_fecha:=v_registros.fecha_finalizacion;          
+              end if;
               v_antiguedad:=(select v_fecha - v_fecha_ini_ctto );
               
             
@@ -2720,6 +2729,38 @@ raise notice '***:%',v_consulta;
                       ';
                   return v_consulta;
        end;
+    elsif (p_transaccion='PLA_SALDO_FISCO_SEL') then  --#87
+       begin 
+       
+       
+       select fecha_ini, fecha_fin
+       into v_fecha_ini, v_fecha_fin
+       from param.tperiodo 
+       where id_periodo=v_parametros.id_periodo;
+    
+           v_consulta:='select fun.desc_funcionario2, car.nombre,
+            (plani.f_get_fecha_primer_contrato_empleado(fp.id_funcionario, fp.id_funcionario, uofun.fecha_asignacion))
+            ,f.fecha_quinquenio,
+            uofun.fecha_finalizacion, 
+            uofun.observaciones_finalizacion,
+            (select valor from plani.tcolumna_valor   where id_funcionario_planilla=fp.id_funcionario_planilla
+            and codigo_columna=''SUELNETO'' ) as sueldo_neto,
+            coalesce((select valor from plani.tcolumna_valor   where id_funcionario_planilla=fp.id_funcionario_planilla
+            and codigo_columna=''SALDOSIGPERFIS'' ),0) as saldo_acumulado,
+            param.f_get_periodo_literal(plani.id_periodo) as periodo
+            from plani.tplanilla plani
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+            inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+            inner join orga.tfuncionario f on f.id_funcionario=fun.id_funcionario
+            --inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+            inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+            inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
+            inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
+            where ';
+             v_consulta:=v_consulta||v_parametros.filtro;
+              v_consulta:=v_consulta || ' order by fun.desc_funcionario2';
+        	  return v_consulta;
+    	end;
     else
                          
         raise exception 'Transaccion inexistente';
