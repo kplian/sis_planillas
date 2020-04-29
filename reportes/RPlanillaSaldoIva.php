@@ -62,8 +62,8 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			  $this->Cell(20,5,'Fecha ','LTR',0,'C');
 			  $this->Cell(20,5,'Obs.','LTR',0,'C');
 			  $this->Cell(25,5,'Sueldo','LTR',0,'C');
-			  $this->Cell(25,5,'Saldo Acum.','LTR',1,'C');
-			  $this->Cell(25,5,'Saldo a','LTR',1,'C');
+			  $this->Cell(20,5,'Saldo Acum.','LTR',0,'C');
+			  $this->Cell(20,5,'Saldo a','LTR',1,'C');
 		
 		//titulo inferior
 		
@@ -77,8 +77,8 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			  $this->Cell(20,5,'Retiro','LBR',0,'C');
 			  $this->Cell(20,5,'Finaliz.','LBR',0,'C');
 			  $this->Cell(25,5,'Neto','LBR',0,'C');
-			  $this->Cell(25,5,'Fisco','LBR',1,'C');
-			  $this->Cell(25,5,'favor Dep.','LBR',1,'C');
+			  $this->Cell(20,5,'Fisco','LBR',0,'C');
+			  $this->Cell(20,5,'favor Dep.','LBR',1,'C');
 		
 	
 		$this->alto_header =$this->GetY(); 
@@ -113,13 +113,13 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		
 		for ($i=0; $i<count($this->datos);$i++){
 			
-			$this->Cell(70,5,$this->datos[$i]['desc_funcionario'],'',0,'L');	
+			$this->Cell(70,5,mb_strcut($this->datos[$i]['desc_funcionario'],0,45, "UTF-8"),'',0,'L');	
 			$this->Cell(20,5,$this->datos[$i]['fecha_primer_contrato'],'',0,'C');
 			$this->Cell(20,5,$this->datos[$i]['fecha_finalizacion'],'',0,'C');
 			$this->Cell(20,5,$this->datos[$i]['observaciones_fin'],'',0,'L');
 			$this->Cell(25,5,number_format($this->datos[$i]['sueldo_neto'],2),'',0,'R');
-			$this->Cell(25,5,number_format($this->datos[$i]['acumulado'],2),'',0,'R');
-			$this->Cell(25,5,number_format($this->datos[$i]['saldo_dep'],2),'',1,'R');
+			$this->Cell(20,5,number_format($this->datos[$i]['acumulado'],2),'',0,'R');
+			$this->Cell(20,5,number_format($this->datos[$i]['saldo_dep'],2),'',1,'R');
 			$tot_bs=$tot_bs+$this->datos[$i]['acumulado'];
 			$tot_dep=$tot_dep+$this->datos[$i]['saldo_dep'];
 			
@@ -139,8 +139,8 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			$this->Cell(20,5,'','',0,'C');
 			$this->Cell(20,5,'','',0,'L');
 			$this->Cell(25,5,'TOTAL:','',0,'R');
-			$this->Cell(25,5,number_format($tot_bs,2),'',0,'R');
-			$this->Cell(25,5,number_format($tot_dep,2),'',1,'R');
+			$this->Cell(20,5,number_format($tot_bs,2),'',0,'R');
+			$this->Cell(20,5,number_format($tot_dep,2),'',1,'R');
 			
 		}
 
