@@ -112,7 +112,7 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		$this->SetX(10);
 		
 		for ($i=0; $i<count($this->datos);$i++){
-			if($this->datos[$i]['acumulado']>0 ){
+			
 			$this->Cell(70,5,$this->datos[$i]['desc_funcionario'],'',0,'L');	
 			$this->Cell(20,5,$this->datos[$i]['fecha_primer_contrato'],'',0,'C');
 			$this->Cell(20,5,$this->datos[$i]['fecha_finalizacion'],'',0,'C');
@@ -122,7 +122,7 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			$this->Cell(25,5,number_format($this->datos[$i]['saldo_dep'],2),'',1,'R');
 			$tot_bs=$tot_bs+$this->datos[$i]['acumulado'];
 			$tot_dep=$tot_dep+$this->datos[$i]['saldo_dep'];
-			}
+			
 		}
 		
 		
