@@ -37,6 +37,7 @@ AS $BODY$
  #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
  #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
  #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
+ #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
  ***************************************************************************/
 
 DECLARE
@@ -2729,7 +2730,7 @@ raise notice '***:%',v_consulta;
                       ';
                   return v_consulta;
        end;
-    elsif (p_transaccion='PLA_SALDO_FISCO_SEL') then  --#87
+    elsif (p_transaccion='PLA_SALDO_FISCO_SEL') then  --#119
        begin 
        
        
@@ -2747,7 +2748,9 @@ raise notice '***:%',v_consulta;
             and codigo_columna=''SUELNETO'' ) as sueldo_neto,
             coalesce((select valor from plani.tcolumna_valor   where id_funcionario_planilla=fp.id_funcionario_planilla
             and codigo_columna=''SALDOSIGPERFIS'' ),0) as saldo_acumulado,
-            param.f_get_periodo_literal(plani.id_periodo) as periodo
+            param.f_get_periodo_literal(plani.id_periodo) as periodo,
+             coalesce((select valor from plani.tcolumna_valor   where id_funcionario_planilla=fp.id_funcionario_planilla
+            and codigo_columna=''SALDODEPSIGPER'' ),0) as saldo_dependiente
             from plani.tplanilla plani
             inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
             inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
