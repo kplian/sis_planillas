@@ -721,7 +721,7 @@ class MODFuncionarioReporte extends MODbase{
 				$this->captura('periodo','varchar');
 		
 		 $this->armarConsulta(); 		   
-		 echo $this->getConsulta(); exit;
+		// echo $this->getConsulta(); exit;
         //Ejecuta la instruccion
      
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
