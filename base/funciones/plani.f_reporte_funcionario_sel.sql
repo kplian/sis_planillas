@@ -1,3 +1,7 @@
+-- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
+
 CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
 	p_administrador integer,
 	p_id_usuario integer,
@@ -2739,6 +2743,12 @@ raise notice '***:%',v_consulta;
        from param.tperiodo 
        where id_periodo=v_parametros.id_periodo;
     
+    	v_condicion:='';
+        if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+          if(v_parametros.id_tipo_contrato>0) then
+        	v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+          end if;
+        end if;
            v_consulta:='select fun.desc_funcionario2, car.nombre,
             (plani.f_get_fecha_primer_contrato_empleado(fp.id_funcionario, fp.id_funcionario, uofun.fecha_asignacion))
             ,f.fecha_quinquenio,
@@ -2761,7 +2771,7 @@ raise notice '***:%',v_consulta;
             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
             where ';
              v_consulta:=v_consulta||v_parametros.filtro;
-              v_consulta:=v_consulta || ' order by fun.desc_funcionario2';
+              v_consulta:=v_consulta || v_condicion || ' order by fun.desc_funcionario2';
         	  return v_consulta;
     	end;
     else
