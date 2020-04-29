@@ -13,6 +13,7 @@
  * #87	ETR			MZM		10.01.2020	Habilitacion de opcion detalle de aguinaldo
  * #98	ETR			MZM		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
  * #107	ETR			MZM		16.03.2020	Carga automatica de ultima gestion y periodo procesado
+ * #119 ETR			MZM		23.04.2020	Reporte acumulado saldo rc-iva
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -827,7 +828,7 @@ header("content-type: text/javascript; charset=UTF-8");
 											this.ocultarComponente(this.Cmp.personal_activo);
 											this.Cmp.personal_activo.setValue('todos');
 										}else{
-											if(r.data.control_reporte=='planilla_tributaria'){
+											if(r.data.control_reporte=='planilla_tributaria' || r.data.control_reporte=='saldo_fisco'){//#119
 												this.ocultarComponente(this.Cmp.personal_activo);
 											}
 										}
