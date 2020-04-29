@@ -20,7 +20,8 @@
  *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema 
  *#87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos	
- *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
+ *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva 
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -650,7 +651,6 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
 		$this->setParametro('id_gestion','id_gestion','integer');
 		$this->setParametro('esquema','esquema','varchar');//#83
-		
 		//Datos del empleado
 		
 		$this->captura('id_funcionario','integer');
@@ -697,6 +697,39 @@ class MODFuncionarioReporte extends MODbase{
 		
 	}
 
-
+	//#119
+	function listarSaldoAcumuladoRcIva(){
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_SALDO_FISCO_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
+		$this->setParametro('id_periodo','id_periodo','integer');	
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('esquema','esquema','varchar');//#83
+		//Datos del empleado
+		
+		$this->captura('desc_funcionario','text');
+                $this->captura('cargo','varchar'); 
+                $this->captura('fecha_primer_contrato','date'); 
+                $this->captura('fecha_quinquenio','date');
+				$this->captura('fecha_finalizacion','date');
+                $this->captura('observaciones_fin','varchar');
+                $this->captura('sueldo_neto','numeric');
+                $this->captura('acumulado','numeric');
+				$this->captura('periodo','varchar');
+		
+		 $this->armarConsulta(); 		   
+		 echo $this->getConsulta(); exit;
+        //Ejecuta la instruccion
+     
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+		
+	}
 }
 ?>

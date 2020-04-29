@@ -19,8 +19,10 @@
  * #87            MZM            09.01.2020                Reporte detalle de aguinaldos
  * #99            MZM            03.03.2020                Adicion de filtro sesion de funcionario
 * #103            RAC KPLIAN     02/04/2020                envio de boletas de pago
- * #98			  MZM			 03.04.2020  				Adicion de opciones estado_funcionario (activo, retirado, todos)
- * #115			  MZM			 20.04.2020					REporte listado por centros
+ * #98			  MZM KPLIAN	 03.04.2020  				Adicion de opciones estado_funcionario (activo, retirado, todos)
+ * #115			  MZM KPLIAN     20.04.2020					REporte listado por centros
+ * #119			  MZM KPLIAN	 23.04.2020					Reporte Listado de saldos Rc-Iva acumulado
+ * 
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -52,6 +54,7 @@ require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosXls.php'); //#77
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosDetXls.php'); //#77
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaTribXls.php');
 require_once(dirname(__FILE__).'/../reportes/RDetalleAguinaldo.php');//#87
+require_once(dirname(__FILE__).'/../reportes/RPlanillaSaldoIva.php');//#119
 
 
 //·103   para envio de bolestas por correo eletronico
@@ -640,7 +643,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
         $this->objParam->addParametro('id_gestion',$id_gestion);
 
         //#83
-		if( $this->objParam->getParametro('control_reporte')=='fondo_solidario' ||  $this->objParam->getParametro('control_reporte')=='aporte_afp' ){
+		if( $this->objParam->getParametro('control_reporte')=='fondo_solidario' ||  $this->objParam->getParametro('control_reporte')=='aporte_afp'  || $this->objParam->getParametro('control_reporte')=='saldo_fisco' ){
         }else{
         	$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte); //#83
 		}
@@ -741,6 +744,10 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
                                                      if($this->objParam->getParametro('control_reporte')=='detalle_aguinaldo'){
                                                         $this->reporteDetalleAguinaldo($titulo,$fecha,$id_tipo_contrato,$id_gestion,$esquema);
                                                      }else{
+                                                     	if($this->objParam->getParametro('control_reporte')=='saldo_fisco' ){
+                                                     		 
+                        									$this->reporteSaldoAcumuladoRcIva($titulo,$id_periodo, $id_tipo_contrato, $esquema); //saldo_fisco
+														}else
                                                          $this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
                                                      }
 
@@ -1616,6 +1623,50 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         }
 
     }
+
+
+
+	function reporteSaldoAcumuladoRcIva($titulo,$id_periodo, $id_tipo_contrato, $esquema){
+
+       
+        //obtener titulo del reporte
+        $titulo = 'Saldo Acumulado Rc-IVA';
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+
+        $tamano = 'LETTER';
+        $orientacion = 'P';
+        
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+		$this->objParam->addParametro('titulo_archivo',$titulo);
+        $this->objFunc=$this->create('MODFuncionarioReporte');
+        $this->res1=$this->objFunc->listarSaldoAcumuladoRcIva($this->objParam);
+
+        //if ($tipo_reporte == 'pdf') {
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            //Instancia la clase de pdf
+            $this->objReporteFormato=new RPlanillaSaldoIva($this->objParam);
+            $this->objReporteFormato->setDatos($this->res1->datos);
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        
+
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
+
+
 }
 
 
