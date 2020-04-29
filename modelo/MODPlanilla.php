@@ -18,6 +18,7 @@
 #78 ETR             18/11/2019          RAC KPLIAN          Listado de backups de planilla  
 #79 ETR             27/11/2019          RAC KPLIAN          nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
 #107ETR				16.03.2020			MZM					Listado de los datos de la ultima planilla procesada para un tipo especifico	 
+#103ETR				06.04.2020			MZM					Adicion de campo habilitar_impresion_boleta
  ***/
 
 class MODPlanilla extends MODbase{
@@ -74,8 +75,8 @@ class MODPlanilla extends MODbase{
 		$this->captura('calcular_prima_rciva','varchar'); //#68
 		$this->captura('sw_devengado','varchar'); //#79
 		$this->captura('sw_pago','varchar'); //#79
-		
-		
+		$this->captura('habilitar_impresion_boleta','varchar'); //#103
+		$this->captura('text_rep_boleta','varchar'); //#103
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
