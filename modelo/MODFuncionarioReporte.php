@@ -719,7 +719,7 @@ class MODFuncionarioReporte extends MODbase{
                 $this->captura('sueldo_neto','numeric');
                 $this->captura('acumulado','numeric');
 				$this->captura('periodo','varchar');
-		
+				$this->captura('saldo_dep','numeric');
 		 $this->armarConsulta(); 		   
 		// echo $this->getConsulta(); exit;
         //Ejecuta la instruccion

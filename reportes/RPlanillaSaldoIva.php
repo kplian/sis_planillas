@@ -57,13 +57,13 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		//$this->Cell(18,5,'Codigo ','LTR',0,'C');
 		
 		
-			  $this->Cell(75,5,'Nombre Completo','LTR',0,'C');
-			  $this->Cell(25,5,'Fecha','LTR',0,'C');
-			  $this->Cell(25,5,'Fecha ','LTR',0,'C');
-			  $this->Cell(25,5,'Obs.','LTR',0,'C');
+			  $this->Cell(70,5,'Nombre Completo','LTR',0,'C');
+			  $this->Cell(20,5,'Fecha','LTR',0,'C');
+			  $this->Cell(20,5,'Fecha ','LTR',0,'C');
+			  $this->Cell(20,5,'Obs.','LTR',0,'C');
 			  $this->Cell(25,5,'Sueldo','LTR',0,'C');
-			  $this->Cell(25,5,'Saldo','LTR',1,'C');
-			  
+			  $this->Cell(25,5,'Saldo Acum.','LTR',1,'C');
+			  $this->Cell(25,5,'Saldo a','LTR',1,'C');
 		
 		//titulo inferior
 		
@@ -72,13 +72,13 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		
 		
 		
-			  $this->Cell(75,5,'','LBR',0,'L');
-			  $this->Cell(25,5,'Ingreso','LBR',0,'C');
-			  $this->Cell(25,5,'Retiro','LBR',0,'C');
-			  $this->Cell(25,5,'Finaliz.','LBR',0,'C');
+			  $this->Cell(70,5,'','LBR',0,'L');
+			  $this->Cell(20,5,'Ingreso','LBR',0,'C');
+			  $this->Cell(20,5,'Retiro','LBR',0,'C');
+			  $this->Cell(20,5,'Finaliz.','LBR',0,'C');
 			  $this->Cell(25,5,'Neto','LBR',0,'C');
-			  $this->Cell(25,5,'Acumulado','LBR',1,'C');
-		
+			  $this->Cell(25,5,'Fisco','LBR',1,'C');
+			  $this->Cell(25,5,'favor Dep.','LBR',1,'C');
 		
 	
 		$this->alto_header =$this->GetY(); 
@@ -104,6 +104,7 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		$num=1;
 		$val=0;
 		$tot_bs=0;
+		$tot_dep=0;
 		
 		
 		
@@ -112,13 +113,15 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		
 		for ($i=0; $i<count($this->datos);$i++){
 			if($this->datos[$i]['acumulado']>0 ){
-			$this->Cell(75,5,$this->datos[$i]['desc_funcionario'],'',0,'L');	
-			$this->Cell(25,5,$this->datos[$i]['fecha_primer_contrato'],'',0,'C');
-			$this->Cell(25,5,$this->datos[$i]['fecha_finalizacion'],'',0,'C');
-			$this->Cell(25,5,$this->datos[$i]['observaciones_fin'],'',0,'L');
+			$this->Cell(70,5,$this->datos[$i]['desc_funcionario'],'',0,'L');	
+			$this->Cell(20,5,$this->datos[$i]['fecha_primer_contrato'],'',0,'C');
+			$this->Cell(20,5,$this->datos[$i]['fecha_finalizacion'],'',0,'C');
+			$this->Cell(20,5,$this->datos[$i]['observaciones_fin'],'',0,'L');
 			$this->Cell(25,5,number_format($this->datos[$i]['sueldo_neto'],2),'',0,'R');
-			$this->Cell(25,5,number_format($this->datos[$i]['acumulado'],2),'',1,'R');
+			$this->Cell(25,5,number_format($this->datos[$i]['acumulado'],2),'',0,'R');
+			$this->Cell(25,5,number_format($this->datos[$i]['saldo_dep'],2),'',1,'R');
 			$tot_bs=$tot_bs+$this->datos[$i]['acumulado'];
+			$tot_dep=$tot_dep+$this->datos[$i]['saldo_dep'];
 			}
 		}
 		
@@ -131,12 +134,13 @@ class RPlanillaSaldoIva extends  ReportePDF {
 				$this->Cell(0,0,'','B',1);
 				$this->SetFont('','B',8);
 				
-			$this->Cell(75,5,'','',0,'L');	
-			$this->Cell(25,5,'','',0,'C');
-			$this->Cell(25,5,'','',0,'C');
-			$this->Cell(25,5,'','',0,'L');
+			$this->Cell(70,5,'','',0,'L');	
+			$this->Cell(20,5,'','',0,'C');
+			$this->Cell(20,5,'','',0,'C');
+			$this->Cell(20,5,'','',0,'L');
 			$this->Cell(25,5,'TOTAL:','',0,'R');
-			$this->Cell(25,5,number_format($tot_bs,2),'',1,'R');
+			$this->Cell(25,5,number_format($tot_bs,2),'',0,'R');
+			$this->Cell(25,5,number_format($tot_dep,2),'',1,'R');
 			
 		}
 
