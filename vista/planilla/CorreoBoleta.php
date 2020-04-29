@@ -23,7 +23,7 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
 
         var CuerpoCorreo = " <b>Gerencia Administrativa Financiera</b><br/>" ;
         CuerpoCorreo+= '<b>Planilla: '+ this.nro_planilla+'</b><br/>';
-        CuerpoCorreo+='Se adjunta la boleta de Pago <BR/>';
+        CuerpoCorreo+='Se adjunta la boleta de Pago correspondiente a '+this.text_rep_boleta+'<BR/>';
 
         Phx.vista.CorreoBoleta.superclass.loadValoresIniciales.call(this);
 
