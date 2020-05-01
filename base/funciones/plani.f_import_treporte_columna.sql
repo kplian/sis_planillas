@@ -46,6 +46,8 @@ BEGIN
     where trim(lower(tip.codigo)) = trim(lower(p_codigo_tipo_planilla))
       and tip.estado_reg = 'activo' ; --#11
 
+
+
    SELECT
      repo.id_reporte
     INTO
@@ -84,6 +86,7 @@ BEGIN
                   id_usuario_reg,
                   fecha_reg,
                   estado_reg,
+                  id_reporte,
                   codigo_columna,
                   sumar_total,
                   ancho_columna,
@@ -99,6 +102,7 @@ BEGIN
                   1,
                   now(),
                   'activo',
+                  v_id_reporte,
                   p_codigo_columna,
                   p_sumar_total,
                   p_ancho_columna,

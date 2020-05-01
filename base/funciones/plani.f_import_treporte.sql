@@ -74,6 +74,7 @@ BEGIN
      END IF;
 
 
+
     IF (p_estado_reg = 'inactivo') AND v_id_reporte is NULL THEN
         update plani.treporte
            set estado_reg = 'inactivo',
@@ -83,6 +84,7 @@ BEGIN
 
 
         IF v_id_reporte is NULL THEN
+
 
                 -- si el rpeorte no existe crea uno nuevo
                INSERT INTO
@@ -120,7 +122,7 @@ BEGIN
                 'activo',
                 v_id_tipo_planilla,
                 p_hoja_posicion,
-                p_tipo_reporte,
+                p_titulo_reporte,
                 p_agrupar_por,
                 p_numerar,
                 p_mostrar_nombre,
