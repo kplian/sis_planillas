@@ -24,7 +24,7 @@ AS $BODY$
        
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
- #113              16-04-2020       Rarteaga     KPLIAN     
+ #122             30-04-2020       Mzambrana     KPLIAN     
  ********************************************************************************/
 DECLARE
   v_registros            record;
