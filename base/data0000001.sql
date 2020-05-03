@@ -439,6 +439,128 @@ VALUES
 
 
 
+/***********************************I-DAT-RAC-PLANI-113-30/04/2020****************************************/
+
+select param.f_import_tdocumento ('insert','PLAPREPRI','Planilla de Prevision de Primas','PLANI','depto','gestion','',NULL);
+select param.f_import_tdocumento ('insert','PLAPRIVIG','Planilla de Prima Personal Vigente','PLANI','depto','gestion','',NULL);
+select param.f_import_tdocumento ('insert','PRINOVIG','Prima Personal No Vigente','PLANI','depto','gestion','',NULL);
+
+-------------------------------------
+--planillas de prevision de primas---
+-------------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','PLAPREPRI','Planilla de Prevision de Prima','PLASUB','plani.f_plaprepri_insert_empleados','prorrateo_aguinaldo','plani.f_plapri_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS1','PLAPREPRI','Dias para calculo','basica','Dias para calculo',NULL,'no',NULL,'2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS2','PLAPREPRI','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT11','PLAPREPRI','Prevision Cotizable1','basica','Prevision de primer sueldo para promedio',NULL,'no',NULL,'2','1','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT12','PLAPREPRI','Prevision Cotizable2','basica','Prevision de segundo sueldo para promedo',NULL,'no',NULL,'2','2','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT13','PLAPREPRI','Prevision cotizable3','basica','prevision de tercer sueldo para promedio',NULL,'no',NULL,'2','3','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT21','PLAPREPRI','Prevision Cotizable1','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT22','PLAPREPRI','Prevision Cotizable1 2do contrato','basica','PENULTIMO COTIZABLE DE SEGUNDO CONTRATO ','','no','','2','5','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT23','PLAPREPRI','antepenultimo Cotizable de segundo contrato','basica','antepenultimo Cotizable de segundo contrato','','no','','2','6','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRIMA','PLAPREPRI','Prima a pagar','formula','prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','si_contable','','2','11','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PLAPREPRI','Promedio','formula','Promedio de 3 ultimos sueldos','({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3','no','','2','9','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PLAPREPRI','Promedio del ultimo contrato','formula','promedio de 3 ultimos sueldos ultimo contrato','({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3','no',NULL,'2','10','ejecutar','no','no','no','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion REPORTES
+---------------------------------
+
+select plani.f_import_treporte('insert','Planilla Previsoria de Prima','PLAPREPRI','no','carta_horizontal','no','no','no','no','ninguno','nombre','activo',268,249,'Planilla Previsoria de Prima','','planilla','no','plani.vdatos_func_planilla',0,'no','no','BS',0,7.00);
+select plani.f_import_treporte_columna('insert','PREDIAS1','Planilla Previsoria de Prima','PLAPREPRI','si',10,5,'activo','Dias','Ctto1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREDIAS2','Planilla Previsoria de Prima','PLAPREPRI','si',10,9,'activo','Dias','Ctto2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT11','Planilla Previsoria de Prima','PLAPREPRI','si',20,2,'activo','Ctto1','Cot1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT12','Planilla Previsoria de Prima','PLAPREPRI','si',20,3,'activo','Ctto1','Cot2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT13','Planilla Previsoria de Prima','PLAPREPRI','si',20,4,'activo','Ctto1','Cot3','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT21','Planilla Previsoria de Prima','PLAPREPRI','si',20,6,'activo','Ctto2','Cot1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT22','Planilla Previsoria de Prima','PLAPREPRI','si',20,7,'activo','Ctto2','Cot2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRICOT23','Planilla Previsoria de Prima','PLAPREPRI','si',20,8,'activo','Ctto2','Cot3','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPROME1','Planilla Previsoria de Prima','PLAPREPRI','si',20,10,'activo','Prom','Ctto1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPROME2','Planilla Previsoria de Prima','PLAPREPRI','si',20,11,'activo','Prom','Cot2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRIMA','Planilla Previsoria de Prima','PLAPREPRI','si',20,12,'activo','Prev.','Prima','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','','Planilla Previsoria de Prima','PLAPREPRI','no',68,1,'activo','Nombre','Emp.','otro',0,'nombre_funcionario','vista_externa');
+
+---------------------------------------
+--planilla de personas vigente
+---------------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','PLAPRIVIG','Planilla de Prima Vigentes','PLASUB','plani.f_plaprivig_insert_empleados','prorrateo_aguinaldo','plani.f_plaprivig_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','PLAPRIVIG','Factor Frontera','basica','Factor Frontera','','no','','2','14','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPDET','PLAPRIVIG','Impuesto Determinado','formula','Impuesto Determinado','case when {IMPOFAC}> {PRIMA} then 0 else
+({PRIMA}-{IMPOFAC})*13/100*{FACFRONTERAPRI} end','si_pago','','0','15','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC','PLAPRIVIG','Importe de Facturas al 100 porciento','variable','Importe de Facturas al 100 porciento','','no','','2','13','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','PLAPRIVIG','Prima Liquida','formula','Prima Liquida','{PRIMA}-{TOTDESC}','si_pago','','2','18','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','OTDESC','PLAPRIVIG','Otros Descuentos','variable','Otros Descuentos','','si_pago','','2','16','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS1','PLAPRIVIG','Dias para calculo','basica','Días para calculo','','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS2','PLAPRIVIG','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT11','PLAPRIVIG','Prevision Cotizable1','basica','Previsión de primer sueldo para promedio','','no','','2','1','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT12','PLAPRIVIG','Prevision Cotizable2','basica','Previsión de segundo sueldo para promedio','','no','','2','2','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT13','PLAPRIVIG','Prevision Cotizable3','basica','Previsión de tercer sueldo para promedio','','no','','2','3','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT21','PLAPRIVIG','Prevision Cotizable 21','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT22','PLAPRIVIG','Prevision Cotizable 22','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','5','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT23','PLAPRIVIG','Prevision Cotizable 23','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','6','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PLAPRIVIG','Promedio C1','formula','Promedio de 3 ultimos sueldos','({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PLAPRIVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','PLAPRIVIG','Prima a pagar','formula','Prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','si_contable','','2','12','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','PLAPRIVIG','Total Descuentos','formula','Total Descuentos','{OTDESC}','no','','2','17','ejecutar','no','no','no','activo');
+
+
+--Configuracion Tipo Obligacion
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PLAPRIVIG','Descuento por Cheque','pago_comun','no','no',NULL,NULL,'CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PLAPRIVIG','Liquido Prima','pago_empleados','no','si',NULL,NULL,'CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PLAPRIVIG','no','si','si','activo');
+
+
+
+
+---------------------------------------------
+--   planilla de personla no vigente
+----------------------------------------------
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion Tipo Planilla
+---------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','PRINOVIG','Planilla de Prima NO vigentes','PLASUB','plani.f_prinovig_insert_empleados','prorrateo_aguinaldo','plani.f_prinovig_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','PRINOVIG','Factor Frontera','basica','Factor Frontera','','no','','2','14','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPDET','PRINOVIG','Impuesto Determinado','formula','Impuesto Determinado','case when {IMPOFAC}> {PRIMA} then 0 else
+({PRIMA}-{IMPOFAC})*13/100*{FACFRONTERAPRI} end','si_pago','','0','15','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC','PRINOVIG','Importe de Facturas al 100 porciento','variable','Importe de Facturas al 100 porciento','','no','','2','13','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','PRINOVIG','Prima Liquida','formula','Prima Liquida','{PRIMA}-{TOTDESC}','si_pago','','2','18','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','OTDESC','PRINOVIG','Otros Descuentos','variable','Otros Descuentos','','si_pago','','2','16','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS1','PRINOVIG','Dias para calculo','basica','Días para calculo','','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS2','PRINOVIG','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT11','PRINOVIG','Prevision Cotizable1','basica','Previsión de primer sueldo para promedio','','no','','2','1','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT12','PRINOVIG','Prevision Cotizable2','basica','Previsión de segundo sueldo para promedio','','no','','2','2','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT13','PRINOVIG','Prevision Cotizable3','basica','Previsión de tercer sueldo para promedio','','no','','2','3','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT21','PRINOVIG','Prevision Cotizable 21','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT22','PRINOVIG','Prevision Cotizable 22','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','5','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT23','PRINOVIG','Prevision Cotizable 23','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','6','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PRINOVIG','Promedio C1','formula','Promedio de 3 ultimos sueldos','({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','PRINOVIG','Prima a pagar','formula','Prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','si_contable','','2','12','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','PRINOVIG','Total Descuentos','formula','Total Descuentos','{OTDESC} - {IMPDET}','no','','2','17','ejecutar','no','no','no','activo');
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion Tipo Obligacion
+---------------------------------
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PRINOVIG','Descuento por Cheque','pago_comun','no','no',NULL,NULL,'CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PRINOVIG','Liquido Prima','pago_empleados','no','si',NULL,NULL,'CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOVIG','no','si','si','activo');
+
+
+/***********************************F-DAT-RAC-PLANI-113-30/04/2020****************************************/
 
 
 
