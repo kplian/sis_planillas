@@ -1,3 +1,7 @@
+-- FUNCTION: plani.f_plaprepri_insert_empleados(integer)
+
+-- DROP FUNCTION plani.f_plaprepri_insert_empleados(integer);
+
 CREATE OR REPLACE FUNCTION plani.f_plaprepri_insert_empleados(
 	p_id_planilla integer)
     RETURNS character varying
@@ -91,7 +95,7 @@ BEGIN
     end if;
 
     if (v_planilla.id_tipo_contrato is not null and v_planilla.id_uo is null)then
-       v_filtro_uo = 'tc.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
+       v_filtro_uo = 'tcon.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
     end if;
     
     
