@@ -458,7 +458,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT13','PLAPREPRI'
 select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT21','PLAPREPRI','Prevision Cotizable1','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','si','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT22','PLAPREPRI','Prevision Cotizable1 2do contrato','basica','PENULTIMO COTIZABLE DE SEGUNDO CONTRATO ','','no','','2','5','ejecutar','no','no','si','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT23','PLAPREPRI','antepenultimo Cotizable de segundo contrato','basica','antepenultimo Cotizable de segundo contrato','','no','','2','6','ejecutar','no','no','si','activo');
-select plani.f_import_ttipo_columna_planilla ('insert','PREPRIMA','PLAPREPRI','Prima a pagar','formula','prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','si_contable','','2','11','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRIMA','PLAPREPRI','Prima a pagar','formula','prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','no','','2','11','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PLAPREPRI','Promedio','formula','Promedio de 3 ultimos sueldos','({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3','no','','2','9','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PLAPREPRI','Promedio del ultimo contrato','formula','promedio de 3 ultimos sueldos ultimo contrato','({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3','no',NULL,'2','10','ejecutar','no','no','no','activo');
 
@@ -564,3 +564,10 @@ select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOV
 
 
 
+/***********************************I-DAT-RAC-PLANI-113-05/05/2020****************************************/
+
+select wf.f_import_testructura_estado ('insert','calculo_validado','obligaciones_generadas','PLASUB',1,'"{$tabla.codigo}" != "PLAPREPRI"');
+select wf.f_import_testructura_estado ('insert','calculo_validado','planilla_finalizada','PLASUB',1,'"{$tabla.codigo}" = "PLAPREPRI"');
+
+
+/***********************************F-DAT-RAC-PLANI-113-05/05/2020****************************************/
