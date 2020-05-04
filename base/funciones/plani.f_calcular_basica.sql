@@ -51,6 +51,7 @@ AS $BODY$
  #111			  08-04-2020		MZM	KPLIAN			Correcion a prmcotizable_mes considerando proporcion de horas trabajadas en el mes
  #117			  23.04.2020		MZM KPLIAN			Adicion de columnas para manejo de saldo acumulable a favor del fisco en planilla impositiva
  #113             27.04.2020        RAC KPLIAN          Considera arrastre de iva de prima de personal vigente
+ #122			  30.04.2020		MZM KPLIAN			Funciones para planilla de prevision de primas
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2505,7 +2506,7 @@ AS $BODY$
 
           end if;
     
-    --#113
+    --#122
     ELSIF(p_codigo = 'PREPRICOT11') THEN -- el primer cotizable del contrato mas antiguo
         
         select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
@@ -2551,19 +2552,21 @@ AS $BODY$
                                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                   inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                   inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                  inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                   and cv.codigo_columna='COTIZABLE_ANT'
                                   and fp.id_funcionario=v_planilla.id_funcionario
                                   and p.id_periodo<= v_i
-                                  order by p.fecha_planilla desc limit 1 offset 0;
+                                  order by per.periodo desc limit 1 offset 0;
                          	else
                                   select cv.valor into v_resultado from plani.tplanilla p
                                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                   inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                   inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                  inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                   and cv.codigo_columna='COTIZABLE'
                                   and fp.id_funcionario=v_planilla.id_funcionario
                                   and p.id_periodo<= v_i
-                                  order by p.fecha_planilla desc limit 1 offset 0;
+                                  order by per.periodo desc limit 1 offset 0;
                             end if;
                          else 
                          	v_resultado:=0;	
@@ -2615,30 +2618,27 @@ AS $BODY$
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 1;
+                                order by per.periodo desc limit 1 offset 1;
                             else
                                 select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 1;
+                                order by per.periodo desc limit 1 offset 1;
                             end if;
                          
                          	
                          end if;
         
-                 
-        
-
-		select avg(valor) into v_resultado
-        from plani.tcolumna_detalle
-        where id_columna_valor=p_id_columna_valor;    
+       
         
     ELSIF(p_codigo = 'PREPRICOT13') THEN -- el tercer cotizable 
         
@@ -2685,19 +2685,21 @@ AS $BODY$
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2;
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2;
                             end if;
                         end if;
          
@@ -2747,19 +2749,21 @@ AS $BODY$
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 0;
+                                order by per.periodo desc limit 1 offset 0;
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 0;
+                                order by per.periodo desc limit 1 offset 0;
                             end if;
                              
                          else 
@@ -2814,19 +2818,21 @@ AS $BODY$
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 1;
+                                order by per.periodo desc limit 1 offset 1;
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 1;
+                                order by per.periodo desc limit 1 offset 1;
                             end if;
                          	
                          end if;
@@ -2877,19 +2883,21 @@ AS $BODY$
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2;
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by p.fecha_planilla desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2;
                             end if;
                         end if;
         
@@ -2927,7 +2935,7 @@ AS $BODY$
                       ;
                  
        					 v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
-                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin) then
+                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
                            v_resultado:=v_aux;
                          else
                            v_resultado:=0;
@@ -2966,7 +2974,7 @@ AS $BODY$
                       ;
                  
        					 v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
-                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin) then
+                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
                            v_resultado:=v_aux;
                          else
                            v_resultado:=0;

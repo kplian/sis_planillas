@@ -129,6 +129,7 @@ DECLARE
    v_fecha_estado	date;
    v_filtro_estado	varchar;
    v_filtro_estado1	varchar;
+   v_fecha_control	date;--#120
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -223,9 +224,9 @@ BEGIN
               from param.tperiodo where id_periodo=v_id_periodo;
               
               if(v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin and v_registros.observaciones_finalizacion not in ('transferencia','promocion','')) then
-				    v_fecha:=v_registros.fecha_finalizacion;          
+				    v_fecha_control:=v_registros.fecha_finalizacion;          
               end if;
-              v_antiguedad:=(select v_fecha - v_fecha_ini_ctto );
+              v_antiguedad:=(select v_fecha_control - v_fecha_ini_ctto );
               
             
              
