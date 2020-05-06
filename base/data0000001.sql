@@ -658,12 +658,17 @@ select conta.f_import_ttipo_relacion_contable ('insert','CUEOBLI','TTIO','Cuenta
 --Configuracion OBLIGACIONES
 ---------------------------------
 
-select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PRINOVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
-select plani.f_import_ttipo_obligacion('insert','LIQPAG','PRINOVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PRINOVIG','si','no','no','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PRINOVIG','no','si','si','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PRINOVIG','si','no','no','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PLAPRIVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','IMPDET','PLAPRIVIG','Impuesto Retenido','pago_comun','no','no',NULL,'Impuesto Retenido','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PLAPRIVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','IMPDET','IMPDET','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','IMPDET','PLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PLAPRIVIG','no','si','si','activo');
+
+
 
 
 ----------------------------------
@@ -671,12 +676,18 @@ select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOV
 --Configuracion OBLIGACIONES
 ---------------------------------
 
-select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PLAPRIVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
-select plani.f_import_ttipo_obligacion('insert','LIQPAG','PLAPRIVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PLAPRIVIG','si','no','no','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PLAPRIVIG','no','si','si','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PLAPRIVIG','si','no','no','activo');
-select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PRINOVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','IMPDET','PRINOVIG','Impuesto Retenido','pago_comun','no','si',NULL,'Pago de impeustos retenidos','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PRINOVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','IMPDET','IMPDET','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','IMPDET','PRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOVIG','no','si','si','activo');
+
+
+select conta.f_import_tplantilla_comprobante ('insert','PAGOPLA','plani.f_conta_eliminacion_comprobante_obligacion','id_obligacion','PLANI','{$tabla.descripcion}','','{$tabla.fecha_actual}','activo','{$tabla.acreedor}','{$tabla.id_depto_conta}','contable','{$tabla.id_int_comprobante}','plani.vcomp_planilla_obli','PAGOCON','{$tabla.id_moneda}','{$tabla.id_gestion_pago}','{$tabla.id_cuenta_bancaria},{$tabla.forma_pago},{$tabla.id_centro_costo_depto}','no','no','no','','','','','{$tabla.nro_tramite}','','','','','','PAGOPLA','','','','','');
 
 
 /***********************************F-DAT-RAC-PLANI-113-07/05/2020****************************************/
