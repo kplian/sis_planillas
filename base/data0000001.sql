@@ -692,7 +692,7 @@ select conta.f_import_tplantilla_comprobante ('insert','PAGOPLA','plani.f_conta_
 
 /***********************************F-DAT-RAC-PLANI-113-07/05/2020****************************************/
 
-
+/***********************************I-DAT-MZM-PLANI-113-07/05/2020****************************************/
 select plani.f_import_ttipo_planilla ('insert','PLAPRIVIG','Planilla de Prima Vigentes','PLASUB','plani.f_plaprivig_insert_empleados','prorrateo_aguinaldo','plani.f_plaprivig_valid_empleado','no','anual','',NULL,'activo');
 select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','PLAPRIVIG','Factor Frontera','basica','Factor Frontera','','no','','2','14','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','FAC_FRONTERAPRI','PLAPRIVIG','Zona Franca','basica','Si es zona_franca','','no','','2','14','ejecutar','no','no','si','activo');
@@ -729,3 +729,4 @@ select plani.f_import_ttipo_obligacion_columna('insert','IMPDET','IMPDET','PLAPR
 select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','IMPDET','PLAPRIVIG','no','si','si','activo');
 select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PLAPRIVIG','si','no','no','activo');
 select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PLAPRIVIG','no','si','si','activo');
+/***********************************F-DAT-MZM-PLANI-113-07/05/2020****************************************/
