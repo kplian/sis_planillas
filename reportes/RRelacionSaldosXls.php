@@ -5,6 +5,7 @@
  #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldos
  #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
  #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 */
 class RRelacionSaldosXls
 {
@@ -176,8 +177,7 @@ class RRelacionSaldosXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-       
-           
+       if (count($datos_det)>0){
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
@@ -262,7 +262,8 @@ class RRelacionSaldosXls
 					$fila++;
 				}
 					
-                  
+             }//#123
+                
                     
     }
     function obtenerFechaEnLetra($fecha){

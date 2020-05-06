@@ -5,7 +5,8 @@
  #80    ETR            27/11/2019           MZM                 ajuste formato numeric
  #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
  #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
- #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros 
+ #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
 */
 class RPlanillaAportesXls
 {
@@ -174,7 +175,9 @@ class RPlanillaAportesXls
         $color_pestana = array('ff0000','1100ff','55ff00','3ba3ff','ff4747','697dff','78edff','ba8cff',
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
-
+			if(count($datos)>0){
+				
+			
         
            // if($tipo_contrato != $value['estado']){
                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
@@ -281,25 +284,25 @@ class RPlanillaAportesXls
 				
                 
              
-                
-if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-	$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];
-}else{
-	if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
-	$tit_rep='FORMULARIO DE PAGO DE CONTRIBUCIONES - '.$datos[0]['nombre_afp'];}
-	else{
-		$tit_rep='APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SUELDOS - '.$datos[0]['nombre_afp'];
-	}
-}
+				                
+				if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+					$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];
+				}else{
+					if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+					$tit_rep='FORMULARIO DE PAGO DE CONTRIBUCIONES - '.$datos[0]['nombre_afp'];}
+					else{
+						$tit_rep='APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SUELDOS - '.$datos[0]['nombre_afp'];
+					}
+				}
 
 
-		//#83
-		$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
-		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
-		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
-		if($this->objParam->getParametro('fecha_backup')!=''){
-			$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
-		}
+				//#83
+				$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+				$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+				if($this->objParam->getParametro('fecha_backup')!=''){
+					$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
+				}
 
                 $this->docexcel->getActiveSheet()->mergeCells("A1:S1"); 
 				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
@@ -476,7 +479,7 @@ if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 					$fila++;
 				}
 					
-            
+			}//#123
         
     }
     function obtenerFechaEnLetra($fecha){

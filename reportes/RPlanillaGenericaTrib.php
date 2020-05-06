@@ -3,7 +3,8 @@
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
 */
 class RPlanillaGenericaTrib extends  ReportePDF {
 	var $datos_titulo;
@@ -15,6 +16,10 @@ class RPlanillaGenericaTrib extends  ReportePDF {
 	var $cantidad_columnas_estaticas;
 	function Header() { 
 		//cabecera del reporte
+		
+		if(count($this->datos_detalle)>0){
+			
+		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 5, 30, 10);
 		$this->SetFont('','B',7);
 		$this->ln(10);
@@ -68,7 +73,7 @@ class RPlanillaGenericaTrib extends  ReportePDF {
 		$this->SetLineWidth(0.1);
 		$this->SetDrawColor(0,0,0);
 		$this->Cell(0,0,'','B',1);	
-
+		}
 	}
 	function datosHeader ($titulo, $detalle) {  
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;

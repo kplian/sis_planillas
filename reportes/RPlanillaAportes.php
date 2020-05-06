@@ -10,6 +10,7 @@
   #80	ETR				27.11.2019			MZM					ajuste formato numeric
   #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
   #83 	ETR				03.01.2020			MZM					Adicion de fecha backup
+  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -21,6 +22,8 @@ class RPlanillaAportes extends  ReportePDF {
 	var $alto_header;
 	
 	function Header() {
+		if (count($this->datos)>0){
+			
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
@@ -249,7 +252,10 @@ class RPlanillaAportes extends  ReportePDF {
 		
 	
 		$this->alto_header =$this->GetY(); 
-
+		}else{//#123
+			$this->SetFont('','B',12);
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
+		}
 }
 	function setDatos($datos) {
 		$this->datos = $datos;
@@ -530,6 +536,8 @@ class RPlanillaAportes extends  ReportePDF {
 					  }
 			 
 			}
+
+			if (count($this->datos)>0){
  			//totales #44
  			$this->SetFont('','B',7);
  			$this->SetLineWidth(0.2);
@@ -573,7 +581,7 @@ class RPlanillaAportes extends  ReportePDF {
 				}
 			}
 				
-		
+				}//#123
 		
 		}
 		

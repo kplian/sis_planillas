@@ -10,6 +10,7 @@
 //#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
 //#93			MZM			13.02.2020				Ajuste en obtencion de subtotales para columnas no numericas
 //#98		ETR	MZM			04.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+//#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
@@ -25,6 +26,11 @@ class RPlanillaGenerica extends  ReportePDF {
 	var $cant_col_suman;
 	
 	function Header() {
+		
+		
+		if(count($this->datos_detalle)>0){
+			
+		
 		//cabecera del reporte
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
@@ -199,7 +205,11 @@ class RPlanillaGenerica extends  ReportePDF {
 			}
 		}
 		$this->ln();	
-
+		
+		}//#123	 
+		else{$this->SetFont('','B',12);
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
+		}
 	}
 	function datosHeader ($titulo, $detalle) { 
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT-10;
@@ -490,8 +500,9 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		$this->ln(2);
 		$this->numeracion=$this->numeracion-1;
-		$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.(($this->numeracion)),'',0,'L');
-			
+		if(count($this->datos_detalle)>0){
+			$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.(($this->numeracion)),'',0,'L');
+		}
 	}
 	function iniciarArrayShow($detalle) { 
 		$res_array = array();  

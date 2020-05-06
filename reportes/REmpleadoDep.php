@@ -9,6 +9,7 @@
  #83	MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla 
  #90	ETR				15.01.2019			MZM					cambio de dato matricula_dep por edad_dep
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -22,7 +23,9 @@ class REmpleadoDep extends  ReportePDF {
 	var $borde;
 	var $interlineado;
 	
-	function Header() {
+	function Header() { 
+		if (count($this->datos)>0){
+			
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		//#83
@@ -85,7 +88,11 @@ class REmpleadoDep extends  ReportePDF {
 		
 		$this->SetX(10);
 		$this->alto_header =$this->GetY(); 
-
+		}//#123
+		else{
+			$this->SetFont('','B',12);
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****	
+		}
 	}
 	function setDatos($datos,$datos_titulo) {
 		$this->datos = $datos;
