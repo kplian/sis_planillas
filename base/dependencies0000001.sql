@@ -6,21 +6,21 @@ ALTER TABLE plani.ttipo_planilla
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT fk__ttipo_columna__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
     REFERENCES plani.ttipo_planilla(id_tipo_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.ttipo_obligacion
   ADD CONSTRAINT fk__ttipo_obligacion__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
     REFERENCES plani.ttipo_planilla(id_tipo_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 ALTER TABLE plani.ttipo_obligacion_columna
   ADD CONSTRAINT fk__ttipo_obligacion_columna__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion)
@@ -28,7 +28,7 @@ ALTER TABLE plani.ttipo_obligacion_columna
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.treporte
   ADD CONSTRAINT fk__treporte__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
     REFERENCES plani.ttipo_planilla(id_tipo_planilla)
@@ -42,14 +42,14 @@ ALTER TABLE plani.treporte_columna
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tfuncionario_afp
   ADD CONSTRAINT fk__tfuncionario_afp__id_afp FOREIGN KEY (id_afp)
     REFERENCES plani.tafp(id_afp)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tdescuento_bono
   ADD CONSTRAINT fk__tdescuento_bono__id_funcionario FOREIGN KEY (id_funcionario)
     REFERENCES orga.tfuncionario(id_funcionario)
@@ -63,99 +63,99 @@ ALTER TABLE plani.tdescuento_bono
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tdescuento_bono
   ADD CONSTRAINT fk__tdescuento_bono__id_tipo_columna FOREIGN KEY (id_tipo_columna)
     REFERENCES plani.ttipo_columna(id_tipo_columna)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_periodo FOREIGN KEY (id_periodo)
     REFERENCES param.tperiodo(id_periodo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_gestion FOREIGN KEY (id_gestion)
     REFERENCES param.tgestion(id_gestion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_uo FOREIGN KEY (id_uo)
     REFERENCES orga.tuo(id_uo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
     REFERENCES plani.ttipo_planilla(id_tipo_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_proceso_macro FOREIGN KEY (id_proceso_macro)
     REFERENCES wf.tproceso_macro(id_proceso_macro)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_proceso_wf FOREIGN KEY (id_proceso_wf)
     REFERENCES wf.tproceso_wf(id_proceso_wf)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_estado_wf FOREIGN KEY (id_estado_wf)
     REFERENCES wf.testado_wf(id_estado_wf)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla
   ADD CONSTRAINT fk__tplanilla__id_depto FOREIGN KEY (id_depto)
     REFERENCES param.tdepto(id_depto)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tfuncionario_planilla  
+
+ALTER TABLE plani.tfuncionario_planilla
 	ADD CONSTRAINT fk__tfuncionario_planilla__id_funcionario FOREIGN KEY (id_funcionario)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
-ALTER TABLE plani.tfuncionario_planilla  
+ALTER TABLE plani.tfuncionario_planilla
 	ADD CONSTRAINT fk__tfuncionario_planilla__id_planilla FOREIGN KEY (id_planilla)
     REFERENCES plani.tplanilla(id_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tfuncionario_planilla  
+
+ALTER TABLE plani.tfuncionario_planilla
 	ADD CONSTRAINT fk__tfuncionario_planilla__id_lugar FOREIGN KEY (id_lugar)
     REFERENCES param.tlugar(id_lugar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tfuncionario_planilla  
+
+ALTER TABLE plani.tfuncionario_planilla
 	ADD CONSTRAINT fk__tfuncionario_planilla__id_uo_funcionario FOREIGN KEY (id_uo_funcionario)
     REFERENCES orga.tuo_funcionario(id_uo_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.thoras_trabajadas
 	ADD CONSTRAINT fk__thoras_trabajadas__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
     REFERENCES plani.tfuncionario_planilla (id_funcionario_planilla)
@@ -169,14 +169,14 @@ ALTER TABLE plani.thoras_trabajadas
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tcolumna_valor
   ADD CONSTRAINT fk_tcolumna_valor__id_tipo_columna FOREIGN KEY (id_tipo_columna)
     REFERENCES plani.ttipo_columna(id_tipo_columna)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 ALTER TABLE plani.tcolumna_valor
   ADD CONSTRAINT fk_tcolumna_valor__id_funcionario_planilla FOREIGN KEY (id_funcionario_planilla)
@@ -184,7 +184,7 @@ ALTER TABLE plani.tcolumna_valor
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 select pxp.f_insert_testructura_gui ('PLANI', 'SISTEMA');
 select pxp.f_insert_testructura_gui ('DEFPLA', 'PLANI');
 select pxp.f_insert_testructura_gui ('TIPPLA', 'DEFPLA');
@@ -322,7 +322,7 @@ ALTER TABLE plani.tprorrateo
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 ALTER TABLE plani.tprorrateo
   ADD CONSTRAINT fk__tprorrateo__id_presupuesto FOREIGN KEY (id_presupuesto)
@@ -330,14 +330,14 @@ ALTER TABLE plani.tprorrateo
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tprorrateo
   ADD CONSTRAINT fk__tprorrateo__id_cc FOREIGN KEY (id_cc)
     REFERENCES param.tcentro_costo(id_centro_costo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tprorrateo_columna
   ADD CONSTRAINT fk__tprorrateo_columna__id_prorrateo FOREIGN KEY (id_prorrateo)
     REFERENCES plani.tprorrateo(id_prorrateo)
@@ -352,7 +352,7 @@ ALTER TABLE plani.tprorrateo_columna
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tconsolidado
   ADD CONSTRAINT fk__tconsolidado__id_planilla FOREIGN KEY (id_planilla)
     REFERENCES plani.tplanilla(id_planilla)
@@ -367,14 +367,14 @@ ALTER TABLE plani.tconsolidado
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tconsolidado
   ADD CONSTRAINT fk__tconsolidado__id_cc FOREIGN KEY (id_cc)
     REFERENCES param.tcentro_costo(id_centro_costo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tconsolidado_columna
   ADD CONSTRAINT fk__tconsolidado_columna__id_consolidado FOREIGN KEY (id_consolidado)
     REFERENCES plani.tconsolidado(id_consolidado)
@@ -396,7 +396,7 @@ ALTER TABLE plani.tconsolidado_columna
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tconsolidado_columna
   ADD CONSTRAINT fk__tconsolidado_columna__id_cuenta FOREIGN KEY (id_cuenta)
     REFERENCES conta.tcuenta(id_cuenta)
@@ -411,7 +411,7 @@ ALTER TABLE plani.tconsolidado_columna
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
-    
+
 /***********************************F-DEP-JRR-PLANI-0-23/02/2014****************************************/
 
 
@@ -443,21 +443,21 @@ select pxp.f_insert_testructura_gui ('REGPLAN.3.1.2.1', 'REGPLAN.3.1.2');
 /***********************************I-DEP-JRR-PLANI-0-05/06/2014****************************************/
 
 ALTER TABLE plani.tfuncionario_planilla
-  ADD CONSTRAINT uk_tfuncionario_planilla__id_funcionario__id_planilla 
-    UNIQUE (id_planilla, id_funcionario);    
-    
+  ADD CONSTRAINT uk_tfuncionario_planilla__id_funcionario__id_planilla
+    UNIQUE (id_planilla, id_funcionario);
+
 CREATE INDEX tcolumna_valor_idx1 ON plani.tcolumna_valor
-  USING btree (id_funcionario_planilla);  
-  
+  USING btree (id_funcionario_planilla);
+
 CREATE INDEX tcolumna_valor_idx2 ON plani.tcolumna_valor
-  USING btree (id_tipo_columna);  
-  
+  USING btree (id_tipo_columna);
+
 CREATE INDEX ttipo_columna_idx1 ON plani.ttipo_columna
   USING btree (orden);
-  
+
  CREATE INDEX tfuncionario_planilla_idx1 ON plani.tfuncionario_planilla
   USING btree (id_uo_funcionario);
-  
+
  CREATE INDEX thoras_trabajadas_idx1 ON plani.thoras_trabajadas
   USING btree (id_funcionario_planilla);
 
@@ -477,7 +477,7 @@ ALTER TABLE plani.tfuncionario_planilla
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 /***********************************F-DEP-JRR-PLANI-0-10/07/2014****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-11/07/2014****************************************/
@@ -485,30 +485,30 @@ ALTER TABLE plani.tfuncionario_planilla
 
 
 
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion) 
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_tipo_obligacion FOREIGN KEY (id_tipo_obligacion)
     REFERENCES plani.ttipo_obligacion(id_tipo_obligacion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
 
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_planilla FOREIGN KEY (id_planilla) 
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_planilla FOREIGN KEY (id_planilla)
     REFERENCES plani.tplanilla(id_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_cuenta FOREIGN KEY (id_cuenta) 
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_cuenta FOREIGN KEY (id_cuenta)
     REFERENCES conta.tcuenta(id_cuenta)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_auxiliar FOREIGN KEY (id_auxiliar) 
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_auxiliar FOREIGN KEY (id_auxiliar)
     REFERENCES conta.tauxiliar(id_auxiliar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -516,30 +516,30 @@ ALTER TABLE plani.tobligacion
 
 
 
-ALTER TABLE plani.tobligacion_columna 
-  ADD CONSTRAINT fk_tobligacion_columna__id_obligacion FOREIGN KEY (id_obligacion) 
+ALTER TABLE plani.tobligacion_columna
+  ADD CONSTRAINT fk_tobligacion_columna__id_obligacion FOREIGN KEY (id_obligacion)
     REFERENCES plani.tobligacion (id_obligacion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
 
-ALTER TABLE plani.tobligacion_columna 
-  ADD CONSTRAINT fk_tobligacion_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna) 
+
+ALTER TABLE plani.tobligacion_columna
+  ADD CONSTRAINT fk_tobligacion_columna__id_tipo_columna FOREIGN KEY (id_tipo_columna)
     REFERENCES plani.ttipo_columna(id_tipo_columna)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tobligacion_columna 
-  ADD CONSTRAINT fk_tobligacion_columna__id_cc FOREIGN KEY (id_cc) 
+
+ALTER TABLE plani.tobligacion_columna
+  ADD CONSTRAINT fk_tobligacion_columna__id_cc FOREIGN KEY (id_cc)
     REFERENCES param.tcentro_costo(id_centro_costo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tobligacion_columna 
-  ADD CONSTRAINT fk_tobligacion_columna__id_presupuesto FOREIGN KEY (id_presupuesto) 
+
+ALTER TABLE plani.tobligacion_columna
+  ADD CONSTRAINT fk_tobligacion_columna__id_presupuesto FOREIGN KEY (id_presupuesto)
     REFERENCES pre.tpresupuesto(id_presupuesto)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -548,52 +548,52 @@ ALTER TABLE plani.tobligacion_columna
 
 
 
-ALTER TABLE plani.tdetalle_transferencia 
-  ADD CONSTRAINT fk_tdetalle_transferencia__id_obligacion FOREIGN KEY (id_obligacion) 
+ALTER TABLE plani.tdetalle_transferencia
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_obligacion FOREIGN KEY (id_obligacion)
     REFERENCES plani.tobligacion (id_obligacion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
 
-ALTER TABLE plani.tdetalle_transferencia 
-  ADD CONSTRAINT fk_tdetalle_transferencia__id_institucion FOREIGN KEY (id_institucion) 
+
+ALTER TABLE plani.tdetalle_transferencia
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_institucion FOREIGN KEY (id_institucion)
     REFERENCES param.tinstitucion(id_institucion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tdetalle_transferencia 
-  ADD CONSTRAINT fk_tdetalle_transferencia__id_funcionario FOREIGN KEY (id_funcionario) 
+
+ALTER TABLE plani.tdetalle_transferencia
+  ADD CONSTRAINT fk_tdetalle_transferencia__id_funcionario FOREIGN KEY (id_funcionario)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 /***********************************F-DEP-JRR-PLANI-0-11/07/2014****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-17/11/2014****************************************/
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_obligacion_pago FOREIGN KEY (id_obligacion_pago) 
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_obligacion_pago FOREIGN KEY (id_obligacion_pago)
     REFERENCES tes.tobligacion_pago(id_obligacion_pago)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tconsolidado_columna 
-  ADD CONSTRAINT fk_tconsolidado_columna__id_obligacion_det FOREIGN KEY (id_obligacion_det) 
+
+ALTER TABLE plani.tconsolidado_columna
+  ADD CONSTRAINT fk_tconsolidado_columna__id_obligacion_det FOREIGN KEY (id_obligacion_det)
     REFERENCES tes.tobligacion_det(id_obligacion_det)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_plan_pago FOREIGN KEY (id_plan_pago) 
+
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_plan_pago FOREIGN KEY (id_plan_pago)
     REFERENCES tes.tplan_pago(id_plan_pago)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 /***********************************F-DEP-JRR-PLANI-0-17/11/2014****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-25/11/2014****************************************/
@@ -731,7 +731,7 @@ AS
   FROM tes.tprorrateo pro
        JOIN tes.tobligacion_det od ON od.id_obligacion_det =
         pro.id_obligacion_det;
-        
+
 CREATE OR REPLACE VIEW plani.vobligacion(
     id_obligacion,
     id_plan_pago,
@@ -776,7 +776,7 @@ AS
        JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
         pla.id_tipo_planilla;
-        
+
 CREATE OR REPLACE VIEW plani.vobligacion_haber(
     id_obligacion,
     id_plan_pago,
@@ -814,7 +814,7 @@ AS
        JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
         pla.id_tipo_planilla;
-        
+
 CREATE OR REPLACE VIEW plani.vobligacion_pago(
     id_plan_pago,
     id_planilla,
@@ -853,13 +853,13 @@ AS
            ges.gestion;
 
 
-ALTER TABLE plani.tobligacion 
-  ADD CONSTRAINT fk_tobligacion__id_afp FOREIGN KEY (id_afp) 
+ALTER TABLE plani.tobligacion
+  ADD CONSTRAINT fk_tobligacion__id_afp FOREIGN KEY (id_afp)
     REFERENCES plani.tafp(id_afp)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-       
+
 /***********************************F-DEP-JRR-PLANI-0-25/11/2014****************************************/
 
 
@@ -927,93 +927,93 @@ AS
        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = pl.id_tipo_planilla
        LEFT JOIN param.tperiodo per ON per.id_periodo = pl.id_periodo
        JOIN param.tgestion ges ON ges.id_gestion = pl.id_gestion;
-       
+
 ALTER TABLE plani.tcolumna_detalle
-  ADD CONSTRAINT fk_tcolumna_detalle__id_horas_trabajadas FOREIGN KEY (id_horas_trabajadas) 
+  ADD CONSTRAINT fk_tcolumna_detalle__id_horas_trabajadas FOREIGN KEY (id_horas_trabajadas)
     REFERENCES plani.thoras_trabajadas(id_horas_trabajadas)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tcolumna_detalle
-  ADD CONSTRAINT fk_tcolumna_detalle__columna_valor FOREIGN KEY (id_columna_valor) 
+  ADD CONSTRAINT fk_tcolumna_detalle__columna_valor FOREIGN KEY (id_columna_valor)
     REFERENCES plani.tcolumna_valor(id_columna_valor)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-       
+
 /***********************************F-DEP-JRR-PLANI-0-03/12/2014****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-29/07/2015****************************************/
 ALTER TABLE plani.tprorrateo
-  ADD CONSTRAINT fk_tprorrateo__id_oficina FOREIGN KEY (id_oficina) 
+  ADD CONSTRAINT fk_tprorrateo__id_oficina FOREIGN KEY (id_oficina)
     REFERENCES orga.toficina(id_oficina)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 ALTER TABLE plani.tprorrateo
-  ADD CONSTRAINT fk_tprorrateo__id_lugar FOREIGN KEY (id_lugar) 
+  ADD CONSTRAINT fk_tprorrateo__id_lugar FOREIGN KEY (id_lugar)
     REFERENCES param.tlugar(id_lugar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
 ALTER TABLE plani.tprorrateo_columna
-  ADD CONSTRAINT fk_tprorrateo_columna__id_oficina FOREIGN KEY (id_oficina) 
+  ADD CONSTRAINT fk_tprorrateo_columna__id_oficina FOREIGN KEY (id_oficina)
     REFERENCES orga.toficina(id_oficina)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 
 ALTER TABLE plani.tprorrateo
-  ADD CONSTRAINT fk_tprorrateo_columna__id_lugar FOREIGN KEY (id_lugar) 
+  ADD CONSTRAINT fk_tprorrateo_columna__id_lugar FOREIGN KEY (id_lugar)
     REFERENCES param.tlugar(id_lugar)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 /***********************************F-DEP-JRR-PLANI-0-29/07/2015****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-22/09/2015****************************************/
 
 ALTER TABLE plani.tplanilla_sigma
-  ADD CONSTRAINT fk_tplanilla_sigma__id_funcionario FOREIGN KEY (id_funcionario) 
+  ADD CONSTRAINT fk_tplanilla_sigma__id_funcionario FOREIGN KEY (id_funcionario)
     REFERENCES orga.tfuncionario(id_funcionario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla_sigma
-  ADD CONSTRAINT fk_tplanilla_sigma__id_periodo FOREIGN KEY (id_periodo) 
+  ADD CONSTRAINT fk_tplanilla_sigma__id_periodo FOREIGN KEY (id_periodo)
     REFERENCES param.tperiodo(id_periodo)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
 ALTER TABLE plani.tplanilla_sigma
-  ADD CONSTRAINT fk_tplanilla_sigma__id_gestion FOREIGN KEY (id_gestion) 
+  ADD CONSTRAINT fk_tplanilla_sigma__id_gestion FOREIGN KEY (id_gestion)
     REFERENCES param.tgestion(id_gestion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
  ALTER TABLE plani.tplanilla_sigma
-  ADD CONSTRAINT fk_tplanilla_sigma__id_tipo_planilla FOREIGN KEY (id_tipo_planilla) 
+  ADD CONSTRAINT fk_tplanilla_sigma__id_tipo_planilla FOREIGN KEY (id_tipo_planilla)
     REFERENCES plani.ttipo_planilla(id_tipo_planilla)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-   
+
 
 /***********************************F-DEP-JRR-PLANI-0-22/09/2015****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-29/10/2015****************************************/
 
 ALTER TABLE plani.tlicencia
-  ADD CONSTRAINT fk_tlicencia__id_tipo_licencia FOREIGN KEY (id_tipo_licencia) 
+  ADD CONSTRAINT fk_tlicencia__id_tipo_licencia FOREIGN KEY (id_tipo_licencia)
     REFERENCES plani.ttipo_licencia(id_tipo_licencia)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -1126,7 +1126,7 @@ AS
        JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
          pla.id_tipo_planilla;
-         
+
 /***********************************F-DEP-JRR-PLANI-0-28/04/2016****************************************/
 
 /***********************************I-DEP-JRR-PLANI-0-25/04/2016****************************************/
@@ -1199,7 +1199,7 @@ AS
            pla.nro_planilla,
            pla.fecha_planilla,
            pla.id_gestion;
-           
+
 
 DROP VIEW IF EXISTS plani.vcomp_planilla_det;
 CREATE OR REPLACE VIEW plani.vcomp_planilla_det(
@@ -1234,16 +1234,16 @@ AS
          concol.id_tipo_columna
        JOIN orga.ttipo_contrato tipcon ON tipcon.codigo::text =
          concol.tipo_contrato::text;
-         
+
 ALTER TABLE plani.tplanilla
-  ADD CONSTRAINT fk_tplanilla__id_int_comprobante FOREIGN KEY (id_int_comprobante) 
+  ADD CONSTRAINT fk_tplanilla__id_int_comprobante FOREIGN KEY (id_int_comprobante)
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
 
 ALTER TABLE plani.tconsolidado_columna
-  ADD CONSTRAINT fk_tconsolidado_columna__id_int_transaccion FOREIGN KEY (id_int_transaccion) 
+  ADD CONSTRAINT fk_tconsolidado_columna__id_int_transaccion FOREIGN KEY (id_int_transaccion)
     REFERENCES conta.tint_transaccion(id_int_transaccion)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
@@ -1323,9 +1323,9 @@ AS
          cc.tipo_contrato::text = oc.tipo_contrato::text
   WHERE oc.monto_detalle_obligacion <> 0::numeric;
  DROP VIEW plani.vobligacion_pago;
- 
- 
- 
+
+
+
 CREATE OR REPLACE VIEW plani.vobligacion_pago(
     id_obligacion,
     id_planilla,
@@ -1404,7 +1404,7 @@ AS
          pla.id_tipo_planilla;
 
   /***********************************F-DEP-JRR-PLANI-1-10/03/2017****************************************/
-  
+
 /***********************************I-DEP-CAP-PLANI-0-04/12/2018****************************************/
 
 DROP VIEW plani.vobligacion_pago;
@@ -1628,7 +1628,7 @@ FROM plani.tplanilla pla
          AND sub.codigo::text = 'CONTA'::text
 GROUP BY pla.id_planilla, dcon.id_depto, pw.nro_tramite, tp.nombre,
     per.periodo, ges.gestion, pla.nro_planilla, pla.fecha_planilla, pla.id_gestion;
-    
+
 CREATE OR REPLACE VIEW plani.vcomp_planilla_obli (
     id_obligacion,
     id_depto_conta,
@@ -1676,7 +1676,7 @@ FROM plani.tobligacion o
      LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
      LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
          AND sub.codigo::text = 'CONTA'::text;
-         
+
 CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador (
     id_depto_conta,
     nro_tramite,
@@ -1730,7 +1730,7 @@ FROM plani.tobligacion_agrupador oa
          AND sub.codigo::text = 'CONTA'::text
 GROUP BY dcon.id_depto, pro.nro_tramite, toa.nombre, p.id_int_comprobante,
     p.fecha_planilla, p.id_gestion, o.tipo_pago, toa.id_tipo_obligacion_agrupador, oa.id_planilla, oa.id_obligacion_agrupador, oa.tipo_pago;
-    
+
 CREATE OR REPLACE VIEW plani.vobligacion_presu (
     id_obligacion_columna,
     id_planilla,
@@ -1912,9 +1912,9 @@ AS
         fp.estado_reg::TEXT = 'activo'::TEXT
   GROUP BY fp.id_planilla,
            cv.id_tipo_columna;
-           
-  
-           
+
+
+
 CREATE OR REPLACE VIEW plani.vcomp_planilla_det_diario(
     id_consolidado_columna,
     id_consolidado,
@@ -1959,8 +1959,8 @@ AS
        LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto =
          tp.id_tipo_presupuesto
   WHERE fc.id_tipo_presupuesto IS NULL;
-  
-  
+
+
   CREATE OR REPLACE VIEW plani.vcomp_planilla_det_presup (
     id_consolidado_columna,
     id_consolidado,
@@ -2000,8 +2000,8 @@ AS
      JOIN pre.ttipo_presupuesto tp ON pre.tipo_pres::text = tp.codigo::text
      LEFT JOIN plani.tfiltro_cbte fc ON fc.id_tipo_presupuesto = tp.id_tipo_presupuesto
   WHERE fc.id_tipo_presupuesto IS NOT NULL;
-  
-  
+
+
   --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion
@@ -2010,7 +2010,7 @@ ALTER TABLE plani.tobligacion
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
  --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion_agrupador
@@ -2018,7 +2018,7 @@ ALTER TABLE plani.tobligacion_agrupador
     REFERENCES conta.tint_comprobante(id_int_comprobante)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    NOT DEFERRABLE;   
+    NOT DEFERRABLE;
 
 /***********************************F-DEP-RAC-PLANI-2-15/05/2019****************************************/
 
@@ -2033,17 +2033,17 @@ ALTER TABLE plani.tobligacion_agrupador
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
     --------------- SQL ---------------
- 
+
 DROP VIEW plani.vcomp_planilla_obli_agrupador;
 
-CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador  
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador
 AS
   SELECT dcon.id_depto AS id_depto_conta,
          pro.nro_tramite,
          CASE WHEN afp.id_afp IS NULL THEN toa.nombre
-              ELSE toa.nombre || ' ('||afp.nombre||')'   
+              ELSE toa.nombre || ' ('||afp.nombre||')'
          END  AS acreedor,
          toa.nombre AS descripcion,
          pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character VARYING)::INTEGER AS id_cuenta_bancaria,
@@ -2076,7 +2076,7 @@ AS
        JOIN param.tdepto dep ON dep.id_depto = p.id_depto
        JOIN plani.tobligacion o ON o.id_obligacion_agrupador =
          oa.id_obligacion_agrupador
-       LEFT JOIN plani.tafp afp on afp.id_afp = oa.id_afp  
+       LEFT JOIN plani.tafp afp on afp.id_afp = oa.id_afp
        LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
        LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
        LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema AND sub.codigo::TEXT = 'CONTA'::TEXT
@@ -2095,12 +2095,12 @@ AS
 
 ALTER TABLE plani.vcomp_planilla_obli_agrupador
   OWNER TO postgres;
-  
-  
+
+
   --------------- SQL ---------------
 
-CREATE OR REPLACE VIEW plani.vobligacion_agrupador 
-AS 
+CREATE OR REPLACE VIEW plani.vobligacion_agrupador
+AS
 SELECT ob.id_obligacion_agrupador,
          ob.id_planilla,
          ob.acreedor,
@@ -2117,11 +2117,11 @@ SELECT ob.id_obligacion_agrupador,
        JOIN param.tgestion ges ON ges.id_gestion = pla.id_gestion
        JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
          pla.id_tipo_planilla
-           
-         
+
+
   GROUP BY ob.id_obligacion_agrupador,
            ob.id_plan_pago,
-           ob.id_planilla,          
+           ob.id_planilla,
            ob.acreedor,
            per.periodo,
            ges.gestion;
@@ -2169,9 +2169,9 @@ FROM orga.vfuncionario_cargo_lugar fun
      JOIN orga.tfuncionario tfun ON tfun.id_funcionario = fun.id_funcionario
      JOIN segu.tpersona tper ON tper.id_persona = tfun.id_persona
      JOIN param.tlugar lug ON lug.id_lugar = fun.id_lugar;
-     
-  --------------- SQL ---------------   
-     
+
+  --------------- SQL ---------------
+
 CREATE VIEW plani.vdatos_func_planilla (
     id_funcionario,
     id_uo_funcionario,
@@ -2189,7 +2189,7 @@ FROM plani.vdatos_funcionarios_planilla t
          ARRAY[t.nombre_funcionario, t.codigo_funcionario::text,
          t.codigo_regional::text, t.nivel || ''::text, t.cargo::text,
          t.fecha_nacimiento || ''::text, t.fecha_ingreso || ''::text])
-         u(nombre_col, valor_col);     
+         u(nombre_col, valor_col);
 
 /***********************************F-DEP-MZM-PLANI-8-06/06/2019****************************************/
 /***********************************I-DEP-MZM-PLANI-11-06/06/2019****************************************/
@@ -2344,7 +2344,7 @@ DROP CONSTRAINT chk__treporte__ordenar_por RESTRICT;
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text));
-  
+
 /***********************************F-DEP-MZM-PLANI-17-11/06/2019****************************************/
 
 
@@ -2352,7 +2352,7 @@ ALTER TABLE plani.treporte
 /***********************************I-DEP-RAC-PLANI-16-01/07/2019****************************************/
 
 
-CREATE OR REPLACE VIEW plani.vrep_funcionario 
+CREATE OR REPLACE VIEW plani.vrep_funcionario
 AS
  SELECT uofunc.id_uo_funcionario,
          uofunc.id_uo,
@@ -2885,9 +2885,9 @@ FROM (
          round(a.sublac, 2) || ''::text, round(a.total_ganado, 2) || ''::text,
          round(a.total_gral, 2) || ''::text, round(a.total_desc, 2) ||
          ''::text, a.codigo_rciva::text, a.tipo_documento::text,
-         a.num_documento::text]) u(nombre_col, valor_col);         
-         
-/***********************************F-DEP-MZM-PLANI-8-23/08/2019****************************************/         
+         a.num_documento::text]) u(nombre_col, valor_col);
+
+/***********************************F-DEP-MZM-PLANI-8-23/08/2019****************************************/
 
 
 /***********************************I-DEP-MZM-PLANI-8-26/08/2019****************************************/
@@ -2991,7 +2991,7 @@ AS
                         p.id_gestion = pl.id_gestion AND
                         (tp.codigo::text = ANY (ARRAY [ 'PLASUB' ::character
                          varying::text, 'PLASUE' ::character varying::text ])) AND
-                         
+
                         (tc.codigo::text = ANY (ARRAY [ 'SUBSEP' ::text,
                          'SUBPRE' ::text, 'SUBLAC' ::text, 'SUBNAT' ::text,
                           'COTIZABLE' ::text ]))
@@ -3013,7 +3013,7 @@ AS
                         p.id_gestion = pl.id_gestion AND
                         (tp.codigo::text = ANY (ARRAY [ 'PLASUB' ::character
                          varying::text, 'PLASUE' ::character varying::text ])) AND
-                         
+
                         (tc.codigo::text = ANY (ARRAY [ 'SUBSEP' ::text,
                          'SUBPRE' ::text, 'SUBLAC' ::text, 'SUBNAT' ::text,
                           'COTIZABLE' ::text, 'AFP_APPAT' ::text, 'AFP_RIEPRO'
@@ -3038,7 +3038,7 @@ AS
                         p.id_gestion = pl.id_gestion AND
                         (tp.codigo::text = ANY (ARRAY [ 'PLASUB' ::character
                          varying::text, 'PLASUE' ::character varying::text ])) AND
-                         
+
                         (tc.codigo::text = ANY (ARRAY [ 'SUBPRE' ::text,
                          'SUBLAC' ::text, 'TOT_DESC' ::text ]))
                 ) AS total_desc,
@@ -3072,7 +3072,7 @@ AS
                  ::text, round(a.total_gral, 2) || '' ::text, round(a.total_desc
                  , 2) || '' ::text, a.codigo_rciva::text, a.tipo_documento::text
                  , a.num_documento::text ]) u(nombre_col, valor_col);
-                 
+
 /***********************************F-DEP-MZM-PLANI-8-26/08/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-40-12/09/2019****************************************/
@@ -3393,7 +3393,7 @@ WHERE c2.estado_reg = 'activo' AND c21.id_uo_hijo = c2.id_uo AND
         , ((cen.uo_centro_orden + 0.1) || '')
         )), (orden_plani.ruta || orden_plani.nivel), func.valor_col,
         fun.desc_funcionario2;
-/***********************************F-DEP-MZM-PLANI-76-06/11/2019****************************************/        
+/***********************************F-DEP-MZM-PLANI-76-06/11/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-76-07/11/2019****************************************/
 CREATE OR REPLACE VIEW plani.vorden_planilla (
@@ -3493,7 +3493,7 @@ WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
         varying)), orden_plani.ruta, ((orden_plani.ruta || orden_plani.nivel)
         || orden_plani.id_uo), func.valor_col, fun.desc_funcionario2;
 
-/***********************************F-DEP-MZM-PLANI-76-07/11/2019****************************************/        
+/***********************************F-DEP-MZM-PLANI-76-07/11/2019****************************************/
 
 
 /***********************************I-DEP-MZM-PLANI-77-15/11/2019****************************************/
@@ -3597,7 +3597,7 @@ WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
      JOIN orga.toficina ofi ON ofi.id_lugar = fp.id_lugar AND ofi.id_oficina =
          car.id_oficina
     ORDER BY orden_plani.ruta, uofun.prioridad, func.valor_col, fun.desc_funcionario2;
-    
+
 
 
 CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
@@ -3752,8 +3752,8 @@ FROM (
          '', round(a.total_desc, 2) || '', a.codigo_rciva,
          a.tipo_documento, a.num_documento, a.distrito,
          '_________________________________']) u(nombre_col, valor_col);
-         
-/***********************************F-DEP-MZM-PLANI-77-15/11/2019****************************************/         
+
+/***********************************F-DEP-MZM-PLANI-77-15/11/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-80-29/11/2019****************************************/
 CREATE or replace VIEW plani.vdatos_horas_funcionario (
@@ -3801,7 +3801,7 @@ FROM (
          'horas_comp'::text], ARRAY[a.nombre_funcionario, a.codigo_funcionario,
          a.horas_normales || ''::text, a.horas_comp || ''::text]) u(nombre_col,
          valor_col);
-/***********************************F-DEP-MZM-PLANI-80-29/11/2019****************************************/         
+/***********************************F-DEP-MZM-PLANI-80-29/11/2019****************************************/
 
 
 
@@ -3812,7 +3812,7 @@ ALTER TABLE plani.treporte
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) OR ((agrupar_por)::text = 'ninguno'::text) OR ((agrupar_por)::text = 'distrito'::text) OR ((agrupar_por)::text = 'centro'::text) OR ((agrupar_por)::text = 'distrito_banco'::text));
-  
+
 CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
     id_funcionario,
     id_funcionario_planilla,
@@ -3931,10 +3931,10 @@ FROM (
          ''::text, a.codigo_rciva::text, a.tipo_documento::text,
          a.num_documento, a.distrito::text, '_________________________'::text])
          u(nombre_col, valor_col);
-         
-         
-         
-                 
+
+
+
+
 CREATE or REPLACE VIEW plani.vorden_planilla (
     ruta,
     id_uo,
@@ -4032,8 +4032,8 @@ WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
      JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
      JOIN orga.toficina ofi ON ofi.id_oficina = car.id_oficina
     ORDER BY orden_plani.ruta, uofun.prioridad, fun.desc_funcionario2;
-         
-         
+
+
 CREATE or REPLACE VIEW plani.vdatos_horas_funcionario (
     id_funcionario,
     id_funcionario_planilla,
@@ -4082,4 +4082,65 @@ FROM (
 /***********************************F-DEP-MZM-PLANI-84-16/12/2019****************************************/
 
 
-  
+
+/***********************************I-DEP-RAC-PLANI-113-06/05/2020****************************************/
+
+CREATE OR REPLACE VIEW plani.vcomp_planilla_obli(
+    id_obligacion,
+    id_depto_conta,
+    nro_tramite,
+    acreedor,
+    descripcion,
+    id_cuenta_bancaria,
+    id_int_comprobante,
+    id_moneda,
+    fecha_actual,
+    id_gestion,
+    forma_pago,
+    id_centro_costo_depto,
+    monto_obligacion,
+    id_tipo_obligacion_agrupador,
+    id_gestion_pago)
+AS
+  SELECT o.id_obligacion,
+         dcon.id_depto AS id_depto_conta,
+         pro.nro_tramite,
+         o.acreedor,
+         o.descripcion,
+         pxp.f_get_variable_global('plani_cuenta_bancaria_defecto'::character
+           VARYING)::INTEGER AS id_cuenta_bancaria,
+         p.id_int_comprobante,
+         param.f_get_moneda_base() AS id_moneda,
+         p.fecha_planilla AS fecha_actual,
+         p.id_gestion,
+         CASE
+           WHEN o.tipo_pago::TEXT = 'cheque'::TEXT THEN 'cheque'::TEXT
+           ELSE 'transferencia'::TEXT
+         END AS forma_pago,
+         (
+           SELECT f_get_config_relacion_contable.ps_id_centro_costo
+           FROM conta.f_get_config_relacion_contable('CCDEPCON'::character
+             VARYING, gesp.id_gestion, dcon.id_depto, NULL::INTEGER,
+             'No existe presupuesto administrativo relacionado al departamento de RRHH'
+             ::character VARYING) f_get_config_relacion_contable(ps_id_cuenta,
+             ps_id_auxiliar, ps_id_partida, ps_id_centro_costo,
+             ps_nombre_tipo_relacion)
+         ) AS id_centro_costo_depto,
+         o.monto_obligacion,
+         tpo.id_tipo_obligacion_agrupador,
+         gesp.id_gestion AS id_gestion_pago
+  FROM plani.tobligacion o
+       JOIN plani.ttipo_obligacion tpo ON tpo.id_tipo_obligacion =
+         o.id_tipo_obligacion
+       JOIN plani.tplanilla p ON p.id_planilla = o.id_planilla
+       JOIN wf.tproceso_wf pro ON pro.id_proceso_wf = p.id_proceso_wf
+       JOIN param.tdepto dep ON dep.id_depto = p.id_depto
+       JOIN param.tgestion gesp ON p.fecha_planilla >= gesp.fecha_ini AND
+         p.fecha_planilla <= gesp.fecha_fin
+       LEFT JOIN param.tdepto_depto rel ON rel.id_depto_origen = dep.id_depto
+       LEFT JOIN param.tdepto dcon ON dcon.id_depto = rel.id_depto_destino
+       LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
+         AND sub.codigo::TEXT = 'CONTA'::TEXT;
+
+
+/***********************************F-DEP-RAC-PLANI-113-06/05/2020****************************************/

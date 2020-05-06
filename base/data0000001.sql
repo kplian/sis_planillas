@@ -533,7 +533,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','PRINOVI
 select plani.f_import_ttipo_columna_planilla ('insert','IMPDET','PRINOVIG','Impuesto Determinado','formula','Impuesto Determinado','case when {IMPOFAC}> {PRIMA} then 0 else
 ({PRIMA}-{IMPOFAC})*13/100*{FACFRONTERAPRI} end','si_pago','','0','15','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC','PRINOVIG','Importe de Facturas al 100 porciento','variable','Importe de Facturas al 100 porciento','','no','','2','13','ejecutar','no','no','no','activo');
-select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','PRINOVIG','Prima Liquida','formula','Prima Liquida','{PRIMA}-{TOTDESC}','si_pago','','2','18','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','PRINOVIG','Prima Liquida','formula','Prima Liquida','{PRIMA} - COALESCE({TOTDESC},0)','si_pago','','2','18','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','OTDESC','PRINOVIG','Otros Descuentos','variable','Otros Descuentos','','si_pago','','2','16','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS1','PRINOVIG','Dias para calculo','basica','Días para calculo','','no','','2','7','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS2','PRINOVIG','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
@@ -546,7 +546,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPRICOT23','PRINOVIG',
 select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PRINOVIG','Promedio C1','formula','Promedio de 3 ultimos sueldos','({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3','no','','2','7','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3','no','','2','8','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','PRINOVIG','Prima a pagar','formula','Prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})) *({PORCENTAJEPRIM}/100))','si_contable','','2','12','ejecutar','no','no','no','activo');
-select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','PRINOVIG','Total Descuentos','formula','Total Descuentos','{OTDESC} - {IMPDET}','no','','2','17','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','PRINOVIG','Total Descuentos','formula','Total Descuentos','{OTDESC} + {IMPDET}','no','','2','17','ejecutar','no','no','no','activo');
 ----------------------------------
 --COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion Tipo Obligacion
@@ -570,4 +570,114 @@ select wf.f_import_testructura_estado ('insert','calculo_validado','obligaciones
 select wf.f_import_testructura_estado ('insert','calculo_validado','planilla_finalizada','PLASUB',1,'"{$tabla.codigo}" = "PLAPREPRI"');
 
 
+
 /***********************************F-DAT-RAC-PLANI-113-05/05/2020****************************************/
+
+
+
+/***********************************I-DAT-RAC-PLANI-113-06/05/2020****************************************/
+
+
+CREATE INDEX tobligacion_columna__id_obligacion_idx ON plani.tobligacion_columna
+  USING btree (id_obligacion);
+
+  --------------- SQL ---------------
+
+CREATE INDEX tprorrateo__id_funcionario_plan_idx ON plani.tprorrateo
+  USING btree (id_funcionario_planilla);
+
+CREATE INDEX tprorrateo_columna_codigo_columna_idx ON plani.tprorrateo_columna
+  USING btree (codigo_columna COLLATE pg_catalog."default");
+
+
+--------------- SQL ---------------
+
+CREATE INDEX tprorrateo_columna_idx ON plani.tprorrateo_columna
+  USING btree (id_tipo_columna);
+
+--------------- SQL ---------------
+
+CREATE INDEX tprorrateo_columna__id_prorrateo_idx1 ON plani.tprorrateo_columna
+  USING btree (id_prorrateo);
+
+  --------------- SQL ---------------
+
+CREATE INDEX ttipo_columna__id_tipo_plan_idx ON plani.ttipo_columna
+  USING btree (id_tipo_planilla);
+
+
+--------------- SQL ---------------
+
+CREATE INDEX tfuncionario_planilla__id_planilla_idx ON plani.tfuncionario_planilla
+  USING btree (id_planilla);
+
+--------------- SQL ---------------
+
+CREATE INDEX tfuncionario_planilla__id_funcionario_idx ON plani.tfuncionario_planilla
+  USING btree (id_funcionario);
+
+
+--------------- SQL ---------------
+
+CREATE INDEX tplanilla__id_tipo_planillas_idx ON plani.tplanilla
+  USING btree (id_tipo_planilla);
+
+--------------- SQL ---------------
+
+CREATE INDEX tplanilla_id_gestion_periodo_dx ON plani.tplanilla
+  USING btree (id_periodo, id_gestion);
+
+
+--------------- SQL ---------------
+
+CREATE INDEX tplanilla_i_id_estado_wf_dx ON plani.tplanilla
+  USING btree (id_estado_wf);
+
+
+--------------- SQL ---------------
+
+CREATE INDEX ttipo_obligacion_idx ON plani.ttipo_obligacion
+  USING btree (codigo);
+
+
+--------------- SQL ---------------
+
+CREATE INDEX ttipo_obligacion_columna_idx ON plani.ttipo_obligacion_columna
+  USING btree (codigo_columna);
+
+
+select conta.f_import_ttipo_relacion_contable ('insert','CUEOBLIHAB','TTIO','Cuenta de Obligacion Planillas Haber','activo','no','si','no','flujo','recurso','no','no','no','');
+
+
+select conta.f_import_ttipo_relacion_contable ('insert','CUEOBLI','TTIO','Cuenta de Obligacion Planillas','activo','no','si','no','flujo','gasto','no','no','no','');
+
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion OBLIGACIONES
+---------------------------------
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PRINOVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PRINOVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PRINOVIG','no','si','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion OBLIGACIONES
+---------------------------------
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','PLAPRIVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','PLAPRIVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','PLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','PLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','PLAPRIVIG','no','si','si','activo');
+
+
+/***********************************F-DAT-RAC-PLANI-113-07/05/2020****************************************/
+
