@@ -318,7 +318,9 @@ class ACTReporte extends ACTbase{
         }
 
 
-        $this->objParam->addFiltro("plani.estado not in (''registro_funcionarios'', ''registro_horas'')"); //plani.estado = ''planilla_finalizada''
+        $this->objParam->addFiltro("plani.estado not in (''registro_funcionarios'', ''registro_horas'')
+        and plani.observaciones not in (''ocultar'')
+        "); //plani.estado = ''planilla_finalizada''  //#123
 
         //#83
         if($this->objParam->getParametro('tipo_reporte') == 'formato_especifico' && $this->objParam->getParametro('control_reporte')=='fondo_solidario'){

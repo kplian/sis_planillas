@@ -2510,6 +2510,7 @@ AS $BODY$
     ELSIF(p_codigo = 'PREPRICOT11') THEN -- el primer cotizable del contrato mas antiguo
         
         select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        
         into v_planilla
         from plani.tfuncionario_planilla fp
         inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
@@ -2681,6 +2682,12 @@ AS $BODY$
                             
                             if (v_registros.fecha_fin!=v_fecha_ini_actual) then
                             
+                              if(v_registros.fecha_ini > (select distinct per.fecha_ini from  plani.tplanilla p 
+                               inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+                               and tp.codigo='PLASUE'
+                               inner join param.tperiodo per on per.id_periodo=p.id_periodo 
+                               where per.id_periodo<=v_i-1 order by per.fecha_ini desc limit 1 offset 2)) then
+                               
                                 select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
@@ -2689,7 +2696,21 @@ AS $BODY$
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
+                                order by per.periodo desc limit 1 offset 1;
+                            else
+                             	select cv.valor into v_resultado from plani.tplanilla p
+                                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+                                inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                and cv.codigo_columna='COTIZABLE_ANT'
+                                and fp.id_funcionario=v_planilla.id_funcionario
+                                and p.id_periodo<= v_i
                                 order by per.periodo desc limit 1 offset 2;
+                            
+                            end if;
+                            
+                                
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
@@ -2879,15 +2900,36 @@ AS $BODY$
                             from param.tperiodo where v_registros.fecha_fin between fecha_ini and fecha_fin;
                             
                             if (v_registros.fecha_fin!=v_fecha_ini_actual) then
-                                select cv.valor into v_resultado from plani.tplanilla p
-                                inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
-                                inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
-                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                                inner join param.tperiodo per on per.id_periodo=p.id_periodo
-                                and cv.codigo_columna='COTIZABLE_ANT'
-                                and fp.id_funcionario=v_planilla.id_funcionario
-                                and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 2;
+                                
+                                  if(v_registros.fecha_ini > (select distinct per.fecha_ini from  plani.tplanilla p 
+                                     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+                                     and tp.codigo='PLASUE'
+                                     inner join param.tperiodo per on per.id_periodo=p.id_periodo 
+                                     where per.id_periodo<=v_i-1 order by per.fecha_ini desc limit 1 offset 2)) then
+                               
+                                    select cv.valor into v_resultado from plani.tplanilla p
+                                    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+                                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+                                    inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                    inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                    and cv.codigo_columna='COTIZABLE_ANT'
+                                    and fp.id_funcionario=v_planilla.id_funcionario
+                                    and p.id_periodo<= v_i
+                                    order by per.periodo desc limit 1 offset 1;
+                                else
+                                    select cv.valor into v_resultado from plani.tplanilla p
+                                    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+                                    inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+                                    inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                    inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                    and cv.codigo_columna='COTIZABLE_ANT'
+                                    and fp.id_funcionario=v_planilla.id_funcionario
+                                    and p.id_periodo<= v_i
+                                    order by per.periodo desc limit 1 offset 2;
+                            
+                            	end if;
+                                
+                               
                             else
                             	select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
