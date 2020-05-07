@@ -8,6 +8,7 @@
  #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
+
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	

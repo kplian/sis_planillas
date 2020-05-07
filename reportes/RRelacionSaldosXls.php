@@ -6,6 +6,7 @@
  #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
  #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+
 */
 class RRelacionSaldosXls
 {

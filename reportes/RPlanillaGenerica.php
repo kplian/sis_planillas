@@ -10,7 +10,8 @@
 //#83	    MZM(ETR)		10.12.2019				Habilitacion de opcion historico de planilla
 //#93			MZM			13.02.2020				Ajuste en obtencion de subtotales para columnas no numericas
 //#98		ETR	MZM			04.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
-#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+//#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
 	var $datos_detalle;
