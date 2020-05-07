@@ -8,6 +8,7 @@
  *77	ETR				20.11.2019			MZM					Uniformizado de tamaño de letra
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -22,6 +23,10 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $bordes;
 	var $interlineado;
 	function Header() {
+		
+		if(count($this->datos)>0){
+			
+		
 		//cabecera del reporte
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 5, 8, 30, 12);
 		$this->SetFont('','B',8);
@@ -119,7 +124,11 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$this->alto_header =$this->GetY(); 
 		$this->bordes=$this->datos_titulo[0]['bordes']; //#77
 		$this->interlineado= $this->datos_titulo[0]['interlineado'];//#77
-
+		}//#123
+		else{
+			$this->SetFont('','B',12);
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****	
+		}
 	}
 	function setDatos($datos, $datos_titulo) {
 		$this->datos = $datos;
@@ -143,7 +152,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$totala=0;
 		$totald=0;
 		
-		
+		if(count($this->datos)>0){
 		$rango_ini=$this->objParam->getParametro('rango_ini');
 		$rango_fin=$this->objParam->getParametro('rango_fin');
 		$contador_rango=$rango_fin;
@@ -283,8 +292,9 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 							$this->Ln(2);
 			
 			}
-		
+			}//#123
 		} 
+
 
 		
 	

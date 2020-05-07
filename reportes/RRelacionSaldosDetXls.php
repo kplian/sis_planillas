@@ -5,6 +5,7 @@
  #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
  #83	ETR			   08.01.2020			MZM					Habilitacion de opcion historico de planilla*
  #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 */
 class RRelacionSaldosDetXls
 {
@@ -166,7 +167,7 @@ class RRelacionSaldosDetXls
         //$this->imprimeCabecera(0);
 
         $numberFormat = '#,##0.00';
-        $cant_datos = count($datos);
+        //$cant_datos = count($datos);
         $total_bono = 0;
         $total_sueldo = 0;
         $total_frontera = 0;
@@ -176,7 +177,7 @@ class RRelacionSaldosDetXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-       
+       if (count($datos_det)>0){
            
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
@@ -287,7 +288,7 @@ class RRelacionSaldosDetXls
 					$fila++;
 				}
 					
-                  
+		}//#123      
                     
     }
     function obtenerFechaEnLetra($fecha){

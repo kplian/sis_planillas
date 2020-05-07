@@ -5,7 +5,8 @@
  #56    ETR            30/09/2019           MZM                 Creacion 
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
  #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
- #98	ETR				04.03.2020			MZM					Adecuacion para generacion de reporte consolidado (caso planilla reintegros) 
+ #98	ETR				04.03.2020			MZM					Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
 */
 class RRelacionSaldosDet extends  ReportePDF {
 	var $datos;	
@@ -24,6 +25,8 @@ class RRelacionSaldosDet extends  ReportePDF {
 	var $tipo_contratoP;
 	var $tipo_pagoP;
 	function Header() {
+		if (count($this->detalle)>0){
+			
 		
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
@@ -117,12 +120,12 @@ class RRelacionSaldosDet extends  ReportePDF {
 			$this->Cell(34,5,'Nro. Cuenta','LBTR',0,'C');
 			$this->Cell(1,5,'','',0,'C');
 			$this->Cell(30,5,'Monto (Bs.)','LBTR',1,'C');
-					
-			
-	
 		
-		
-		
+		}//#123
+		else{
+			$this->SetFont('','B',12);
+				$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
+		}
 
 }
 	function setDatos($datos,$detalle) {
@@ -154,7 +157,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 		
 				$this->bandera='detalle';
 				
-				
+		if (count($this->detalle)>0)	{	
 				
 				//---------------------DETALLE----------------------//
 				
@@ -244,7 +247,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 							$this->SetFont('','',8);
 							$this->Cell(30,5,number_format($det_total_ciudad,2,'.',','),'',1,'R');//#80
 
-		
+			}//#123
 		}
 		
 		function Footer(){ }

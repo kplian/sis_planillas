@@ -7,7 +7,8 @@
  #81	ETR				05.12.2019			MZM					Ajustes de cambio de cargo y unidades
  #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
  #89	ETR				14.01.2020			MZM					Ajuste a primer registro de clasif. de personal por profesiones, quitar alineado a la izq.
- #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos) 
+ #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
 **/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -19,7 +20,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $alto_header;
 	
 	function Header() {
-		
+		if (count($this->datos)> 0){
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		$this->SetY(10);
 		$this->SetFont('','B',7);
@@ -214,7 +215,11 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		
 				
 		$this->alto_header =$this->GetY(); 
-
+		}//#123
+		else{
+			$this->SetFont('','B',12);
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****	
+		}
 	}
 	function setDatos($datos,$datos_titulo) {//#83 
 		$this->datos = $datos;
@@ -230,6 +235,8 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		$this->SetMargins(10,$this->alto_header, 5);
 		
 		$cont=0;
+		
+	if(count($this->datos)>0){
 		
 		
 		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_ano' &&  $this->objParam->getParametro('tipo_reporte')!='nacimiento_mes' &&  $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones' &&  $this->objParam->getParametro('tipo_reporte')!='listado_centros'){//#115
@@ -526,7 +533,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 			
 			
 		}			
-		
+		}//#123
 	} 
 
 		

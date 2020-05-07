@@ -3,9 +3,9 @@
 //echo dirname(__FILE__);
 //include_once(dirname(__FILE__).'/../PHPExcel/Classes/PHPExcel.php');
 //#77 	ETR		MZM		15.11.2019	Ajsute reprote
-//#83	ETR				07.01.2020			MZM					Habilitacion de opcion historico de planilla
-//#89	ETR				14.01.2020			MZM					Inclusion de condicion bono/descuento para imprimir el concepto que se consulta
-
+//#83	ETR				07.01.2020			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+//#89	ETR				14.01.2020			MZM-KPLIAN			Inclusion de condicion bono/descuento para imprimir el concepto que se consulta
+//#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 class RPlanillaGenericaXls
 {
 	private $docexcel;
@@ -21,7 +21,7 @@ class RPlanillaGenericaXls
 	private $objParam;
 	public  $url_archivo;	
 	
-	function __construct(CTParametro $objParam){
+	function __construct(CTParametro $objParam){ 
 		$this->objParam = $objParam;
 		$this->url_archivo = "../../../reportes_generados/".$this->objParam->getParametro('nombre_archivo');
 		//ini_set('memory_limit','512M');
@@ -30,16 +30,22 @@ class RPlanillaGenericaXls
 		$cacheSettings = array('memoryCacheSize'  => '10MB');
 		PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
 
-		$this->docexcel = new PHPExcel();
+		$this->docexcel = new PHPExcel(); 
+		$titulo_archivo_xls='Planilla';
+		if($this->objParam->getParametro('titulo_archivo')!=''){
+			$titulo_archivo_xls	=$this->objParam->getParametro('titulo_archivo');
+		}
+		
+		
 		$this->docexcel->getProperties()->setCreator("PXP")
 							 ->setLastModifiedBy("PXP")
-							 ->setTitle($this->objParam->getParametro('titulo_archivo'))
-							 ->setSubject($this->objParam->getParametro('titulo_archivo'))
-							 ->setDescription('Reporte "'.$this->objParam->getParametro('titulo_archivo').'", generado por el framework PXP')
+							 ->setTitle($titulo_archivo_xls)
+							 ->setSubject($titulo_archivo_xls)
+							 ->setDescription('Reporte "'.$titulo_archivo_xls.'", generado por el framework PXP')
 							 ->setKeywords("office 2007 openxml php")
 							 ->setCategory("Report File");
 		$this->docexcel->setActiveSheetIndex(0);
-		$this->docexcel->getActiveSheet()->setTitle(substr($this->objParam->getParametro('titulo_archivo'),1,30)); //#77
+		$this->docexcel->getActiveSheet()->setTitle(substr($titulo_archivo_xls,1,30)); //#77
 		$this->equivalencias=array(0=>'A',1=>'B',2=>'C',3=>'D',4=>'E',5=>'F',6=>'G',7=>'H',8=>'I',
 								9=>'J',10=>'K',11=>'L',12=>'M',13=>'N',14=>'O',15=>'P',16=>'Q',17=>'R',
 								18=>'S',19=>'T',20=>'U',21=>'V',22=>'W',23=>'X',24=>'Y',25=>'Z',
@@ -62,6 +68,8 @@ class RPlanillaGenericaXls
 		
 		
 		//*************************************Cabecera*****************************************
+	if(count($datos)>0){//#123
+		
 		$this->docexcel->getActiveSheet()->getColumnDimension($this->equivalencias[$columnas])->setWidth(20);
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($columnas,4,'Gerencia');
 		$columnas++;
@@ -154,6 +162,9 @@ class RPlanillaGenericaXls
 		$end=PHPExcel_Cell::stringFromColumnIndex($columnas-1);
 		$merge=$start.'1:'.$end.'1';
 		
+	
+		
+		
 		$tit_rep=$config['titulo_reporte'];
 		if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
 			//#98
@@ -200,13 +211,7 @@ class RPlanillaGenericaXls
 		$this->docexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0,2,$subtit);
 		
 		
-		
-		/*		$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
-				$this->docexcel->getActiveSheet()->mergeCells("A2:X2");
-				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos['periodo_lite']);
-			*/	 
+		}
 	
 		
 	}
