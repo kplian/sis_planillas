@@ -2,15 +2,16 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion
- #41	ETR				16.09.2019			MZM		 			Modificacion a reporte reserva detalle para q liste 3 registros historicos, adicion de tipo contrato en titulo y formateo de number
- #64	ETR				10.10.2019			MZM					Ajuste a reporte Aporte CACSEL
- #77	ETR				15.11.2019			MZM					Ajuste reportes
- #77 	ETR				20.11.2019			MZM					Cambio de ubicacion de columas nomina CT
- #80 	ETR				27.11.2019			MZM					Cambio de formato numeric, ajuste a beneficios reserva detalel
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- #90	ETR				15.01.2019			MZM					Inclusion de TC a reporte Reserva de beneficios sociales - resumen
- #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #30    ETR            30/07/2019           MZM-KPLIAN          Creacion
+ #41	ETR				16.09.2019			MZM-KPLIAN 			Modificacion a reporte reserva detalle para q liste 3 registros historicos, adicion de tipo contrato en titulo y formateo de number
+ #64	ETR				10.10.2019			MZM-KPLIAN			Ajuste a reporte Aporte CACSEL
+ #77	ETR				15.11.2019			MZM-KPLIAN			Ajuste reportes
+ #77 	ETR				20.11.2019			MZM-KPLIAN			Cambio de ubicacion de columas nomina CT
+ #80 	ETR				27.11.2019			MZM-KPLIAN			Cambio de formato numeric, ajuste a beneficios reserva detalel
+ #83	ETR				10.12.2019			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+ #90	ETR				15.01.2019			MZM-KPLIAN			Inclusion de TC a reporte Reserva de beneficios sociales - resumen
+ #98	ETR				03.03.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)		
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -25,7 +26,9 @@ class RPlanillaEmpleado extends  ReportePDF {
 	var $borde;
 	var $interlineado;
 	function Header() {
-		
+		if (count($this->datos)>0){//#123
+			
+		 
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		$this->SetFont('','B',7);
 		if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){//#90
@@ -230,15 +233,18 @@ class RPlanillaEmpleado extends  ReportePDF {
 		
 	
 		$this->alto_header =$this->GetY(); 
-
+		}else{
+			$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
+		}
 	}
 	function setDatos($datos,$datos_titulo) {
 		$this->datos = $datos;
 		$this->datos_titulo=$datos_titulo;
 	}
-	function generarReporte() {
+	function generarReporte() {  
 		$this->setFontSubsetting(false);
-		$this->AddPage();
+		
+		$this->AddPage();	
 		
 		$array_datos;
 		$this->SetY($this->alto_header+2); 
@@ -267,37 +273,6 @@ class RPlanillaEmpleado extends  ReportePDF {
 					$cont++;
 					if($id_funcionario!=$this->datos[$i]['id_funcionario']){ 
 						     
-						     /*if($num==3){//#41
-						     	
-						     }else{
-						      	while($id_funcionario!=0 && $num<4 ){ 
-						      	  $num++;
-							  	  $cont++;
-							      $array_datos[$cont][0]='';
-								  $array_datos[$cont][1]='';
-								  $array_datos[$cont][2]=$this->datos[$i-1]['cargo'];
-								  $array_datos[$cont][3]='';
-								  $array_datos[$cont][4]=$this->datos[$i-1]['nivel'];
-								  $array_datos[$cont][5]= $this->datos[$i-1]['valor'];
-								  $array_datos[$cont][7]='';
-								  $array_datos[$cont][8]='';
-								  $array_datos[$cont][9]=$this->datos[$i-1]['nombre_gerencia'];
-								  $array_datos[$cont][10]=$this->datos[$i-1]['nombre_unidad'];
-								  $array_datos[$cont][11]=$this->datos[$i-1]['ci'].'  '.$this->datos[$i-1]['expedicion'];
-								  $array_datos[$cont][12]=$this->datos[$i-1]['distrito'];							 
-								  $array_datos[$cont][13]='';
-								  $array_datos[$cont][14]=$this->datos[$i-1]['anos_quinquenio'];
-								  $array_datos[$cont][15]=$this->datos[$i-1]['mes_quinquenio'];
-								  $array_datos[$cont][16]=$this->datos[$i-1]['dias_quinquenio'];
-								  
-								  $val=$val+$this->datos[$i-1]['valor'];
-								  
-								  $array_datos[$cont][17]=$val; 
-								  $array_datos[$cont][18]=number_format($num,2);
-						      	}
-						      }*/
-
-
 						      $val=0;
 							  $num=1; 
 					 	  	  $array_datos[$cont][0]=$this->datos[$i]['codigo_empleado'];
@@ -360,35 +335,6 @@ class RPlanillaEmpleado extends  ReportePDF {
 					}
 					$id_funcionario=$this->datos[$i]['id_funcionario'];
 				}
-
-
-				//para el ultimo registro #41
-				/*while($num!=0 && $num<3 ){ 
-						      	  $num++;
-							  	  $cont++;
-							      $array_datos[$cont][0]='';
-								  $array_datos[$cont][1]='';
-								  $array_datos[$cont][2]=$this->datos[$i-1]['cargo'];
-								  $array_datos[$cont][3]='';
-								  $array_datos[$cont][4]=$this->datos[$i-1]['nivel'];
-								  $array_datos[$cont][5]= $this->datos[$i-1]['valor'];
-								  $array_datos[$cont][7]='';
-								  $array_datos[$cont][8]='';
-								  $array_datos[$cont][9]=$this->datos[$i-1]['nombre_gerencia'];
-								  $array_datos[$cont][10]=$this->datos[$i-1]['nombre_unidad'];
-								  $array_datos[$cont][11]=$this->datos[$i-1]['ci'].'  '.$this->datos[$i-1]['expedicion'];
-								  $array_datos[$cont][12]=$this->datos[$i-1]['distrito'];							 
-								  $array_datos[$cont][13]='';
-								  $array_datos[$cont][14]=$this->datos[$i-1]['anos_quinquenio'];
-								  $array_datos[$cont][15]=$this->datos[$i-1]['mes_quinquenio'];
-								  $array_datos[$cont][16]=$this->datos[$i-1]['dias_quinquenio'];
-								  
-								  $val=$val+$this->datos[$i-1]['valor'];
-								  
-								  $array_datos[$cont][17]=$val; 
-								  $array_datos[$cont][18]=number_format($num,2);
-						      }*/
-
 
  
 		}else{
@@ -490,6 +436,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 		$this->SetX(10);
 		
 		/***********************************************/
+	if (count($this->datos)>0){
 		if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios3' || $this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 		   $code=$array_datos[0][0];
 			
@@ -723,7 +670,8 @@ class RPlanillaEmpleado extends  ReportePDF {
 				}
 						
 			}
-		
+			}//#123
+
 		} 
 
 		
