@@ -227,7 +227,7 @@ class MODReporte extends MODbase{
         $this->captura('interlineado','numeric');//#77
         $this->captura('fecha_backup','text');//#83
         //Ejecuta la instruccion
-        $this->armarConsulta();
+        $this->armarConsulta(); 
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta

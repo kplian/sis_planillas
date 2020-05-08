@@ -1,10 +1,11 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #77    ETR            14/11/2019           MZM                 Creacion 
- #80	ETR				25.11.2019			MZM					Ajuste formato numeric, inclusion de totales, campo de columna en nomina salarios ct
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato en titulo de reporte  
+ #77    ETR            14/11/2019           MZM-KPLIAN          Creacion 
+ #80	ETR				25.11.2019			MZM-KPLIAN			Ajuste formato numeric, inclusion de totales, campo de columna en nomina salarios ct
+ #83	ETR				10.12.2019			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+ #89	ETR				14.01.2020			MZM-KPLIAN			Inclusion de tipo contrato en titulo de reporte
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
 */
 class RPlanillaEmpleadoXls
 {
@@ -174,7 +175,7 @@ class RPlanillaEmpleadoXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-       
+       if(count($datos)>0){//#123
        // foreach ($datos as $value)
         //{
             
@@ -647,6 +648,7 @@ if($this->objParam->getParametro('tipo_reporte')=='reserva_beneficios2'){
 					$fila++;	
 				}
 			}
+		}
         //}
        // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
     }

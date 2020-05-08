@@ -5,6 +5,7 @@
  #30    ETR            30/07/2019           MZM                 Creacion 
  #77	ETR				21.11.2019			MZM					Ajuste a reporte (inclusion de tipo contrato)
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  * * 
 */
 class RPlanillaPersonal extends  ReportePDF {
@@ -17,7 +18,7 @@ class RPlanillaPersonal extends  ReportePDF {
 	var $alto_header;
 	
 	function Header() {
-		
+		//echo count($this->datos);exit;
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		//#83
 		$this->SetFont('','B',7);

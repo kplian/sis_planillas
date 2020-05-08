@@ -34,7 +34,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	function Header() {
 		
 		
-		
 		$max_fila=2; $this->max_columna=0;
 		$espacio_previo=0;
 		$cant_espacios=0;
@@ -73,6 +72,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$di=$this->getAliasNumPage(); $df=$this->getAliasNbPages();
 		$xx='Pagina '.$di.' de '.$df;
 		$this->Cell(20,3, ''.$xx, '', 1, 'C');
+		var_dump($this->datos_titulo); exit;
 		
 		//#83
 		$dr=substr($this->datos_titulo['fecha_backup'],0,2);

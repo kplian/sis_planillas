@@ -22,7 +22,7 @@
  * #98			  MZM KPLIAN	 03.04.2020  				Adicion de opciones estado_funcionario (activo, retirado, todos)
  * #115			  MZM KPLIAN     20.04.2020					REporte listado por centros
  * #119			  MZM KPLIAN	 23.04.2020					Reporte Listado de saldos Rc-Iva acumulado
- * 
+ * #123	ETR		  MZM-KPLIAN	 06.05.2020					Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -318,7 +318,9 @@ class ACTReporte extends ACTbase{
         }
 
 
-        $this->objParam->addFiltro("plani.estado not in (''registro_funcionarios'', ''registro_horas'')"); //plani.estado = ''planilla_finalizada''
+        $this->objParam->addFiltro("plani.estado not in (''registro_funcionarios'', ''registro_horas'')
+        and plani.observaciones not in (''ocultar'')
+        "); //plani.estado = ''planilla_finalizada''  //#123
 
         //#83
         if($this->objParam->getParametro('tipo_reporte') == 'formato_especifico' && $this->objParam->getParametro('control_reporte')=='fondo_solidario'){
@@ -807,7 +809,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
             $titulo ='Reserva';
             //Genera el nombre del archivo (aleatorio + titulo)
             $nombreArchivo=uniqid(md5(session_id()).$titulo);
-            $nombreArchivo.='.xls';
+            $nombreArchivo.='.xls'; 
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             $this->objReporteFormato=new RPlanillaEmpleadoXls($this->objParam);
            // $this->objReporteFormato->imprimeDatos();
