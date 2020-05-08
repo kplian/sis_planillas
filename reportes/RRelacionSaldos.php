@@ -6,7 +6,9 @@
  #80    ETR            28/11/2019           MZM                 ajuste formato numeric
  #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
  #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
- #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)  
+ #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
+
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -26,6 +28,10 @@ class RRelacionSaldos extends  ReportePDF {
 	var $tipo_pagoP;
 	var $firmas;//#84
 	function Header() {
+
+		if (count($this->datos)>0){
+			
+		
 
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
@@ -142,7 +148,11 @@ class RRelacionSaldos extends  ReportePDF {
 				
 			}
 			
-						
+	}//#123	
+	else{
+		$this->SetFont('','B',12);
+		$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
+	}			
 		
 
 }
@@ -175,7 +185,7 @@ class RRelacionSaldos extends  ReportePDF {
 		$tipo_pago='';
 		$subtotal=0;//#84
 		$this->setY(55);
-		
+		if (count($this->datos)>0){
 				for ($i=0; $i<count($this->datos);$i++){
 					$this->bandera='resumen';
 				
@@ -332,7 +342,7 @@ class RRelacionSaldos extends  ReportePDF {
 		
 				}
 				
-				
+			}//#123	
 				
 		}
 		

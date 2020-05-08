@@ -21,7 +21,8 @@
  *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema 
  *#87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos	
  *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
- *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva 
+ *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva
+  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -413,7 +414,7 @@ class MODFuncionarioReporte extends MODbase{
 		 $this->captura('fecha_backup','text');//#83
 		 $this->armarConsulta(); 		   
         //Ejecuta la instruccion
-        //echo '----'.$this->getConsulta(); exit;
+        //echo '77----'.$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -534,7 +535,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('periodo_lite','varchar');
 								
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //echo "10****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //(echo "10****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -631,7 +632,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('fecha_fin','date');
 						
 		//Ejecuta la instruccion
-		$this->armarConsulta(); echo "13****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "13****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -691,7 +692,7 @@ class MODFuncionarioReporte extends MODbase{
         
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
-		//echo '14----'.$this->getConsulta(); exit;
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 		
@@ -721,7 +722,7 @@ class MODFuncionarioReporte extends MODbase{
 				$this->captura('periodo','varchar');
 				$this->captura('saldo_dep','numeric');
 		 $this->armarConsulta(); 		   
-		// echo $this->getConsulta(); exit;
+		// echo '***15'.$this->getConsulta(); exit;
         //Ejecuta la instruccion
      
 		//var_dump($this->aParam->getParametrosConsulta()); exit;

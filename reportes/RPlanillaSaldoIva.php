@@ -3,6 +3,7 @@
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #119    ETR            23/04/2020           MZM                 Creacion
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  */
 class RPlanillaSaldoIva extends  ReportePDF {
 	var $datos;	
@@ -17,44 +18,44 @@ class RPlanillaSaldoIva extends  ReportePDF {
 	var $borde;
 	var $interlineado;
 	function Header() {
+		if(count($this->datos)>0){
+			$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
+			$this->SetFont('','B',7);
+			if ($this->objParam->getParametro('fecha_backup')!=''){
+				$dr=substr($this->objParam->getParametro('fecha_backup'),0,4);
+				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+				$ar=substr($this->objParam->getParametro('fecha_backup'),8,2);
+				$id=substr($this->objParam->getParametro('fecha_backup'),9);
+				$this->Cell(0, 3, '', '', 0, 'R');
+				$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar.$id, '', 1, 'R');
+			}else{
+				$this->Cell(0, 3, '', '', 1, 'R');
+			}
 		
-		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
-		$this->SetFont('','B',7);
-		if ($this->objParam->getParametro('fecha_backup')!=''){
-			$dr=substr($this->objParam->getParametro('fecha_backup'),0,4);
-			$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
-			$ar=substr($this->objParam->getParametro('fecha_backup'),8,2);
-			$id=substr($this->objParam->getParametro('fecha_backup'),9);
-			$this->Cell(0, 3, '', '', 0, 'R');
-			$this->Cell(0, 3, "Backup: ".$dr.'/'.$mr.'/'.$ar.$id, '', 1, 'R');
-		}else{
-			$this->Cell(0, 3, '', '', 1, 'R');
-		}
+		
+			$this->SetFont('','B',12);//#77
+			$this->SetY(20);
+			$cadena_nomina='';
+		
+			if($this->objParam->getParametro('id_tipo_contrato')!='' && $this->objParam->getParametro('id_tipo_contrato')>0){
+				
+				
+					$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+				
+			}
 		
 		
-		$this->SetFont('','B',12);//#77
-		$this->SetY(20);
-		$cadena_nomina='';
-		
-		if($this->objParam->getParametro('id_tipo_contrato')!='' && $this->objParam->getParametro('id_tipo_contrato')>0){
+			$this->Cell(0,5,'DETALLE DE SALDOS ACUMULADOS RC-IVA '.$cadena_nomina,0,1,'C');
+			$this->SetFont('','B',10);
 			
-			
-				$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
-			
-		}
-		
-		
-		$this->Cell(0,5,'DETALLE DE SALDOS ACUMULADOS RC-IVA '.$cadena_nomina,0,1,'C');
-		$this->SetFont('','B',10);
-		
 			$this->Cell(0,5,'Correspondiente al mes de : '.$this->datos[0]['periodo'],0,1,'C');
 		
 		
-		$this->Ln(4);			
-		//Titulos de columnas superiores
-		$this->SetFont('','B',8);
-		$this->SetX(10);
-		//$this->Cell(18,5,'Codigo ','LTR',0,'C');
+			$this->Ln(4);			
+			//Titulos de columnas superiores
+			$this->SetFont('','B',8);
+			$this->SetX(10);
+			//$this->Cell(18,5,'Codigo ','LTR',0,'C');
 		
 		
 			  $this->Cell(70,5,'Nombre Completo','LTR',0,'C');
@@ -65,10 +66,10 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			  $this->Cell(20,5,'Saldo Acum.','LTR',0,'C');
 			  $this->Cell(20,5,'Saldo a','LTR',1,'C');
 		
-		//titulo inferior
-		
-		
-		$this->SetX(10);
+				//titulo inferior
+			
+			
+			  $this->SetX(10);
 		
 		
 		
@@ -81,8 +82,11 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			  $this->Cell(20,5,'favor Dep.','LBR',1,'C');
 		
 	
-		$this->alto_header =$this->GetY(); 
-
+				$this->alto_header =$this->GetY(); 
+			}else{
+				$this->SetFont('','B',12);
+				$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');
+			}
 	}
 	function setDatos($datos) {
 		$this->datos = $datos;
@@ -127,7 +131,7 @@ class RPlanillaSaldoIva extends  ReportePDF {
 		
 		
 		/***********************************************/
-		
+		if(count($this->datos)>0){
 				//#41
 				$this->SetLineWidth(0.2);
 		 	 	$this->SetDrawColor(0,0,0);
@@ -142,9 +146,9 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			$this->Cell(20,5,number_format($tot_bs,2),'',0,'R');
 			$this->Cell(20,5,number_format($tot_dep,2),'',1,'R');
 			
-		}
+		}//#123
 
-		
+	}
 	
 		
 		

@@ -4,6 +4,7 @@
  #77    ETR            14/11/2019           MZM                 Creacion 
  #83	ETR			   10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 */
 class RAntiguedadFuncionarioXls
 {
@@ -174,8 +175,9 @@ class RAntiguedadFuncionarioXls
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-       
-           
+       if ($cant_datos>0){
+       	
+         
                 $this->addHoja($value['tipo_contrato'],$index);
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
@@ -226,27 +228,27 @@ class RAntiguedadFuncionarioXls
                 
                 
                 
-if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
-	$tit_rep='ANTIGUEDAD DE LOS EMPLEADOS';
-	$this->etiqueta='Antiguedad';
-}elseif($this->objParam->getParametro('tipo_reporte')=='empleado_edad'){
-	$tit_rep='CLASIFICACION DEL PERSONAL POR EDADES';
-	$this->etiqueta='Edad';
-}
-//#83
-		if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
-			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
-			}else{
-				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
-			}
-		}else{
-			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-				$tit_rep= $tit_rep. ' ('.$this->objParam->getParametro('personal_activo').')';
-			}
-		}
+				if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
+					$tit_rep='ANTIGUEDAD DE LOS EMPLEADOS';
+					$this->etiqueta='Antiguedad';
+				}elseif($this->objParam->getParametro('tipo_reporte')=='empleado_edad'){
+					$tit_rep='CLASIFICACION DEL PERSONAL POR EDADES';
+					$this->etiqueta='Edad';
+				}
+				//#83
+				if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+					if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+						$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
+					}else{
+						$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+					}
+				}else{
+					if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
+						$tit_rep= $tit_rep. ' ('.$this->objParam->getParametro('personal_activo').')';
+					}
+				}
 
-//#83
+				//#83
 				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
 				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
 				$ar=substr($data_titulo[0]['fecha_backup'],6);
@@ -331,9 +333,8 @@ if($this->objParam->getParametro('tipo_reporte')=='empleado_antiguedad'){
 					
 					$fila++;
 				}
-					
-                  
-                    
+		}
+         			
     }
     function obtenerFechaEnLetra($fecha){
         setlocale(LC_ALL,"es_ES@euro","es_ES","esp");
