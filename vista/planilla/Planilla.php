@@ -12,7 +12,9 @@
  #26     ETR          20/08/2019            kplian MMV          corrección de bug combo tipo contrato button new
  #68     ETR          24/10/2019            RAC KPLIAN          Registrar calcular_prima_rciva
  #103    ETR          10/02/2020            MZM,RAC KPLIAN      Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
- */
+ #124    ETR          13/05/2020            RAC KPLIAN          Registrar calcular_bono_rciva
+
+ * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -447,8 +449,8 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
          {
                 config:{
                     name: 'calcular_prima_rciva',
-                    fieldLabel: 'Incluir Primas RC-IVA',
-                    qtip: 'Procesa la columnas de prima rc-iva (solo de la planilla de prima del persona vigente)',
+                    fieldLabel: 'Incluir RC-IVA de Primas',
+                    qtip: 'Procesa la columnas de prima rc-iva (solo de la planilla de prima del personal vigente)',
                     allowBlank: true,
                     width: 80,
                     gwidth: 80,
@@ -466,8 +468,30 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 form:true
           },
 
+           //#124 calcular_bono_rciva
+         {
+                config:{
+                    name: 'calcular_bono_rciva',
+                    fieldLabel: 'Incluir  RC-IVA de Bonos',
+                    qtip: 'Procesa la columnas de bono rc-iva (solo de la planilla de bono de producción del personal vigente)',
+                    allowBlank: true,
+                    width: 80,
+                    gwidth: 80,
+                    typeAhead: true,
+                    triggerAction: 'all',
+                    lazyRender:true,
+                    mode: 'local',
+                    store:['si','no']
+                },
+                type:'ComboBox',
+                id_grupo:1,
+                filters:{pfiltro:'plani.calcular_bono_rciva',type:'string'},
+                valorInicial: 'no',
+                grid:true,
+                form:true
+          },
 
-             {
+          {
             config:{
                 name: 'observaciones',
                 fieldLabel: 'Observaciones',
@@ -598,7 +622,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         {name:'usr_mod', type: 'string'},
         {name:'dividir_comprobante', type: 'string'},
         {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato','calcular_prima_rciva'
-		,'habilitar_impresion_boleta','text_rep_boleta'
+		,'habilitar_impresion_boleta','text_rep_boleta','calcular_bono_rciva'
     ],
     sortInfo:{
         field: 'id_planilla',
@@ -607,7 +631,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
     bdel:true,
     bsave:true,
     iniciarEventos : function() {
-    	
+
         this.Cmp.id_tipo_planilla.on('select',function(c,r,i) {
             if (r.data.periodicidad == 'anual') {
                 this.ocultarComponente(this.Cmp.id_periodo);
@@ -816,11 +840,11 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
              }else{
              	this.getBoton('btnEnvioCorreo').disable();//#103
              }
-             
+
         } else if(rec.data.estado == 'vbpoa' || rec.data.estado == 'suppresu' || rec.data.estado == 'vbpresupuestos'){
             this.getBoton('ant_estado').disable();
             this.getBoton('sig_estado').disable();
-            
+
         } else  if(rec.data.estado =='planilla_finalizada' || rec.data.estado == 'vobo_conta'){
         	if(rec.data.habilitar_impresion_boleta=='si'){
              	this.getBoton('btnEnvioCorreo').enable();//#103
