@@ -1,18 +1,13 @@
--- FUNCTION: plani.ft_planilla_sel(integer, integer, character varying, character varying)
+--------------- SQL ---------------
 
--- DROP FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying);
-
-CREATE OR REPLACE FUNCTION plani.ft_planilla_sel(
-	p_administrador integer,
-	p_id_usuario integer,
-	p_tabla character varying,
-	p_transaccion character varying)
-    RETURNS character varying
-    LANGUAGE 'plpgsql'
-
-    COST 100
-    VOLATILE 
-AS $BODY$
+CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
+  p_administrador integer,
+  p_id_usuario integer,
+  p_tabla varchar,
+  p_transaccion varchar
+)
+RETURNS varchar AS
+$body$
   /**************************************************************************
    SISTEMA:        Sistema de Planillas
    FUNCION:         plani.ft_planilla_sel
@@ -30,12 +25,13 @@ AS $BODY$
    #42    ETR             17-09-2019            RAC                  exluir estados vobo_conta y finalizado de la interface de vobo planilla
    #43    ETR             18-09-2019            RAC                  retornar datos de comprobante para validaciones
    #47    ETR             24-09-2019            Manuel Guerra        reporte de verificacion presupuestaria
-   #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria 
+   #54    ETR             24-09-2019            Manuel Guerra        mejora en consulta y reporte de verificación presupuestaria
    #68    ETR             24/10/2019            RAC                  Registrar  calcular_prima_rciva
-   #78    ETR             18/11/2019            RAC                  Adcionar listado del historico de backup planilla  
+   #78    ETR             18/11/2019            RAC                  Adcionar listado del historico de backup planilla
    #79    ETR             27/11/2019            RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
    #107   ETR             16/03/2020            MZM KPLIAN           listar ultima planilla segun tipo_planilla enviado
    #103   ETR             06/04/2020            MZM KPLIAN           adicion de campo imprimir_boleta para bloquear boton envio de boletas por correo (en pantalla de planillas)
+   #124   ETR             13/05/2020            RAC KPLIAN           Registrar calcular_bono_rciva
  ***************************************************************************/
 
 
@@ -67,7 +63,7 @@ AS $BODY$
     v_porcentaje                   varchar='';
     v_inner_periodo                varchar='';
     v_aux_tipo_interfaz            varchar = '';
-    v_config_gen_cbte_pago         varchar; 
+    v_config_gen_cbte_pago         varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_planilla_sel';
@@ -85,7 +81,7 @@ AS $BODY$
       begin
 
         v_filtro = '';--#42
-        
+
         IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
           v_aux_tipo_interfaz = v_parametros.tipo_interfaz;
         END IF;
@@ -110,7 +106,7 @@ AS $BODY$
           END IF;
 
         END IF;
-        
+
         v_config_gen_cbte_pago = pxp.f_get_variable_global('plani_generar_comprobante_obligaciones');
 
         --Sentencia de la consulta
@@ -152,10 +148,11 @@ AS $BODY$
                         plani.id_int_comprobante,   --#43
                         plani.id_int_comprobante_2,  --#43
                         plani.calcular_prima_rciva,  --#68
-                        tippla.sw_devengado,  --#79 
+                        tippla.sw_devengado,  --#79
                         '''||v_config_gen_cbte_pago||'''::varchar as sw_pago --#79
                         ,tippla.habilitar_impresion_boleta --#103
                         , (tippla.nombre ||pxp.f_iif( tippla.periodicidad=''anual'','' de la gestion ''||ges.gestion, '' del mes de ''||param.f_get_periodo_literal(plani.id_periodo)))::varchar as text_rep_boleta
+                        ,calcular_bono_rciva --#124
                   from plani.tplanilla plani
                   inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
                   left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod
@@ -189,7 +186,7 @@ AS $BODY$
         --Sentencia de la consulta de conteo de registros
 
          v_filtro = '';--#42
-         
+
         IF (pxp.f_existe_parametro(p_tabla, 'tipo_interfaz')) THEN
           v_aux_tipo_interfaz = v_parametros.tipo_interfaz;
         END IF;
@@ -1335,9 +1332,9 @@ AS $BODY$
         --Devuelve la respuesta
         return v_consulta;
         end;
-        
-        
-    
+
+
+
     /*********************************
      #TRANSACCION:  'PLA_PLANIBK_SEL'
      #DESCRIPCION:  #78 listado del historico de backup de planillas
@@ -1350,7 +1347,7 @@ AS $BODY$
       begin
 
         v_filtro = '';
-        
+
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -1374,7 +1371,7 @@ AS $BODY$
                         usu2.cuenta as usr_mod,
                         ges.gestion,
                         per.periodo,
-                        tippla.codigo as nombre_planilla,  
+                        tippla.codigo as nombre_planilla,
                         uo.nombre_unidad as desc_uo,
                         plani.id_depto,
                         depto.nombre,
@@ -1384,7 +1381,7 @@ AS $BODY$
                         plani.fecha_planilla,
                         plani.codigo_poa,
                         plani.obs_poa,
-                        plani.dividir_comprobante, 
+                        plani.dividir_comprobante,
                         tc.nombre as tipo_contrato ,
                         plani.id_tipo_contrato,
                         plani.calcular_reintegro_rciva,
@@ -1407,7 +1404,7 @@ AS $BODY$
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
         v_consulta:=v_consulta||' order by ' ||v_parametros.ordenacion|| ' ' || v_parametros.dir_ordenacion || ' limit ' || v_parametros.cantidad || ' offset ' || v_parametros.puntero;
-       
+
         --Devuelve la respuesta
         return v_consulta;
 
@@ -1434,7 +1431,7 @@ AS $BODY$
                         left join param.tperiodo per on per.id_periodo = plani.id_periodo
                         inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla = plani.id_tipo_planilla
                         left join orga.tuo uo on uo.id_uo = plani.id_uo
-                        left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato 
+                        left join orga.ttipo_contrato tc on tc.id_tipo_contrato = plani.id_tipo_contrato
                         where ' || v_filtro;
 
         --Definicion de la respuesta
@@ -1442,8 +1439,8 @@ AS $BODY$
         --Devuelve la respuesta
         return v_consulta;
 
-      end;    
-	/*********************************
+      end;
+    /*********************************
      #TRANSACCION:  'PLA_PLANIUL_SEL'
      #DESCRIPCION:  #107 listado del la ultima planilla procesada
      #AUTOR:        admin
@@ -1455,7 +1452,7 @@ AS $BODY$
       begin
 
         v_filtro = '';
-        
+
 
         --Sentencia de la consulta
         v_consulta:='select
@@ -1481,7 +1478,7 @@ AS $BODY$
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
         v_consulta:=v_consulta||' order by ges.gestion desc, per.periodo desc limit 1 ';
-       
+
         --Devuelve la respuesta
         return v_consulta;
 
@@ -1507,7 +1504,7 @@ AS $BODY$
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
-      
+
         --Devuelve la respuesta
         return v_consulta;
 
@@ -1527,7 +1524,10 @@ AS $BODY$
       v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
       raise exception '%',v_resp;
   END;
-$BODY$;
-
-ALTER FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying)
-    OWNER TO postgres;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;
