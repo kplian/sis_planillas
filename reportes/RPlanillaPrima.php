@@ -327,7 +327,7 @@ class RPlanillaPrima extends  ReportePDF {
 				
 				$this->Ln(-1);
 				$this->Cell(15,5,'','',0,'C');
-				$this->Cell(70,5,$array_datos[$i][6],'R',0,'L');
+				$this->Cell(70,5,mb_strcut ( $array_datos[$i][6], 0, 38, "UTF-8"),'R',0,'L');
 				$this->Cell(68,5,'','R',0,'C');
 				$this->Cell(107,5,'','R',0,'C');
 				$this->Cell(20,5,'','',1,'L');
