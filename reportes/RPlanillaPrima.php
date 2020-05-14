@@ -59,8 +59,10 @@ class RPlanillaPrima extends  ReportePDF {
 			
 			$this->SetX(10);
 			$this->Cell(0,5,'Ciudad: '.substr($this->gerencia,0,strpos($this->gerencia, '*')),0,1,'L');
-			$this->SetX(10);
-			$this->Cell(0,5,'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+				$this->SetX(10);
+				$this->Cell(0,5,'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
+			}
 			$this->Ln(1);
 			
 			$this->SetFont('','B',8);
