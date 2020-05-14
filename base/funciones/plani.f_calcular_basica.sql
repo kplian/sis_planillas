@@ -52,6 +52,7 @@ AS $BODY$
  #117			  23.04.2020		MZM KPLIAN			Adicion de columnas para manejo de saldo acumulable a favor del fisco en planilla impositiva
  #113             27.04.2020        RAC KPLIAN          Considera arrastre de iva de prima de personal vigente
  #122			  30.04.2020		MZM KPLIAN			Funciones para planilla de prevision de primas
+ #125			  14.05.2020		MZM	KPLIAN			Ajuste a funciones para obtencion de fecha_ini-fecha_fin de contratos
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -107,6 +108,7 @@ AS $BODY$
     v_horas_normales_ht                   integer; --#36
     v_gestion_de_pago                     record; --#68
 
+v_cons	varchar;
 
   BEGIN
     v_nombre_funcion = 'plani.f_calcular_basica';
@@ -2943,7 +2945,7 @@ AS $BODY$
                             end if;
                         end if;
         
-    ELSIF(p_codigo = 'PREDIAS1') THEN -- dias del primer contrato
+    ELSIF(p_codigo = 'PREDIAS1') THEN -- dias del primer contrato #125
     	select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
         into v_planilla
         from plani.tfuncionario_planilla fp
@@ -2951,7 +2953,7 @@ AS $BODY$
         inner join param.tgestion g on g.id_gestion=p.id_gestion
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
 		
-		SELECT uofun.id_funcionario,
+		/*SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
@@ -2974,16 +2976,56 @@ AS $BODY$
                           and uofun.observaciones_finalizacion not in ('transferencia','promocion','') 
                           and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
 						  --order by uofun.id_uo_funcionario limit 1 offset 0
+                      ;*/
+                      
+                      
+                    SELECT uofun.id_funcionario,
+                          uofun.id_uo_funcionario,
+                          (CASE
+                             WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
+                             ELSE plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)
+                           END) AS fecha_ini,
+                          
+                          (CASE
+                             WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
+                             ELSE uofun.fecha_finalizacion
+                           END) AS fecha_fin
+                   into v_registros
+                   FROM orga.tuo_funcionario uofun
+                        INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
+                          uofun.id_funcionario
+                          
+                     WHERE uofun.estado_reg != 'inactivo'
+                         AND uofun.tipo = 'oficial'
+                         and uofun.id_funcionario=v_planilla.id_funcionario
+						 and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
+ 						 and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','') 
+ 						 
+						 order by uofun.id_uo_funcionario limit 1 offset 0
                       ;
-                 
-       					 v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
+                      
+                      
+                     
+                            --no es vigente == preguntar si tiene un contrato q inicie en 2019 == nos quedamos con el valor, sino es 0
+                            if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
+                            and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
+                            ) then
+                                v_resultado:=0;
+                            else
+                               v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
+                            
+                            end if;
+                            
+                       
+                      
                          if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
                            v_resultado:=v_aux;
                          else
                            v_resultado:=0;
                          end if;
     
-    ELSIF(p_codigo = 'PREDIAS2') THEN -- dias del primer contrato
+    ELSIF(p_codigo = 'PREDIAS2') THEN -- dias del primer contrato #125
    		select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
         into v_planilla
         from plani.tfuncionario_planilla fp
@@ -2991,9 +3033,11 @@ AS $BODY$
         inner join param.tgestion g on g.id_gestion=p.id_gestion
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
 		
-		SELECT uofun.id_funcionario,
+        
+       
+			SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
-                          (CASE
+                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
                              ELSE plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)
                            END) AS fecha_ini,
@@ -3010,9 +3054,10 @@ AS $BODY$
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.fecha_asignacion  <= v_planilla.fecha_planilla
-                         and uofun.id_uo_funcionario=v_planilla.id_uo_funcionario
-						  --order by uofun.id_uo_funcionario limit 1 offset 0
+                          and 
+                          (plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)< v_planilla.fecha_fin)
+                          order by plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) desc ,uofun.fecha_asignacion desc
+                          limit 1
                       ;
                  
        					 v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
@@ -3057,6 +3102,7 @@ AS $BODY$
           )
              
       order by fecha_plani desc limit 1;
+    
     
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;

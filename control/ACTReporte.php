@@ -55,6 +55,8 @@ require_once(dirname(__FILE__).'/../reportes/RRelacionSaldosDetXls.php'); //#77
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaTribXls.php');
 require_once(dirname(__FILE__).'/../reportes/RDetalleAguinaldo.php');//#87
 require_once(dirname(__FILE__).'/../reportes/RPlanillaSaldoIva.php');//#119
+require_once(dirname(__FILE__).'/../reportes/RPlanillaPrima.php');//#125
+require_once(dirname(__FILE__).'/../reportes/RPlanillaPrimaXls.php');//#125
 
 
 //·103   para envio de bolestas por correo eletronico
@@ -357,7 +359,14 @@ class ACTReporte extends ACTbase{
 
         //**********
         if ($this->objParam->getParametro('tipo_reporte') == 'formato_especifico') {
-            $this->listarFuncionarioReporte($this->objParam->getParametro('id_reporte'),$this->objParam->getParametro('esquema'));//#83
+        	
+			if($this->objParam->getParametro('control_reporte')=='planilla_prima'){
+				$this->reportePlanillaPrima($this->objParam->getParametro('id_reporte'),$this->objParam->getParametro('esquema'));//#83
+			}else{
+				$this->listarFuncionarioReporte($this->objParam->getParametro('id_reporte'),$this->objParam->getParametro('esquema'));//#83	
+			}
+			
+            
         }else{
             if ($this->objParam->getParametro('tipo_reporte') == 'bono_descuento') {//#80
                 $this->reporteBonoDesc($this->objParam->getParametro('id_reporte'), $this->objParam->getParametro('formato_reporte'));
@@ -1667,6 +1676,60 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 
     }
 
+
+
+//#125
+
+    function reportePlanillaPrima($id_reporte,$esquema)    {
+
+
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()));
+       
+      
+        $this->objParam->addParametro('orientacion','L');
+       
+        $this->objParam->addParametro('tamano',$this->objParam->getParametro('tamano'));
+        $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+        $this->objParam->addParametro('id_gestion',$id_gestion);
+        $this->objParam->addParametro('id_tipo_contrato',$this->objParam->getParametro('id_tipo_contrato'));
+		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
+
+
+        $this->objFunc=$this->create('MODFuncionarioReporte');
+        $this->res=$this->objFunc->listarPlanillaPrima($this->objParam);
+        
+
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+            $this->objReporteFormato=new RPlanillaPrima($this->objParam);
+            $this->objReporteFormato->setDatos($this->res->datos,$this->res->datos);//#83
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        }else{
+            $titulo ='AsignacionCargos';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objReporteFormato=new RPlanillaPrimaXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);//#83
+
+        }
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+
+
+
+    }
 
 
 }

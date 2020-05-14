@@ -2,13 +2,13 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #56    ETR            30/09/2019           MZM                 Creacion
- #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
- #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
- #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #56    ETR            30/09/2019           MZM-KPLIAN          Creacion
+ #80    ETR            28/11/2019           MZM-KPLIAN          ajuste formato numeric
+ #84    ETR            17/12/2019           MZM-KPLIAN          Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
+ #83	ETR				02.02.2020			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+ #98	ETR				03.04.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
-
+ #125	ETR				14.05.2020			MZM-KPLIAN			Ajuste para manejo de planilla de prima vigentes
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -138,7 +138,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRI'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){ //#125
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
 				}else{//aguinaldo
 					$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
