@@ -8,6 +8,7 @@
 //#91	ETR		MZM			02.02.2020 				Para planillas que tienen un solo funcionario, el dibujado de la informacion no se hace en el for, por tanto la posicion en Y para el ultimo registro (que se hace fuera del loop, no considera el alto del grupo titulos)
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+//#126	ETR		MZM			15.05.2020				bug reporte multilinea
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -72,7 +73,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$di=$this->getAliasNumPage(); $df=$this->getAliasNbPages();
 		$xx='Pagina '.$di.' de '.$df;
 		$this->Cell(20,3, ''.$xx, '', 1, 'C');
-		var_dump($this->datos_titulo); exit;
+		//var_dump($this->datos_titulo); exit;
 		
 		//#83
 		$dr=substr($this->datos_titulo['fecha_backup'],0,2);
@@ -85,12 +86,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			$this->Cell($this->ancho_hoja-30, 3, '', '', 1, 'R');
 		}
 		
-				
 		$this->SetFont('','B',12);
 		
 	
-		
-		
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 
 		if($this->datos_titulo['periodo']>0){//#97
