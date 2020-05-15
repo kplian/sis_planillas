@@ -8,6 +8,7 @@
 //#91	ETR		MZM			02.02.2020 				Para planillas que tienen un solo funcionario, el dibujado de la informacion no se hace en el for, por tanto la posicion en Y para el ultimo registro (que se hace fuera del loop, no considera el alto del grupo titulos)
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+//#126	ETR		MZM			15.05.2020				bug reporte multilinea
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
