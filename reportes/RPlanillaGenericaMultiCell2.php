@@ -85,12 +85,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			$this->Cell($this->ancho_hoja-30, 3, '', '', 1, 'R');
 		}
 		
-				
 		$this->SetFont('','B',12);
 		
 	
-		
-		
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 
 		if($this->datos_titulo['periodo']>0){//#97
