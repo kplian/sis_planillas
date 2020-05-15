@@ -42,6 +42,7 @@ AS $BODY$
  #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
  #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
  #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
+ #125	ETR				14.05.2020			MZM					Reporte para planillas de prima vigente y no vigente
  ***************************************************************************/
 
 DECLARE
@@ -2773,6 +2774,61 @@ raise notice '***:%',v_consulta;
             where ';
              v_consulta:=v_consulta||v_parametros.filtro;
               v_consulta:=v_consulta || v_condicion || ' order by fun.desc_funcionario2';
+        	  return v_consulta;
+    	end;
+        
+     elsif (p_transaccion='PLA_PRIMA_SEL') then  --#125
+       begin     
+    		
+    		v_condicion:='';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+              if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+            end if;
+            
+            v_filtro:=''; v_col:='';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+              if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              and codigo='PLAPRIVIG'
+              ) then
+                v_filtro = ' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
+                  	  		 inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
+					  		 inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
+                      	';
+                v_col:= '(nivel.oficina||''*''||inst.nombre)';
+              else 
+              	v_col:= '(nivel.oficina||''*'')';
+              end if;
+            end if;
+            
+            
+            v_consulta:='select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, 
+           			    trim(both ''FUNODTPR'' from fun.codigo) as codigo, 
+                      	nivel.id_oficina,'||v_col||' as desc_oficina,
+                      --	fp.id_funcionario_planilla,
+                      	tcon.nombre
+					  	, colval.codigo_columna, colval.valor, plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO1'') as ctto1,
+                      	plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO2'') as ctto2,
+                      	car.nombre, ges.gestion
+                      	from plani.vorden_planilla  nivel
+                      	inner join plani.tfuncionario_planilla fp on 
+                  		fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+                      	inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
+                      	inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
+                      	inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                        inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
+                      	inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                    	inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and nivel.id_oficina=car.id_oficina
+                      	'||v_filtro||'
+                      	where '; 
+              	v_consulta:=v_consulta||v_parametros.filtro;
+            	v_consulta:=v_consulta || v_condicion || '
+                        and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PRIMA'',
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'')
+                        order by nivel.orden_oficina,nivel.id_oficina,'||v_col||', fun.desc_funcionario2
+                        , colval.codigo_columna';
+            
         	  return v_consulta;
     	end;
     else

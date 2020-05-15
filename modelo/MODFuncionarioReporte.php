@@ -23,6 +23,7 @@
  *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva
   #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
+  #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -732,5 +733,42 @@ class MODFuncionarioReporte extends MODbase{
 		return $this->respuesta;
 		
 	}
+
+///
+		function listarPlanillaPrima(){
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_PRIMA_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('esquema','esquema','varchar');
+		$this->setParametro('id_tipo_planilla','id_tipo_planilla','integer');
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('desc_funcionario','text');
+		$this->captura('codigo','text');
+                $this->captura('id_oficina','integer'); 
+                $this->captura('desc_oficina','text'); 
+                $this->captura('nombre','varchar');
+				$this->captura('codigo_columna','varchar');
+                $this->captura('valor','numeric');
+                $this->captura('ctto1','text');
+                $this->captura('ctto2','text');
+				$this->captura('cargo','varchar');
+				$this->captura('gestion','integer');
+				
+		 $this->armarConsulta(); 		   
+		// echo '***15'.$this->getConsulta(); exit;
+        //Ejecuta la instruccion
+  
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+		
+	}
+
 }
 ?>
