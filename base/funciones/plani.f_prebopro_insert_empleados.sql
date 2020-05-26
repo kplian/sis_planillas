@@ -1,3 +1,15 @@
+-- FUNCTION: plani.f_prebopro_insert_empleados(integer)
+
+-- DROP FUNCTION plani.f_prebopro_insert_empleados(integer);
+
+CREATE OR REPLACE FUNCTION plani.f_prebopro_insert_empleados(
+	p_id_planilla integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
  /**************************************************************************
    PLANI
   ***************************************************************************
@@ -88,18 +100,18 @@ BEGIN
     -- por que no podemos retenerle el RC-IVA en la siguiente planilla de pago normal
     -----------------------------------------------------------------------------------------------------
 
-    v_main_query = 'WITH
-
+    v_main_query = 'WITH 
+    
     planta_gestion as (
                        SELECT  DISTINCT uofun.id_funcionario
-                       FROM orga.tuo_funcionario uofun
+                       FROM orga.tuo_funcionario uofun   
                        JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                        JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'')
                        WHERE uofun.estado_reg != ''inactivo''
                          AND uofun.tipo = ''oficial''
                          and uofun.fecha_asignacion  <= '''||v_fecha_fin_gestion||'''
                     ),
-
+    
     base_query as (
                    SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
@@ -157,10 +169,10 @@ BEGIN
                            id_tipo_contrato,
                            plani.f_get_dias_aguinaldo(id_funcionario, fecha_ini, fecha_fin) dias,
                            fecha_fin - fecha_ini as dias_real
-                    FROM base_query
+                    FROM base_query 
       )
-
-           SELECT
+         
+           SELECT 
              fq.id_funcionario,
              fq.id_uo_funcionario,
              fq.id_lugar,
@@ -174,7 +186,7 @@ BEGIN
              fq.dias_real
            FROM filter_query  fq
            JOIN planta_gestion pg ON pg.id_funcionario = fq.id_funcionario ';
-
+                                    
 
     for v_registros in execute(v_main_query)loop
 
@@ -253,3 +265,7 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
+$BODY$;
+
+ALTER FUNCTION plani.f_prebopro_insert_empleados(integer)
+    OWNER TO postgres;
