@@ -43,6 +43,7 @@ AS $BODY$
  #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
  #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
  #125	ETR				14.05.2020			MZM					Reporte para planillas de prima vigente y no vigente
+ #124	ETR				21.05.2020			MZM					Reporte para planillas de bono de produccion
  ***************************************************************************/
 
 DECLARE
@@ -2787,22 +2788,34 @@ raise notice '***:%',v_consulta;
               end if;
             end if;
             
-            v_filtro:=''; v_col:='';
+            v_filtro:=''; v_col:=''; v_cols:='';
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
               if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
-              and codigo='PLAPRIVIG'
+              and codigo in ('PLAPRIVIG','BONOVIG')
               ) then
                 v_filtro = ' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
                   	  		 inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
 					  		 inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
                       	';
                 v_col:= '(nivel.oficina||''*''||inst.nombre)';
+               
               else 
               	v_col:= '(nivel.oficina||''*'')';
+               
               end if;
             end if;
             
-            
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+              if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              and codigo in ('PLAPRIVIG','PRINOVIG')
+              ) then
+             v_cols:=' and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PRIMA'',
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'')';
+            else --#124
+             v_cols:=' and colval.codigo_columna in (''PREDIAS2'',''PREPROME2'',''BONO'',
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'')';
+            end if;
+       end if; 
             v_consulta:='select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, 
            			    trim(both ''FUNODTPR'' from fun.codigo) as codigo, 
                       	nivel.id_oficina,'||v_col||' as desc_oficina,
@@ -2823,12 +2836,11 @@ raise notice '***:%',v_consulta;
                       	'||v_filtro||'
                       	where '; 
               	v_consulta:=v_consulta||v_parametros.filtro;
-            	v_consulta:=v_consulta || v_condicion || '
-                        and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PRIMA'',
-                        ''IMPDET'',''IMPOFAC'',''LIQPAG'')
+            	v_consulta:=v_consulta || v_condicion || v_cols || '
+                        
                         order by nivel.orden_oficina,nivel.id_oficina,'||v_col||', fun.desc_funcionario2
                         , colval.codigo_columna';
-            
+      raise notice 'aaa%',v_consulta;      
         	  return v_consulta;
     	end;
     else

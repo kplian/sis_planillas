@@ -1,8 +1,8 @@
--- FUNCTION: plani.f_plaprivig_insert_empleados(integer)
+-- FUNCTION: plani.f_bonovig_insert_empleados(integer)
 
--- DROP FUNCTION plani.f_plaprivig_insert_empleados(integer);
+-- DROP FUNCTION plani.f_bonovig_insert_empleados(integer);
 
-CREATE OR REPLACE FUNCTION plani.f_plaprivig_insert_empleados(
+CREATE OR REPLACE FUNCTION plani.f_bonovig_insert_empleados(
 	p_id_planilla integer)
     RETURNS character varying
     LANGUAGE 'plpgsql'
@@ -16,15 +16,14 @@ AS $BODY$
    SCRIPT:
    COMENTARIOS:
    AUTOR:
-   DESCRIP:  inserta a todo el personal al cual le corresponde pago de prima para la gestion
+   DESCRIP:  inserta a todo el personal vigenteal cual le corresponde pago de bono para la gestion
    Fecha: 16-04-2020
 
     HISTORIAL DE MODIFICACIONES:
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
 
- #113              16-04-2020       Rarteaga     KPLIAN    Inserta funcionario para prima de personal vigente
- #113				19.05.2020		Mzambrana	 KPLIAN		Ajuste a funcion por fecha q coincide con la del retiro
+ #124            18-05-2020       Rarteaga     KPLIAN   crear
  ********************************************************************************/
 DECLARE
   v_registros                    record;
@@ -54,7 +53,7 @@ DECLARE
 
 BEGIN
 
-    v_nombre_funcion = 'plani.f_plaprivig_insert_empleados';
+    v_nombre_funcion = 'plani.f_bonovig_insert_empleados';
     v_filtro_query = '';
 
     -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
@@ -108,7 +107,7 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PLAPREPRI';
+      AND tp.codigo = 'PREBOPRO';
 
     --verifica si existe otra planillade personal vigente
     -- esta ambas planillas debe ser de la misma fecha para tener un cálculo exacto
@@ -120,7 +119,7 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PLAPRIVIG';
+      AND tp.codigo = 'BONOVIG';
 
     --si exsite alguna prima de no vigentes debe ser de la misma fecha
     SELECT
@@ -131,14 +130,14 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PRINOVIG';
+      AND tp.codigo = 'BONONOVIG';
 
     IF v_planilla_prev IS NULL THEN
-       raise exception 'primero  tiene que definir  su planilla de previsiones de prima';
+       raise exception 'primero  tiene que definir  su planilla de previsiones de bono de producción';
     END IF;
 
     IF v_planilla_prev.estado != 'finalizado' AND 0!=0  THEN --TODO deja pasar temporalmente
-       raise exception 'La planilla de previsiones de prima debe estar finalizada para proceder con la planilla de pagos';
+       raise exception 'La planilla de previsiones de bono debe estar finalizada para proceder con la planilla de pagos';
     END IF;
 
     --verificar si eiste otra planilla del mismo tipo tiene que ser de la misma fecha
@@ -163,12 +162,12 @@ BEGIN
                       COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion
                       FROM plani.tfuncionario_planilla fp
                       INNER JOIN plani.tcolumna_valor cv ON     cv.id_funcionario_planilla = fp.id_funcionario_planilla
-                                                            AND cv.codigo_columna = ''PREPRIMA''
+                                                            AND cv.codigo_columna = ''PREBONO''
                                                             AND cv.valor > 0
                       INNER JOIN orga.tuo_funcionario uofun ON     fp.id_funcionario = uofun.id_funcionario
                                                                AND (uofun.fecha_finalizacion IS NULL
                                                                      OR
-                                                                    uofun.fecha_finalizacion >= '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla  #113
+                                                                    uofun.fecha_finalizacion >= '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla
                       INNER JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                       INNER JOIN orga.toficina ofi ON car.id_oficina = ofi.id_oficina
                       INNER JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'',''EVE'')
@@ -252,5 +251,5 @@ EXCEPTION
 END;
 $BODY$;
 
-ALTER FUNCTION plani.f_plaprivig_insert_empleados(integer)
+ALTER FUNCTION plani.f_bonovig_insert_empleados(integer)
     OWNER TO postgres;

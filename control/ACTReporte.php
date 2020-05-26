@@ -1140,6 +1140,13 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
         $this->objFunc=$this->create('MODReporte');
         $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
 
+		//#127
+		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){//#127
+            $this->objParam->addParametro('orientacion','L');}
+        else{
+            $this->objParam->addParametro('orientacion','P');
+        }
+
         if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
@@ -1686,9 +1693,9 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()));
        
-      
-        $this->objParam->addParametro('orientacion','L');
-       
+      	
+        $this->objParam->addParametro('orientacion','L');	
+               
         $this->objParam->addParametro('tamano',$this->objParam->getParametro('tamano'));
         $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
         $this->objParam->addParametro('id_gestion',$id_gestion);

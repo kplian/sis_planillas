@@ -1,60 +1,54 @@
--- FUNCTION: plani.f_plaprivig_insert_empleados(integer)
+--------------- SQL ---------------
 
--- DROP FUNCTION plani.f_plaprivig_insert_empleados(integer);
-
-CREATE OR REPLACE FUNCTION plani.f_plaprivig_insert_empleados(
-	p_id_planilla integer)
-    RETURNS character varying
-    LANGUAGE 'plpgsql'
-
-    COST 100
-    VOLATILE 
-AS $BODY$
+CREATE OR REPLACE FUNCTION plani.f_bononovig_insert_empleados (
+  p_id_planilla integer
+)
+RETURNS varchar AS
+$body$
  /**************************************************************************
    PLANI
   ***************************************************************************
    SCRIPT:
    COMENTARIOS:
    AUTOR:
-   DESCRIP:  inserta a todo el personal al cual le corresponde pago de prima para la gestion
-   Fecha: 16-04-2020
+   DESCRIP:  Inserta funcionario para bono de personal no vigente
+   Fecha: 18-05-2020
+
 
     HISTORIAL DE MODIFICACIONES:
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
 
- #113              16-04-2020       Rarteaga     KPLIAN    Inserta funcionario para prima de personal vigente
- #113				19.05.2020		Mzambrana	 KPLIAN		Ajuste a funcion por fecha q coincide con la del retiro
+ #124              18-05-2020       Rarteaga     KPLIAN    Inserta funcionario para bono de personal no vigente
  ********************************************************************************/
 DECLARE
   v_registros                    record;
   v_planilla                     record;
   v_planilla_prev                record;
   v_planilla_aux                 record;
-  v_pla_aux_novig                record;
   v_id_funcionario_planilla      integer;
   v_columnas                     record;
-  v_resp                         varchar;
-  v_nombre_funcion               text;
-  v_mensaje_error                text;
-  v_filtro_query                 varchar;
-  v_id_afp                       integer;
-  v_id_cuenta_bancaria           integer;
-  v_fecha_ini                    date;
-  v_entra                        varchar;
-  v_fecha_fin_planilla           date;
-  v_dias                         integer = 0;
-  v_tipo_contrato                varchar;
-  v_id_funcionario               integer = 0;
-  v_bandera                      integer;
-  v_main_query                   varchar;
+  v_resp                varchar;
+  v_nombre_funcion      text;
+  v_mensaje_error       text;
+  v_filtro_query            varchar;
+  v_id_afp                integer;
+  v_id_cuenta_bancaria    integer;
+  v_fecha_ini            date;
+  v_entra                varchar;
+  v_fecha_fin_planilla    date;
+  v_dias                integer = 0;
+  v_tipo_contrato        varchar;
+  v_id_funcionario        integer = 0;
+  v_bandera                integer;
+  v_main_query          varchar;
 
   v_fecha_ini_gestion   date;
   v_fecha_fin_gestion   date;
 
 BEGIN
 
-    v_nombre_funcion = 'plani.f_plaprivig_insert_empleados';
+    v_nombre_funcion = 'plani.f_bononovig_insert_empleados';
     v_filtro_query = '';
 
     -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
@@ -62,6 +56,8 @@ BEGIN
     -- la planilla de prima tiene costeo por que es solo el pago
     -- cada mes se provisiona en planilla de ajuste de beneficios sociales , en ese momento ejecuta presupeusto y aplica costeo
     -- el descuento de RC-IVA se lo realiza en la siguiente planilla de sueldos
+
+
 
     SELECT p.id_tipo_planilla,
            ges.fecha_ini,
@@ -77,6 +73,7 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN param.tgestion ges ON ges.id_gestion = p.id_gestion
     WHERE p.id_planilla = p_id_planilla;
+
 
     v_fecha_ini_gestion = v_planilla.fecha_ini;
     v_fecha_fin_gestion = v_planilla.fecha_fin;
@@ -94,11 +91,13 @@ BEGIN
        v_filtro_query = 'tcon.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
     end if;
 
+
     --------------------------------------------------------------------------------------------
     --   para generar esta planilla primero tiene que extar genera la panilla de prevsion de prima
     --   en esta planilla se considera os funcionario insertados previamente
     --   pero solo los que tiene contrato vigente a la fecha
     ------------------------------------------------------------------------------------------
+
 
     SELECT
           p.id_planilla,
@@ -108,10 +107,8 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PLAPREPRI';
+      AND tp.codigo = 'PREBOPRO';
 
-    --verifica si existe otra planillade personal vigente
-    -- esta ambas planillas debe ser de la misma fecha para tener un cálculo exacto
     SELECT
           p.id_planilla,
           p.fecha_planilla,
@@ -120,59 +117,40 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PLAPRIVIG';
+      AND tp.codigo = 'BONOVIG';
 
-    --si exsite alguna prima de no vigentes debe ser de la misma fecha
-    SELECT
-          p.id_planilla,
-          p.fecha_planilla,
-          p.estado
-    INTO v_pla_aux_novig
-    FROM plani.tplanilla p
-    INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
-    WHERE p.id_gestion = v_planilla.id_gestion
-      AND tp.codigo = 'PRINOVIG';
-
-    IF v_planilla_prev IS NULL THEN
-       raise exception 'primero  tiene que definir  su planilla de previsiones de prima';
+    IF v_planilla_aux IS NULL THEN
+       raise exception 'primero  tiene que definir  su planilla de bono para personal vigente';
     END IF;
 
-    IF v_planilla_prev.estado != 'finalizado' AND 0!=0  THEN --TODO deja pasar temporalmente
-       raise exception 'La planilla de previsiones de prima debe estar finalizada para proceder con la planilla de pagos';
-    END IF;
-
-    --verificar si eiste otra planilla del mismo tipo tiene que ser de la misma fecha
     IF v_planilla_aux.fecha_planilla !=  v_planilla.fecha_planilla THEN
-       raise exception 'Esta planilla debe tener la misma fecha que las otras planilla de personal vigente para tener un cálculo exacto (%)',v_planilla_aux.fecha_planilla ;
+       raise exception 'Esta planilla debe tener la misma fecha que la planilla de personal vigente para tener un cálculo exacto (%)', v_planilla_aux.fecha_planilla;
     END IF;
 
-    -- previficar que no exista la plnailla de no vigentes
-    IF v_pla_aux_novig.fecha_planilla !=  v_planilla.fecha_planilla THEN
-       raise exception 'Esta planilla debe tener la misma fecha que las otras planilla de personal no vigente para tener un cálculo exacto (%)',v_pla_aux_novig.fecha_planilla ;
+    IF v_planilla_aux.estado != 'finalizado' AND 0!=0  THEN --TODO deja pasar temporalmente
+       raise exception 'La planilla de previsiones de bono debe estar finalizada para proceder con la planilla de pagos';
     END IF;
 
-     v_main_query = '
+    v_main_query = '
                      SELECT
-                      DISTINCT ON (fp.id_funcionario)
-                      fp.id_funcionario,
-                      uofun.id_uo_funcionario,
-                      ofi.id_lugar,
-                      uofun.tipo,
-                      car.id_tipo_contrato,
-                      uofun.fecha_asignacion,
-                      COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion
+                            DISTINCT ON (fp.id_funcionario)
+                            fp.id_funcionario,
+                            uofun.id_uo_funcionario,
+                            ofi.id_lugar,
+                            uofun.tipo,
+                            car.id_tipo_contrato,
+                            uofun.fecha_asignacion,
+                            COALESCE(uofun.fecha_finalizacion,''01/01/3000'') as fecha_finalizacion
                       FROM plani.tfuncionario_planilla fp
                       INNER JOIN plani.tcolumna_valor cv ON     cv.id_funcionario_planilla = fp.id_funcionario_planilla
-                                                            AND cv.codigo_columna = ''PREPRIMA''
+                                                            AND cv.codigo_columna = ''PREBONO''
                                                             AND cv.valor > 0
                       INNER JOIN orga.tuo_funcionario uofun ON     fp.id_funcionario = uofun.id_funcionario
-                                                               AND (uofun.fecha_finalizacion IS NULL
-                                                                     OR
-                                                                    uofun.fecha_finalizacion >= '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla  #113
                       INNER JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                       INNER JOIN orga.toficina ofi ON car.id_oficina = ofi.id_oficina
                       INNER JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'',''EVE'')
                       WHERE uofun.estado_reg != ''inactivo''
+                            AND NOT plani.f_es_funcionario_vigente(fp.id_funcionario, '''||v_planilla.fecha_planilla::varchar||'''::Date)
                             AND uofun.tipo = ''oficial''
                             AND ' || v_filtro_query  || '   fp.id_planilla = '|| v_planilla_prev.id_planilla ||'
                             AND uofun.id_funcionario NOT IN (
@@ -184,6 +162,8 @@ BEGIN
                                                                   AND p.id_gestion = ' || v_planilla.id_gestion || ')
                       ORDER BY   fp.id_funcionario,
                                  fecha_finalizacion DESC ';
+
+
 
      raise notice '%',v_main_query;
 
@@ -250,7 +230,10 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$BODY$;
-
-ALTER FUNCTION plani.f_plaprivig_insert_empleados(integer)
-    OWNER TO postgres;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;

@@ -757,7 +757,7 @@ class MODFuncionarioReporte extends MODbase{
                 $this->captura('ctto2','text');
 				$this->captura('cargo','varchar');
 				$this->captura('gestion','integer');
-				
+			$this->captura('obs_fin','varchar');	
 		 $this->armarConsulta(); 		   
 		// echo '***15'.$this->getConsulta(); exit;
         //Ejecuta la instruccion
