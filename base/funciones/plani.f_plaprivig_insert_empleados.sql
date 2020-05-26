@@ -1,10 +1,15 @@
---------------- SQL ---------------
+-- FUNCTION: plani.f_plaprivig_insert_empleados(integer)
 
-CREATE OR REPLACE FUNCTION plani.f_plaprivig_insert_empleados (
-  p_id_planilla integer
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.f_plaprivig_insert_empleados(integer);
+
+CREATE OR REPLACE FUNCTION plani.f_plaprivig_insert_empleados(
+	p_id_planilla integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
  /**************************************************************************
    PLANI
   ***************************************************************************
@@ -14,12 +19,12 @@ $body$
    DESCRIP:  inserta a todo el personal al cual le corresponde pago de prima para la gestion
    Fecha: 16-04-2020
 
-
     HISTORIAL DE MODIFICACIONES:
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
 
  #113              16-04-2020       Rarteaga     KPLIAN    Inserta funcionario para prima de personal vigente
+ #113				19.05.2020		Mzambrana	 KPLIAN		Ajuste a funcion por fecha q coincide con la del retiro
  ********************************************************************************/
 DECLARE
   v_registros                    record;
@@ -58,8 +63,6 @@ BEGIN
     -- cada mes se provisiona en planilla de ajuste de beneficios sociales , en ese momento ejecuta presupeusto y aplica costeo
     -- el descuento de RC-IVA se lo realiza en la siguiente planilla de sueldos
 
-
-
     SELECT p.id_tipo_planilla,
            ges.fecha_ini,
            ges.fecha_fin,
@@ -74,7 +77,6 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN param.tgestion ges ON ges.id_gestion = p.id_gestion
     WHERE p.id_planilla = p_id_planilla;
-
 
     v_fecha_ini_gestion = v_planilla.fecha_ini;
     v_fecha_fin_gestion = v_planilla.fecha_fin;
@@ -92,7 +94,6 @@ BEGIN
        v_filtro_query = 'tcon.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
     end if;
 
-
     --------------------------------------------------------------------------------------------
     --   para generar esta planilla primero tiene que extar genera la panilla de prevsion de prima
     --   en esta planilla se considera os funcionario insertados previamente
@@ -109,7 +110,6 @@ BEGIN
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'PLAPREPRI';
 
-
     --verifica si existe otra planillade personal vigente
     -- esta ambas planillas debe ser de la misma fecha para tener un cálculo exacto
     SELECT
@@ -122,7 +122,6 @@ BEGIN
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'PLAPRIVIG';
 
-
     --si exsite alguna prima de no vigentes debe ser de la misma fecha
     SELECT
           p.id_planilla,
@@ -133,9 +132,6 @@ BEGIN
     INNER JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla = p.id_tipo_planilla
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'PRINOVIG';
-
-
-
 
     IF v_planilla_prev IS NULL THEN
        raise exception 'primero  tiene que definir  su planilla de previsiones de prima';
@@ -155,8 +151,6 @@ BEGIN
        raise exception 'Esta planilla debe tener la misma fecha que las otras planilla de personal no vigente para tener un cálculo exacto (%)',v_pla_aux_novig.fecha_planilla ;
     END IF;
 
-
-
      v_main_query = '
                      SELECT
                       DISTINCT ON (fp.id_funcionario)
@@ -174,7 +168,7 @@ BEGIN
                       INNER JOIN orga.tuo_funcionario uofun ON     fp.id_funcionario = uofun.id_funcionario
                                                                AND (uofun.fecha_finalizacion IS NULL
                                                                      OR
-                                                                    uofun.fecha_finalizacion > '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla
+                                                                    uofun.fecha_finalizacion >= '''||v_planilla.fecha_planilla::varchar||'''::Date)  --filtro por la fecha de pago de la planilla  #113
                       INNER JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
                       INNER JOIN orga.toficina ofi ON car.id_oficina = ofi.id_oficina
                       INNER JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'',''EVE'')
@@ -190,8 +184,6 @@ BEGIN
                                                                   AND p.id_gestion = ' || v_planilla.id_gestion || ')
                       ORDER BY   fp.id_funcionario,
                                  fecha_finalizacion DESC ';
-
-
 
      raise notice '%',v_main_query;
 
@@ -258,10 +250,7 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.f_plaprivig_insert_empleados(integer)
+    OWNER TO postgres;

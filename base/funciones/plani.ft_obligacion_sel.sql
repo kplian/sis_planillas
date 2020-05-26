@@ -36,6 +36,7 @@ AS $BODY$
  #83	ETR		  09.12.2019		MZM						Habilitacion de reporte para backup de planilla
  #88	ETR		  14.01.2020		MZM						Modificacion a PLA_ABOCUE_SEL para abono en planilla de aguinaldo
  #98	ETR		  23.03.2020		MZM						Inclusion de condiciones para manejo de personal activo/retirado y consolidado
+ #128	ETR		  25.05.2020		MZM						Adicion de columna para adecuar reporte por bancos en bono de produccion
 */
 
 DECLARE
@@ -321,7 +322,18 @@ BEGIN
 
                         ''Banco'' as tipo_pago,  tc.nombre as tipo_contrato, 
                          ofi.orden
-
+						,(select sum(cv.valor) 
+							from plani.tcolumna_valor cv 
+							inner join plani.ttipo_columna tcol on tcol.id_tipo_columna=cv.id_tipo_columna
+							inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+							inner join plani.vorden_planilla orden on orden.id_funcionario_planilla=fp.id_funcionario_planilla
+                           	inner join orga.tfuncionario_cuenta_bancaria cb on cb.id_funcionario=fp.id_funcionario
+							inner join param.tinstitucion inss on inss.id_institucion=cb.id_institucion
+							where cb.estado_reg=''activo'' and coalesce (cb.fecha_fin,plani.fecha_planilla)<=plani.fecha_planilla
+							and tcol.codigo=''APCAJ'' and orden.id_oficina=ofi.id_oficina
+                            and cb.id_institucion=ins.id_institucion
+                          	and fp.id_planilla=plani.id_planilla
+							) as caja_oficina --#128
                         from plani.tdetalle_transferencia df
                         inner join param.tinstitucion ins on ins.id_institucion = df.id_institucion
                         inner join plani.tobligacion o on o.id_obligacion = df.id_obligacion
@@ -338,11 +350,15 @@ BEGIN
                         v_consulta:=v_consulta||'
                         group by  tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre
+                        
+                        group by  tc.nombre , ofi.orden, 
+                        ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre,ofi.id_oficina, plani.fecha_planilla, ins.id_institucion, plani.id_planilla
+                        
                         union all
                         select ofi.nombre as oficina,sum(o.monto_obligacion) as monto_pagar ,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,''SIN BANCO'' as banco,
                         ''cheque'' as tipo_pago,  tc.nombre as tipo_contrato
-                        ,ofi.orden
+                        ,ofi.orden, 0.00 as caja_oficina
                         from plani.tobligacion o 
                         inner join plani.ttipo_obligacion tob on o.id_tipo_obligacion = tob.id_tipo_obligacion 
                         inner join plani.tplanilla plani on plani.id_planilla = o.id_planilla

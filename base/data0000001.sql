@@ -955,3 +955,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC13','PLASUE','13%
 /***********************************F-DAT-RAC-PLANI-124-18/05/2020****************************************/
 
 
+
+/***********************************I-DAT-MZM-PLANI-113-19/05/2020****************************************/
+select plani.f_import_ttipo_planilla ('insert','PLAPREPRI','Planilla de Prevision de Prima','PLASUB','plani.f_plaprepri_insert_empleados','prorrateo_aguinaldo','plani.f_plaprepri_valid_empleado','no','anual','',NULL,'activo');
+/***********************************F-DAT-MZM-PLANI-113-19/05/2020****************************************/

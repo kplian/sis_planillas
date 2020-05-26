@@ -16,7 +16,8 @@ HISTORIAL DE MODIFICACIONES:
 #78	ETR			    19-11-2019          RAC				    considerar esquema para origen de datos PLA_OBLI_SEL
 #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
-#98	ETR				04.03.2020			MZM			Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+#98	ETR				04.03.2020			MZM					Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
+#128ETR				25.05.2020			MZM					Adicion de columna para reporte por bancos (bono de produccion) 
  * 
  * */
 class MODObligacion extends MODbase{
@@ -201,7 +202,10 @@ class MODObligacion extends MODbase{
 		$this->captura('tipo_contrato','varchar');//#56
 		//$this->captura('desc_funcionario2','text');//#60
 		//$this->captura('nro_cuenta','varchar');//#60
+		
+		
 		$this->captura('orden','numeric');//#60
+		$this->captura('caja_oficina','numeric');//#128
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
 	//echo "****".$this->getConsulta(); exit;
