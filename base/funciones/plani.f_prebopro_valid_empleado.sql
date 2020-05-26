@@ -1,51 +1,65 @@
+--------------- SQL ---------------
+
+CREATE OR REPLACE FUNCTION plani.f_prebopro_valid_empleado (
+  p_id_usuario integer,
+  p_id_funcionario integer,
+  p_id_planilla integer,
+  p_forzar_cheque varchar,
+  p_finiquito varchar,
+  out o_id_funcionario_planilla integer,
+  out o_tipo_contrato varchar
+)
+RETURNS record AS
+$body$
  /**************************************************************************
    PLANI
   ***************************************************************************
    SCRIPT:
    COMENTARIOS:
    AUTOR:
-   DESCRIP:  inserta a todo el personal al cual le corresponde pago de bono de produccion
-   Fecha: 18-05-2020
+   DESCRIP:  inserta y valida un funcionario a la vez para planilla de prevision de bono de produccion
+   Fecha: 21-05-2020
 
     HISTORIAL DE MODIFICACIONES:
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
 
- #124           18-05-2020        RAC     KPLIAN             creacion
+ #124           21-05-2020        RAC     KPLIAN             creacion
  ********************************************************************************/
+
 DECLARE
-  v_registros            record;
+  v_registros           record;
   v_planilla            record;
-  v_id_funcionario_planilla    integer;
+  v_id_funcionario_planilla integer;
   v_columnas            record;
   v_resp                varchar;
   v_nombre_funcion      text;
   v_mensaje_error       text;
-  v_filtro_uo            varchar;
-  v_id_afp                integer;
-  v_id_cuenta_bancaria    integer;
-  v_fecha_ini            date;
-  v_entra                varchar;
-  v_fecha_fin_planilla    date;
-  v_dias                integer = 0;
+  v_filtro_uo           varchar;
+  v_existe              varchar;
+  v_fecha_ini       date;
+  v_cantidad_horas_mes  integer;
+  v_resultado           numeric;
+  v_tiene_incremento    integer;
+  v_id_escala           integer;
+  v_fecha_fin_planilla  date;
+  v_entra               varchar;
+  v_dias                integer;
+  v_tipo_planilla       record;
+  v_id_columna_valor    integer;
+  v_detalle     record;
+  v_main_query            varchar;
+
+  v_fecha_ini_gestion    date;
+  v_fecha_fin_gestion    date;
+  v_id_cuenta_bancaria   integer;
   v_tipo_contrato        varchar;
-  v_id_funcionario        integer = 0;
-  v_bandera                integer;
-  v_main_query          varchar;
-
-  v_fecha_ini_gestion   date;
-  v_fecha_fin_gestion   date;
-
 BEGIN
 
-    v_nombre_funcion = 'plani.f_prebopro_insert_empleados';
-    v_filtro_uo = '';
+    v_nombre_funcion = 'plani.f_prebopro_valid_empleado';
 
-    -- en planillas de prima ponemos la gestion por la cual vamos a pagar la prima
-    -- la fecha de la planilla de prima es la fecha en que se va pagar
-    -- la planilla de prima tiene costeo por que es solo el pago
-    -- cada mes se provisiona en planilla de ajuste de beneficios sociales , en ese momento ejecuta presupeusto y aplica costeo
-    -- el descuento de RC-IVA se lo realiza en la siguiente planilla de sueldos
+    v_existe = 'no';
+
 
     select
            p.id_tipo_planilla,
@@ -58,35 +72,20 @@ BEGIN
            ges.gestion,
            p.id_gestion,
            p.id_tipo_contrato
-           ,p.id_tipo_planilla -- #113
+           ,p.id_tipo_planilla
          into v_planilla
     from plani.tplanilla p
     left join param.tperiodo per on p.id_periodo = per.id_periodo
     inner join param.tgestion ges on ges.id_gestion = p.id_gestion
     where p.id_planilla = p_id_planilla;
 
+
+
     v_fecha_fin_planilla = ('31/12/' || v_planilla.gestion)::date; --se recupera la fecha del ulitmo dia la gestion que vamos a pagar
     v_fecha_ini_gestion = v_planilla.fecha_ini;
     v_fecha_fin_gestion = v_planilla.fecha_fin;
-    --si es necesario filtra los miembro de una determinada UO o por determinado tipo de contrato
 
-    if (v_planilla.id_uo is not null and v_planilla.id_tipo_contrato is not null) then
-        v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and tc.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
-    end if;
 
-    if (v_planilla.id_uo is not null and v_planilla.id_tipo_contrato is null) then
-        v_filtro_uo = ' uofun.id_uo in (' || orga.f_get_uos_x_planilla(v_planilla.id_uo) || ','|| v_planilla.id_uo ||') and ';
-    end if;
-
-    if (v_planilla.id_tipo_contrato is not null and v_planilla.id_uo is null)then
-       v_filtro_uo = 'tcon.id_tipo_contrato in (' ||v_planilla.id_tipo_contrato||') and ';
-    end if;
-
-    ------------------------------------------------------------------------------------------------------
-    -- si el empleado ya no trabaja en la empresa
-    -- no se lo condeira en esta planilla
-    -- por que no podemos retenerle el RC-IVA en la siguiente planilla de pago normal
-    -----------------------------------------------------------------------------------------------------
 
     v_main_query = 'WITH
 
@@ -97,6 +96,7 @@ BEGIN
                        JOIN orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'')
                        WHERE uofun.estado_reg != ''inactivo''
                          AND uofun.tipo = ''oficial''
+                         AND uofun.id_funcionario = ' || p_id_funcionario || '
                          and uofun.fecha_asignacion  <= '''||v_fecha_fin_gestion||'''
                     ),
 
@@ -129,8 +129,8 @@ BEGIN
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and tcon.codigo in (''PLA'')
                    WHERE uofun.estado_reg != ''inactivo''
                          AND uofun.tipo = ''oficial''
-                          and ' || v_filtro_uo  || '
-                          uofun.fecha_asignacion  <= '''|| v_planilla.fecha_planilla||'''  --para filtrar solo la asinacion anterioa la fecha de pago
+                         AND uofun.id_funcionario = ' || p_id_funcionario || '
+                         AND uofun.fecha_asignacion  <= '''|| v_planilla.fecha_planilla||'''  --para filtrar solo la asinacion anterioa la fecha de pago
 
                           and  uofun.id_funcionario not in (
                                                                                 select id_funcionario
@@ -176,73 +176,76 @@ BEGIN
            JOIN planta_gestion pg ON pg.id_funcionario = fq.id_funcionario ';
 
 
+    raise notice '.. %', v_main_query;
+
     for v_registros in execute(v_main_query)loop
 
-        v_entra = 'si';
-        v_bandera = 0;
 
-        --cuenta cuantos dias de ultimo contrato vigente del funcionario la gestion pasada
-       v_dias = v_registros.dias;
 
-              --v_id_funcionario = v_registros.id_funcionario;
+        v_dias = v_registros.dias;
 
-              -- si tiene mas de 90 en la gestion pasada
-              -- esta vigente y no fue registrado aun en planilla de primas
 
-              if (v_dias >= 90 ) then
+        if (v_dias > 90) then
+            select tp.*,p.id_gestion,p.estado into v_tipo_planilla
+            from plani.tplanilla p
+            inner join plani.ttipo_planilla tp
+                on tp.id_tipo_planilla = p.id_tipo_planilla
+            where p.id_planilla = p_id_planilla;
 
-                      -- recupera  cuenta bancaria y tipo de contrato
-                      v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla); --recuperamos la cuenta bancaria a la fecha de la planilla (fecha de pago)
-                      v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
+             -- recupera  cuenta bancaria y tipo de contrato
+             v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla); --recuperamos la cuenta bancaria a la fecha de la planilla (fecha de pago)
+             v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
 
-                      -- inserta el empelado en la planilla
+            INSERT INTO plani.tfuncionario_planilla (
+                id_usuario_reg,                    estado_reg,                    id_funcionario,
+                id_planilla,                        id_uo_funcionario,            id_lugar,
+                forzar_cheque,                    finiquito,                    id_afp,
+                id_cuenta_bancaria,                tipo_contrato)
+            VALUES (
+                v_planilla.id_usuario_reg,        'activo',                        v_registros.id_funcionario,
+                p_id_planilla,                    v_registros.id_uo_funcionario,  v_registros.id_lugar,
+                'no',                                'no',                            null,
+                v_id_cuenta_bancaria,                 v_tipo_contrato)
+             RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
 
-                      INSERT INTO plani.tfuncionario_planilla (
-                          id_usuario_reg,                    estado_reg,                    id_funcionario,
-                          id_planilla,                        id_uo_funcionario,            id_lugar,
-                          forzar_cheque,                    finiquito,                    id_afp,
-                          id_cuenta_bancaria,                tipo_contrato)
+            --inserta  la columnas configuradas en la planilla para el empleado
+            for v_columnas in (    select *
+                                  from plani.ttipo_columna
+                                  where id_tipo_planilla = v_planilla.id_tipo_planilla and estado_reg = 'activo' order by orden) loop
+                    INSERT INTO
+                        plani.tcolumna_valor
+                      (
+                        id_usuario_reg,
+                        estado_reg,
+                        id_tipo_columna,
+                        id_funcionario_planilla,
+                        codigo_columna,
+                        formula,
+                        valor,
+                        valor_generado
+                      )
                       VALUES (
-                          v_planilla.id_usuario_reg,        'activo',                        v_registros.id_funcionario,
-                          p_id_planilla,                    v_registros.id_uo_funcionario,  v_registros.id_lugar,
-                          'no',                                'no',                            v_id_afp,
-                          v_id_cuenta_bancaria,                 v_tipo_contrato)
-                       RETURNING id_funcionario_planilla into v_id_funcionario_planilla;
+                        v_planilla.id_usuario_reg,
+                        'activo',
+                        v_columnas.id_tipo_columna,
+                        v_id_funcionario_planilla,
+                        v_columnas.codigo,
+                        v_columnas.formula,
+                        0,
+                        0
+                      );
+            end loop;
 
-                      v_dias = 0;
 
-                      --inserta  la columnas configuradas en la planilla para el empleado
-                      for v_columnas in (    select *
-                                            from plani.ttipo_columna
-                                            where id_tipo_planilla = v_planilla.id_tipo_planilla and estado_reg = 'activo' order by orden) loop
-                              INSERT INTO
-                                  plani.tcolumna_valor
-                                (
-                                  id_usuario_reg,
-                                  estado_reg,
-                                  id_tipo_columna,
-                                  id_funcionario_planilla,
-                                  codigo_columna,
-                                  formula,
-                                  valor,
-                                  valor_generado
-                                )
-                                VALUES (
-                                  v_planilla.id_usuario_reg,
-                                  'activo',
-                                  v_columnas.id_tipo_columna,
-                                  v_id_funcionario_planilla,
-                                  v_columnas.codigo,
-                                  v_columnas.formula,
-                                  0,
-                                  0
-                                );
-                      end loop;
-              end if;
+            v_existe = 'si';
+            o_tipo_contrato = v_tipo_contrato;
+        end if;
 
     end loop;
-
-    return 'exito';
+    if (v_existe = 'no') then
+        raise exception 'No se puede añadir el funcionario a la planilla ya que no le corresponde entrar a esta planilla de bono de producción';
+    end if;
+    return;
 EXCEPTION
 
     WHEN OTHERS THEN
@@ -253,3 +256,11 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
+$body$
+LANGUAGE 'plpgsql'
+VOLATILE
+CALLED ON NULL INPUT
+SECURITY INVOKER
+PARALLEL UNSAFE
+COST 100;
+
