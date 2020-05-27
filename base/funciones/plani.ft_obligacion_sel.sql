@@ -278,11 +278,8 @@ BEGIN
           
           if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
           
-          		/*if(v_parametros.id_periodo is null) then
-                    v_fecha_backup:=(select fecha_fin from param.tgestion where id_gestion=v_parametros.id_gestion);
-                else
-                	v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
-                end if;*/
+              if(v_parametros.id_periodo is not null) then
+                    
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                       if(v_parametros.estado_funcionario='activo') then
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
@@ -315,6 +312,7 @@ BEGIN
                       end if;
                       
                   end if;
+                end if;
           end if;
             
            v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar,
@@ -329,7 +327,7 @@ BEGIN
 							inner join plani.vorden_planilla orden on orden.id_funcionario_planilla=fp.id_funcionario_planilla
                            	inner join orga.tfuncionario_cuenta_bancaria cb on cb.id_funcionario=fp.id_funcionario
 							inner join param.tinstitucion inss on inss.id_institucion=cb.id_institucion
-							where cb.estado_reg=''activo'' and coalesce (cb.fecha_fin,plani.fecha_planilla)<=plani.fecha_planilla
+							where cb.estado_reg=''activo'' and plani.fecha_planilla between cb.fecha_ini and coalesce(cb.fecha_fin, plani.fecha_planilla)
 							and tcol.codigo=''APCAJ'' and orden.id_oficina=ofi.id_oficina
                             and cb.id_institucion=ins.id_institucion
                           	and fp.id_planilla=plani.id_planilla
@@ -348,8 +346,8 @@ BEGIN
                         where ';
                         v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
                         v_consulta:=v_consulta||'
-                        group by  tc.nombre , ofi.orden,
-                        ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre
+                       -- group by  tc.nombre , ofi.orden,
+                       -- ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre
                         
                         group by  tc.nombre , ofi.orden, 
                         ofi.nombre ,o.tipo_pago, plani.id_periodo, ins.nombre,ofi.id_oficina, plani.fecha_planilla, ins.id_institucion, plani.id_planilla
