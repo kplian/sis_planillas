@@ -1,21 +1,21 @@
 /***********************************I-SCP-JRR-PLANI-0-16/01/2014****************************************/
 CREATE TABLE plani.tparametro_valor (
-  id_parametro_valor SERIAL, 
-  codigo VARCHAR(30) NOT NULL, 
-  nombre VARCHAR(200) NOT NULL, 
-  fecha_ini DATE NOT NULL, 
-  fecha_fin DATE, 
+  id_parametro_valor SERIAL,
+  codigo VARCHAR(30) NOT NULL,
+  nombre VARCHAR(200) NOT NULL,
+  fecha_ini DATE NOT NULL,
+  fecha_fin DATE,
   CONSTRAINT tparametro_valor_pkey PRIMARY KEY(id_parametro_valor)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.ttipo_planilla (
-  id_tipo_planilla SERIAL NOT NULL, 
-  codigo VARCHAR(10) NOT NULL, 
-  nombre VARCHAR(100) NOT NULL, 
-  id_proceso_macro INTEGER NOT NULL, 
-  funcion_obtener_empleados VARCHAR(200) NOT NULL, 
-  tipo_presu_cc VARCHAR(50) NOT NULL, 
+  id_tipo_planilla SERIAL NOT NULL,
+  codigo VARCHAR(10) NOT NULL,
+  nombre VARCHAR(100) NOT NULL,
+  id_proceso_macro INTEGER NOT NULL,
+  funcion_obtener_empleados VARCHAR(200) NOT NULL,
+  tipo_presu_cc VARCHAR(50) NOT NULL,
   PRIMARY KEY(id_tipo_planilla)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -27,15 +27,15 @@ ALTER TABLE plani.ttipo_planilla
 
 CREATE TABLE plani.ttipo_columna (
   id_tipo_columna SERIAL NOT NULL,
-  id_tipo_planilla INTEGER NOT NULL, 
-  codigo VARCHAR(30) NOT NULL, 
-  nombre VARCHAR(200) NOT NULL, 
-  tipo_dato VARCHAR(30) NOT NULL, 
-  descripcion TEXT NOT NULL, 
-  formula VARCHAR(255), 
-  compromete VARCHAR(15) NOT NULL, 
-  tipo_descuento_bono VARCHAR(30), 
-  decimales_redondeo INTEGER NOT NULL, 
+  id_tipo_planilla INTEGER NOT NULL,
+  codigo VARCHAR(30) NOT NULL,
+  nombre VARCHAR(200) NOT NULL,
+  tipo_dato VARCHAR(30) NOT NULL,
+  descripcion TEXT NOT NULL,
+  formula VARCHAR(255),
+  compromete VARCHAR(15) NOT NULL,
+  tipo_descuento_bono VARCHAR(30),
+  decimales_redondeo INTEGER NOT NULL,
   orden INTEGER NOT NULL,
   PRIMARY KEY(id_tipo_columna)
 ) INHERITS (pxp.tbase)
@@ -54,12 +54,12 @@ ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT chk__ttipo_columna__tipo_descuento_bono CHECK (((((tipo_descuento_bono)::text = 'monto_fijo_indefinido'::text) OR ((tipo_descuento_bono)::text = 'cantidad_cuotas'::text)) OR ((tipo_descuento_bono)::text = 'monto_fijo_por_fechas'::text)) OR (tipo_descuento_bono IS NULL) OR (tipo_descuento_bono = ''));
 
 CREATE TABLE plani.ttipo_obligacion (
-  id_tipo_obligacion SERIAL, 
-  id_tipo_planilla INTEGER NOT NULL, 
-  codigo VARCHAR(30) NOT NULL, 
-  nombre VARCHAR(150) NOT NULL, 
-  tipo_obligacion VARCHAR(30), 
-  dividir_por_lugar VARCHAR(2), 
+  id_tipo_obligacion SERIAL,
+  id_tipo_planilla INTEGER NOT NULL,
+  codigo VARCHAR(30) NOT NULL,
+  nombre VARCHAR(150) NOT NULL,
+  tipo_obligacion VARCHAR(30),
+  dividir_por_lugar VARCHAR(2),
   CONSTRAINT ttipo_obligacion_pkey PRIMARY KEY(id_tipo_obligacion)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -71,11 +71,11 @@ tipo_obligacion = 'pago_comun' or tipo_obligacion = 'una_obligacion_x_empleado')
 
 
 CREATE TABLE plani.ttipo_obligacion_columna (
-  id_tipo_obligacion_columna SERIAL NOT NULL, 
+  id_tipo_obligacion_columna SERIAL NOT NULL,
   id_tipo_obligacion INTEGER NOT NULL,
-  codigo_columna VARCHAR(30) NOT NULL, 
-  pago VARCHAR(2) NOT NULL, 
-  presupuesto VARCHAR(2) NOT NULL, 
+  codigo_columna VARCHAR(30) NOT NULL,
+  pago VARCHAR(2) NOT NULL,
+  presupuesto VARCHAR(2) NOT NULL,
   PRIMARY KEY(id_tipo_obligacion_columna)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -87,17 +87,17 @@ ALTER TABLE plani.ttipo_obligacion_columna
   ADD CONSTRAINT chk__ttipo_obligacion_columna__pago CHECK (pago='si' or pago = 'no');
 
 CREATE TABLE plani.treporte (
-  id_reporte SERIAL, 
+  id_reporte SERIAL,
   id_tipo_planilla INTEGER,
-  hoja_posicion VARCHAR(100) NOT NULL, 
-  titulo_reporte VARCHAR(200) NOT NULL, 
-  agrupar_por VARCHAR(20) NOT NULL, 
-  numerar VARCHAR(2) NOT NULL, 
-  mostrar_nombre VARCHAR(2) NOT NULL, 
-  mostrar_codigo_empleado VARCHAR(2) NOT NULL, 
-  mostrar_doc_id VARCHAR(2) NOT NULL, 
-  mostrar_codigo_cargo VARCHAR(2) NOT NULL, 
-  ordenar_por VARCHAR(25) NOT NULL, 
+  hoja_posicion VARCHAR(100) NOT NULL,
+  titulo_reporte VARCHAR(200) NOT NULL,
+  agrupar_por VARCHAR(20) NOT NULL,
+  numerar VARCHAR(2) NOT NULL,
+  mostrar_nombre VARCHAR(2) NOT NULL,
+  mostrar_codigo_empleado VARCHAR(2) NOT NULL,
+  mostrar_doc_id VARCHAR(2) NOT NULL,
+  mostrar_codigo_cargo VARCHAR(2) NOT NULL,
+  ordenar_por VARCHAR(25) NOT NULL,
   CONSTRAINT treporte_pkey PRIMARY KEY(id_reporte)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -110,32 +110,32 @@ ALTER TABLE plani.treporte
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__mostrar_codigo_empleado CHECK (mostrar_codigo_empleado='si' or mostrar_codigo_empleado = 'no');
-  
+
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__mostrar_doc_id CHECK (mostrar_doc_id='si' or mostrar_doc_id = 'no');
-  
+
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__mostrar_codigo_cargo CHECK (mostrar_codigo_cargo='si' or mostrar_codigo_cargo = 'no');
-  
+
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__hoja_posicion CHECK (((((hoja_posicion)::text = 'carta_vertical'::text) OR ((hoja_posicion)::text = 'carta_horizontal'::text)) OR ((hoja_posicion)::text = 'oficio_vertical'::text)) OR ((hoja_posicion)::text = 'oficio_horizontal'::text));
 
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text));
-  
+
 ALTER TABLE plani.treporte
-  ADD CONSTRAINT chk__treporte__ordenar_por CHECK (ordenar_por = 'nombre' or 
-ordenar_por = 'doc_id' or 
-ordenar_por = 'codigo_cargo' or 
+  ADD CONSTRAINT chk__treporte__ordenar_por CHECK (ordenar_por = 'nombre' or
+ordenar_por = 'doc_id' or
+ordenar_por = 'codigo_cargo' or
 ordenar_por = 'codigo_empleado');
 
 CREATE TABLE plani.treporte_columna (
-  id_reporte_columna SERIAL NOT NULL, 
-  id_reporte INTEGER NOT NULL, 
-  codigo_columna VARCHAR(30) NOT NULL, 
-  sumar_total VARCHAR(2) NOT NULL, 
-  ancho_columna INTEGER NOT NULL, 
+  id_reporte_columna SERIAL NOT NULL,
+  id_reporte INTEGER NOT NULL,
+  codigo_columna VARCHAR(30) NOT NULL,
+  sumar_total VARCHAR(2) NOT NULL,
+  ancho_columna INTEGER NOT NULL,
   orden INTEGER NOT NULL,
   PRIMARY KEY(id_reporte_columna)
 ) INHERITS (pxp.tbase)
@@ -150,45 +150,45 @@ ALTER TABLE plani.tparametro_valor
 
 CREATE UNIQUE INDEX ttipo_planilla_idx ON plani.ttipo_planilla
   USING btree (codigo);
-  
+
 ALTER TABLE plani.treporte
   ADD COLUMN ancho_total INTEGER DEFAULT 0 NOT NULL;
-  
+
 ALTER TABLE plani.treporte
   ADD COLUMN ancho_utilizado INTEGER DEFAULT 0 NOT NULL;
-  
+
 ALTER TABLE plani.ttipo_planilla
   ADD COLUMN funcion_validacion_nuevo_empleado VARCHAR(200) NOT NULL;
-  
+
 ALTER TABLE plani.ttipo_planilla
   ADD COLUMN calculo_horas VARCHAR(2) NOT NULL;
-  
+
 ALTER TABLE plani.ttipo_planilla
   ADD COLUMN periodicidad VARCHAR(8) NOT NULL;
-  
+
 CREATE TABLE plani.tafp (
-  id_afp SERIAL, 
-  nombre VARCHAR(300) NOT NULL, 
-  codigo VARCHAR NOT NULL, 
+  id_afp SERIAL,
+  nombre VARCHAR(300) NOT NULL,
+  codigo VARCHAR NOT NULL,
   CONSTRAINT tafp_pkey PRIMARY KEY(id_afp)
 ) INHERITS (pxp.tbase) WITHOUT OIDS;
 
 CREATE TABLE plani.tantiguedad (
-  id_antiguedad SERIAL, 
-  valor_min INTEGER NOT NULL, 
-  valor_max INTEGER NOT NULL, 
-  porcentaje NUMERIC NOT NULL, 
+  id_antiguedad SERIAL,
+  valor_min INTEGER NOT NULL,
+  valor_max INTEGER NOT NULL,
+  porcentaje NUMERIC NOT NULL,
   CONSTRAINT tantiguedad_pkey PRIMARY KEY(id_antiguedad)
 ) INHERITS (pxp.tbase) WITHOUT OIDS;
 
 CREATE TABLE plani.tfuncionario_afp (
-  id_funcionario_afp SERIAL, 
-  id_funcionario INTEGER NOT NULL, 
-  id_afp INTEGER NOT NULL, 
-  nro_afp VARCHAR(100), 
-  tipo_jubilado VARCHAR NOT NULL, 
+  id_funcionario_afp SERIAL,
+  id_funcionario INTEGER NOT NULL,
+  id_afp INTEGER NOT NULL,
+  nro_afp VARCHAR(100),
+  tipo_jubilado VARCHAR NOT NULL,
   fecha_ini DATE NOT NULL,
-  fecha_fin DATE, 
+  fecha_fin DATE,
   CONSTRAINT tfuncionario_afp_pkey PRIMARY KEY(id_funcionario_afp)
 )INHERITS (pxp.tbase) WITHOUT OIDS;
 
@@ -196,27 +196,27 @@ CREATE TABLE plani.tfuncionario_afp (
 
 
 CREATE TABLE plani.tdescuento_bono (
-  id_descuento_bono SERIAL, 
-  id_tipo_columna INTEGER NOT NULL, 
-  id_funcionario INTEGER NOT NULL, 
-  id_moneda INTEGER NOT NULL, 
-  monto_total NUMERIC, 
-  num_cuotas INTEGER, 
-  valor_por_cuota NUMERIC, 
-  fecha_ini DATE, 
-  fecha_fin DATE, 
+  id_descuento_bono SERIAL,
+  id_tipo_columna INTEGER NOT NULL,
+  id_funcionario INTEGER NOT NULL,
+  id_moneda INTEGER NOT NULL,
+  monto_total NUMERIC,
+  num_cuotas INTEGER,
+  valor_por_cuota NUMERIC,
+  fecha_ini DATE,
+  fecha_fin DATE,
   CONSTRAINT tdescuento_bono_pkey PRIMARY KEY(id_descuento_bono)
 )INHERITS (pxp.tbase) WITHOUT OIDS;
 
 ALTER TABLE plani.ttipo_columna
   ADD COLUMN finiquito VARCHAR(25) NOT NULL;
-  
+
 
 ALTER TABLE plani.ttipo_columna
   ADD CONSTRAINT chk__ttipo_columna__finiquito CHECK (((finiquito)::text = 'ejecutar'::text) OR ((finiquito)::text = 'restar_ejecutado'::text));
-  
+
 CREATE TABLE plani.tplanilla (
-  id_planilla SERIAL NOT NULL, 
+  id_planilla SERIAL NOT NULL,
   id_gestion INTEGER NOT NULL,
   id_depto INTEGER NOT NULL,
   id_periodo INTEGER,
@@ -227,63 +227,63 @@ CREATE TABLE plani.tplanilla (
   id_proceso_macro INTEGER NOT NULL,
   id_proceso_wf INTEGER,
   id_estado_wf INTEGER,
-  estado VARCHAR(50) NOT NULL, 
+  estado VARCHAR(50) NOT NULL,
   PRIMARY KEY(id_planilla)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tfuncionario_planilla (
-  id_funcionario_planilla SERIAL NOT NULL, 
+  id_funcionario_planilla SERIAL NOT NULL,
   id_funcionario INTEGER NOT NULL,
   id_planilla INTEGER NOT NULL,
   id_uo_funcionario INTEGER NOT NULL,
   id_lugar INTEGER NOT NULL,
   forzar_cheque VARCHAR(2) NOT NULL,
-  finiquito VARCHAR(2) NOT NULL, 
+  finiquito VARCHAR(2) NOT NULL,
   PRIMARY KEY(id_funcionario_planilla)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.thoras_trabajadas (
-  id_horas_trabajadas SERIAL NOT NULL, 
+  id_horas_trabajadas SERIAL NOT NULL,
   id_uo_funcionario INTEGER NOT NULL,
   id_funcionario_planilla INTEGER NOT NULL,
-  horas_normales NUMERIC(10,2) DEFAULT 0 NOT NULL, 
-  horas_extras NUMERIC(10,2) DEFAULT 0 NOT NULL, 
-  horas_nocturnas NUMERIC(10,2) DEFAULT 0 NOT NULL, 
-  horas_disponibilidad NUMERIC(10,2) DEFAULT 0 NOT NULL, 
-  tipo_contrato VARCHAR(10) NOT NULL, 
-  sueldo NUMERIC(18,2) NOT NULL, 
-  fecha_ini DATE NOT NULL, 
-  fecha_fin DATE NOT NULL, 
+  horas_normales NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  horas_extras NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  horas_nocturnas NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  horas_disponibilidad NUMERIC(10,2) DEFAULT 0 NOT NULL,
+  tipo_contrato VARCHAR(10) NOT NULL,
+  sueldo NUMERIC(18,2) NOT NULL,
+  fecha_ini DATE NOT NULL,
+  fecha_fin DATE NOT NULL,
   porcentaje_sueldo NUMERIC(18,2),
   PRIMARY KEY(id_horas_trabajadas)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 ALTER TABLE plani.tfuncionario_planilla
-  ADD CONSTRAINT chk__tfuncionario_planilla__finiquito 
+  ADD CONSTRAINT chk__tfuncionario_planilla__finiquito
   CHECK (finiquito = 'si' or finiquito = 'no');
-  
+
 ALTER TABLE plani.tfuncionario_planilla
-  ADD CONSTRAINT chk__tfuncionario_planilla__forzar_cheque 
+  ADD CONSTRAINT chk__tfuncionario_planilla__forzar_cheque
   CHECK (forzar_cheque = 'si' or forzar_cheque = 'no');
-  
+
 CREATE TABLE plani.tcolumna_valor (
   id_columna_valor SERIAL NOT NULL,
   id_tipo_columna INTEGER NOT NULL,
-  id_funcionario_planilla INTEGER NOT NULL, 
-  codigo_columna VARCHAR(30) NOT NULL, 
-  formula VARCHAR(255), 
-  valor NUMERIC(18,2) NOT NULL, 
-  valor_generado NUMERIC(18,2) NOT NULL,  
+  id_funcionario_planilla INTEGER NOT NULL,
+  codigo_columna VARCHAR(30) NOT NULL,
+  formula VARCHAR(255),
+  valor NUMERIC(18,2) NOT NULL,
+  valor_generado NUMERIC(18,2) NOT NULL,
   PRIMARY KEY(id_columna_valor)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 ALTER TABLE plani.thoras_trabajadas
   ADD COLUMN zona_franca VARCHAR(2);
-  
+
 ALTER TABLE plani.thoras_trabajadas
   ADD COLUMN frontera VARCHAR(2);
 
@@ -293,37 +293,37 @@ ALTER TABLE plani.thoras_trabajadas
 
 ALTER TABLE plani.treporte
   ADD COLUMN control_reporte VARCHAR(200);
-  
+
 ALTER TABLE plani.treporte_columna
   ADD COLUMN titulo_reporte_superior VARCHAR(30);
-  
+
 ALTER TABLE plani.treporte_columna
   ADD COLUMN titulo_reporte_inferior VARCHAR(30);
-  
+
 /***********************************F-SCP-JRR-PLANI-0-10/02/2014****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-23/02/2014****************************************/
 
 CREATE TABLE plani.tprorrateo (
-  id_prorrateo SERIAL NOT NULL, 
-  id_funcionario_planilla INTEGER, 
-  id_horas_trabajadas INTEGER, 
-  id_presupuesto INTEGER, 
-  id_cc INTEGER, 
-  tipo_prorrateo VARCHAR(15) NOT NULL, 
-  porcentaje NUMERIC(5,2) NOT NULL, 
+  id_prorrateo SERIAL NOT NULL,
+  id_funcionario_planilla INTEGER,
+  id_horas_trabajadas INTEGER,
+  id_presupuesto INTEGER,
+  id_cc INTEGER,
+  tipo_prorrateo VARCHAR(15) NOT NULL,
+  porcentaje NUMERIC(5,2) NOT NULL,
   PRIMARY KEY(id_prorrateo)
-) INHERITS (pxp.tbase) 
+) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tprorrateo_columna (
   id_prorrateo_columna SERIAL NOT NULL,
   id_prorrateo INTEGER NOT NULL,
-  id_tipo_columna INTEGER NOT NULL,  
-  codigo_columna VARCHAR(30) NOT NULL, 
-  porcentaje NUMERIC(5,2) NOT NULL, 
+  id_tipo_columna INTEGER NOT NULL,
+  codigo_columna VARCHAR(30) NOT NULL,
+  porcentaje NUMERIC(5,2) NOT NULL,
   PRIMARY KEY(id_prorrateo_columna)
-) INHERITS (pxp.tbase) 
+) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tconsolidado (
@@ -333,22 +333,22 @@ CREATE TABLE plani.tconsolidado (
   id_cc INTEGER,
   tipo_consolidado VARCHAR(15) NOT NULL,
   PRIMARY KEY(id_consolidado)
-) INHERITS (pxp.tbase) 
+) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tconsolidado_columna (
   id_consolidado_columna SERIAL NOT NULL,
   id_consolidado INTEGER NOT NULL,
-  id_tipo_columna INTEGER NOT NULL,  
+  id_tipo_columna INTEGER NOT NULL,
   codigo_columna VARCHAR(30) NOT NULL,
-  valor NUMERIC(18,2) NOT NULL, 
+  valor NUMERIC(18,2) NOT NULL,
   valor_ejecutado NUMERIC(18,2) DEFAULT 0,
   id_partida INTEGER,
   id_cuenta INTEGER,
   id_auxiliar INTEGER,
   tipo_contrato VARCHAR(20) NOT NULL,
   PRIMARY KEY(id_consolidado_columna)
-) INHERITS (pxp.tbase) 
+) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-23/02/2014****************************************/
@@ -357,7 +357,7 @@ WITHOUT OIDS;
 
 ALTER TABLE plani.tcolumna_valor
   ALTER COLUMN valor TYPE NUMERIC(18,10);
-  
+
 ALTER TABLE plani.tcolumna_valor
   ALTER COLUMN valor_generado TYPE NUMERIC(18,10);
 
@@ -366,15 +366,15 @@ ALTER TABLE plani.tcolumna_valor
 /***********************************I-SCP-JRR-PLANI-0-08/07/2014****************************************/
 ALTER TABLE plani.ttipo_columna
   ALTER COLUMN formula TYPE VARCHAR(500);
-  
+
 /***********************************F-SCP-JRR-PLANI-0-08/07/2014****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-09/07/2014****************************************/
 ALTER TABLE plani.ttipo_obligacion
   ADD COLUMN es_pagable VARCHAR(2) DEFAULT 'si' NOT NULL;
-  
+
 ALTER TABLE plani.ttipo_obligacion_columna
-  ADD COLUMN es_ultimo VARCHAR(2) DEFAULT 'no' NOT NULL;  
+  ADD COLUMN es_ultimo VARCHAR(2) DEFAULT 'no' NOT NULL;
 
 ALTER TABLE plani.tprorrateo_columna
   ADD COLUMN compromete VARCHAR(2) DEFAULT 'si' NOT NULL;
@@ -390,45 +390,45 @@ ALTER TABLE plani.tfuncionario_planilla
 
 ALTER TABLE plani.tfuncionario_planilla
   ADD COLUMN id_cuenta_bancaria INTEGER;
-    
+
 /***********************************F-SCP-JRR-PLANI-0-09/07/2014****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-11/07/2014****************************************/
 CREATE TABLE plani.tobligacion (
-  id_obligacion SERIAL NOT NULL, 
+  id_obligacion SERIAL NOT NULL,
   id_tipo_obligacion INTEGER NOT NULL,
-  id_planilla INTEGER NOT NULL, 
-  id_cuenta INTEGER, 
-  id_auxiliar INTEGER, 
-  tipo_pago VARCHAR(50) NOT NULL, 
-  acreedor VARCHAR(255) NOT NULL, 
-  descripcion varchar(500), 
-  monto_obligacion NUMERIC (18,2) NOT NULL,   
-  PRIMARY KEY(id_obligacion) 
+  id_planilla INTEGER NOT NULL,
+  id_cuenta INTEGER,
+  id_auxiliar INTEGER,
+  tipo_pago VARCHAR(50) NOT NULL,
+  acreedor VARCHAR(255) NOT NULL,
+  descripcion varchar(500),
+  monto_obligacion NUMERIC (18,2) NOT NULL,
+  PRIMARY KEY(id_obligacion)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tobligacion_columna (
-  id_obligacion_columna SERIAL NOT NULL, 
+  id_obligacion_columna SERIAL NOT NULL,
   id_obligacion INTEGER NOT NULL,
-  id_presupuesto INTEGER, 
-  id_cc INTEGER, 
-  id_tipo_columna INTEGER, 
-  codigo_columna VARCHAR(50) NOT NULL, 
-  tipo_contrato VARCHAR(5) NOT NULL, 
+  id_presupuesto INTEGER,
+  id_cc INTEGER,
+  id_tipo_columna INTEGER,
+  codigo_columna VARCHAR(50) NOT NULL,
+  tipo_contrato VARCHAR(5) NOT NULL,
   monto_detalle_obligacion NUMERIC (18,2) NOT NULL,
-  PRIMARY KEY (id_obligacion_columna) 
+  PRIMARY KEY (id_obligacion_columna)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tdetalle_transferencia (
-  id_detalle_transferencia SERIAL NOT NULL, 
+  id_detalle_transferencia SERIAL NOT NULL,
   id_obligacion INTEGER NOT NULL,
-  id_institucion INTEGER NOT NULL, 
-  nro_cuenta VARCHAR(50) NOT NULL, 
-  id_funcionario INTEGER NOT NULL, 
-  monto_transferencia NUMERIC(18,2) NOT NULL,   
-  PRIMARY KEY (id_detalle_transferencia) 
+  id_institucion INTEGER NOT NULL,
+  nro_cuenta VARCHAR(50) NOT NULL,
+  id_funcionario INTEGER NOT NULL,
+  monto_transferencia NUMERIC(18,2) NOT NULL,
+  PRIMARY KEY (id_detalle_transferencia)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
@@ -438,13 +438,13 @@ WITHOUT OIDS;
 
 ALTER TABLE plani.tplanilla
   ADD COLUMN id_obligacion_pago INTEGER;
-  
+
 ALTER TABLE plani.tconsolidado_columna
   ADD COLUMN id_obligacion_det INTEGER;
-  
+
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_plan_pago INTEGER;
-  
+
 
 /***********************************F-SCP-JRR-PLANI-0-17/11/2014****************************************/
 
@@ -452,20 +452,20 @@ ALTER TABLE plani.tobligacion
 
 ALTER TABLE plani.tplanilla
   ADD COLUMN requiere_calculo VARCHAR(2) DEFAULT 'no' NOT NULL;
-  
+
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_partida INTEGER;
-  
+
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_afp INTEGER;
-  
+
 /***********************************F-SCP-JRR-PLANI-0-20/11/2014****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-02/12/2014****************************************/
 
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_obligacion_pago INTEGER;
-  
+
 
 /***********************************F-SCP-JRR-PLANI-0-02/12/2014****************************************/
 /***********************************I-SCP-JRR-PLANI-0-04/12/2014****************************************/
@@ -473,33 +473,33 @@ ALTER TABLE plani.tobligacion
 
 ALTER TABLE plani.tplanilla
   ADD COLUMN fecha_planilla DATE;
-  
+
 ALTER TABLE plani.ttipo_columna
-  ADD COLUMN tiene_detalle VARCHAR(2) DEFAULT 'no' NOT NULL;  
-  
+  ADD COLUMN tiene_detalle VARCHAR(2) DEFAULT 'no' NOT NULL;
+
 CREATE TABLE plani.tcolumna_detalle (
-  id_columna_detalle SERIAL NOT NULL, 
+  id_columna_detalle SERIAL NOT NULL,
   id_horas_trabajadas INTEGER NOT NULL,
-  id_columna_valor INTEGER NOT NULL, 
+  id_columna_valor INTEGER NOT NULL,
   valor NUMERIC(18,10) NOT NULL,
-  valor_generado NUMERIC(18,10) NOT NULL,   
-  PRIMARY KEY (id_columna_detalle) 
+  valor_generado NUMERIC(18,10) NOT NULL,
+  PRIMARY KEY (id_columna_detalle)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE INDEX tcolumna_detalle_idx1 ON plani.tcolumna_detalle
   USING btree (id_horas_trabajadas);
-  
+
 CREATE INDEX tcolumna_detalle_idx2 ON plani.tcolumna_detalle
   USING btree (id_columna_valor);
-  
+
 ALTER TABLE plani.tfuncionario_planilla
-  ADD COLUMN tipo_contrato VARCHAR;  
+  ADD COLUMN tipo_contrato VARCHAR;
 
 ALTER TABLE plani.thoras_trabajadas
   ADD COLUMN horas_normales_contrato NUMERIC(10,2);
 
-  
+
 /***********************************F-SCP-JRR-PLANI-0-04/12/2014****************************************/
 
 
@@ -511,7 +511,7 @@ ALTER TABLE plani.ttipo_planilla
   ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (tipo_presu_cc = 'parametrizacion' OR tipo_presu_cc = 'ultimo_activo_periodo' OR tipo_presu_cc = 'prorrateo_aguinaldo' OR tipo_presu_cc = 'retroactivo_sueldo' OR tipo_presu_cc = 'retroactivo_asignaciones');
 
 ALTER TABLE plani.tprorrateo
-  ADD COLUMN tipo_contrato VARCHAR(10);  
+  ADD COLUMN tipo_contrato VARCHAR(10);
 
 /***********************************F-SCP-JRR-PLANI-0-10/07/2015****************************************/
 
@@ -519,25 +519,25 @@ ALTER TABLE plani.tprorrateo
 /***********************************I-SCP-JRR-PLANI-0-20/07/2015****************************************/
 
 ALTER TABLE plani.tprorrateo
-  ADD COLUMN porcentaje_dias NUMERIC(5,2); 
-  
-/***********************************F-SCP-JRR-PLANI-0-20/07/2015****************************************/ 
+  ADD COLUMN porcentaje_dias NUMERIC(5,2);
+
+/***********************************F-SCP-JRR-PLANI-0-20/07/2015****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-29/07/2015****************************************/
 
 ALTER TABLE plani.tprorrateo
-  ADD COLUMN id_oficina INTEGER; 
-  
+  ADD COLUMN id_oficina INTEGER;
+
 ALTER TABLE plani.tprorrateo
   ADD COLUMN id_lugar INTEGER;
-  
+
 ALTER TABLE plani.tprorrateo_columna
-  ADD COLUMN id_oficina INTEGER; 
-  
+  ADD COLUMN id_oficina INTEGER;
+
 ALTER TABLE plani.tprorrateo_columna
-  ADD COLUMN id_lugar INTEGER; 
-  
-/***********************************F-SCP-JRR-PLANI-0-29/07/2015****************************************/ 
+  ADD COLUMN id_lugar INTEGER;
+
+/***********************************F-SCP-JRR-PLANI-0-29/07/2015****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-29/08/2015****************************************/
  -- object recreation
@@ -546,50 +546,50 @@ ALTER TABLE plani.ttipo_planilla
 
 ALTER TABLE plani.ttipo_planilla
   ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text));
-  
+
 /***********************************F-SCP-JRR-PLANI-0-29/08/2015****************************************/
 
 
 /***********************************I-SCP-JRR-PLANI-0-22/09/2015****************************************/
 
 CREATE TABLE plani.tplanilla_sigma (
-  id_planilla_sigma SERIAL NOT NULL, 
-  id_funcionario INTEGER NOT NULL, 
+  id_planilla_sigma SERIAL NOT NULL,
+  id_funcionario INTEGER NOT NULL,
   id_periodo INTEGER,
   id_gestion INTEGER NOT NULL,
   id_tipo_planilla INTEGER NOT NULL,
-  sueldo_liquido numeric NOT NULL,   
+  sueldo_liquido numeric NOT NULL,
   PRIMARY KEY(id_planilla_sigma)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 CREATE TABLE plani.tsigma_equivalencias (
-  ci_sigma VARCHAR NOT NULL, 
+  ci_sigma VARCHAR NOT NULL,
   ci_erp VARCHAR NOT NULL
-) 
+)
 WITHOUT OIDS;
 
 /***********************************F-SCP-JRR-PLANI-0-22/09/2015****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-29/10/2015****************************************/
 CREATE TABLE plani.tlicencia (
-  id_licencia SERIAL NOT NULL, 
-  id_funcionario INTEGER NOT NULL, 
+  id_licencia SERIAL NOT NULL,
+  id_funcionario INTEGER NOT NULL,
   motivo TEXT NOT NULL,
   desde DATE NOT NULL,
   hasta DATE NOT NULL,
   estado VARCHAR NOT NULL,
-  id_tipo_licencia INTEGER NOT NULL,   
+  id_tipo_licencia INTEGER NOT NULL,
   PRIMARY KEY(id_licencia)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
 
 
 CREATE TABLE plani.ttipo_licencia (
-  id_tipo_licencia SERIAL NOT NULL, 
-  codigo VARCHAR(20) NOT NULL, 
+  id_tipo_licencia SERIAL NOT NULL,
+  codigo VARCHAR(20) NOT NULL,
   nombre VARCHAR (100) NOT NULL,
-  genera_descuento VARCHAR(2) NOT NULL,   
+  genera_descuento VARCHAR(2) NOT NULL,
   PRIMARY KEY(id_tipo_licencia)
 ) INHERITS (pxp.tbase)
 WITHOUT OIDS;
@@ -603,7 +603,7 @@ ALTER TABLE plani.ttipo_planilla
 
 ALTER TABLE plani.ttipo_planilla
   ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((((((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text)) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text)) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text)) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text));
-  
+
 
 /***********************************F-SCP-JRR-PLANI-0-31/12/2015****************************************/
 
@@ -611,40 +611,40 @@ ALTER TABLE plani.ttipo_planilla
 
 ALTER TABLE plani.treporte
   ADD COLUMN tipo_reporte VARCHAR(200) DEFAULT 'planilla' NOT NULL;
-  
+
 ALTER TABLE plani.treporte_columna
   ADD COLUMN tipo_columna VARCHAR(200) DEFAULT 'otro';
- 
+
 ALTER TABLE plani.treporte_columna
   ADD CONSTRAINT chk__treporte_columna__tipo_columna CHECK (tipo_columna::text = 'ingreso'::text OR tipo_columna::text = 'descuento_ley'::text OR tipo_columna::text = 'otros_descuentos'::text OR tipo_columna::text = 'iva'::text OR tipo_columna::text = 'otro'::text);
-  
+
 /***********************************F-SCP-JRR-PLANI-0-28/02/2016****************************************/
 
 
 /***********************************I-SCP-JRR-PLANI-0-10/04/2016****************************************/
 
 ALTER TABLE plani.ttipo_planilla
-  ADD COLUMN funcion_calculo_horas VARCHAR(200);  
+  ADD COLUMN funcion_calculo_horas VARCHAR(200);
 
 /***********************************F-SCP-JRR-PLANI-0-10/04/2016****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-13/04/2016****************************************/
 
 ALTER TABLE plani.ttipo_planilla
-  ADD COLUMN recalcular_desde INTEGER;  
-  
+  ADD COLUMN recalcular_desde INTEGER;
+
 ALTER TABLE plani.ttipo_columna
-  ADD COLUMN recalcular varchar(2) DEFAULT 'no' NOT NULL; 
+  ADD COLUMN recalcular varchar(2) DEFAULT 'no' NOT NULL;
 
 /***********************************F-SCP-JRR-PLANI-0-13/04/2016****************************************/
 
 /***********************************I-SCP-JRR-PLANI-0-25/04/2016****************************************/
 
 ALTER TABLE plani.tplanilla
-  ADD COLUMN id_int_comprobante INTEGER; 
+  ADD COLUMN id_int_comprobante INTEGER;
 
 ALTER TABLE plani.tconsolidado_columna
-  ADD COLUMN id_int_transaccion INTEGER; 
+  ADD COLUMN id_int_transaccion INTEGER;
 
 /***********************************F-SCP-JRR-PLANI-0-25/04/2016****************************************/
 
@@ -673,7 +673,7 @@ ALTER TABLE plani.tplanilla
 
 ALTER TABLE plani.ttipo_obligacion
   ADD COLUMN id_tipo_obligacion_agrupador INTEGER;
-  
+
 CREATE TABLE plani.ttipo_obligacion_agrupador (
   id_tipo_obligacion_agrupador SERIAL,
   codigo_plantilla_comprobante VARCHAR,
@@ -709,8 +709,8 @@ WITH (oids = false);
 
 ALTER TABLE plani.ttipo_obligacion_agrupador
   ADD COLUMN descripcion VARCHAR;
-  
-  
+
+
   --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion_agrupador
@@ -719,8 +719,8 @@ ALTER TABLE plani.tobligacion_agrupador
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
  --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion_agrupador
@@ -729,13 +729,13 @@ ALTER TABLE plani.tobligacion_agrupador
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
     --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion
   ADD COLUMN id_obligacion_agrupador INTEGER;
-  
-     
+
+
 --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion
@@ -744,22 +744,22 @@ ALTER TABLE plani.tobligacion
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
+
  --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion_agrupador
-  ADD COLUMN tipo_pago VARCHAR(50);  
-  
+  ADD COLUMN tipo_pago VARCHAR(50);
+
 --------------- SQL ---------------
 
 ALTER TABLE plani.ttipo_obligacion
-  ADD COLUMN descripcion VARCHAR; 
-  
+  ADD COLUMN descripcion VARCHAR;
+
   --------------- SQL ---------------
 
 ALTER TABLE plani.tobligacion_agrupador
   ADD COLUMN id_int_comprobante INTEGER;
-  
+
   --------------- SQL ---------------
 
 --------------- SQL ---------------
@@ -784,7 +784,7 @@ ALTER TABLE plani.tobligacion
   ADD COLUMN id_funcionario INTEGER;
 
 COMMENT ON COLUMN plani.tobligacion.id_funcionario
-IS 'para identificar obligaciones por funcionario';  
+IS 'para identificar obligaciones por funcionario';
 
 
 --------------- SQL ---------------
@@ -850,8 +850,8 @@ ALTER TABLE plani.tobligacion
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-    
-    
+
+
 --------------- SQL ---------------
 
  -- object recreation
@@ -859,16 +859,16 @@ ALTER TABLE plani.ttipo_planilla
   DROP CONSTRAINT chk__ttipo_planilla__tipo_presu_cc RESTRICT;
 
 ALTER TABLE plani.ttipo_planilla
-  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text)  OR ((tipo_presu_cc)::text = 'hoja_calculo'::text) ); 
-    
-    
+  ADD CONSTRAINT chk__ttipo_planilla__tipo_presu_cc CHECK (((tipo_presu_cc)::text = 'parametrizacion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_periodo'::text) OR ((tipo_presu_cc)::text = 'prorrateo_aguinaldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_sueldo'::text) OR ((tipo_presu_cc)::text = 'retroactivo_asignaciones'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion'::text) OR ((tipo_presu_cc)::text = 'ultimo_activo_gestion_anterior'::text)  OR ((tipo_presu_cc)::text = 'hoja_calculo'::text) );
+
+
  --------------- SQL ---------------
 
 ALTER TABLE plani.tprorrateo
   ADD COLUMN tipo_horario VARCHAR(15) DEFAULT 'normal' NOT NULL;
 
 COMMENT ON COLUMN plani.tprorrateo.tipo_horario
-IS 'normal,  extra o  nocturno,  tipo de horario prorrateado';  
+IS 'normal,  extra o  nocturno,  tipo de horario prorrateado';
 
 --------------- SQL ---------------
 
@@ -877,8 +877,8 @@ ALTER TABLE plani.tprorrateo
 
 COMMENT ON COLUMN plani.tprorrateo.calculado_resta
 IS 'indica se se calculo por resta';
- 
-    
+
+
 /***********************************F-SCP-EGS-PLANI-0-05/02/2019****************************************/
 /***********************************I-SCP-EGS-PLANI-1-07/03/2019****************************************/
 ALTER TABLE plani.tlicencia
@@ -940,9 +940,9 @@ ALTER TABLE plani.tplanilla
 
 ALTER TABLE plani.tplanilla
   ALTER COLUMN dividir_comprobante SET DEFAULT 'no';
-  
+
 ALTER TABLE plani.tplanilla
-  ADD COLUMN id_tipo_contrato INTEGER; 
+  ADD COLUMN id_tipo_contrato INTEGER;
 /***********************************F-SCP-MMV-PLANI-5-30/04/2019****************************************/
 
 
@@ -1053,14 +1053,14 @@ IS 'si o no, incluye columnas marcacados como reintegro_rciva,  si no es no el v
 /***********************************I-SCP-MZM-PLANI-32-02/09/2019****************************************/
 ALTER TABLE plani.treporte
   ADD COLUMN id_pie_firma INTEGER;
-  
+
 ALTER TABLE plani.treporte
   ADD CONSTRAINT fk_treporte__id_pie_firma FOREIGN KEY (id_pie_firma)
     REFERENCES param.tpie_firma(id_pie_firma)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
     NOT DEFERRABLE;
-/***********************************F-SCP-MZM-PLANI-32-02/09/2019****************************************/    
+/***********************************F-SCP-MZM-PLANI-32-02/09/2019****************************************/
 /***********************************I-SCP-MZM-PLANI-58-30/09/2019****************************************/
 
 ALTER TABLE plani.ttipo_obligacion
@@ -1073,19 +1073,19 @@ ALTER TABLE plani.treporte
   ALTER COLUMN mostrar_ufv SET DEFAULT 'no';
  /***********************************F-SCP-MZM-PLANI-58-30/09/2019****************************************/
 
- 
+
 /***********************************I-SCP-MZM-PLANI-60-01/10/2019****************************************/
 ALTER TABLE plani.treporte
   ADD COLUMN incluir_retirados VARCHAR(2);
 
 ALTER TABLE plani.treporte
   ALTER COLUMN incluir_retirados SET DEFAULT 'no';
-/***********************************F-SCP-MZM-PLANI-60-01/10/2019****************************************/  
+/***********************************F-SCP-MZM-PLANI-60-01/10/2019****************************************/
 
 /***********************************I-SCP-MZM-PLANI-65-10/10/2019****************************************/
 ALTER TABLE plani.treporte
   ADD COLUMN id_moneda_reporte INTEGER;
-/***********************************F-SCP-MZM-PLANI-65-10/10/2019****************************************/  
+/***********************************F-SCP-MZM-PLANI-65-10/10/2019****************************************/
 
 
 /***********************************I-SCP-RAC-PLANI-68-24/10/2019****************************************/
@@ -1515,7 +1515,7 @@ ALTER TABLE plani.treporte
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text) or (ordenar_por='organigrama'));
 
-  
+
 /***********************************F-SCP-MZM-PLANI-82-28/11/2019****************************************/
 
 /***********************************I-SCP-MZM-PLANI-100-05/03/2020****************************************/
@@ -1525,3 +1525,21 @@ ALTER TABLE plani.ttipo_planilla
 ALTER TABLE plani.ttipo_planilla
   ALTER COLUMN habilitar_impresion_boleta SET DEFAULT 'no';
 /***********************************F-SCP-MZM-PLANI-100-05/03/2020****************************************/
+
+
+
+/***********************************I-SCP-RAC-PLANI-124-13/05/2020****************************************/
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN calcular_bono_rciva VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tplanilla.calcular_bono_rciva
+IS 'si o no, incluye columnas marcadas para arrastrar el rc-iva de la planillas de bonos de personal vigente';
+
+
+/***********************************F-SCP-RAC-PLANI-124-13/05/2020****************************************/
+
+
+

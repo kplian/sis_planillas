@@ -5,6 +5,7 @@ HISTORIAL DE MODIFICACIONES:
 
  ISSUE        FORK			FECHA:		      AUTOR                 DESCRIPCION
 #103		endeetr		01/04/2020		Rensi Arteaga KPLIAN	crearonformulario de envio de boletas de pago
+#130					27/05/2020		MZM	KPLIAN				Modificacion de texto para envio por correo
 */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -20,14 +21,12 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
 
     loadValoresIniciales:function()
     {
-
-        var CuerpoCorreo = " <b>Gerencia Administrativa Financiera</b><br/>" ;
-        CuerpoCorreo+= '<b>Planilla: '+ this.nro_planilla+'</b><br/>';
-        CuerpoCorreo+='Se adjunta la boleta de Pago correspondiente a '+this.text_rep_boleta+'<BR/>';
-
+		//#130
+        var CuerpoCorreo = " Estimado Colaborador: <br/><br/>" ;
+        CuerpoCorreo+='En archivo adjunto encontrará su boleta de pago correspondiente al mes de '+this.text_rep_boleta.replace('de','')+'.<BR/><br/>';
+		CuerpoCorreo+= 'Gerencia de Administración y Finanzas<br/><br/>';
         Phx.vista.CorreoBoleta.superclass.loadValoresIniciales.call(this);
-
-        this.getComponente('asunto').setValue(' Boleta de Pago: '+ this.nombre_planilla );
+        this.getComponente('asunto').setValue(' Boleta de Pago '+ this.text_rep_boleta.replace('de','')  );
         this.getComponente('body').setValue(CuerpoCorreo);
         this.getComponente('id_tipo_planilla').setValue(this.id_tipo_planilla);
         this.getComponente('id_gestion').setValue(this.id_gestion);
