@@ -43,7 +43,7 @@ AS $BODY$
  #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
  #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
  #125	ETR				14.05.2020			MZM					Reporte para planillas de prima vigente y no vigente
- #124	ETR				21.05.2020			MZM					Reporte para planillas de bono de produccion
+ #124	ETR				21.05.2020			MZM					Adecuacion de reporte prima para bono de produccion
  ***************************************************************************/
 
 DECLARE
@@ -2798,7 +2798,7 @@ raise notice '***:%',v_consulta;
 					  		 inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
                       	';
                 v_col:= '(nivel.oficina||''*''||inst.nombre)';
-               
+              
               else 
               	v_col:= '(nivel.oficina||''*'')';
                
@@ -2823,7 +2823,9 @@ raise notice '***:%',v_consulta;
                       	tcon.nombre
 					  	, colval.codigo_columna, colval.valor, plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO1'') as ctto1,
                       	plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO2'') as ctto2,
-                      	car.nombre, ges.gestion
+                      	car.nombre, ges.gestion, (select observaciones_finalizacion from orga.tuo_funcionario  
+                        where id_uo_funcionario=
+                         fp.id_uo_funcionario) as obs_fin
                       	from plani.vorden_planilla  nivel
                       	inner join plani.tfuncionario_planilla fp on 
                   		fp.id_funcionario_planilla=nivel.id_funcionario_planilla
