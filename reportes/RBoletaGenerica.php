@@ -7,7 +7,7 @@
  * #80		ETR			MZM		28.11.2019	Ajuste formato numeric
  * #83		ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
  * #98		ETR			MZM		04.03.2020	Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
- * 
+ * #130		ETR			MZM		27.05.2020	Cambio en subtitulo de boleta mensual
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -108,8 +108,8 @@ class RBoletaGenerica extends  ReportePDF {
 					    //#98 
 						if ($this->objParam->getParametro('consolidar')=='si'){
 							$tipo_bol=$tipo_bol. ' acumulado a '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
-						}else{
-							$tipo_bol=$tipo_bol. ' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+						}else{ 
+							$tipo_bol=$tipo_bol. ' del mes de '.$this->datos_titulo['periodo'].' '.$this->datos_titulo['gestion'];//#130
 						}
 						
 						
@@ -318,7 +318,7 @@ class RBoletaGenerica extends  ReportePDF {
 						if ($this->objParam->getParametro('consolidar')=='si'){
 							$tipo_bol=$tipo_bol. ' acumulado a '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
 						}else{
-							$tipo_bol=$tipo_bol. ' del Mes de '.$this->datos_titulo['periodo'].' de '.$this->datos_titulo['gestion'];
+							$tipo_bol=$tipo_bol. ' del mes de '.$this->datos_titulo['periodo'].' '.$this->datos_titulo['gestion'];//#130
 						}
 						
 						
