@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_planilla_sel(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_planilla_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    SISTEMA:        Sistema de Planillas
    FUNCION:         plani.ft_planilla_sel
@@ -32,6 +37,7 @@ $body$
    #107   ETR             16/03/2020            MZM KPLIAN           listar ultima planilla segun tipo_planilla enviado
    #103   ETR             06/04/2020            MZM KPLIAN           adicion de campo imprimir_boleta para bloquear boton envio de boletas por correo (en pantalla de planillas)
    #124   ETR             13/05/2020            RAC KPLIAN           Registrar calcular_bono_rciva
+   #130	  ETR			  27/05/2020			MZM KPLIAN			 Modificacion glosa para envio de boletas por correo
  ***************************************************************************/
 
 
@@ -151,7 +157,7 @@ $body$
                         tippla.sw_devengado,  --#79
                         '''||v_config_gen_cbte_pago||'''::varchar as sw_pago --#79
                         ,tippla.habilitar_impresion_boleta --#103
-                        , (tippla.nombre ||pxp.f_iif( tippla.periodicidad=''anual'','' de la gestion ''||ges.gestion, '' del mes de ''||param.f_get_periodo_literal(plani.id_periodo)))::varchar as text_rep_boleta
+                        , (pxp.f_iif( tippla.periodicidad=''anual'',tippla.nombre||'' ''||ges.gestion, ''''||param.f_get_periodo_literal(plani.id_periodo)))::varchar as text_rep_boleta --#130
                         ,calcular_bono_rciva --#124
                   from plani.tplanilla plani
                   inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
@@ -1524,10 +1530,7 @@ $body$
       v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
       raise exception '%',v_resp;
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
