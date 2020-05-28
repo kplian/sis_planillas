@@ -188,7 +188,7 @@ class RPlanillaPrimaXls
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				
 			   
-			   
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){   
 				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){	
 	               		$this->docexcel->getActiveSheet()->getStyle('A3:N3')->getAlignment()->setWrapText(true);
 		                $this->docexcel->getActiveSheet()->getStyle('D3:L3')->applyFromArray($styleTitulos2);
@@ -414,7 +414,205 @@ class RPlanillaPrimaXls
 				$id_fun=$value['id_funcionario'];
 				}
 					
+			}else{// bono de produccion
+			     if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){	
+	               		$this->docexcel->getActiveSheet()->getStyle('A3:J3')->getAlignment()->setWrapText(true);
+		                $this->docexcel->getActiveSheet()->getStyle('A4:J4')->applyFromArray($styleTitulos1);
+						$tit_rep='PLANILLA DE BONO DE PRODUCCION';
+						$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');
+						
+						if($this->objParam->getParametro('fecha_backup')!=''){
+							$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
+						}
+						$this->docexcel->getActiveSheet()->mergeCells("A1:J1"); 
+						$this->docexcel->getActiveSheet()->mergeCells("A2:J2");
+
+							
+						
+	             }else{
+	             		$this->docexcel->getActiveSheet()->getStyle('A3:N3')->getAlignment()->setWrapText(true);
+		                
+						$this->docexcel->getActiveSheet()->getStyle('A4:N4')->applyFromArray($styleTitulos1);
+						//$this->docexcel->getActiveSheet()->getColumnDimension('T3')->setWidth(15);
+						$tit_rep='BONO DE PRODUCCION POR PAGAR - PERSONAL RETIRADO';
+						$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');
+						if($this->objParam->getParametro('fecha_backup')!=''){
+							$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
+						}
+						$this->docexcel->getActiveSheet()->mergeCells("A1:N1");
+						$this->docexcel->getActiveSheet()->mergeCells("A2:N2");
+						
+						
+								
+						
+	             }
+				 
+				 $this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
+				 $this->docexcel->getActiveSheet()->getStyle('A1')->applyFromArray($styleTitulos3);//-----
+				 $this->docexcel->getActiveSheet()->getStyle('A2')->applyFromArray($styleTitulos3);
+				 $this->docexcel->getActiveSheet()->setCellValue('A2', $datos[0]['gestion']);
+			 
+				 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(2,5);
+				
+                 $fila=5;
+                 $this->numero=1;
+                 //$columna = 8;
+
+                 $total_bono = 0;
+                 $total_sueldo = 0;
+                 $total_frontera = 0;
+                 $this->docexcel->getActiveSheet()->setTitle('PlanillaBonoProd');
+                 $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
+                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(35);//nombre
+                 $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(35);//nombre
+                 $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(12);//pres
+                 $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(12);//ci
+                 $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(8);//funcionario
+                 $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);//cargo
+                 $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(12);//fecha
+                 
+                 if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+                 	$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(8);
+					$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(12);
+					
+				 }else{
+				 	$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(12);//ci
+	                $this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(8);//funcionario
+	                $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(12);
+					$this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(12);
+					$this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(12);
+					$this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(12);
+				 }
+                 
+                 
+	                $this->docexcel->getActiveSheet()->setCellValue('A4','Codigo');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B4','Nombre');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('C4','Cargo');//3
+	                $this->docexcel->getActiveSheet()->setCellValue('D4','Fecha Ing.');//8
+				
+				if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+					$this->docexcel->getActiveSheet()->setCellValue('E4','Dias Trab.');//9
+					$this->docexcel->getActiveSheet()->setCellValue('F4','Cot. Prom');//10
+					$this->docexcel->getActiveSheet()->setCellValue('G4','Bono Prod.');//11
+					$this->docexcel->getActiveSheet()->setCellValue('H4','Importe a Pagar');//12
+					$this->docexcel->getActiveSheet()->setCellValue('I4','Aporte Pat CPS');//13
+					$this->docexcel->getActiveSheet()->setCellValue('J4','Costo Total');//14
+					
+				}else{
+					$this->docexcel->getActiveSheet()->setCellValue('E4','Fecha Ret.');//9
+					$this->docexcel->getActiveSheet()->setCellValue('F4','Motivo Ret.');//10
+					$this->docexcel->getActiveSheet()->setCellValue('G4','Dias Trab.');//11
+					$this->docexcel->getActiveSheet()->setCellValue('H4','Cotizble Prom.');//12
+					$this->docexcel->getActiveSheet()->setCellValue('I4','% Obtenido en Eval.');//13
+					$this->docexcel->getActiveSheet()->setCellValue('J4','Incentivo Desempeño');//14
+					$this->docexcel->getActiveSheet()->setCellValue('K4','13% RC-IVA');//15
+					$this->docexcel->getActiveSheet()->setCellValue('L4','Importe a Pagar');//16
+					$this->docexcel->getActiveSheet()->setCellValue('M4','Aporte Pat. CPS');//16
+					$this->docexcel->getActiveSheet()->setCellValue('N4','Costo Total');//16
+				}
+			
+			
+			    $cont=0;
+				$fecha_novedad='';
+				$novedad='';
+				$dias='';
+				$id_fun=0;
+				$id_distrito='';
+				foreach ($datos as $value){
+					$cont++;
+					
+				    if($id_fun!=$value['id_funcionario']){
+				    	
+						if($id_distrito!=$value['desc_oficina']){
+							if($id_distrito!='') $fila++;
+							$this->docexcel->getActiveSheet()->getStyle("A".$fila.":D".$fila)->applyFromArray($styleTitulos4);
+						    $this->docexcel->getActiveSheet()->mergeCells("A".$fila.":D".$fila);
+					    	$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['desc_oficina']);
+							if($id_distrito=='') $fila++;
+						}
+						
+						
+					    if($id_fun!=0) 	$fila++;
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['codigo']); 
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['desc_funcionario']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$value['cargo']);
+						
+						if($value['ctto2']!='#@@@#'){
+							$ff=$value['ctto2'];
+							$aa=substr($ff, 0,4);
+							$mm=substr($ff, 5,2);
+							$dd=substr($ff, 8,2);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$dd.'/'.$mm.'/'.$aa);
+							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){
+								$aa=substr($ff, 15,4);
+								$mm=substr($ff, 20,2);
+								$dd=substr($ff, 23,2);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$dd.'/'.$mm.'/'.$aa);
+							}
+						} 
+						
+						if($value['codigo_columna']=='APCAJ' ){
+							if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila ,$value['valor']);
+							else {
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
+							}
+						}
+						if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){
+							
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['obs_fin']);
+						}
+						
+					}else{
+						
+						if ($value['codigo_columna']=='PREDIAS2'){
+						    if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['valor']);
+							else 
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['valor']);
+						}
+						elseif ($value['codigo_columna']=='PREPROME2'){
+							if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['valor']);
+							else 
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,$value['valor']);
+						}elseif ($value['codigo_columna']=='BONO'){
+							if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['valor']);
+							else{
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila ,$value['valor']);
+							} 
+						}elseif ($value['codigo_columna']=='LIQPAG'){
+							if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,$value['valor']);
+							else 
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila ,$value['valor']);
+						}elseif ($value['codigo_columna']=='CTOTAL'){
+							if($this->objParam->getParametro('codigo_planilla')=='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila ,$value['valor']);
+							else 
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$value['valor']);
+						}elseif ($value['codigo_columna']=='PORCBONO'){
+							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila ,$value['valor']);
+							
+						}elseif ($value['codigo_columna']=='IMPDET'){
+							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG')
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
+							
+						}
+						
+						
+						
+						
+					}
+				$id_distrito=$value['desc_oficina'];	 
+				$id_fun=$value['id_funcionario'];
+				}
+			
+			
 			}
+		}
         
     }
     function obtenerFechaEnLetra($fecha){
