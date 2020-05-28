@@ -793,8 +793,8 @@ select wf.f_import_ttipo_proceso ('insert','PLASUB',NULL,NULL,'PLASUB','Planilla
 --   planila de prevision de bono de produccion
 --------------------------------------------------------------------------
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
---Configuracion TIPO PLANILLA   
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
 ---------------------------------
 
 select plani.f_import_ttipo_planilla ('insert','PREBOPRO','Planilla de Prevision de Bono de Producción','PLASUB','plani.f_prebopro_insert_empleados','prorrateo_aguinaldo','plani.f_prebopro_valid_empleado','no','anual','',NULL,'activo');
@@ -810,14 +810,14 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PREBOPRO','P
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -858,7 +858,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','BONOVIG','Tota
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
@@ -873,7 +873,7 @@ select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','BONOV
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -887,8 +887,8 @@ select plani.f_import_treporte_columna('insert','BONO','BOLETA DE PAGO : INCENTI
 ---------------------------------
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
---Configuracion TIPO PLANILLA   
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
 ---------------------------------
 
 select plani.f_import_ttipo_planilla ('insert','BONONOVIG','Planilla de Bono NO vigentes','PLASUB','plani.f_bononovig_insert_empleados','prorrateo_aguinaldo','plani.f_bononovig_valid_empleado','no','anual','',NULL,'activo');
@@ -911,7 +911,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','BONONOVIG','To
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
@@ -929,7 +929,7 @@ select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','BONON
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -961,10 +961,10 @@ select plani.f_import_ttipo_planilla ('insert','PLAPREPRI','Planilla de Previsio
 
 /***********************************I-DAT-RAC-PLANI-129-27/05/2020****************************************/
 
+
 INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
 VALUES
-  (E'plani_reset_return_borrador_var_columnas', E'false', E'resetar valores de las columnsa variables al retornar al estado borrador inicial de la planillas');
-
+  (E'plani_reset_variables_modificadas', E'false', E'resetar valores modificads por el usario al volver al estado registro de funcionarios');
 
 /***********************************F-DAT-RAC-PLANI-129-27/05/2020****************************************/
 
