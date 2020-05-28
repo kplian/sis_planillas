@@ -616,7 +616,9 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$t_dias2=$t_dias2+$array_datos[$i][9];
 					$t_prom2=$t_prom2+$array_datos[$i][14]; $t_prima=$t_prima+$array_datos[$i][15];
-					$t_13=$t_13+($array_datos[$i][15]*0.13); $t_iva=$t_iva+$array_datos[$i][16]; 
+					$t_13=$t_13+($array_datos[$i][15]*0.13);
+					
+					 $t_iva=$t_iva+$array_datos[$i][16]; 
 					$t_des=$t_des+$array_datos[$i][7]; $t_lq=$t_lq+$array_datos[$i][17];
 					
 					$this->Ln(-1);
@@ -784,7 +786,7 @@ class RPlanillaPrima extends  ReportePDF {
 				$this->Cell(25,5,number_format($t_cot3,2,'.',','),'TB',1,'R');
 			
 		}else{
-		$s_dias2=0;
+					$s_dias2=0;
 					$s_prom2=0;
 					$s_dias1=0; //porc 22
 					$s_prima=0; $s_13=0; 
@@ -845,7 +847,7 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_prom2=$s_prom2+$array_datos[$i][14]; 
 					$s_dias1=$s_dias1+$array_datos[$i][22];//porc
 					$s_prima=$s_prima+$array_datos[$i][20];
-					$s_13=$s_13+($array_datos[$i][20]*0.13); 
+					$s_13=$s_13+($array_datos[$i][7]); 
 					$s_lq=$s_lq+$array_datos[$i][17];
 					$s_cot1=$s_cot1+$array_datos[$i][19];
 					$s_cot2=$s_cot2+$array_datos[$i][23];
@@ -854,7 +856,7 @@ class RPlanillaPrima extends  ReportePDF {
 					$t_prom2=$t_prom2+$array_datos[$i][14]; 
 					$t_dias1=$t_dias1+$array_datos[$i][22];//porc
 					$t_prima=$t_prima+$array_datos[$i][20];
-					$t_13=$t_13+($array_datos[$i][20]*0.13); 
+					$t_13=$t_13+($array_datos[$i][7]); 
 					$t_lq=$t_lq+$array_datos[$i][17];
 					$t_cot1=$t_cot1+$array_datos[$i][19];
 					$t_cot2=$t_cot2+$array_datos[$i][23];
@@ -890,7 +892,7 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_prom2=$s_prom2+$array_datos[$i][14]; 
 					$s_dias1=$s_dias1+$array_datos[$i][22];//porc
 					$s_prima=$s_prima+$array_datos[$i][20];
-					$s_13=$s_13+($array_datos[$i][20]*0.13); 
+					$s_13=$s_13+($array_datos[$i][7]); 
 					$s_lq=$s_lq+$array_datos[$i][17];
 					$s_cot1=$s_cot1+$array_datos[$i][19];
 					$s_cot2=$s_cot2+$array_datos[$i][23];
@@ -899,7 +901,7 @@ class RPlanillaPrima extends  ReportePDF {
 					$t_prom2=$t_prom2+$array_datos[$i][14]; 
 					$t_dias1=$t_dias1+$array_datos[$i][22];//porc
 					$t_prima=$t_prima+$array_datos[$i][20];
-					$t_13=$t_13+($array_datos[$i][20]*0.13); 
+					$t_13=$t_13+($array_datos[$i][7]); 
 					$t_lq=$t_lq+$array_datos[$i][17];
 					$t_cot1=$t_cot1+$array_datos[$i][19];
 					$t_cot2=$t_cot2+$array_datos[$i][23];
