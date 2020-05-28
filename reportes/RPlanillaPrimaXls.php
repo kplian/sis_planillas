@@ -1,7 +1,8 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas 
+ #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
+ #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion 
 */
 class RPlanillaPrimaXls
 {
