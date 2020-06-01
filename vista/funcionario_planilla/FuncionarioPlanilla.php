@@ -9,8 +9,10 @@ HISTORIAL DE MODIFICACIONES:
 ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #29 ETR        20/08/2019               MMV          Columna Codigo Funcionario
 #62 ETR        01/10/2019               RAC          Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
-#83	ETR			09.12.2019				MZM			Habilitacion de reporte para backup de planilla 
-*/
+#83	ETR		   09.12.2019				MZM			 Habilitacion de reporte para backup de planilla
+#129 ETR       28.05.2020               RAC          Funcionalidad para actulizar formulas y columnas sn eliminas la planillas
+
+ * */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -21,29 +23,39 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		this.maestro=config.maestro;
     	//llama al constructor de la clase padre
 		Phx.vista.FuncionarioPlanilla.superclass.constructor.call(this,config);
-		this.init();	
+		this.init();
 		this.addButton('btnBoleta',
             {
             	text:'Boleta',
                 iconCls: 'bpdf32',
-                disabled: true,                               
+                disabled: true,
                 handler: this.onButtonBoleta,
-                tooltip: 'Boleta de Pago'                
+                tooltip: 'Boleta de Pago'
             }
-        );	
-        
+        );
+
         this.addButton('btnSincBancos',
             {	grupo:[0,1,2],
                 iconCls: 'bmoney',
                 text:'Sinc Banco y Afp',
-                disabled: true,                
+                disabled: true,
                 handler: this.onSincBancosAfp,
-                tooltip: 'Busca y AFP  bancos para los empleados que no tienan estos datos al crear la planilla'                
+                tooltip: 'Busca y AFP  bancos para los empleados que no tienan estos datos al crear la planilla'
             }
         );
-        
+        //#129
+        this.addButton('btnSincColumnas',
+            {   grupo:[0,1,2],
+                iconCls: 'blist',
+                text:'Sinc Columnas',
+                disabled: true,
+                handler: this.onSincColumnas,
+                tooltip: 'Sincronizar las columnas y configuracion nuevas, en estado registro de funcionarios'
+            }
+        );
+
 	},
-			
+
 	Atributos:[
 		{
 			//configuracion del componente
@@ -53,7 +65,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_funcionario_planilla'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			//configuracion del componente
@@ -63,16 +75,16 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 					name: 'id_planilla'
 			},
 			type:'Field',
-			form:true 
+			form:true
 		},
 		{
 			config:{
 				name: 'ci',
-				fieldLabel: 'CI',				
+				fieldLabel: 'CI',
 				gwidth: 100
 			},
 				type:'TextField',
-				filters:{pfiltro:'funcio.ci',type:'string'},				
+				filters:{pfiltro:'funcio.ci',type:'string'},
 				grid:true,
 				form:false,
                 bottom_filter : true
@@ -96,7 +108,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
    				gwidth: 300,
    				fieldLabel:'Funcionario',
    				allowBlank:false,
-   				  				
+
    				valueField: 'id_funcionario',
    			    gdisplayField: 'desc_funcionario2',
       			renderer:function(value, p, record){return String.format('{0}', record.data['desc_funcionario2']);}
@@ -106,36 +118,36 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
    			filters:{pfiltro:'funcio.desc_funcionario1',
 				type:'string'
 			},
-   		   
+
    			grid:true,
    			form:true,
             bottom_filter : true
    	      },
-   	      
+
    	      {
 			config:{
 				name: 'tipo_contrato',
-				fieldLabel: 'Tipo Contrato',				
+				fieldLabel: 'Tipo Contrato',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'funplan.tipo_contrato',type:'string'},				
+				filters:{pfiltro:'funplan.tipo_contrato',type:'string'},
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'desc_cargo',
-				fieldLabel: 'Cargo',				
+				fieldLabel: 'Cargo',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'c.nombre#c.codigo',type:'string'},				
+				filters:{pfiltro:'c.nombre#c.codigo',type:'string'},
 				grid:true,
 				form:false
 		},
-		 
+
 		{
 			config:{
 				name: 'finiquito',
@@ -150,9 +162,9 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				store:['si','no']
 			},
 				type:'ComboBox',
-				filters:{	
+				filters:{
 	       		         type: 'list',
-	       				 options: ['si','no'],	
+	       				 options: ['si','no'],
 	       		 	},
 				id_grupo:1,
 				grid:true,
@@ -172,77 +184,77 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				store:['si','no']
 			},
 				type:'ComboBox',
-				filters:{	
+				filters:{
 	       		         type: 'list',
-	       				 options: ['si','no'],	
+	       				 options: ['si','no'],
 	       		 	},
 				id_grupo:1,
 				grid:true,
 				form:true
 		},
-		
-		
-		
+
+
+
 		{
 			config:{
 				name: 'lugar',
-				fieldLabel: 'Lugar',				
+				fieldLabel: 'Lugar',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'lug.nombre',type:'string'},				
+				filters:{pfiltro:'lug.nombre',type:'string'},
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'afp',
-				fieldLabel: 'Afp',				
+				fieldLabel: 'Afp',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'afp.nombre',type:'string'},				
+				filters:{pfiltro:'afp.nombre',type:'string'},
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'nro_afp',
-				fieldLabel: 'No AFP',				
+				fieldLabel: 'No AFP',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'fafp.nro_afp',type:'string'},				
+				filters:{pfiltro:'fafp.nro_afp',type:'string'},
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'banco',
-				fieldLabel: 'Banco',				
+				fieldLabel: 'Banco',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'ins.nombre',type:'string'},				
+				filters:{pfiltro:'ins.nombre',type:'string'},
 				grid:true,
 				form:false
 		},
-		
+
 		{
 			config:{
 				name: 'nro_cuenta',
-				fieldLabel: 'No Cuenta',				
+				fieldLabel: 'No Cuenta',
 				gwidth: 120
 			},
 				type:'TextField',
-				filters:{pfiltro:'fcb.nro_cuenta',type:'string'},				
+				filters:{pfiltro:'fcb.nro_cuenta',type:'string'},
 				grid:true,
 				form:false
 		},
-				
+
 		{
 			config:{
 				name: 'estado_reg',
@@ -280,7 +292,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -311,7 +323,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				allowBlank: true,
 				anchor: '80%',
 				gwidth: 100,
-							format: 'd/m/Y', 
+							format: 'd/m/Y',
 							renderer:function (value,p,record){return value?value.dateFormat('d/m/Y H:i:s'):''}
 			},
 				type:'DateField',
@@ -321,7 +333,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 				form:false
 		}
 	],
-	tam_pag:50,	
+	tam_pag:50,
 	title:'Funcionario Planilla',
 	ActSave:'../../sis_planillas/control/FuncionarioPlanilla/insertarFuncionarioPlanilla',
 	ActDel:'../../sis_planillas/control/FuncionarioPlanilla/eliminarFuncionarioPlanilla',
@@ -345,15 +357,15 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 		{name:'fecha_mod', type: 'date',dateFormat:'Y-m-d H:i:s.u'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		
+
 		{name:'lugar', type: 'string'},
 		{name:'afp', type: 'string'},
 		{name:'nro_afp', type: 'string'},
 		{name:'banco', type: 'string'},
-		{name:'nro_cuenta', type: 'string'}	,	
+		{name:'nro_cuenta', type: 'string'}	,
 		{name:'ci', type: 'string'},
         {name:'desc_codigo', type: 'string'} //#29
-		
+
 	],
 	sortInfo:{
 		field: 'desc_funcionario2',
@@ -361,7 +373,7 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 	},
 	bdel:true,
 	bsave:true,
-	onReloadPage:function(m){       
+	onReloadPage:function(m){
 		this.maestro=m;
 		this.store.baseParams.id_planilla = this.maestro.id_planilla;
 		this.load({params:{start:0, limit:this.tam_pag}});
@@ -370,32 +382,32 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
 	},
 	loadValoresIniciales:function()
     {
-        this.Cmp.id_planilla.setValue(this.maestro.id_planilla); 
-        this.Cmp.forzar_cheque.setValue('no'); 
-        this.Cmp.finiquito.setValue('no');       
+        this.Cmp.id_planilla.setValue(this.maestro.id_planilla);
+        this.Cmp.forzar_cheque.setValue('no');
+        this.Cmp.finiquito.setValue('no');
         Phx.vista.FuncionarioPlanilla.superclass.loadValoresIniciales.call(this);
     },
     onButtonEdit : function () {
 		this.ocultarComponente(this.Cmp.id_funcionario);
     	Phx.vista.FuncionarioPlanilla.superclass.onButtonEdit.call(this);
-    	
+
     },
     onButtonNew : function () {
     	this.mostrarComponente(this.Cmp.id_funcionario);
     	Phx.vista.FuncionarioPlanilla.superclass.onButtonNew.call(this);
-    	
+
     },
     liberaMenu:function()
-    {	
-        this.getBoton('btnBoleta').disable();      
+    {
+        this.getBoton('btnBoleta').disable();
         Phx.vista.FuncionarioPlanilla.superclass.liberaMenu.call(this);
     },
     preparaMenu:function()
-    {	
-        this.getBoton('btnBoleta').enable();          
+    {
+        this.getBoton('btnBoleta').enable();
         Phx.vista.FuncionarioPlanilla.superclass.preparaMenu.call(this);
     },
-    onButtonBoleta : function() {            
+    onButtonBoleta : function() {
             var data=this.sm.getSelected().data;
             Phx.CP.loadingShow();
             Ext.Ajax.request({
@@ -405,16 +417,16 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
                 		'id_periodo' : this.maestro.id_periodo,
                 		'id_funcionario_planilla' : data.id_funcionario_planilla,
                 		'tipo_reporte' : 'boleta'
-                		,'esquema':this.esquema//#83 
+                		,'esquema':this.esquema//#83
                 		},
                 success:this.successExport,
                 failure: this.conexionFailure,
                 timeout:this.timeout,
                 scope:this
-            });         
+            });
     },
     onSincBancosAfp: function(){
-    	
+
             Phx.CP.loadingShow();
             Ext.Ajax.request({
                 url:'../../sis_planillas/control/FuncionarioPlanilla/sincBancosAfp',
@@ -430,9 +442,29 @@ Phx.vista.FuncionarioPlanilla=Ext.extend(Phx.gridInterfaz,{
                 timeout:this.timeout,
                 scope:this
             });
-    	
-    } 
+
+    },
+    //#129
+    onSincColumnas: function(){
+
+            Phx.CP.loadingShow();
+            Ext.Ajax.request({
+                url:'../../sis_planillas/control/FuncionarioPlanilla/sincColumnas',
+                params:{'id_planilla' : this.maestro.id_planilla},
+                success: function(resp){
+                    Phx.CP.loadingHide();
+                    var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+                    if(!reg.ROOT.error){
+
+                        this.reload();
+                    }
+                },
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });
+
+    }
 })
 </script>
-		
-		
+

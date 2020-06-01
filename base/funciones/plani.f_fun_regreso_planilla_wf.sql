@@ -70,9 +70,6 @@ BEGIN
 
 
 
-
-
-
             delete from plani.thoras_trabajadas using plani.tfuncionario_planilla
             where plani.tfuncionario_planilla.id_funcionario_planilla = plani.thoras_trabajadas.id_funcionario_planilla and
             plani.tfuncionario_planilla.id_planilla = v_planilla.id_planilla;
@@ -81,6 +78,8 @@ BEGIN
             --#129 recupera la configuracion de reseteo de variables modificadas por usuario
             v_reset_var = pxp.f_get_variable_global('plani_reset_variables_modificadas')::BOOLEAN;
 
+            --#129 resetear o no columnas variables segun configuraion
+            -- para que no se pierda los cambios introducidos por el usuario
             IF v_reset_var THEN
 
                  UPDATE plani.tcolumna_valor SET
@@ -112,7 +111,6 @@ BEGIN
             where cv.id_columna_valor = plani.tcolumna_detalle.id_columna_valor and
             fp.id_funcionario_planilla = cv.id_funcionario_planilla and
             fp.id_planilla = v_planilla.id_planilla;
-
 
 
 
