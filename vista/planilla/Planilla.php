@@ -828,10 +828,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('btnColumnas').menu.items.items[0].enable();
             this.getBoton('btnColumnas').menu.items.items[1].enable();
             this.getBoton('btnColumnas').menu.items.items[2].enable();
+            this.getBoton('btnColumnas').menu.items.items[3].enable();
         } else {
             this.getBoton('btnColumnas').menu.items.items[0].enable();
             this.getBoton('btnColumnas').menu.items.items[1].disable();
             this.getBoton('btnColumnas').menu.items.items[2].disable();
+            this.getBoton('btnColumnas').menu.items.items[3].disable();
         }
 
         if (rec.data.estado == 'registro_funcionarios') {
