@@ -14,7 +14,8 @@
  #42    ETR      17-09-2019        RAC KPLIAN      exluir estados vobo_conta y finalizado de la interface de vobo planilla
  #49    ETR      17-09-2019        manuel guerra   agregar boton de reporte de verificacion presupuestaria  
  #61    ETR      01-10-2019        RAC KPLIAN      Nueva interface de empleados por planilla, en interface de visto bueno conta y planillas 
- */
+ #132   ETR	  	 01/06/2020		   MZM KPLIAN	   Habilitacion de opcion para reseteo de valores de columnas variables
+ *  */
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -166,7 +167,13 @@ header("content-type: text/javascript; charset=UTF-8");
                         handler: this.onButtonColumnasDetalle,
                         tooltip: 'Detalle de Columnas por Empleado',
                         scope: this
-                    }, {
+                    }, {//#132
+	                    text: 'Resetear columnas variables',
+	                    id: 'btnResetColumnas-' + this.idContenedor,
+	                    handler: this.onButtonResetColumnas,
+	                    tooltip: 'Resetear Valor de columnas',
+	                    scope: this
+                	}, {
                         text: 'Subir Columnas desde CSV',
                         id: 'btnColumnasCsv-' + this.idContenedor,
                         handler: this.onButtonColumnasCsv,
@@ -694,7 +701,18 @@ header("content-type: text/javascript; charset=UTF-8");
                     width:450,
                     height:200
                 },rec.data,this.idContenedor,'ColumnaCsv')
-        },
+        },    
+        //#132
+    	onButtonResetColumnas : function() {
+	        var rec=this.sm.getSelected();
+	        Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/ResetColumnas.php',
+	        'Resetear valores para columna',
+	        {
+	            modal:true,
+	            width:450,
+	            height:200
+	        },rec.data,this.idContenedor,'ResetColumnas')
+    	},
         onButtonGenerarCheque : function() {
             var rec=this.sm.getSelected();
             Phx.CP.loadingShow();
@@ -717,6 +735,19 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.PlanillaVb.superclass.preparaMenu.call(this);
 
             this.getBoton('btnHoras').enable();
+
+			if (rec.data.estado== 'calculo_columnas') {//132
+            	this.getBoton('btnColumnas').menu.items.items[0].enable();
+	            this.getBoton('btnColumnas').menu.items.items[1].enable();
+	            this.getBoton('btnColumnas').menu.items.items[2].enable();
+	            this.getBoton('btnColumnas').menu.items.items[3].enable();
+	        } else {
+	            this.getBoton('btnColumnas').menu.items.items[0].enable();
+	            this.getBoton('btnColumnas').menu.items.items[1].disable();
+	            this.getBoton('btnColumnas').menu.items.items[2].disable();
+	            this.getBoton('btnColumnas').menu.items.items[3].disable();
+	        }
+
 
             if (rec.data.estado == 'registro_funcionarios') {
                 this.getBoton('ant_estado').disable();
