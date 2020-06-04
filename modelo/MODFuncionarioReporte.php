@@ -24,6 +24,7 @@
  *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva
   #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
   #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
+  #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -770,5 +771,33 @@ class MODFuncionarioReporte extends MODbase{
 		
 	}
 
+
+//#133
+	 function listarResumenPrevision(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_REPPREVIS_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
+		$this->setParametro('id_gestion','id_gestion','integer');//#98	
+		//Datos de la planilla
+		$this->captura('nombre','varchar');
+		$this->captura('importe','numeric');
+		$this->captura('periodo','text');
+		$this->captura('banco','varchar');
+		$this->captura('tipo_pago','text');
+		$this->captura('tipo_contrato','varchar');
+		$this->captura('total','bigint');
+		//Ejecuta la instruccion
+		$this->armarConsulta();		
+	//echo "****".$this->getConsulta(); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 }
 ?>

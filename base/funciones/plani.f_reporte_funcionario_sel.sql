@@ -23,27 +23,28 @@ AS $BODY$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
- #45	ETR				19.09.2019		    MZM					Adicion de filtro en reporte fondo_solidario
- #66	ETR				15.10.2019			MZM					Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
- #67	ETR				16.10.2019			MZM					Reporte de asignacion de cargos
- #72	ETR				04.11.2019			MZM					Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
- #75	ETR				05.11.2019			MZM					bug en tipo_jub
- #77	ETR				15.11.2019			MZM					Ajuste reportes
- #81	ETR				25.11.2019			MZM					Cambio en reporte curva salarial, campo jerarquia por nivel de organigrama y prioridad
- #81	ETR				04.12.2019			MZM					Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
- #83	ETR				09.12.2019			MZM					Habilitacion de reporte para backup de planilla
- #87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos
- #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
- #94	ETR				17.02.2020			MZM					Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
- #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
- #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
- #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
- #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
- #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
- #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
- #125	ETR				14.05.2020			MZM					Reporte para planillas de prima vigente y no vigente
- #124	ETR				21.05.2020			MZM					Adecuacion de reporte prima para bono de produccion
+ #30    ETR            30/07/2019           MZM-KPLIAN          Creacion 
+ #45	ETR				19.09.2019		    MZM-KPLIAN			Adicion de filtro en reporte fondo_solidario
+ #66	ETR				15.10.2019			MZM-KPLIAN			Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
+ #67	ETR				16.10.2019			MZM-KPLIAN			Reporte de asignacion de cargos
+ #72	ETR				04.11.2019			MZM-KPLIAN			Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
+ #75	ETR				05.11.2019			MZM-KPLIAN			bug en tipo_jub
+ #77	ETR				15.11.2019			MZM-KPLIAN			Ajuste reportes
+ #81	ETR				25.11.2019			MZM-KPLIAN			Cambio en reporte curva salarial, campo jerarquia por nivel de organigrama y prioridad
+ #81	ETR				04.12.2019			MZM-KPLIAN			Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
+ #83	ETR				09.12.2019			MZM-KPLIAN			Habilitacion de reporte para backup de planilla
+ #87	ETR				09.01.2020			MZM-KPLIAN			Reporte detalle de aguinaldos
+ #90	ETR				15.01.2020			MZM-KPLIAN			Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
+ #94	ETR				17.02.2020			MZM-KPLIAN			Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
+ #96	ETR				27.02.2020			MZM-KPLIAN			Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
+ #98	ETR				04.03.2020			MZM-KPLIAN			Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
+ #108	ETR				17.03.2020			MZM-KPLIAN			Omision de condicion mayor a 13000 en afp fondo solidario
+ #115	ETR				20.04.2020			MZM-KPLIAN			Filtro para reporte listado por centros
+ #120	ETR				28.04.2020			MZM-KPLIAN			Ajuste a calculo de antiguedad, considerando retiro en el mes
+ #119	ETR				29.04.2020			MZM-KPLIAN			REporte detalle de desceuntos acumulados Rc-IVA
+ #125	ETR				14.05.2020			MZM-KPLIAN			Reporte para planillas de prima vigente y no vigente
+ #124	ETR				21.05.2020			MZM-KPLIAN			Adecuacion de reporte prima para bono de produccion
+ #133	ETR				03.06.2020			MZM-KPLIAN			Reporte de Prevision de primas (resumen)
  ***************************************************************************/
 
 DECLARE
@@ -2845,6 +2846,46 @@ raise notice '***:%',v_consulta;
       raise notice 'aaa%',v_consulta;      
         	  return v_consulta;
     	end;
+    elsif (p_transaccion='PLA_REPPREVIS_SEL') THEN --#133
+        BEGIN
+        	 if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+              if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+             end if;
+        	 v_consulta:='select ofi.nombre as oficina,sum(cv.valor)  as monto_pagar,
+						  ''''	::text as periodo, 
+						  ins.nombre as banco,''Banco'' as tipo_pago,  
+                          tcon.nombre as tipo_contrato,
+						  (select count(*) from plani.tfuncionario_planilla ffp
+          				inner join orga.tuo_funcionario uuo on uuo.id_uo_funcionario=ffp.id_uo_funcionario
+                          inner join orga.tcargo c on c.id_cargo=uuo.id_cargo
+                          and ffp.id_funcionario_planilla=ffp.id_funcionario_planilla
+                          and ffp.id_planilla=plani.id_planilla
+                          and c.id_tipo_contrato=tcon.id_tipo_contrato) as total
+						  from orga.toficina ofi
+						  inner join orga.tcargo c on c.id_oficina=ofi.id_oficina
+						  inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo
+						  inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario= uofun.id_uo_funcionario
+						  inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+						  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						  inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
+						  inner join plani.treporte_columna rc on rc.id_reporte=repo.id_reporte 
+						  inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+						  inner join orga.tfuncionario_cuenta_bancaria fcb on fcb.id_funcionario=fp.id_funcionario
+						  and fcb.nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' 
+                          and fcb.fecha_fin is null
+						  inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion
+						  and rc.codigo_columna=cv.codigo_columna
+                          where ';
+             
+             v_consulta:=v_consulta||v_parametros.filtro||v_condicion;
+             v_consulta:=v_consulta||'group by ofi.nombre, ins.nombre, ofi.orden, tcon.nombre, plani.id_planilla,tcon.id_tipo_contrato
+						 order by ofi.orden
+						 ';
+
+             return v_consulta;
+        END;
     else
                          
         raise exception 'Transaccion inexistente';
