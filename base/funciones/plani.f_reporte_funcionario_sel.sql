@@ -45,6 +45,7 @@ AS $BODY$
  #125	ETR				14.05.2020			MZM-KPLIAN			Reporte para planillas de prima vigente y no vigente
  #124	ETR				21.05.2020			MZM-KPLIAN			Adecuacion de reporte prima para bono de produccion
  #133	ETR				03.06.2020			MZM-KPLIAN			Reporte de Prevision de primas (resumen)
+ #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
  ***************************************************************************/
 
 DECLARE
@@ -2806,12 +2807,27 @@ raise notice '***:%',v_consulta;
               end if;
             end if;
             
+            
+            v_ordenar:='';
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
               if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
               and codigo in ('PLAPRIVIG','PRINOVIG')
               ) then
              v_cols:=' and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PRIMA'',
                         ''IMPDET'',''IMPOFAC'',''LIQPAG'')';
+            elseif (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              			and codigo in ('PLAPREPRI')) then--#135
+            		v_cols:=' and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PREPRIMA''
+                        )';
+            		v_ordenar:='(plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla)),';
+                    if (v_parametros.estado='activo') then
+                      v_condicion:=v_condicion || ' and (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla))=true
+                      --and fp.id_funcionario=551
+                      
+                      ';
+                    end if;
+                    
+                    
             else --#124
              v_cols:=' and colval.codigo_columna in (''PREDIAS2'',''PREPROME2'',''BONO'',
                         ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'')';
@@ -2826,7 +2842,8 @@ raise notice '***:%',v_consulta;
                       	plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO2'') as ctto2,
                       	car.nombre, ges.gestion, (select observaciones_finalizacion from orga.tuo_funcionario  
                         where id_uo_funcionario=
-                         fp.id_uo_funcionario) as obs_fin
+                         fp.id_uo_funcionario) as obs_fin,
+                         (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla)) as es_vigente --#135
                       	from plani.vorden_planilla  nivel
                       	inner join plani.tfuncionario_planilla fp on 
                   		fp.id_funcionario_planilla=nivel.id_funcionario_planilla
@@ -2841,7 +2858,7 @@ raise notice '***:%',v_consulta;
               	v_consulta:=v_consulta||v_parametros.filtro;
             	v_consulta:=v_consulta || v_condicion || v_cols || '
                         
-                        order by nivel.orden_oficina,nivel.id_oficina,'||v_col||', fun.desc_funcionario2
+                        order by '||v_ordenar||' nivel.orden_oficina,nivel.id_oficina,'||v_col||', fun.desc_funcionario2
                         , colval.codigo_columna';
       raise notice 'aaa%',v_consulta;      
         	  return v_consulta;

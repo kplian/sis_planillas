@@ -50,7 +50,7 @@ class RPlanillaPrima extends  ReportePDF {
 				$this->Cell(0,5,'PRIMA POR PAGAR PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG') {
 				$this->Cell(0,5,'PLANILLA DE BONO DE PRODUCCION'.$cadena_nomina,0,1,'C');
-			}else{//bononovig
+			}elseif($this->objParam->getParametro('codigo_planilla')=='BONONOVIG') {//bononovig
 				$this->Cell(0,5,'BONO DE PRODUCCION POR PAGAR - PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}
 			$this->SetFont('','B',10);
@@ -63,7 +63,7 @@ class RPlanillaPrima extends  ReportePDF {
 			
 			$this->SetX(10);
 			$this->Cell(0,5,'Ciudad: '.substr($this->gerencia,0,strpos($this->gerencia, '*')),0,1,'L');
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' ){
 				$this->SetX(10);
 				$this->Cell(0,5,'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
 			}
@@ -72,7 +72,7 @@ class RPlanillaPrima extends  ReportePDF {
 			$this->SetFont('','B',8);
 			$this->SetX(10);
 			
-			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
 				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
 					$this->Cell(85,5,'','',0,'C');
 					$this->Cell(68,5,'CONTRATO 1','LTR',0,'C');
@@ -88,7 +88,7 @@ class RPlanillaPrima extends  ReportePDF {
 			  
 			  
 			$this->SetX(10);
-			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
 				 if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
 					  $this->Cell(15,5,'Codigo','T',0,'C');
 					  $this->Cell(70,5,'Nombre','TR',0,'C');
@@ -160,7 +160,7 @@ class RPlanillaPrima extends  ReportePDF {
 			
 			
 			  $this->SetX(10);
-			 if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){
+			 if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
 				  if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
 				 	  $this->Cell(15,5,'','B',0,'C');
 					  $this->Cell(70,5,'Cargo','BR',0,'C');
@@ -345,7 +345,7 @@ class RPlanillaPrima extends  ReportePDF {
 			
 		}
 	
-	if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){		
+	if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){		
 		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){	
 			for ($i=1; $i<=$cont;$i++){
 			

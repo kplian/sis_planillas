@@ -25,6 +25,7 @@
  * #123	ETR		  MZM-KPLIAN	 06.05.2020					Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  * #131 ETR       RAC KPLIAN     02.06.2020                 Marcar planillas donde ya fueron despachados los correos de boletas de pago
  * #133 ETR       MZM KPLIAN     03.06.2020                 Reporte para prevision de primas
+ * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -60,10 +61,15 @@ require_once(dirname(__FILE__).'/../reportes/RPlanillaSaldoIva.php');//#119
 require_once(dirname(__FILE__).'/../reportes/RPlanillaPrima.php');//#125
 require_once(dirname(__FILE__).'/../reportes/RPlanillaPrimaXls.php');//#125
 
+
 //·103   para envio de bolestas por correo eletronico
 include_once(dirname(__FILE__).'/../../lib/PHPMailer/class.phpmailer.php');
 include_once(dirname(__FILE__).'/../../lib/PHPMailer/class.smtp.php');
 include_once(dirname(__FILE__).'/../../lib/lib_general/cls_correo_externo.php');
+
+require_once(dirname(__FILE__).'/../reportes/RPlanillaPrevisionPrima.php');//#135
+
+
 
 class ACTReporte extends ACTbase{
 
@@ -361,7 +367,7 @@ class ACTReporte extends ACTbase{
         //**********
         if ($this->objParam->getParametro('tipo_reporte') == 'formato_especifico') {
 
-			if($this->objParam->getParametro('control_reporte')=='planilla_prima'){
+			if($this->objParam->getParametro('control_reporte')=='planilla_prima'|| $this->objParam->getParametro('control_reporte')=='planilla_prevision'  ){ //#135
 				$this->reportePlanillaPrima($this->objParam->getParametro('id_reporte'),$this->objParam->getParametro('esquema'));//#83
 			}else{
 				$this->listarFuncionarioReporte($this->objParam->getParametro('id_reporte'),$this->objParam->getParametro('esquema'));//#83
@@ -1715,6 +1721,10 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
 
 
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){//#135
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('personal_activo'));
+		}
+
         $this->objFunc=$this->create('MODFuncionarioReporte');
         $this->res=$this->objFunc->listarPlanillaPrima($this->objParam);
 
@@ -1722,8 +1732,12 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-
-            $this->objReporteFormato=new RPlanillaPrima($this->objParam);
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+				$this->objReporteFormato=new RPlanillaPrevisionPrima($this->objParam);	
+			}else{
+				$this->objReporteFormato=new RPlanillaPrima($this->objParam);	
+			}
+            
             $this->objReporteFormato->setDatos($this->res->datos,$this->res->datos);//#83
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
