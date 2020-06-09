@@ -1,15 +1,20 @@
---------------- SQL ---------------
+-- FUNCTION: plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
 
-CREATE OR REPLACE FUNCTION plani.f_calcular_basica (
-  p_id_funcionario_planilla integer,
-  p_fecha_ini date,
-  p_fecha_fin date,
-  p_id_tipo_columna integer,
-  p_codigo varchar,
-  p_id_columna_valor integer
-)
-RETURNS numeric AS
-$body$
+-- DROP FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer);
+
+CREATE OR REPLACE FUNCTION plani.f_calcular_basica(
+	p_id_funcionario_planilla integer,
+	p_fecha_ini date,
+	p_fecha_fin date,
+	p_id_tipo_columna integer,
+	p_codigo character varying,
+	p_id_columna_valor integer)
+    RETURNS numeric
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    PLANI
   ***************************************************************************
@@ -43,13 +48,14 @@ $body$
  #63              22-02-2019        Rarteaga  KPLIAN    cambio de logica de la claculo de dias aguinaldo, DIASAGUI
  #68              17-10-2019        RARTEAGA  KPLIAN    refactorizacion planilla de primas
  #85              23-12-2019        RARTEAGA  KPLIAN    Correcion de funcion basica de calculo de planillas para incluir personal que no recibe incremento salarial en planilla de retroactivos, código columna PRMCOTIZABLE_MES
- #111              08-04-2020        MZM    KPLIAN            Correcion a prmcotizable_mes considerando proporcion de horas trabajadas en el mes
- #117              23.04.2020        MZM KPLIAN            Adicion de columnas para manejo de saldo acumulable a favor del fisco en planilla impositiva
- #113              27.04.2020        RAC KPLIAN          Considera arrastre de iva de prima de personal vigente
- #122              30.04.2020        MZM KPLIAN            Funciones para planilla de prevision de primas
- #124              14.05.2020        RAC KPLIAN          Bascia para arrastrar RC-IVA de las planillas de bono de produccion a la planilla de sueldos mensual si la bancera esta activada
- #125              14.05.2020        MZM    KPLIAN            Ajuste a funciones para obtencion de fecha_ini-fecha_fin de contratos
- #113              19.05.2020        MZM KPLIAN            Modificacion calculo cotizables para prevision de primas
+ #111             08-04-2020        MZM KPLIAN          Correcion a prmcotizable_mes considerando proporcion de horas trabajadas en el mes
+ #117             23.04.2020        MZM KPLIAN          Adicion de columnas para manejo de saldo acumulable a favor del fisco en planilla impositiva
+ #113             27.04.2020        RAC KPLIAN          Considera arrastre de iva de prima de personal vigente
+ #122             30.04.2020        MZM KPLIAN          Funciones para planilla de prevision de primas
+ #124             14.05.2020        RAC KPLIAN          Bascia para arrastrar RC-IVA de las planillas de bono de produccion a la planilla de sueldos mensual si la bancera esta activada
+ #125             14.05.2020        MZM KPLIAN          Ajuste a funciones para obtencion de fecha_ini-fecha_fin de contratos
+ #113             19.05.2020        MZM KPLIAN          Modificacion calculo cotizables para prevision de primas
+ #136			  09.06.2020		MZM KPLIAN			Ajuste para calculo de contrato1 para personal odt planilla de prevision de prima			
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2567,8 +2573,8 @@ v_cons    varchar;
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
-                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                       --  and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
+                         and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
@@ -2649,8 +2655,8 @@ v_cons    varchar;
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
-                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                        -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
+                         and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
@@ -2724,7 +2730,7 @@ v_cons    varchar;
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
+                         --and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
 
@@ -3066,7 +3072,7 @@ v_cons    varchar;
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
+                        -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
 
@@ -3187,10 +3193,7 @@ v_cons    varchar;
       raise exception '%',v_resp;
 
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.f_calcular_basica(integer, date, date, integer, character varying, integer)
+    OWNER TO postgres;
