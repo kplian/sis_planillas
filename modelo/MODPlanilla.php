@@ -20,6 +20,7 @@
 #107ETR             16.03.2020          MZM                 Listado de los datos de la ultima planilla procesada para un tipo especifico
 #103ETR             06.04.2020          MZM                 Adicion de campo habilitar_impresion_boleta
 #124ETR             13/05/2020          RAC KPLIAN          Registrar calcular_bono_rciva
+#131 ETR            01.06.2020          RAC KPLIAN          Metodo para Marcar planillas donde ya fueron despachados los correos de boletas de pago
  * ***/
 
 class MODPlanilla extends MODbase{
@@ -79,7 +80,7 @@ class MODPlanilla extends MODbase{
         $this->captura('habilitar_impresion_boleta','varchar'); //#103
         $this->captura('text_rep_boleta','varchar'); //#103
         $this->captura('calcular_bono_rciva','varchar'); //#124
-
+        $this->captura('envios_boleta','integer'); //#131
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
@@ -805,7 +806,28 @@ class MODPlanilla extends MODbase{
         //echo $this->getConsulta(); exit;
         //Devuelve la respuesta
         return $this->respuesta;
-        }
+    }
+
+    #131 aculizar resultado de envio de boletas de pago por correo en planillas
+    function actualizarPlanillaEnvioBoleta(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='plani.ft_planilla_ime';
+        $this->transaccion='PLA_ACTBOLT_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_planilla','id_planilla','int4');
+        $this->setParametro('contador','contador','int4');
+        $this->setParametro('contador_fallas','contador_fallas','int4');
+        $this->setParametro('fallas','fallas','varchar');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 
 }
 ?>

@@ -29,7 +29,8 @@ $body$
  #29 ETR        20/08/2019        MMV       Columna Codigo Funcionarion
  #53 ETR        26/09/2019        RAC       listado para Interface que identifica empleado según centro de costo
  #78 ETR        18/11/2019        RAC       considerar esquema origen de datos para listado de backups, PLA_FUNPLAN_SEL
- #103 ETR       02/04/2020        RAC       Listado de funcionario toda sin contador para envo de boletas de pago
+ #103 ETR       02/04/2020        RAC       Listado de funcionarios  sin contador para envio de boletas de pago
+ #131 ETR       03/06/2020        RAC       Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
 
 ***************************************************************************/
 
@@ -92,7 +93,8 @@ BEGIN
                         funcio.ci,
                         (c.nombre || ''--'' || c.codigo)::varchar desc_cargo,
                         funplan.tipo_contrato,
-                        funcio.codigo as desc_codigo  --#29
+                        funcio.codigo as desc_codigo,  --#29
+                        funplan.sw_boleta --#131
                         from '||v_esquema||'.tfuncionario_planilla funplan
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = funplan.id_uo_funcionario
                         inner join orga.tcargo c on c.id_cargo = uofun.id_cargo
@@ -181,6 +183,7 @@ BEGIN
              join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
              where p.id_planilla =  v_parametros.id_planilla;
 
+
             -- validar estado de la planilla
             IF v_registros.estado not in ('planilla_finalizada','comprobante_generado','vobo_conta') THEN --que estado se peude imprimir la boleta
                raise exception 'no puede mandar boletas en el estado: %',v_registros.estado;
@@ -191,7 +194,7 @@ BEGIN
                          from plani.treporte r
                          where r.id_tipo_planilla = v_registros.id_tipo_planilla and r.estado_reg = 'activo' and
                                r.tipo_reporte = 'boleta')) then
-                raise exception 'No existe una configurado un reporte de boleta de pago para este tipo de planilla';
+                raise exception 'No existe  un reporte de boleta de pago para este tipo de planilla';
             end if;
 
 
@@ -204,7 +207,9 @@ BEGIN
                                 funcio.email_empresa
                           from plani.tfuncionario_planilla funplan
                           inner join orga.vfuncionario_persona funcio on funcio.id_funcionario = funplan.id_funcionario
-                          where  funplan.id_planilla = '||v_parametros.id_planilla;
+                          where  funplan.id_planilla = '||v_parametros.id_planilla ||'
+                            and  funplan.estado_reg = ''activo''
+                            and  funplan.sw_boleta = ''no''; -- #131 solo lista los funcionario a los que no se les mando boleta de pago';
 
             return v_consulta;
 
