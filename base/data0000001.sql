@@ -991,7 +991,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PRINOVIG','P
 select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','(({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3)+{TP2}','no','','2','8','ejecutar','no','no','no','activo');
 
 
-/************I-DAT-RAC-PLANI-137-10/06/2020*************/
+/************F-DAT-RAC-PLANI-137-10/06/2020*************/
 
 
 
