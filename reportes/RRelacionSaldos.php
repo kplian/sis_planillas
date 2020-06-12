@@ -11,6 +11,7 @@
  #125	ETR				14.05.2020			MZM-KPLIAN			Ajuste para manejo de planilla de prima vigentes
  #127	ETR				22.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de prima
  #128	ETR				25.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de produccion
+ #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -36,10 +37,6 @@ class RRelacionSaldos extends  ReportePDF {
 		
 
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
-		
-		
-		
-		
 		
 		$ormargins = $this->getOriginalMargins();
 		$ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
@@ -151,7 +148,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){ //#125
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){ //#125 #133
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
 				}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
 					$this->Cell(30,5,'Produccion','B',0,'C');
@@ -385,7 +382,15 @@ class RRelacionSaldos extends  ReportePDF {
 				}
 				
 				
+				//#133
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+					$this->ln(6);
+					$this->Cell(20,3,$this->datos[0]['total'],'',0,'C');
+				}
+				
+				
 				if(count($this->firmas)>0){
+					
 					$this->ln(40);
 					$ancho_firma= (($this->ancho_hoja-25) / count($this->firmas));
 					
@@ -403,6 +408,9 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->SetFont('','B',8);
 					$this->Cell($ancho_firma,3,$this->firmas[0]['nombre_cargo_firma'],'',0,'C');
 					$this->Cell($ancho_firma,3,$this->firmas[1]['nombre_cargo_firma'],'',1,'C');	
+		
+		
+				
 		
 				}
 				

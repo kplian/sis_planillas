@@ -762,7 +762,17 @@ header("content-type: text/javascript; charset=UTF-8");
 							this.Cmp.id_periodo.reset();		
 							
 							this.ocultarComponente(this.Cmp.personal_activo);
-							this.Cmp.personal_activo.setValue('todos');			
+							this.Cmp.personal_activo.setValue('todos');		
+							
+							if(this.Cmp.control_reporte.getValue()=='planilla_prevision' ){
+								this.Cmp.personal_activo.setValue('activo');//#135
+								this.mostrarComponente(this.Cmp.personal_activo);//#135
+							
+							}else{//#135
+								this.ocultarComponente(this.Cmp.personal_activo);
+								this.Cmp.personal_activo.setValue('todos');	
+							}
+								
 						} else {
 							this.mostrarComponente(this.Cmp.id_periodo);
 							this.Cmp.id_periodo.allowBlank = false;		
