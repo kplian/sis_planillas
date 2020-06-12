@@ -1,10 +1,17 @@
 <?php
-/**
- *@package pXP
- *@file UOFuncionario.php
- *@author KPLIAN (admin)
- *@date 14-02-2011
- *@description  Vista para asociar los funcionarios a su correspondiente Unidad Organizacional
+ /**
+*@package pXP
+*@file UOFuncionario.php
+*@author KPLIAN (admin)
+*@date 14-02-2011
+*@description  Vista para asociar los funcionarios a su correspondiente Unidad Organizacional
+ *    HISTORIAL DE MODIFICACIONES:
+
+ ISSUE            FECHA:              AUTOR                 DESCRIPCION
+
+#0             14-02-2011          JRR KPLIAN            creacion
+#138 ETR       12.06.2020          RAC                   Agregar motivo de rescisión en las finalización de contrato
+
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -265,12 +272,12 @@ header("content-type: text/javascript; charset=UTF-8");
                     lazyRender:true,
                     mode: 'local',
                     gwidth: 100,
-                    store:['fin contrato','retiro','renuncia','promocion','transferencia']
+                    store:['fin contrato','retiro','renuncia','promocion','transferencia','rescision']
                 },
                 type:'ComboBox',
                 filters:{
                     type: 'list',
-                    options: ['fin contrato','retiro','renuncia','promocion','transferencia'],
+                    options: ['fin contrato','retiro','renuncia','promocion','transferencia','rescision'],
                 },
                 id_grupo:1,
                 grid:true,
