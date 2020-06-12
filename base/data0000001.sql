@@ -985,7 +985,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','TP1','PRINOVIG','Ajuste 
 
 select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','PRINOVIG','Prima a pagar','formula','Prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})  + {TP1} ) *({PORCENTAJEPRIM}/100))','si_contable','','2','12','ejecutar','no','no','no','activo');
 
-/************I-DAT-RAC-PLANI-137-10/06/2020*************/
+/************F-DAT-RAC-PLANI-137-10/06/2020*************/
 
 
 
