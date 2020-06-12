@@ -979,11 +979,17 @@ select plani.f_import_treporte('insert','LISTADO POR CENTROS','PLASUE','no','car
 
 /************I-DAT-RAC-PLANI-137-10/06/2020*************/
 
-select plani.f_import_ttipo_columna_planilla ('insert','TP1','PLAPREPRI','Ajuste por Reintegros','variable','Volumna tempora para cargar el ajuste de cotiable por reintegros','','no','','2','-4','ejecutar','no','no','si','activo');
-select plani.f_import_ttipo_columna_planilla ('insert','PREPRIMA','PLAPREPRI','Prima a pagar','formula','prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2}) + {TP1})*({PORCENTAJEPRIM}/100))','no','','2','11','ejecutar','no','no','no','activo');
-select plani.f_import_ttipo_columna_planilla ('insert','TP1','PRINOVIG','Ajuste por Reintegros','variable','Volumna tempora para cargar el ajuste de cotiable por reintegros','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PLAPREPRI','Promedio','formula','Promedio de 3 ultimos sueldos','(({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3)+{TP1}','no','','2','9','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PLAPREPRI','Promedio del ultimo contrato','formula','promedio de 3 ultimos sueldos ultimo contrato','(({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3)+{TP2}','no','','2','10','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP1','PLAPREPRI','Ajuste por Reintegros','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del primer contrato','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','PLAPREPRI','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
 
-select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','PRINOVIG','Prima a pagar','formula','Prima a pagar','((({PREPROME1}/360*{PREDIAS1})+({PREPROME2}/360*{PREDIAS2})  + {TP1} ) *({PORCENTAJEPRIM}/100))','si_contable','','2','12','ejecutar','no','no','no','activo');
+
+select plani.f_import_ttipo_columna_planilla ('insert','TP1','PRINOVIG','Ajuste por Reintegros','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del primer contrato','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','PRINOVIG','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PRINOVIG','Promedio C1','formula','Promedio de 3 ultimos sueldos','(({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3)+{TP1}','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','(({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3)+{TP2}','no','','2','8','ejecutar','no','no','no','activo');
+
 
 /************F-DAT-RAC-PLANI-137-10/06/2020*************/
 
