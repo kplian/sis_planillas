@@ -11,6 +11,19 @@ CREATE OR REPLACE FUNCTION plani.f_obtener_fechas_prima(
     COST 100
     VOLATILE 
 AS $BODY$
+/**************************************************************************
+ SISTEMA:      Sistema de Planillas
+ FUNCION:      plani.f_reporte_funcionario_sel
+ DESCRIPCION:  
+ AUTOR:        (EGS)
+ FECHA:        27/06/2019
+ COMENTARIOS:    
+***************************************************************************
+ HISTORIAL DE MODIFICACIONES:
+ #ISSUE                FECHA                AUTOR               DESCRIPCION
+ #135	ETR				12.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle), modificacion funcion CTOO1
+**************************************************************************/
+
  DECLARE
     v_resp                    varchar;
     v_nombre_funcion          text;
@@ -50,7 +63,7 @@ AS $BODY$
                       WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-						 and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
+						-- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario  --#135
  						 and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','') 
  						 order by uofun.id_uo_funcionario limit 1 offset 0
