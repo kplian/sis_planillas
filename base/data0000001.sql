@@ -993,6 +993,14 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','P
 
 /************F-DAT-RAC-PLANI-137-10/06/2020*************/
 
+************I-DAT-RAC-PLANI-137-15/06/2020*************/
+
+select plani.f_import_ttipo_columna_planilla ('insert','BONANT','PLASUE','Bono antiguedad','formula','Bono de Antigüedad del empleado a partir de 3 salarios mínimos nacionales con incapacidad temporal','CASE WHEN {INCAP_DIAS} > 0    THEN  {BONOANTG} - ({BONOANTG} * ({INCAP_DIAS} *{HORDIA}/{HOREFEC}) * ({INCAP_PORC}))  ELSE {BONOANTG} END','si','','2','5','restar_ejecutado','no','no','si','activo');
+
+************F-DAT-RAC-PLANI-137-15/06/2020*************/
+
+
+
 
 
 
