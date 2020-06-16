@@ -15,9 +15,10 @@
  #49    ETR      17-09-2019        manuel guerra   agregar boton de reporte de verificacion presupuestaria  
  #61    ETR      01-10-2019        RAC KPLIAN      Nueva interface de empleados por planilla, en interface de visto bueno conta y planillas 
  #132   ETR	  	 01/06/2020		   MZM KPLIAN	   Habilitacion de opcion para reseteo de valores de columnas variables
+ #139   ETR      10/02/2020        MZM KPLIAN  	   Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
  *  */
 
-header("content-type: text/javascript; charset=UTF-8");
+header("content-type: text/javascript; charset=UTF-8"); 
 ?>
 <script>
     Phx.vista.PlanillaVb=Ext.extend(Phx.gridInterfaz,{
@@ -31,7 +32,7 @@ header("content-type: text/javascript; charset=UTF-8");
 
         constructor:function(config){
 
-            this.maestro=config.maestro;
+            this.maestro=config.maestro; 
             //llama al constructor de la clase padre
             Phx.vista.PlanillaVb.superclass.constructor.call(this,config);
             this.init();
@@ -106,7 +107,17 @@ header("content-type: text/javascript; charset=UTF-8");
                 tooltip: 'Detalle de Obligaciones'                
             }
         );
-        
+       
+         //#139
+        this.addButton('btnEnvioCorreo',{
+                    text :'Boletas de Pago',
+                    grupo:[1,2],
+                    iconCls : 'bemail',
+                    disabled: true,
+                    handler : this.onReenviar,
+                    tooltip : '<b>Enviar</b><br/><b>Envia las boletas de pago via correo</b>'
+          });
+ 
         
             if(this.nombreVista == 'planillavbpoa') {
                 this.addButton('obs_poa', {
@@ -632,6 +643,9 @@ header("content-type: text/javascript; charset=UTF-8");
             {name:'usr_mod', type: 'string'},
             {name:'codigo_poa', type: 'string'},
             {name:'obs_poa', type: 'string'},'id_tipo_contrato','tipo_contrato','dividir_comprobante'
+            ,{name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato','calcular_prima_rciva'
+		,'habilitar_impresion_boleta','text_rep_boleta','calcular_bono_rciva','envios_boleta'
+            
 
         ],
         sortInfo:{
@@ -735,7 +749,8 @@ header("content-type: text/javascript; charset=UTF-8");
             Phx.vista.PlanillaVb.superclass.preparaMenu.call(this);
 
             this.getBoton('btnHoras').enable();
-
+			
+        	this.getBoton('btnEnvioCorreo').disable();//#139
 			if (rec.data.estado== 'calculo_columnas') {//132
             	this.getBoton('btnColumnas').menu.items.items[0].enable();
 	            this.getBoton('btnColumnas').menu.items.items[1].enable();
@@ -757,14 +772,21 @@ header("content-type: text/javascript; charset=UTF-8");
                 rec.data.estado == 'planilla_finalizada') {
                 this.getBoton('ant_estado').disable();
                 this.getBoton('sig_estado').disable();
-
+				if(rec.data.habilitar_impresion_boleta=='si'){//#139
+             		this.getBoton('btnEnvioCorreo').enable();
+	            }else{this.getBoton('btnEnvioCorreo').disable();
+	            }
 
             } else if (rec.data.estado == 'obligaciones_generadas' ||
                 rec.data.estado == 'comprobante_presupuestario_validado' ||
                 rec.data.estado == 'comprobante_obligaciones') {
                 this.getBoton('ant_estado').enable();
                 this.getBoton('sig_estado').enable();
-
+				if(rec.data.habilitar_impresion_boleta=='si'){//#139
+             		this.getBoton('btnEnvioCorreo').enable();
+	            }else{
+	             	this.getBoton('btnEnvioCorreo').disable();
+	            }
             } else {
                 this.getBoton('ant_estado').enable();
                 this.getBoton('sig_estado').enable();
@@ -1093,6 +1115,21 @@ header("content-type: text/javascript; charset=UTF-8");
                     rec,
                     this.idContenedor,
                     'Obligacion');
+    },  //#139
+    onReenviar: function() {
+           var rec=this.sm.getSelected();
+           if(rec) {
+               Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/CorreoBoleta.php',
+                    'Envio de Boletas por Correo',
+                    {
+                        modal:true,
+                        width:700,
+                        height:500
+                    },rec.data ,this.idContenedor,'CorreoBoleta');
+
+           } else {
+                 alert('seleccione una planilla primero');
+           }
     },
 
         submitObs:function(){
