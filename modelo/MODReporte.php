@@ -613,5 +613,7 @@ function listarReporteDetalleMultiCell(){
         //Devuelve la respuesta
         return $this->respuesta;
     }
+	 
+	 
 }
 ?>

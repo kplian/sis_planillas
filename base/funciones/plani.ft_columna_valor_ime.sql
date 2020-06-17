@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_columna_valor_ime(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_columna_valor_ime (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_columna_valor_ime(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_columna_valor_ime(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Planillas
  FUNCION:         plani.ft_columna_valor_ime
@@ -25,6 +30,7 @@ $body$
  #19              04/07/2019        RAC KPLIAN       Cambiar  importación de CSV para columnas variable según  código de empleado en vez de Carnet de identidad 
  #21              17/07/2019        RAC              Reomver prefijo de codigo de  empleado al importar CSV  de manera configurable
  #31              02/09/2019        RAC              coregir bug con nombre de variable al procesar importancion por codigo v_plani_csv_imp_pref_codemp
+ #132             01/06/2020        MZM KPLIAN       Adicion de procedimiento para reseteo de valores (columnas variables)
 ***************************************************************************/
 
 DECLARE
@@ -245,7 +251,22 @@ BEGIN
             return v_resp;
 
         end;
+    elsif(p_transaccion='PLA_COLVALRES_MOD')then --#132
+       begin
+          update plani.tcolumna_valor 
+          set valor=0
+          where id_tipo_columna=v_parametros.id_tipo_col
+          and id_funcionario_planilla in (select id_funcionario_planilla from plani.tfuncionario_planilla
+          where id_planilla=v_parametros.id_planilla);
+          
+          v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Columna Valor reseteado(a)');
+          v_resp = pxp.f_agrega_clave(v_resp,'id_tipo_columna',v_parametros.id_tipo_col::varchar);
 
+
+          --Devuelve la respuesta
+          return v_resp;
+       end;
+  
     else
 
         raise exception 'Transaccion inexistente: %',p_transaccion;
@@ -262,9 +283,7 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_columna_valor_ime(integer, integer, character varying, character varying)
+    OWNER TO postgres;

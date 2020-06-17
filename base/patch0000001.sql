@@ -1543,3 +1543,54 @@ IS 'si o no, incluye columnas marcadas para arrastrar el rc-iva de la planillas 
 
 
 
+/***********************************I-SCP-RAC-PLANI-131-02/06/2020****************************************/
+
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN envios_boleta INTEGER DEFAULT 0 NOT NULL;
+
+COMMENT ON COLUMN plani.tplanilla.envios_boleta
+IS 'cuenta la cantidad de envios de boleta de pago por correo finalizados con exito';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tplanilla
+  ADD COLUMN fallos_boleta VARCHAR;
+
+COMMENT ON COLUMN plani.tplanilla.fallos_boleta
+IS 'si existen fallas en el envio de boletas guarda de manera acumulada para hacer debug';
+
+--------------- SQL ---------------
+
+ALTER TABLE plani.tfuncionario_planilla
+  ADD COLUMN sw_boleta VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+COMMENT ON COLUMN plani.tfuncionario_planilla.sw_boleta
+IS 'si o no si se mando la boleta de pago parael funcionario, si no se mando y el contador de envio esta arriba el servidor de coore tuvo algun fallo';
+
+
+ALTER TABLE planibk.tplanilla
+  ADD COLUMN calcular_bono_rciva VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+
+
+ALTER TABLE planibk.tplanilla
+  ADD COLUMN envios_boleta INTEGER DEFAULT 0 NOT NULL;
+
+
+ALTER TABLE planibk.tplanilla
+  ADD COLUMN fallos_boleta VARCHAR;
+
+ALTER TABLE planibk.tfuncionario_planilla
+  ADD COLUMN sw_boleta VARCHAR(2) DEFAULT 'no' NOT NULL;
+
+
+/***********************************F-SCP-RAC-PLANI-131-02/06/2020****************************************/
+
+
+
+
+
+

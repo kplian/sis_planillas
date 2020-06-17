@@ -13,7 +13,9 @@
  #68     ETR          24/10/2019            RAC KPLIAN          Registrar calcular_prima_rciva
  #103    ETR          10/02/2020            MZM,RAC KPLIAN      Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
  #124    ETR          13/05/2020            RAC KPLIAN          Registrar calcular_bono_rciva
-
+ #132	 ETR		  01/06/2020			MZM KPLIAN			Habilitacion de opcion para reseteo de valores de columnas variables
+ #131   ETR           05/06/2020            RAC KPLIAN          Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
+ *
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -68,7 +70,13 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                     handler: this.onButtonColumnasDetalle,
                     tooltip: 'Detalle de Columnas por Empleado',
                     scope: this
-                }, {
+                }, {//#132
+                    text: 'Resetear columnas variables',
+                    id: 'btnResetColumnas-' + this.idContenedor,
+                    handler: this.onButtonResetColumnas,
+                    tooltip: 'Resetear Valor de columnas',
+                    scope: this
+                },{
                     text: 'Subir Columnas desde CSV',
                     id: 'btnColumnasCsv-' + this.idContenedor,
                     handler: this.onButtonColumnasCsv,
@@ -249,6 +257,23 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 grid:true,
                 form:false,
                 bottom_filter : true
+        },
+
+         //#131 para contar cuantas fue envada la boleta de pago por correo
+        {
+            config:{
+                name: 'envios_boleta',
+                fieldLabel: 'Env/bol',
+                allowBlank: true,
+                anchor: '80%',
+                gwidth: 50,
+                maxLength:10
+            },
+            type:'TextField',
+            filters:{pfiltro:'plani.envios_boleta',type:'numeric'},
+            id_grupo:1,
+            grid:true,
+            form:false
         },
 
         {
@@ -521,6 +546,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
                 form:false
         },
 
+
         {
             config:{
                 name: 'fecha_reg',
@@ -622,7 +648,7 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         {name:'usr_mod', type: 'string'},
         {name:'dividir_comprobante', type: 'string'},
         {name:'tipo_contrato', type: 'string'},'calcular_reintegro_rciva','id_tipo_contrato','calcular_prima_rciva'
-		,'habilitar_impresion_boleta','text_rep_boleta','calcular_bono_rciva'
+		,'habilitar_impresion_boleta','text_rep_boleta','calcular_bono_rciva','envios_boleta'
     ],
     sortInfo:{
         field: 'id_planilla',
@@ -780,6 +806,19 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             height:200
         },rec.data,this.idContenedor,'ColumnaCsv')
     },
+
+    //#132
+    onButtonResetColumnas : function() {
+        var rec=this.sm.getSelected();
+        Phx.CP.loadWindows('../../../sis_planillas/vista/planilla/ResetColumnas.php',
+        'Resetear valores para columna',
+        {
+            modal:true,
+            width:450,
+            height:200
+        },rec.data,this.idContenedor,'ResetColumnas')
+    },
+
     onButtonGenerarCheque : function() {
         var rec=this.sm.getSelected();
         Phx.CP.loadingShow();
@@ -809,10 +848,12 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
             this.getBoton('btnColumnas').menu.items.items[0].enable();
             this.getBoton('btnColumnas').menu.items.items[1].enable();
             this.getBoton('btnColumnas').menu.items.items[2].enable();
+            this.getBoton('btnColumnas').menu.items.items[3].enable();
         } else {
             this.getBoton('btnColumnas').menu.items.items[0].enable();
             this.getBoton('btnColumnas').menu.items.items[1].disable();
             this.getBoton('btnColumnas').menu.items.items[2].disable();
+            this.getBoton('btnColumnas').menu.items.items[3].disable();
         }
 
         if (rec.data.estado == 'registro_funcionarios') {

@@ -5,6 +5,8 @@
 *@author  (admin)
 *@date 27-01-2014 04:53:54
 *@description Clase que recibe los parametros enviados por la vista para mandar a la capa de Modelo
+ #ISSUE                FECHA                AUTOR                DESCRIPCION 
+ #132	 ETR		  01/06/2020			MZM KPLIAN			Habilitacion de opcion para reseteo de valores de columnas variables
 */
 
 class ACTColumnaValor extends ACTbase{    
@@ -43,8 +45,9 @@ class ACTColumnaValor extends ACTbase{
 		$this->res->imprimirRespuesta($this->res->generarJson());
 	}
 	function modificarColumnaCsv(){
+		
 		//validar extnsion del archivo	
-		$arregloFiles = $this->objParam->getArregloFiles();
+		$arregloFiles = $this->objParam->getArregloFiles(); 
 		$ext = pathinfo($arregloFiles['archivo']['name']);
 		$extension = $ext['extension'];
 		$error = 'no';
@@ -115,7 +118,45 @@ class ACTColumnaValor extends ACTbase{
 		//devolver respuesta
 		$this->mensajeRes->imprimirRespuesta($this->mensajeRes->generarJson());
 	}
-			
+
+	//#132
+	function resetColumnaValor(){
+		
+		
+		 	$id_tipo_col=$this->objParam->getParametro('id_tipo_columna');
+		    $id_tc= explode (',',$id_tipo_col); 
+		    $error='no'; $mensaje_completo = '';
+			for ($i=0; $i<count($id_tc); $i++){
+				
+				$this->objParam->addParametro('id_tipo_col',$id_tc[$i]);
+				$this->objFunc=$this->create('MODColumnaValor');	
+				$this->res=$this->objFunc->ResetColumnaValor($this->objParam);
+				
+				if ($this->res->getTipo() == 'ERROR') {
+						$error = 'error';
+						$mensaje_completo .= $this->res->getMensaje() . " \n";
+					
+				}
+				
+			}
+		   
+			if ($error == 'error') {
+				
+			$this->mensajeRes=new Mensaje();
+			$this->mensajeRes->setMensaje('ERROR','ACTColumnaValor.php','Ocurrieron los siguientes errores : ' . $mensaje_completo,
+										$mensaje_completo,'control');
+			} else if ($error == 'no') {
+				$this->mensajeRes=new Mensaje();
+				$this->mensajeRes->setMensaje('EXITO','ACTColumnaValor.php','El archivo fue ejecutado con exito',
+											'El archivo fue ejecutado con exito','control');
+			}		
+		
+		//devolver respuesta
+		$this->mensajeRes->imprimirRespuesta($this->mensajeRes->generarJson());		
+		
+
+	}
+	
 }
 
 ?>
