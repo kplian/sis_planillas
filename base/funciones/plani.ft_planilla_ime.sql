@@ -23,6 +23,7 @@ HISTORIAL DE MODIFICACIONES:
 #38                 10/09/2019          RAC KPLIAN          creacion de cbte de debengado o de pago  independiente al wf de la planilla
 #68  ETR            24/10/2019          RAC                 Registrar  calcular_prima_rciva  , calcular_reintegro_rciva
 #124 ETR            13/05/2020          RAC KPLIAN          Registrar calcular_bono_rciva
+#131 ETR            02/06/2020          RAC KPLIAN          Actulizacion de informacion de envio de boletas de pago por correo sobre la plnilla
 ***************************************************************************/
 
 DECLARE
@@ -77,7 +78,8 @@ DECLARE
 
     v_index                integer;
     v_items                varchar;
-    v_retgen            boolean; --#38
+    v_retgen               boolean; --#38
+    va_funcionarios        integer[]; --#131
 
 
 BEGIN
@@ -793,6 +795,51 @@ BEGIN
 
             --Definicion de la respuesta
             v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla modificado(a)');
+            v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
+
+            --Devuelve la respuesta
+            return v_resp;
+
+        end;
+    /*********************************
+     #TRANSACCION:  'PLA_ACTBOLT_IME'
+     #DESCRIPCION:   actulizar informacion de boletas de pago enviadas por correo
+     #AUTOR:        rac
+     #FECHA:        02-06-2020
+    ***********************************/
+
+    elsif(p_transaccion='PLA_ACTBOLT_IME')then
+
+        begin
+            --raise exception 'llega... %', v_parametros.id_planilla;
+
+            SELECT pl.fallos_boleta, pl.envios_boleta
+            INTO   v_registros
+            FROM plani.tplanilla pl
+            WHERE pl.id_planilla = v_parametros.id_planilla;
+
+            -- incrementamos los envios de boletas
+            IF v_parametros.contador > 0  THEN
+                UPDATE plani.tplanilla pl set
+                    envios_boleta = COALESCE(v_registros.envios_boleta,0) + 1
+                WHERE pl.id_planilla = v_parametros.id_planilla;
+            END IF;
+
+
+            va_funcionarios = string_to_array(v_parametros.fallas,'|')::INTEGER[];
+
+            UPDATE plani.tfuncionario_planilla SET
+                sw_boleta = 'si'
+            FROM plani.tfuncionario_planilla fp
+            JOIN plani.tplanilla p ON p.id_planilla = fp.id_planilla
+            WHERE p.id_planilla = v_parametros.id_planilla
+            AND fp.id_funcionario!=ALL(va_funcionarios); --si tuvimos fallar modificamos os funcioarios correpondientes al fallo
+
+
+
+
+            --Definicion de la respuesta
+            v_resp = pxp.f_agrega_clave(v_resp,'mensaje','Planilla modificado envio de boletas(a)');
             v_resp = pxp.f_agrega_clave(v_resp,'id_planilla',v_parametros.id_planilla::varchar);
 
             --Devuelve la respuesta

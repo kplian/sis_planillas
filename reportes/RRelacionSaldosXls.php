@@ -6,7 +6,7 @@
  #83	ETR			   08.02.2020			MZM					Habilitacion de opcion historico de planilla*
  #89	ETR				14.01.2020			MZM					Inclusion de tipo contrato a titulo de reporte
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
-
+ #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion
 */
 class RRelacionSaldosXls
 {
@@ -183,12 +183,16 @@ class RRelacionSaldosXls
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                
 				
-                
-	            $this->docexcel->getActiveSheet()->getStyle('A3:C3')->getAlignment()->setWrapText(true);
-	            $this->docexcel->getActiveSheet()->getStyle('A3:C3')->applyFromArray($styleTitulos3);
-				
-				
-                $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
+                if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+                	$this->docexcel->getActiveSheet()->getStyle('A3:F3')->getAlignment()->setWrapText(true);
+	            	$this->docexcel->getActiveSheet()->getStyle('A3:F3')->applyFromArray($styleTitulos3);
+					$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
+				}else{
+					$this->docexcel->getActiveSheet()->getStyle('A3:C3')->getAlignment()->setWrapText(true);
+	            	$this->docexcel->getActiveSheet()->getStyle('A3:C3')->applyFromArray($styleTitulos3);
+					$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
+				}
+	            
                 $fila=4;
                 $this->numero=1;
                 //$columna = 8;
@@ -207,7 +211,11 @@ class RRelacionSaldosXls
 	                $this->docexcel->getActiveSheet()->setCellValue('B3','Banco');//2
 	                $this->docexcel->getActiveSheet()->setCellValue('C3','Monto (Bs)');//3
 	                
-	                
+	                if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+						$this->docexcel->getActiveSheet()->setCellValue('D3','Total por Pagar (Bs)');//3
+						$this->docexcel->getActiveSheet()->setCellValue('E3','Aporte Patronal CPS (Bs)');//3
+						$this->docexcel->getActiveSheet()->setCellValue('F3','Costo Total(Bs)');//3
+					}
 	                $this->docexcel->getActiveSheet()->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 					
 				 
@@ -230,14 +238,23 @@ class RRelacionSaldosXls
 				}
 		
 
-	
-
-                $this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 
-				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
-				$this->docexcel->getActiveSheet()->mergeCells("A2:C2");
-				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+					$this->docexcel->getActiveSheet()->mergeCells("A1:F1"); 
+					$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+					$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
+					$this->docexcel->getActiveSheet()->mergeCells("A2:F2");
+					$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				
+				}else{
+					$this->docexcel->getActiveSheet()->mergeCells("A1:C1"); 
+					$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+					$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
+					$this->docexcel->getActiveSheet()->mergeCells("A2:C2");
+					$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+				
+				}
+
+                
 				if($datos[0]['periodo']>0){
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
 				}else{
@@ -258,6 +275,12 @@ class RRelacionSaldosXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['nombre']);
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['banco']);
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['importe']);
+					
+					if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['importe']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['caja_oficina']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['importe']+$value['caja_oficina']);
+					}
 					
 					$tipo_contrato=$value['tipo_contrato'];
 					$fila++;

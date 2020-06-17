@@ -23,25 +23,30 @@ AS $BODY$
 ***************************************************************************
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
- #45	ETR				19.09.2019		    MZM					Adicion de filtro en reporte fondo_solidario
- #66	ETR				15.10.2019			MZM					Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
- #67	ETR				16.10.2019			MZM					Reporte de asignacion de cargos
- #72	ETR				04.11.2019			MZM					Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
- #75	ETR				05.11.2019			MZM					bug en tipo_jub
- #77	ETR				15.11.2019			MZM					Ajuste reportes
- #81	ETR				25.11.2019			MZM					Cambio en reporte curva salarial, campo jerarquia por nivel de organigrama y prioridad
- #81	ETR				04.12.2019			MZM					Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
- #83	ETR				09.12.2019			MZM					Habilitacion de reporte para backup de planilla
- #87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos
- #90	ETR				15.01.2020			MZM					Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
- #94	ETR				17.02.2020			MZM					Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
- #96	ETR				27.02.2020			MZM					Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
- #98	ETR				04.03.2020			MZM					Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
- #108	ETR				17.03.2020			MZM					Omision de condicion mayor a 13000 en afp fondo solidario
- #115	ETR				20.04.2020			MZM					Filtro para reporte listado por centros
- #120	ETR				28.04.2020			MZM					Ajuste a calculo de antiguedad, considerando retiro en el mes
- #119	ETR				29.04.2020			MZM					REporte detalle de desceuntos acumulados Rc-IVA
+ #30    ETR            30/07/2019           MZM-KPLIAN          Creacion 
+ #45	ETR				19.09.2019		    MZM-KPLIAN			Adicion de filtro en reporte fondo_solidario
+ #66	ETR				15.10.2019			MZM-KPLIAN			Inclusion de filtro tipo_contrato para consulta de rangos (edad y antiguedad)
+ #67	ETR				16.10.2019			MZM-KPLIAN			Reporte de asignacion de cargos
+ #72	ETR				04.11.2019			MZM-KPLIAN			Adicion de control por fecha de asignacion de tipo_jubilado en afp de funcionario (caso mendizabal entre sep y oct 2019)
+ #75	ETR				05.11.2019			MZM-KPLIAN			bug en tipo_jub
+ #77	ETR				15.11.2019			MZM-KPLIAN			Ajuste reportes
+ #81	ETR				25.11.2019			MZM-KPLIAN			Cambio en reporte curva salarial, campo jerarquia por nivel de organigrama y prioridad
+ #81	ETR				04.12.2019			MZM-KPLIAN			Habilitacion de catalogo profesion en funcionario, habilitacion de estado_jubilado en curvsal, cambio en dependientes
+ #83	ETR				09.12.2019			MZM-KPLIAN			Habilitacion de reporte para backup de planilla
+ #87	ETR				09.01.2020			MZM-KPLIAN			Reporte detalle de aguinaldos
+ #90	ETR				15.01.2020			MZM-KPLIAN			Ajuste a valor total_gral disminuyendo INCAP_TEMPORAL
+ #94	ETR				17.02.2020			MZM-KPLIAN			Ajuste a condiciones para personal retirado e incorporado (en el retirado incluir todas las finalizaciones de asignacion por mas que hubiesen recontrataciones (omitir transferencias y promociones), en las incorporaciones incluir las que no estuvieran vigentes
+ #96	ETR				27.02.2020			MZM-KPLIAN			Adicion de condicion en reporte retirados cuando obs_finalizacion es vacio, por subida de datos por script
+ #98	ETR				04.03.2020			MZM-KPLIAN			Adecuacion de consultas DATAPORTE (caso reintegros para que salga consolidado)
+ #108	ETR				17.03.2020			MZM-KPLIAN			Omision de condicion mayor a 13000 en afp fondo solidario
+ #115	ETR				20.04.2020			MZM-KPLIAN			Filtro para reporte listado por centros
+ #120	ETR				28.04.2020			MZM-KPLIAN			Ajuste a calculo de antiguedad, considerando retiro en el mes
+ #119	ETR				29.04.2020			MZM-KPLIAN			REporte detalle de desceuntos acumulados Rc-IVA
+ #125	ETR				14.05.2020			MZM-KPLIAN			Reporte para planillas de prima vigente y no vigente
+ #124	ETR				21.05.2020			MZM-KPLIAN			Adecuacion de reporte prima para bono de produccion
+ #133	ETR				03.06.2020			MZM-KPLIAN			Reporte de Prevision de primas (resumen)
+ #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
+ #137	ETR				10.06.2020			MZM-KPLIAN			Bugs en reportes (antiguedad: faltaba definir fecha para hallar tiempo de antiguedad; afp fondo solidario en plasue: reponer filtro de 13000 bs)
  ***************************************************************************/
 
 DECLARE
@@ -222,7 +227,7 @@ BEGIN
               --#120
               select fecha_ini, fecha_fin into v_fecha_ini, v_fecha_fin
               from param.tperiodo where id_periodo=v_id_periodo;
-              
+              v_fecha_control:=v_fecha_fin;  --#137
               if(v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin and v_registros.observaciones_finalizacion not in ('transferencia','promocion','')) then
 				    v_fecha_control:=v_registros.fecha_finalizacion;          
               end if;
@@ -307,6 +312,7 @@ BEGIN
                             inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=tt.id_funcionario
                             inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                             inner join orga.tuo_funcionario uofun on uofun.id_funcionario=tt.id_funcionario and uofun.id_uo_funcionario=fp.id_uo_funcionario
+                            and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
                             inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                             inner join orga.vfuncionario rfu on rfu.id_funcionario=fp.id_funcionario
@@ -803,7 +809,7 @@ BEGIN
                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE'' and plani.estado!=''registro_horas''
                         
                          '||v_col||'
-                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario and uofun.estado_reg!=''inactivo''
+                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
                         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
                         
                         left join orga.ttipo_cargo tcar on tcar.id_tipo_cargo=car.id_tipo_cargo
@@ -881,12 +887,7 @@ BEGIN
           		end if;
         	end if;
            
-            --19.09.2019#45
-            if(v_parametros.tipo_reporte='fondo_solidario') then
-                --v_condicion:=v_condicion||' and cv.valor>=13000';
-                
-            end if;
-            
+           
            
                SELECT
                   per.fecha_ini,
@@ -954,6 +955,7 @@ BEGIN
                   	(select fecha_finalizacion from orga.tuo_funcionario uoff
 									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
   									 where id_funcionario=fp.id_funcionario
+                                     and uoff.estado_reg!=''inactivo'' and uoff.tipo=''oficial''  --#137
 									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
 									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
 									 and cc.id_tipo_contrato=tc.id_tipo_contrato
@@ -984,6 +986,7 @@ BEGIN
                   inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                   --inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                   inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+                  and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
                   inner join orga.tcargo tt on tt.id_cargo=uofun.id_cargo 
                   inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=tt.id_tipo_contrato
                   
@@ -1032,6 +1035,7 @@ BEGIN
                             inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                             and cv.codigo_columna=''PRMCOTIZABLE''
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                            and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial''
                             inner join orga.tcargo tt on tt.id_cargo=uofun.id_cargo 
 		                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=tt.id_tipo_contrato
                             and fp.id_funcionario='||v_registros.id_funcionario||' and '||v_parametros.filtro ||v_filtro|| ' )as foo' into v_registros_det;
@@ -1108,8 +1112,13 @@ BEGIN
                          rep.nombre_afp, rep.id_afp, fp.id_lugar,
                          
    						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
-						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3
-                         order by  rep.desc_funcionario2'; 
+						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3';
+                         
+                   if(v_parametros.tipo_reporte='fondo_solidario') then	--#137
+                        v_consulta:=v_consulta||' having  sum(cv.valor)>13000';
+            	   end if;
+
+					v_consulta:=v_consulta|| ' order by  rep.desc_funcionario2'; 
                         
                          raise notice '**%',v_consulta;  
                          
@@ -1144,6 +1153,7 @@ BEGIN
 						,'||v_antiguedad||' as gestion, t.nombre
                         from orga.tuo_funcionario uof
                         inner join orga.vfuncionario fun on fun.id_funcionario=uof.id_funcionario
+                        and uof.estado_reg!=''inactivo'' and uof.tipo=''oficial'' --#137
                         inner join orga.tcargo c on c.id_cargo=uof.id_cargo
                         inner join orga.ttipo_contrato t on t.id_tipo_contrato=c.id_tipo_contrato --and t.codigo=''PLA''
                         inner join  orga.vuo_centro uop ON uop.id_uo = uof.id_uo
@@ -1151,7 +1161,7 @@ BEGIN
                         where uof.tipo=''oficial''
                         and uof.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
                         --#94
-                        --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'')
+                        --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'' and estado_reg!=''inactivo'') --#137
                         and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')--#96
                 		'||v_condicion||'
 		                and uof.estado_reg=''activo'' 
@@ -1236,6 +1246,7 @@ BEGIN
 			v_cons:=' select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
                      (select fecha_finalizacion from orga.tuo_funcionario uoff
 									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
+                                     and uoff.estado_reg!=''inactivo'' and uoff.tipo=''oficial'' --#137
   									 where id_funcionario=fp.id_funcionario
 									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
 									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
@@ -1259,7 +1270,7 @@ BEGIN
                     	v_antiguedad:=0;
                     end if;
                     
-                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial')) then
+                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial' and estado!='inactivo')) then  --#137
                      	v_antiguedad_anos:=1;
                      else
                      	v_antiguedad_anos:=0;
@@ -1293,6 +1304,7 @@ BEGIN
                         and repcol.codigo_columna = colval.codigo_columna
                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario = fp.id_uo_funcionario
 						inner join orga.vfuncionario fun on fun.id_funcionario = fp.id_funcionario
+                        and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
 						inner join orga.tfuncionario ff on ff.id_funcionario=fun.id_funcionario
 						inner join segu.tpersona per on per.id_persona=ff.id_persona
                         inner join tt_func tf on tf.id_funcionario=ff.id_funcionario 
@@ -1403,6 +1415,7 @@ BEGIN
               inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
               inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+              and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
               --where pla.id_periodo='||v_id_periodo||v_condicion||'
               where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
               order by repf.desc_funcionario2, pr.relacion, pr.fecha_nacimiento';
@@ -1445,6 +1458,7 @@ BEGIN
                             inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
                             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+                            and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
                             where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
                             
                             and pr.relacion ilike ''%hij%''
@@ -1664,7 +1678,7 @@ BEGIN
                                             inner join orga.tcargo car on car.id_cargo = ha.id_cargo
                                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                                             where ha.id_funcionario =tf.id_funcionario and 
-                                            tcon.codigo in (''PLA'',''EVE'') and ha.tipo = ''oficial''
+                                            tcon.codigo in (''PLA'',''EVE'') and ha.tipo = ''oficial'' and ha.estado_reg!=''inactivo --#137''
                                             order by fecha_asignacion desc limit 1)
                                  ,(select orga.f_get_cargo_x_funcionario_str(tf.id_funcionario,plani.fecha_planilla))) as cargo, 
                                 (plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario))) as fecha_ingreso,
@@ -1719,6 +1733,7 @@ BEGIN
                                 inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                                 inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla 
                                 inner join orga.tuo_funcionario uof on uof.id_funcionario=tf.id_funcionario and fp.id_funcionario=uof.id_funcionario
+								and uof.estado_reg!=''inactivo'' and uof.tipo=''oficial''  --#137
                                 and uof.id_uo_funcionario=fp.id_uo_funcionario
                                 inner join orga.tuo uo on uo.id_uo=uof.id_uo
                                 inner join orga.tnivel_organizacional niv on niv.id_nivel_organizacional=uo.id_nivel_organizacional
@@ -1754,7 +1769,7 @@ BEGIN
 
 					 if (v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
 
-                             if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
+                             if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion and estado_reg!='inactivo' and tipo='oficial') then
                                   v_estado:='Retirado'; 
                              end if;
                      
@@ -1777,7 +1792,7 @@ BEGIN
                  
                   
                     if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
-                      if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion) then
+                      if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion and estado_reg!='inactivo' and tipo='oficial') then
                           v_fecha_fin:=v_registros.fecha_finalizacion;
                           v_motivo:=v_registros.observaciones_finalizacion;
                       else
@@ -2046,7 +2061,7 @@ BEGIN
                         (select carn.nombre 
                         from orga.tcargo carn inner join orga.tuo_funcionario uofunn on uofunn.id_cargo=carn.id_cargo
                         where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
-                        and uofunn.estado_reg=''activo''
+                        and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
                         ) as nuevo_cargo,  (select extract(year from uofun.fecha_finalizacion) )::integer as gestion
                         , uoc.nombre_uo_centro,
                         
@@ -2054,7 +2069,7 @@ BEGIN
                         from  orga.tuo_funcionario uofunn 
                         inner join orga.vuo_centro uocn on uocn.id_uo=uofunn.id_uo
                         where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
-                        and uofunn.estado_reg=''activo''
+                        and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
                         ) as nueva_unidad
                         from orga.tcargo car 
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
@@ -2155,7 +2170,7 @@ BEGIN
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
               inner join orga.tuo_funcionario uofunn on uofunn.id_funcionario=funn.id_funcionario
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
-				and uofunn.estado_reg=''activo''
+				and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
                     --         and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
               inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
               inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
@@ -2167,7 +2182,7 @@ BEGIN
               orga.tfuncionario funn on funn.id_persona=pp.id_persona
               inner join orga.tuo_funcionario uofunn on uofunn.id_funcionario=funn.id_funcionario
               inner join orga.tcargo carr on carr.id_cargo=uofunn.id_cargo
-			  and uofunn.estado_reg=''activo''
+			  and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
               --      and plani.fecha_planilla between uofunn.fecha_asignacion and coalesce(uofunn.fecha_finalizacion,plani.fecha_planilla) --#77
               inner join '||v_esquema||'.tfuncionario_planilla ffp on ffp.id_uo_funcionario=uofunn.id_uo_funcionario
               inner join '||v_esquema||'.tplanilla pla on pla.id_planilla=ffp.id_planilla and pla.id_periodo=plani.id_periodo and pla.id_tipo_planilla=plani.id_tipo_planilla
@@ -2184,7 +2199,9 @@ BEGIN
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
               where ';
                           v_consulta:=v_consulta||v_parametros.filtro;
-                           v_consulta:=v_consulta||' and tc.estado_reg=''activo'' AND uofun.estado_reg=''activo'' and plani.id_tipo_contrato=tcon.id_tipo_contrato '||v_condicion||'
+                           v_consulta:=v_consulta||' and tc.estado_reg=''activo'' AND uofun.estado_reg=''activo'' 
+                           and uofun.tipo=''oficial''  --#137
+                           and plani.id_tipo_contrato=tcon.id_tipo_contrato '||v_condicion||'
               and plani.id_periodo='||v_id_periodo||v_filtro_estado||'
              
               order by tc.nombre';
@@ -2263,7 +2280,7 @@ BEGIN
                 where ';
                           v_consulta:=v_consulta||v_parametros.filtro;
                            v_consulta:=v_consulta||' and c.estado_reg=''activo'' '||v_condicion||' and uofun.estado_reg=''activo''
-               -- and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now())
+                -- and (uofun.fecha_finalizacion is null or uofun.fecha_finalizacion > now())
                 and uofun.tipo=''oficial'' '||v_filtro_estado||'
                 order by c.nombre';
                 raise notice '***%', v_consulta;
@@ -2440,7 +2457,7 @@ raise notice '***:%',v_consulta;
                           from plani.vrep_funcionario vrep
                           inner join orga.tcargo car on car.id_cargo=vrep.id_cargo
                           inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
-                          inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=vrep.id_uo_funcionario and uofun.tipo=''oficial''
+                          inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=vrep.id_uo_funcionario
                           inner join orga.tfuncionario tfun on tfun.id_funcionario=vrep.id_funcionario
                           inner join segu.tpersona per on per.id_persona=tfun.id_persona
                           inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=uofun.id_uo_funcionario
@@ -2534,6 +2551,7 @@ raise notice '***:%',v_consulta;
                           inner join plani.tdescuento_bono db on db.id_funcionario=fun.id_funcionario
                           inner join plani.ttipo_columna tcol on tcol.id_tipo_columna=db.id_tipo_columna
                           inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                          and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial''  --#137
                           inner join orga.tcargo car on car.id_cargo= uofun.id_cargo
                           inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato= car.id_tipo_contrato
                           inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and cv.id_funcionario_planilla=fp.id_funcionario_planilla
@@ -2623,6 +2641,7 @@ raise notice '***:%',v_consulta;
                   inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
                   inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                   inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                  and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial''  --#137
                   inner join plani.tfuncionario_afp funafp on funafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between
                   funafp.fecha_ini and coalesce(funafp.fecha_fin, plani.fecha_planilla)
                   inner join plani.tafp afp on afp.id_afp=funafp.id_afp
@@ -2768,6 +2787,7 @@ raise notice '***:%',v_consulta;
             inner join orga.tfuncionario f on f.id_funcionario=fun.id_funcionario
             --inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+            and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial''  --#137
             inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
             where ';
@@ -2775,6 +2795,132 @@ raise notice '***:%',v_consulta;
               v_consulta:=v_consulta || v_condicion || ' order by fun.desc_funcionario2';
         	  return v_consulta;
     	end;
+        
+     elsif (p_transaccion='PLA_PRIMA_SEL') then  --#125
+       begin     
+    		
+    		v_condicion:='';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+              if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+            end if;
+            
+            v_filtro:=''; v_col:=''; v_cols:='';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+              if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              and codigo in ('PLAPRIVIG','BONOVIG')
+              ) then
+                v_filtro = ' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
+                  	  		 inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
+					  		 inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
+                      	';
+                v_col:= '(nivel.oficina||''*''||inst.nombre)';
+              
+              else 
+              	v_col:= '(nivel.oficina||''*'')';
+               
+              end if;
+            end if;
+            
+            
+            v_ordenar:='';
+            if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then 
+              if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              and codigo in ('PLAPRIVIG','PRINOVIG')
+              ) then
+             v_cols:=' and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PRIMA'',
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'')';
+            elseif (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
+              			and codigo in ('PLAPREPRI')) then--#135
+            		v_cols:=' and colval.codigo_columna in (''PREDIAS1'',''PREDIAS2'',''PREPROME1'',''PREPROME2'',''PREPRICOT21'',''PREPRICOT22'',''PREPRICOT23'',''PREPRIMA''
+                        )';
+            		v_ordenar:='(plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla)),';
+                    if (v_parametros.estado='activo') then
+                      v_condicion:=v_condicion || ' and (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla))=true
+                      --and fp.id_funcionario=551
+                      
+                      ';
+                    end if;
+                    
+                    
+            else --#124
+             v_cols:=' and colval.codigo_columna in (''PREDIAS2'',''PREPROME2'',''BONO'',
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'')';
+            end if;
+       end if; 
+            v_consulta:='select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, 
+           			    trim(both ''FUNODTPR'' from fun.codigo) as codigo, 
+                      	nivel.id_oficina,'||v_col||' as desc_oficina,
+                      --	fp.id_funcionario_planilla,
+                      	tcon.nombre
+					  	, colval.codigo_columna, colval.valor, plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO1'') as ctto1,
+                      	plani.f_obtener_fechas_prima(fp.id_funcionario_planilla,''CTTO2'') as ctto2,
+                      	car.nombre, ges.gestion, (select observaciones_finalizacion from orga.tuo_funcionario  
+                        where id_uo_funcionario=
+                         fp.id_uo_funcionario) as obs_fin,
+                         (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla)) as es_vigente --#135
+                      	from plani.vorden_planilla  nivel
+                      	inner join plani.tfuncionario_planilla fp on 
+                  		fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+                      	inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
+                      	inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
+                      	inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                        inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
+                      	inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
+                    	inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and nivel.id_oficina=car.id_oficina
+                      	'||v_filtro||'
+                      	where '; 
+              	v_consulta:=v_consulta||v_parametros.filtro;
+            	v_consulta:=v_consulta || v_condicion || v_cols || '
+                        
+                        order by '||v_ordenar||' nivel.orden_oficina,nivel.id_oficina,'||v_col||', fun.desc_funcionario2
+                        , colval.codigo_columna';
+      raise notice 'aaa%',v_consulta;      
+        	  return v_consulta;
+    	end;
+    elsif (p_transaccion='PLA_REPPREVIS_SEL') THEN --#133
+        BEGIN
+        	 if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then 
+              if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+             end if;
+        	 v_consulta:='select ofi.nombre as oficina,sum(cv.valor)  as monto_pagar,
+						  ''''	::text as periodo, 
+						  ins.nombre as banco,''Banco'' as tipo_pago,  
+                          tcon.nombre as tipo_contrato,
+						  (select count(*) from plani.tfuncionario_planilla ffp
+          				inner join orga.tuo_funcionario uuo on uuo.id_uo_funcionario=ffp.id_uo_funcionario
+                          and uuo.estado_reg!=''inactivo''	and uuo.tipo=''oficial''  --#137
+                          inner join orga.tcargo c on c.id_cargo=uuo.id_cargo
+                          and ffp.id_funcionario_planilla=ffp.id_funcionario_planilla
+                          and ffp.id_planilla=plani.id_planilla
+                          and c.id_tipo_contrato=tcon.id_tipo_contrato) as total
+						  from orga.toficina ofi
+						  inner join orga.tcargo c on c.id_oficina=ofi.id_oficina
+						  inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo
+                          and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial''  --#137
+						  inner join plani.tfuncionario_planilla fp on fp.id_uo_funcionario= uofun.id_uo_funcionario
+						  inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+						  inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						  inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=c.id_tipo_contrato
+						  inner join plani.treporte_columna rc on rc.id_reporte=repo.id_reporte 
+						  inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+						  inner join orga.tfuncionario_cuenta_bancaria fcb on fcb.id_funcionario=fp.id_funcionario
+						  and fcb.nro_cuenta is not null and trim(both '' '' from nro_cuenta) != '''' 
+                          and fcb.fecha_fin is null
+						  inner join param.tinstitucion ins on ins.id_institucion=fcb.id_institucion
+						  and rc.codigo_columna=cv.codigo_columna
+                          where ';
+             
+             v_consulta:=v_consulta||v_parametros.filtro||v_condicion;
+             v_consulta:=v_consulta||'group by ofi.nombre, ins.nombre, ofi.orden, tcon.nombre, plani.id_planilla,tcon.id_tipo_contrato
+						 order by ofi.orden
+						 ';
+
+             return v_consulta;
+        END;
     else
                          
         raise exception 'Transaccion inexistente';

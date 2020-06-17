@@ -32,7 +32,8 @@ $body$
    #107   ETR             16/03/2020            MZM KPLIAN           listar ultima planilla segun tipo_planilla enviado
    #103   ETR             06/04/2020            MZM KPLIAN           adicion de campo imprimir_boleta para bloquear boton envio de boletas por correo (en pantalla de planillas)
    #124   ETR             13/05/2020            RAC KPLIAN           Registrar calcular_bono_rciva
-   #130	  ETR			  27/05/2020			MZM KPLIAN			 Modificacion glosa para envio de boletas por correo
+   #130   ETR             27/05/2020            MZM KPLIAN           Modificacion glosa para envio de boletas por correo
+   #131   ETR             05/06/2020            RAC KPLIAN           Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
 
  ***************************************************************************/
 
@@ -154,7 +155,8 @@ $body$
                         '''||v_config_gen_cbte_pago||'''::varchar as sw_pago --#79
                         ,tippla.habilitar_impresion_boleta --#103
                         , (pxp.f_iif( tippla.periodicidad=''anual'',tippla.nombre||'' ''||ges.gestion, ''''||param.f_get_periodo_literal(plani.id_periodo)))::varchar as text_rep_boleta --#130
-                        ,calcular_bono_rciva --#124
+                        ,plani.calcular_bono_rciva --#124
+                        ,plani.envios_boleta  --#131
                   from plani.tplanilla plani
                   inner join segu.tusuario usu1 on usu1.id_usuario = plani.id_usuario_reg
                   left join segu.tusuario usu2 on usu2.id_usuario = plani.id_usuario_mod

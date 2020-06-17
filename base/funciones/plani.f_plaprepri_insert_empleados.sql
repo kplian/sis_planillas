@@ -25,6 +25,7 @@ AS $BODY$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #122             30-04-2020       Mzambrana     KPLIAN     
+ #136			  08.06.2020	   Mzambrana	 KPLIAN     Ajuste a funcion de insercion para considerar los que en un primer contrato tuvieran mas de 90 dias
  ********************************************************************************/
 DECLARE
   v_registros            record;
@@ -162,6 +163,7 @@ BEGIN
                            plani.f_get_dias_aguinaldo(id_funcionario, fecha_ini, fecha_fin) dias,
                            fecha_fin - fecha_ini as dias_real
                     FROM base_query --ORDER  BY category, "date" DESC
+                    where  plani.f_get_dias_aguinaldo(id_funcionario, fecha_ini, fecha_fin)>= 90  --#136
                     ';
 raise notice '****%',v_main_query;
     for v_registros in execute(v_main_query)loop

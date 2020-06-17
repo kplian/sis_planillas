@@ -793,8 +793,8 @@ select wf.f_import_ttipo_proceso ('insert','PLASUB',NULL,NULL,'PLASUB','Planilla
 --   planila de prevision de bono de produccion
 --------------------------------------------------------------------------
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
---Configuracion TIPO PLANILLA   
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
 ---------------------------------
 
 select plani.f_import_ttipo_planilla ('insert','PREBOPRO','Planilla de Prevision de Bono de Producción','PLASUB','plani.f_prebopro_insert_empleados','prorrateo_aguinaldo','plani.f_prebopro_valid_empleado','no','anual','',NULL,'activo');
@@ -810,14 +810,14 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PREBOPRO','P
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -858,7 +858,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','BONOVIG','Tota
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
@@ -873,7 +873,7 @@ select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','BONOV
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -887,8 +887,8 @@ select plani.f_import_treporte_columna('insert','BONO','BOLETA DE PAGO : INCENTI
 ---------------------------------
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
---Configuracion TIPO PLANILLA   
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
 ---------------------------------
 
 select plani.f_import_ttipo_planilla ('insert','BONONOVIG','Planilla de Bono NO vigentes','PLASUB','plani.f_bononovig_insert_empleados','prorrateo_aguinaldo','plani.f_bononovig_valid_empleado','no','anual','',NULL,'activo');
@@ -911,7 +911,7 @@ select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','BONONOVIG','To
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion OBLIGACIONES
 ---------------------------------
 
@@ -929,7 +929,7 @@ select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','BONON
 
 
 ----------------------------------
---COPY LINES TO SUBSYSTEM data.sql FILE  
+--COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion REPORTES
 ---------------------------------
 
@@ -951,4 +951,51 @@ select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC13','PLASUE','13%
 
 /***********************************F-DAT-RAC-PLANI-124-18/05/2020****************************************/
 
+
+
+/***********************************I-DAT-MZM-PLANI-113-19/05/2020****************************************/
+select plani.f_import_ttipo_planilla ('insert','PLAPREPRI','Planilla de Prevision de Prima','PLASUB','plani.f_plaprepri_insert_empleados','prorrateo_aguinaldo','plani.f_plaprepri_valid_empleado','no','anual','',NULL,'activo');
+/***********************************F-DAT-MZM-PLANI-113-19/05/2020****************************************/
+
+
+
+/***********************************I-DAT-RAC-PLANI-129-27/05/2020****************************************/
+
+
+INSERT INTO pxp.variable_global ("variable", "valor", "descripcion")
+VALUES
+  (E'plani_reset_variables_modificadas', E'false', E'resetar valores modificads por el usario al volver al estado registro de funcionarios');
+
+/***********************************F-DAT-RAC-PLANI-129-27/05/2020****************************************/
+
+
+
+/************I-DAT-MZM-PLANI-137-10/06/2020*************/
+
+select plani.f_import_treporte('insert','LISTADO POR CENTROS','PLASUE','no','carta_vertical','no','no','no','no','ninguno','nombre','activo',0,186,'LISTADO POR CENTROS','listado_centros','formato_especifico','no','',0,'no','no','BS',0,7.00);
+
+/************F-DAT-MZM-PLANI-137-10/06/2020*************/
+
+
+/************I-DAT-RAC-PLANI-137-10/06/2020*************/
+
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PLAPREPRI','Promedio','formula','Promedio de 3 ultimos sueldos','(({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3)+{TP1}','no','','2','9','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PLAPREPRI','Promedio del ultimo contrato','formula','promedio de 3 ultimos sueldos ultimo contrato','(({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3)+{TP2}','no','','2','10','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP1','PLAPREPRI','Ajuste por Reintegros','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del primer contrato','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','PLAPREPRI','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+
+
+select plani.f_import_ttipo_columna_planilla ('insert','TP1','PRINOVIG','Ajuste por Reintegros','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del primer contrato','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','PRINOVIG','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','PRINOVIG','Promedio C1','formula','Promedio de 3 ultimos sueldos','(({PREPRICOT11}+{PREPRICOT12}+{PREPRICOT13})/3)+{TP1}','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','(({PREPRICOT21}+{PREPRICOT22}+{PREPRICOT23})/3)+{TP2}','no','','2','8','ejecutar','no','no','no','activo');
+
+
+/************F-DAT-RAC-PLANI-137-10/06/2020*************/
+
+************I-DAT-RAC-PLANI-137-15/06/2020*************/
+
+select plani.f_import_ttipo_columna_planilla ('insert','BONANT','PLASUE','Bono antiguedad','formula','Bono de Antigüedad del empleado a partir de 3 salarios mínimos nacionales con incapacidad temporal','CASE WHEN {INCAP_DIAS} > 0    THEN  {BONOANTG} - ({BONOANTG} * ({INCAP_DIAS} *{HORDIA}/{HOREFEC}) * ({INCAP_PORC}))  ELSE {BONOANTG} END','si','','2','5','restar_ejecutado','no','no','si','activo');
+
+************F-DAT-RAC-PLANI-137-15/06/2020*************/
 

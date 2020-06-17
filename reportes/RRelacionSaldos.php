@@ -2,13 +2,16 @@
 // Extend the TCPDF class to create custom MultiRow
 /**
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #56    ETR            30/09/2019           MZM                 Creacion
- #80    ETR            28/11/2019           MZM                 ajuste formato numeric
- #84    ETR            17/12/2019           MZM                 Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
- #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
- #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
+ #56    ETR            30/09/2019           MZM-KPLIAN          Creacion
+ #80    ETR            28/11/2019           MZM-KPLIAN          ajuste formato numeric
+ #84    ETR            17/12/2019           MZM-KPLIAN          Inclusion de funcionalidad para manejo de resumen de planilla de aguinaldosD
+ #83	ETR				02.02.2020			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+ #98	ETR				03.04.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
-
+ #125	ETR				14.05.2020			MZM-KPLIAN			Ajuste para manejo de planilla de prima vigentes
+ #127	ETR				22.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de prima
+ #128	ETR				25.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de produccion
+ #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -35,25 +38,24 @@ class RRelacionSaldos extends  ReportePDF {
 
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 8, 30, 12);
 		
-		
-		
-		
-		
 		$ormargins = $this->getOriginalMargins();
 		$ancho = round(($this->getPageWidth() - $ormargins['left'] - $ormargins['right']) / 3);
 		$this->SetY(10);
 		$fecha_rep = date("d/m/Y");
-		
+		$ampliar=0;//#127
+		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+			$ampliar=60;
+		}
 		$this->SetFont('','B',7);
 		$pagenumtxt = $this->getAliasNumPage();
-		$this->Cell(160, 3, '', '', 0, 'R');
+		$this->Cell(160+$ampliar, 3, '', '', 0, 'R');
 		$this->Cell(10, 3, 'Página:', '', 0, 'L');
 		$this->Cell(3, 3, '', '', 0, 'L');
 		$this->SetFont('','',7);
 		$this->Cell(10, 3, $pagenumtxt, '', 1, 'L');
 			
 		$this->SetFont('','B',7);
-		$this->Cell(160, 3, '', '', 0, 'R');
+		$this->Cell(160+$ampliar, 3, '', '', 0, 'R');
 		$this->Cell(10, 3, "Fecha : ", '', 0, 'L');
 		$this->Cell(3, 3, '', '', 0, 'L');
 		$this->SetFont('','',7);
@@ -65,7 +67,7 @@ class RRelacionSaldos extends  ReportePDF {
 		$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
 		$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
 		if($this->objParam->getParametro('fecha_backup')!=''){
-			$this->Cell(160, 3, '', '', 0, 'R');
+			$this->Cell(160+$ampliar, 3, '', '', 0, 'R');
 			$this->Cell(10, 3, "Backup: ", '', 0, 'L');
 			$this->Cell(3, 3, '', '', 0, 'L');
 			$this->SetFont('','',7);
@@ -133,13 +135,26 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->SetX(30);
 				$this->Cell(50,5,'','T',0,'C');
 				$this->Cell(50,5,'','T',0,'C');
-				$this->Cell(50,5,'Total','T',1,'C');
+				if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
+					$this->Cell(30,5,'Bono','T',0,'C');
+					$this->Cell(30,5,'Total por','T',0,'C');
+					$this->Cell(30,5,'Aporte Pat.','T',0,'C');
+					$this->Cell(30,5,'Costo Total','T',1,'C');
+				
+				}else{
+					$this->Cell(50,5,'Total','T',1,'C');
+				}
 				$this->SetX(30);
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRI'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){ //#125 #133
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
+				}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
+					$this->Cell(30,5,'Produccion','B',0,'C');
+					$this->Cell(30,5,'pagar (Bs.)','B',0,'C');
+					$this->Cell(30,5,'CPS (Bs.)','B',0,'C');
+					$this->Cell(30,5,'(Bs.)','B',1,'C');
 				}else{//aguinaldo
 					$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
 				}
@@ -154,7 +169,6 @@ class RRelacionSaldos extends  ReportePDF {
 		$this->Cell(0,5,'SIN DATOS PARA MOSTRAR','',1,'C');//*****
 	}			
 		
-
 }
 	function setDatos($datos,$detalle,$firma) {
 		$this->ancho_hoja = $this->getPageWidth()-PDF_MARGIN_LEFT-PDF_MARGIN_RIGHT;
@@ -184,6 +198,8 @@ class RRelacionSaldos extends  ReportePDF {
 		$tipo_contrato='';
 		$tipo_pago='';
 		$subtotal=0;//#84
+		$caja=0;
+		$cajat=0;
 		$this->setY(55);
 		if (count($this->datos)>0){
 				for ($i=0; $i<count($this->datos);$i++){
@@ -218,18 +234,34 @@ class RRelacionSaldos extends  ReportePDF {
 							$this->Ln(1);
 						}else{
 							if($ciudad!=''){
-								$this->Cell(150,0.1,'','LRB',1,'L');
+								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+									$this->Cell(150,0.1,'','LRB',1,'L');
+								}else{
+									$this->Cell(220,0.1,'','LRB',1,'L');
+								}
 								$this->SetFont('','B',8);
 								$this->Cell(105,5,'Subtotal:','',0,'R');
 								$this->SetFont('','',8);
-								$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
+								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+									$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
+								}else{
+									$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($caja,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($subtotal+$caja,2,'.',','),'',1,'R');
+								}
 								$subtotal=0;
+								$caja=0;
 							}
 							$this->SetFont('','B',8);
 							$this->Ln(5);
 							$this->Cell(5,5,'','',0,'C');
 							$this->SetFont('','B',8);
-							$this->Cell(150,5,$this->datos[$i]['nombre'],'RLT',1,'L');
+							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+								$this->Cell(150,5,$this->datos[$i]['nombre'],'RLT',1,'L');
+							}else{
+								$this->Cell(220,5,$this->datos[$i]['nombre'],'RLT',1,'L');
+							}
 							
 						}	
 						
@@ -249,8 +281,16 @@ class RRelacionSaldos extends  ReportePDF {
 						$this->SetFont('','',8);
 						$this->SetX(30);
 						$this->Cell(50,5,'','L',0,'L');	
-						$this->Cell(50,5,$this->datos[$i]['banco'],'',0,'L');	 
-						$this->Cell(50,5,number_format($this->datos[$i]['importe'],2,'.',','),'R',1,'R');//#80
+						$this->Cell(50,5,$this->datos[$i]['banco'],'',0,'L');	
+						
+						if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+						 	$this->Cell(50,5,number_format($this->datos[$i]['importe'],2,'.',','),'R',1,'R');//#80
+						}else{
+							$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,'.',','),'',0,'R');//#80
+							$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,'.',','),'',0,'R');//#80
+							$this->Cell(30,5,number_format($this->datos[$i]['caja_oficina'],2,'.',','),'',0,'R');//#80
+							$this->Cell(30,5,number_format($this->datos[$i]['importe']+ ($this->datos[$i]['caja_oficina']) ,2,'.',','),'R',1,'R');//#80
+						}
 					}
 						//$this->Cell(5,5,'','',0,'L');
 						$total=$total+$this->datos[$i]['importe'];
@@ -258,17 +298,31 @@ class RRelacionSaldos extends  ReportePDF {
 						$ciudad=$this->datos[$i]['nombre'];
 						$tipo_contrato= $this->datos[$i]['tipo_contrato'];
 						$tipo_pago=$this->datos[$i]['tipo_pago'];
-						
+						$caja=$caja+$this->datos[$i]['caja_oficina'];
+						$cajat=$cajat+$this->datos[$i]['caja_oficina'];
 					
 				}
 			if($this->detalle[0]['periodo']>0){//#84
 			}else{
 				$this->SetX(30);
-				$this->Cell(150,0.1,'','LRB',1,'L');
+				if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+					$this->Cell(150,0.1,'','LRB',1,'L');
+				}else{
+					$this->Cell(220,0.1,'','LRB',1,'L');
+				}
 				$this->SetFont('','B',8);
+				
+				
 				$this->Cell(105,5,'Subtotal:','',0,'R');
 				$this->SetFont('','',8);
-				$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
+				if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+					$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
+				}else{
+					$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
+					$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
+					$this->Cell(30,5,number_format($caja,2,'.',','),'',0,'R');
+					$this->Cell(30,5,number_format($subtotal+($caja),2,'.',','),'',1,'R');
+				}
 				$this->Ln(5);
 			}
 				
@@ -317,11 +371,26 @@ class RRelacionSaldos extends  ReportePDF {
 				}else{
 					$this->Cell(105,5,'Total para Banco:','',0,'R');
 					$this->SetFont('','',8);
-					$this->Cell(50,5,number_format($total,2,'.',','),'',1,'R');//#84
+					if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+						$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
+					}else{
+						$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
+						$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
+						$this->Cell(30,5,number_format($cajat,2,'.',','),'',0,'R');
+						$this->Cell(30,5,number_format($total+($cajat),2,'.',','),'',1,'R');
+					}
+				}
+				
+				
+				//#133
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+					$this->ln(6);
+					$this->Cell(20,3,$this->datos[0]['total'],'',0,'C');
 				}
 				
 				
 				if(count($this->firmas)>0){
+					
 					$this->ln(40);
 					$ancho_firma= (($this->ancho_hoja-25) / count($this->firmas));
 					
@@ -339,6 +408,9 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->SetFont('','B',8);
 					$this->Cell($ancho_firma,3,$this->firmas[0]['nombre_cargo_firma'],'',0,'C');
 					$this->Cell($ancho_firma,3,$this->firmas[1]['nombre_cargo_firma'],'',1,'C');	
+		
+		
+				
 		
 				}
 				

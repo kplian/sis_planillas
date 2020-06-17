@@ -47,6 +47,7 @@ AS $BODY$
    #90		ETR			15.01.2020			MZM					Ajuste a ancho de columna para reporte bono-descuento
    #98		ETR			02.03.2020			MZM					Inclusion de parametro activo/inactivo/todos para funcionarios
    #105		ETR			12.02.2020			MZM					Control de consolidado solo para planillas que se consultan por periodo
+   #125		ETR			14.05.2020			MZM					Control para reporte de planilla de aguinaldo (boleta de pago)
   ***************************************************************************/
 
   DECLARE
@@ -1258,10 +1259,12 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
     	execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
 							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                              inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
-							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
+                             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                             and tp.periodicidad=''mensual''
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;  --#125
        
 
-        if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+        if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario') and v_fecha_backup is not null) then 
             if(v_parametros.estado_funcionario='activo') then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )

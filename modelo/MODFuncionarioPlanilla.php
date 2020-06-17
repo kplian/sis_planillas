@@ -11,6 +11,9 @@ ISSUE            FECHA:              AUTOR                 DESCRIPCION
 #53 ETR        26/09/2019               RAC                 listado para Interface que identifica empleado según centro de costo
 #61 ETR        01/10/2019               RAC                 Funcionalidad para actualizar bancos y AFP , de funcionarios que no tiene el dato a la fecha de la planilla
 #78 ETR        18/11/2019               RAC                 Considerar esquema origen para los listados backup de planillas
+#129 ETR       28.05.2020               RAC                 Funcionalidad para actulizar formulas y columnas sn eliminas la planillas
+#131 ETR       03/06/2020               RAC       Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
+
 */
 
 class MODFuncionarioPlanilla extends MODbase{
@@ -52,6 +55,8 @@ class MODFuncionarioPlanilla extends MODbase{
         $this->captura('desc_cargo','varchar');
         $this->captura('tipo_contrato','varchar');
         $this->captura('desc_codigo','varchar');  //#29
+        $this->captura('sw_boleta','varchar');  //#131
+
 
         //Ejecuta la instruccion
         $this->armarConsulta();
@@ -299,6 +304,24 @@ class MODFuncionarioPlanilla extends MODbase{
         //Definicion de variables para ejecucion del procedimiento
         $this->procedimiento='plani.ft_funcionario_planilla_ime';
         $this->transaccion='PLA_SINBANAFP_IME';
+        $this->tipo_procedimiento='IME';
+
+        //Define los parametros para la funcion
+        $this->setParametro('id_planilla','id_planilla','int4');
+
+        //Ejecuta la instruccion
+        $this->armarConsulta();
+        $this->ejecutarConsulta();
+
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
+
+    #129 sincronizar bancos y afps
+    function sincColumnas(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='plani.ft_funcionario_planilla_ime';
+        $this->transaccion='PLA_SINCFGCL_IME';
         $this->tipo_procedimiento='IME';
 
         //Define los parametros para la funcion
