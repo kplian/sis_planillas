@@ -247,11 +247,8 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.f_bonovig_insert_empleados(integer)
+    OWNER TO postgres;
 
