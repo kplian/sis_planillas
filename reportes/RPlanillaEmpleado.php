@@ -11,7 +11,8 @@
  #83	ETR				10.12.2019			MZM-KPLIAN			Habilitacion de opcion historico de planilla
  #90	ETR				15.01.2019			MZM-KPLIAN			Inclusion de TC a reporte Reserva de beneficios sociales - resumen
  #98	ETR				03.03.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)		
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte 		
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -108,7 +109,7 @@ class RPlanillaEmpleado extends  ReportePDF {
 			$this->Cell(0,5,'Hasta : '.$this->objParam->getParametro('fecha'),0,1,'C');
 			
 		}else{
-			$this->Cell(0,5,'Correspondiente al mes de : '.$this->datos[0]['periodo'],0,1,'C');
+			$this->Cell(0,5,'Correspondiente al mes de : '.str_replace ('de ','',$this->datos[0]['periodo']),0,1,'C');//#141
 		}
 		
 		$this->Ln(4);			
@@ -576,6 +577,11 @@ class RPlanillaEmpleado extends  ReportePDF {
 					$this->Cell(178,5,'Monto Total:','',0,'R');	
 					$this->SetFont('','',8);
 					$this->Cell(20,5,number_format($total_valor,2,'.',','),'',1,'R');	//#80
+				}else{//#141
+					$this->Ln(1);
+					$this->SetFont('','B',8);
+					$this->Cell(178,5,'TOTAL EMPLEADOS: '.$cont,'',0,'L');	
+					
 				}
 				
 				
@@ -665,7 +671,10 @@ class RPlanillaEmpleado extends  ReportePDF {
 						$this->Cell(20,5,number_format($tot11,2,'.',','),'',0,'R');//nomina BC y CT #77 (20.11.19) //#80
 					}
 					
-
+					//#141
+					$this->Ln(1);
+					$this->SetFont('','B',8);
+					$this->Cell(178,5,'TOTAL EMPLEADOS: '.$cont,'',0,'L');	
 
 				}
 						

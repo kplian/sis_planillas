@@ -113,7 +113,14 @@ Phx.vista.FuncionarioAfp=Ext.extend(Phx.gridInterfaz,{
 	       		lazyRender:true,
 	       		mode: 'local',
 				gwidth: 150,
-				store:['no','mayor_65','mayor_55','jubilado_55','jubilado_65']
+				store:[['no','no'],['mayor_65','(M) Mayor 65'],['mayor_55','Mayor 55'],['jubilado_55','(J) Jubilado 55'],['jubilado_65','(N) Jubilado 65']],
+				renderer:function (value,p,record){
+ 					if (value=='mayor_65') {return '(M) Mayor 65'}
+ 					else if (value=='jubilado_55') {return '(J) Jubilado 55'}
+					else if (value=='jubilado_65') {return '(N) Jubilado 65'}
+					else return value;
+
+}
 			},
 				type:'ComboBox',
 				filters:{	

@@ -8,7 +8,8 @@
  #83	ETR				02.01.2020			MZM					Habilitacion de opcion historico de planilla
  #89	ETR				14.01.2020			MZM					Ajuste a primer registro de clasif. de personal por profesiones, quitar alineado a la izq.
  #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte  
 **/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -117,8 +118,8 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		if($this->objParam->getParametro('tipo_reporte')!='frecuencia_cargos' &&  $this->objParam->getParametro('tipo_reporte')!='lista_cargos' && $this->objParam->getParametro('tipo_reporte')!='directorio_empleados' && $this->objParam->getParametro('tipo_reporte')!='frecuencia_profesiones'){
 			$this->SetFont('','B',10);
 			if($this->objParam->getParametro('tipo_reporte')=='profesiones'|| $this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){ //#115
-				$this->Cell(0,5,'Correspondiente a : '.$this->datos[0]['periodo_lite'],0,1,'C');
-			}else{
+				$this->Cell(0,5,'Correspondiente a : '.str_replace ('de ','',$this->datos[0]['periodo_lite']),0,1,'C'); //#141
+			}else{   
 				$this->Cell(0,5,'Gestión : '.$this->datos[0]['gestion'],0,1,'C');	
 			}
 			
@@ -457,8 +458,9 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 						
 						if( $this->objParam->getParametro('tipo_reporte')=='listado_centros'){//#115
 						$centro_uo='';
-						
+						$cont=0;
 						for ($i=0; $i<count($this->datos);$i++){
+							$cont++;
 							if($i ==0){
 					   		$this->SetX($this->GetX()-5);
 					  	}
@@ -476,6 +478,10 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 							$this->Cell(80,5,mb_strcut($this->datos[$i]['nombre_cargo'], 0, 45, "UTF-8"),'',1,'L');
 							
 						}
+						//#141
+						$this->Ln(2);
+						$this->SetFont('','B',8);
+						$this->Cell(22,5,'TOTAL EMPLEADOS: '.$cont,'',0,'L');
 						
 					}else{
 						$tot_fem=0;

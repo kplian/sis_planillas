@@ -9,6 +9,7 @@
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 //#126	ETR		MZM			15.05.2020				bug reporte multilinea
+//#141	ETR		MZM-KPLIAN	18.06.2020				Ajuste a titulo de reporte
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -92,7 +93,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 
 		if($this->datos_titulo['periodo']>0){//#97
-			$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+			$this->Cell(0,5,'Correspondiente al mes de '.str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
 		}else{
 			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
 		}
