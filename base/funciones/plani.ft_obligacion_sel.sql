@@ -37,6 +37,7 @@ AS $BODY$
  #88	ETR		  14.01.2020		MZM						Modificacion a PLA_ABOCUE_SEL para abono en planilla de aguinaldo
  #98	ETR		  23.03.2020		MZM						Inclusion de condiciones para manejo de personal activo/retirado y consolidado
  #128	ETR		  25.05.2020		MZM						Adicion de columna para adecuar reporte por bancos en bono de produccion
+ #142	ETR		  19.06.2020	 	MZM						
 */
 
 DECLARE
@@ -560,6 +561,45 @@ BEGIN
             return v_consulta;
         
         END;    
+    elsif (p_transaccion='PLA_ABONOXLS_SEL') THEN --#142
+    	BEGIN
+            v_consulta:='select  emp.nombre,
+                         emp.codigo_bnb, 
+                         (select TO_CHAR(now(),''DD''||''/''||''MM''||''/''||''YYYY'')),
+                         (select count(*) from plani.tdetalle_transferencia where id_obligacion=detran.id_obligacion) as num_abonos,
+                         (select sum(monto_transferencia) from plani.tdetalle_transferencia where id_obligacion=detran.id_obligacion) as total,
+                         fun.ci, 
+                         fun.desc_funcionario2,
+                         ges.gestion,
+                         detran.monto_transferencia,
+                         detran.nro_cuenta, 
+                         (select TO_CHAR(plani.fecha_planilla,''MM'')) as periodo
+                         from plani.tdetalle_transferencia detran
+                         inner join orga.vfuncionario fun on fun.id_funcionario = detran.id_funcionario
+                         inner join param.tinstitucion ins on ins.id_institucion = detran.id_institucion
+                         inner join segu.tusuario usu1 on usu1.id_usuario = detran.id_usuario_reg
+                         left join segu.tusuario usu2 on usu2.id_usuario = detran.id_usuario_mod
+                         inner join plani.tobligacion obli on obli.id_obligacion=detran.id_obligacion
+                         inner join plani.tplanilla plani on plani.id_planilla=obli.id_planilla
+                         inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
+                         inner join param.tempresa emp on emp.id_empresa=ges.id_empresa
+                         inner join plani.ttipo_obligacion tipobli on tipobli.id_tipo_obligacion=obli.id_tipo_obligacion
+                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_planilla=plani.id_planilla
+                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                         inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
+                         where ';
+                         v_consulta:=v_consulta||v_parametros.filtro;
+                         
+                         v_consulta:=v_consulta || ' and obli.id_obligacion='||v_parametros.id_obligacion;
+                         
+                         v_consulta:=v_consulta||' order by ofi.orden,fun.desc_funcionario2';
+            return v_consulta;
+        
+        END;
+           
+    
+    
             
     else
                          
