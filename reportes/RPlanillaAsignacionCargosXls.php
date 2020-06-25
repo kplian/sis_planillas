@@ -4,7 +4,8 @@
  #77    ETR            14/11/2019           MZM                 Creacion
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte  
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -436,7 +437,7 @@ class RPlanillaAsignacionCargosXls
 						$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 						
 						if($this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='directorio_empleados' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){///////////////////
-							$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo_lite']);
+							$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.str_replace ('de ','',$datos[0]['periodo_lite'])); //#141
 						}else{
 							$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['gestion']);	
 						}

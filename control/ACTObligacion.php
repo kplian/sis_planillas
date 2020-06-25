@@ -16,6 +16,7 @@ HISTORIAL DE MODIFICACIONES:
 #117ETR				22.04.2020			MZM					Ajuste por actualizacion de php7  
 */
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldos.php'); //#56
+require_once(dirname(__FILE__).'/../reportes/RAbonoCuentaXls.php'); //#142
 class ACTObligacion extends ACTbase{    
 			
 	function listarObligacion(){
@@ -84,9 +85,9 @@ class ACTObligacion extends ACTbase{
 		
 		if($this->objParam->getParametro('tipo_contrato')!= null && $this->objParam->getParametro('tipo_contrato')!= 'undefined' ){//#117
 			if($this->objParam->getParametro('tipo_contrato')=='Planta' ){
-				$nombre_archivo = 'B03'.$periodo."1.CTD";
+				$nombre_archivo = 'B03'.$periodo."1.CTD.PRN";
 			}else{
-				$nombre_archivo = 'B03'.$periodo."2.CTD";
+				$nombre_archivo = 'B03'.$periodo."2.CTD.PRN";
 			}
 		}
 		
@@ -150,6 +151,43 @@ function reporteBancos()	{ //#56
 	        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());	
 
     }
+
+
+
+//#142
+function reporteAbonoXls()    {//#77 #83
+
+            $titulo ='Abono en cuenta';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+            $this->objParam->addParametro('titulo_archivo',$titulo);
+            $this->objParam->addParametro('datos',$this->res->datos);
+            $this->objParam->addParametro('fecha',$fecha);
+            $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+            $this->objParam->addParametro('tipo_contrato',$this->objParam->getParametro('tipo_contrato'));
+            $this->objParam->addParametro('id_obligacion',$this->objParam->getParametro('id_obligacion')); 
+            $this->objParam->addParametro('esquema',$esquema); //#83
+            //Instancia la clase de excel
+            $this->objFunc=$this->create('MODObligacion');
+
+            $this->res=$this->objFunc->listarAbonoCuentaXls($this->objParam);
+            $this->objReporteFormato=new RAbonoCuentaXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+           //var_dump($this->res->datos); exit;
+            $this->objReporteFormato->generarReporte($this->res->datos);
+
+
+            $this->mensajeExito=new Mensaje();
+            $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+                'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+            $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+            $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
 
 			
 }

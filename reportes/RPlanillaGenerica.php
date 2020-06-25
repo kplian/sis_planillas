@@ -11,6 +11,7 @@
 //#93			MZM			13.02.2020				Ajuste en obtencion de subtotales para columnas no numericas
 //#98		ETR	MZM			04.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 //#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+//#141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
 
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
@@ -91,9 +92,9 @@ class RPlanillaGenerica extends  ReportePDF {
 		if($this->datos_titulo['periodo']!=''){
 			if ($this->objParam->getParametro('consolidar')=='si'){//#98
 							
-							$this->Cell(0,5,'Acumulado a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+							$this->Cell(0,5,'Acumulado a: ' . str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
 						}else{
-							$this->Cell(0,5,'Correspondiente a: ' . $this->datos_titulo['periodo_lite'],0,1,'C');
+							$this->Cell(0,5,'Correspondiente a: ' . str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C'); //#141
 						}
 				
 		}else{
