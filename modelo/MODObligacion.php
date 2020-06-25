@@ -253,6 +253,38 @@ class MODObligacion extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+
+	function listarAbonoCuentaXls(){//#142
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.ft_obligacion_sel';
+		$this->transaccion='PLA_ABONOXLS_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		
+		$this->setParametro('id_obligacion','id_obligacion','int4');
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');			
+		//Definicion de la lista del resultadoel query
+		$this->captura('nombre','varchar');		
+		$this->captura('codigo_bnb','varchar');
+		$this->captura('fecha','text');
+		
+		$this->captura('num_abonos','bigint');
+		$this->captura('total','numeric');
+		$this->captura('ci','varchar');
+		$this->captura('desc_funcionario2','text');
+		$this->captura('gestion','int4');
+		$this->captura('monto_transferencia','numeric');
+		$this->captura('numero_cuenta','varchar');
+		$this->captura('periodo','text');		
+				
+		
+		//Ejecuta la instruccion
+		$this->armarConsulta();
+		$this->ejecutarConsulta();
+		//echo $this->getConsulta(); exit;
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 			
 }
 ?>

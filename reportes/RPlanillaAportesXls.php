@@ -6,7 +6,8 @@
  #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
  #83	ETR				02.02.2020			MZM					Habilitacion de opcion historico de planilla
  #86	ETR				20.12.2019			MZM					HAbilitacion para funcionar con reporte de reintegros
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte*  
 */
 class RPlanillaAportesXls
 {
@@ -289,7 +290,7 @@ class RPlanillaAportesXls
 					$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];
 				}else{
 					if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
-					$tit_rep='FORMULARIO DE PAGO DE CONTRIBUCIONES - '.$datos[0]['nombre_afp'];}
+					$tit_rep='PAGO DE CONTRIBUCIONES FONDO SOLIDARIO - '.$datos[0]['nombre_afp'];}
 					else{
 						$tit_rep='APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SUELDOS - '.$datos[0]['nombre_afp'];
 					}
@@ -310,9 +311,9 @@ class RPlanillaAportesXls
 				 $this->docexcel->getActiveSheet()->mergeCells("A2:S2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				if ($this->objParam->getParametro('consolidar')=='si'){//#98
-					$this->docexcel->getActiveSheet()->setCellValue('A2', 'Acumulado a : '.$datos[0]['periodo']);
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'Acumulado a : '.str_replace ('de ','',$datos[0]['periodo']));
 				}else{
-					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['periodo']);
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.str_replace ('de ','',$datos[0]['periodo']));
 				}
 				
 				

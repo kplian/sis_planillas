@@ -539,6 +539,20 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				scope:this
 			});
 				
+				
+		//el reporte en excel
+			Ext.Ajax.request({
+                url:'../../sis_planillas/control/Obligacion/reporteAbonoXls', //#56
+                params:{'id_obligacion':rec.data.id_obligacion,
+				'tipo_contrato':this.maestro.tipo_contrato,
+				'start':0,'limit':100000},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });  
+            		
+				
 	},
 	successGeneracion_txt:function(resp){
 			Phx.CP.loadingHide();

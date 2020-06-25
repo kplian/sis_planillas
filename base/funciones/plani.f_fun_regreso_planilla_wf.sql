@@ -26,6 +26,7 @@ $body$
  #1  ETR           19/02/2019        RAC KPLIAN       elimina agrupadores de obligaciones
  #78 ETR           18/11/2019        RAC              Crear backup al retroceder estado finalizado
  #129 ETR          27/05/2020        RAC              no perder valores de columnas variables, al retornar al estado borrador en planillas de cualquier tipo
+ #129 ETR          23/06/2020        RAC              cambiar de lugar el estado de reseto de valores
 
 */
 
@@ -75,6 +76,10 @@ BEGIN
             plani.tfuncionario_planilla.id_planilla = v_planilla.id_planilla;
 
 
+
+     ELSIF p_codigo_estado  in ('registro_horas')  THEN
+
+
             --#129 recupera la configuracion de reseteo de variables modificadas por usuario
             v_reset_var = pxp.f_get_variable_global('plani_reset_variables_modificadas')::BOOLEAN;
 
@@ -101,26 +106,6 @@ BEGIN
 
             END IF;
 
-
-
-
-            update plani.tcolumna_detalle set
-            valor = 0,
-            valor_generado = 0
-            from plani.tcolumna_valor cv, plani.tfuncionario_planilla fp
-            where cv.id_columna_valor = plani.tcolumna_detalle.id_columna_valor and
-            fp.id_funcionario_planilla = cv.id_funcionario_planilla and
-            fp.id_planilla = v_planilla.id_planilla;
-
-
-
-     ELSIF p_codigo_estado  in ('registro_horas')  THEN
-            update plani.tcolumna_valor
-            set valor = 0,
-            valor_generado = 0
-            from plani.tfuncionario_planilla fp
-            where fp.id_funcionario_planilla = plani.tcolumna_valor.id_funcionario_planilla and
-            fp.id_planilla = v_planilla.id_planilla;
 
 
      elsif (p_codigo_estado  in ('calculo_columnas')) then
