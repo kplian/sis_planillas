@@ -9,23 +9,24 @@
  *  HISTORIAL DE MODIFICACIONES:
        
  #ISSUE                FECHA                AUTOR               DESCRIPCION
- #30    ETR            30/07/2019           MZM                 Creacion 
-  #41	ETR				16.09.2019			MZM					ADICION DE FILTRO TIPO_CONTRATO
-  #45	ETR				19.09.2019			MZM					adicion de campo para reporte afp
-  #66	ETR				15.10.2019			MZM					Adicion de filtro id_tipo_contrato en reportes especificos
-  #67	ETR				16.10.2019			MZM					Reporte asignacion de cargos
- *#77	ETR				15.11.2019			MZM					Ajsutes reportes
- *#81	ETR				25.11.2019			MZM					Curva salarial jeerarquia por nivel arbol y prioridad
- *#81	ETR				05.12.2019			MZM					Adicion de campo estado_afp para curva salarial
- *#83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- *#83 	ETR				03.01.2020			MZM					para DATAPORTE adicion de parametro esquema 
- *#87	ETR				09.01.2020			MZM					Reporte detalle de aguinaldos	
- *#98	ETR				03.03.2020  			MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
- *#119	ETR				23.04.2020			MZM					Reporte saldo acumulado Rc-Iva
+ #30    ETR            30/07/2019           MZM-KPLIAN          Creacion 
+  #41	ETR				16.09.2019			MZM-KPLIAN			ADICION DE FILTRO TIPO_CONTRATO
+  #45	ETR				19.09.2019			MZM-KPLIAN			adicion de campo para reporte afp
+  #66	ETR				15.10.2019			MZM-KPLIAN			Adicion de filtro id_tipo_contrato en reportes especificos
+  #67	ETR				16.10.2019			MZM-KPLIAN			Reporte asignacion de cargos
+ *#77	ETR				15.11.2019			MZM-KPLIAN			Ajsutes reportes
+ *#81	ETR				25.11.2019			MZM-KPLIAN			Curva salarial jeerarquia por nivel arbol y prioridad
+ *#81	ETR				05.12.2019			MZM-KPLIAN			Adicion de campo estado_afp para curva salarial
+ *#83	ETR				10.12.2019			MZM-KPLIAN			Habilitacion de opcion historico de planilla
+ *#83 	ETR				03.01.2020			MZM-KPLIAN			para DATAPORTE adicion de parametro esquema 
+ *#87	ETR				09.01.2020			MZM-KPLIAN			Reporte detalle de aguinaldos	
+ *#98	ETR				03.03.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
+ *#119	ETR				23.04.2020			MZM-KPLIAN			Reporte saldo acumulado Rc-Iva
   #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
   #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
   #133  ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
   #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
+ *#144	ETR				29.06.2020			MZM-KPLIAN
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -802,11 +803,46 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('total','bigint');
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	echo "****".$this->getConsulta(); exit;
+	//echo "****".$this->getConsulta(); exit;
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+	 
+	 function listarIngresoEgreso(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_INGEGR_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('nombre_empleado','text');
+		$this->captura('codigo_empleado','text');
+		$this->captura('doc_id','varchar');
+		$this->captura('titulo_reporte_superior','varchar');	
+		$this->captura('titulo_reporte_inferior','varchar');		
+		$this->captura('primer_contrato','date');	
+		$this->captura('nivel','varchar');			
+		$this->captura('afp','varchar');
+		$this->captura('cod_columna','varchar');
+		$this->captura('valor','numeric');
+		$this->captura('tipo_movimiento','varchar');
+		$this->captura('nombre_cargo','varchar');
+		$this->captura('jubilado','varchar');
+		$this->captura('periodo','varchar');
+		//Ejecuta la instruccion
+		$this->armarConsulta(); 
+		
+		 //echo "**REP**".$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
+	 
 }
 ?>

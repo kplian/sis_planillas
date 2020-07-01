@@ -18,7 +18,7 @@ $body$
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
  #10              04/06/2019        RAC KPLIAN       añade posibilidad  para configurar  si el tipo de columna es editable
-
+ #143			  26.06.2020		MZM KPLIAN		 adicion de campo tipo_movimiento
 ***************************************************************************/
 
 DECLARE
@@ -70,6 +70,7 @@ BEGIN
 			tiene_detalle,
 			recalcular,
             editable --#10
+            ,tipo_movimiento --#143
           	) values(
 			v_parametros.id_tipo_planilla,
 			v_parametros.compromete,
@@ -90,6 +91,7 @@ BEGIN
 			v_parametros.tiene_detalle,
 			v_parametros.recalcular,
 			v_parametros.editable	--#10
+            ,v_parametros.tipo_movimiento --#143
 			)RETURNING id_tipo_columna into v_id_tipo_columna;
 
 			--Definicion de la respuesta
@@ -129,6 +131,7 @@ BEGIN
 			tiene_detalle = v_parametros.tiene_detalle,
 			recalcular = v_parametros.recalcular,
             editable = v_parametros.editable --#10
+            ,tipo_movimiento=v_parametros.tipo_movimiento --#143
 			where id_tipo_columna=v_parametros.id_tipo_columna;
                
 			--Definicion de la respuesta
