@@ -47,6 +47,7 @@ AS $BODY$
  #133	ETR				03.06.2020			MZM-KPLIAN			Reporte de Prevision de primas (resumen)
  #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
  #137	ETR				10.06.2020			MZM-KPLIAN			Bugs en reportes (antiguedad: faltaba definir fecha para hallar tiempo de antiguedad; afp fondo solidario en plasue: reponer filtro de 13000 bs)
+#144	ETR				29.06.2020			MZM-KPLIAN			REporte de ingresos/egresos por funcionario
  ***************************************************************************/
 
 DECLARE
@@ -2920,6 +2921,31 @@ raise notice '***:%',v_consulta;
 						 ';
 
              return v_consulta;
+        END;
+    elsif (p_transaccion='PLA_INGEGR_SEL') THEN --#144
+        BEGIN
+        	v_consulta:='select fun.id_funcionario, fun.desc_funcionario2,
+						 btrim(fun.codigo, ''FUNODTPR'' ), fun.ci, 
+						(plani.f_get_fecha_primer_contrato_empleado(
+                          fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion)
+                		), esc.codigo, (select afp.nombre||''@@@''||fafp.tipo_jubilado from plani.tfuncionario_afp fafp inner join plani.tafp afp on afp.id_afp=fafp.id_afp
+						and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla)
+						), tc.codigo, cv.valor, repcol.orden
+						from orga.vfuncionario fun
+						inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
+						inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+						inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+						inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
+						inner join orga.tescala_salarial esc on esc.id_escala_salarial=car.id_escala_salarial
+						inner join plani.ttipo_columna tc on tc.id_tipo_planilla=plani.id_tipo_planilla
+						inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+						inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+						inner join plani.treporte_columna repcol on repcol.id_reporte=repo.id_reporte and repcol.codigo_columna=tc.codigo
+						and cv.id_tipo_columna=tc.id_tipo_columna
+						and tc.tipo_movimiento is not null
+						where ';
+          	v_consulta:=v_consulta||v_parametros.filtro;
+         	return v_consulta;
         END;
     else
                          

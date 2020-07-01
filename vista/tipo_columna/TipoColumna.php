@@ -14,7 +14,7 @@
    
  #0               17-01-2014        JRR KPLIAN       creacion
  #10              04/06/2019        RAC KPLIAN       añade posibilidad  para configurar  si el tipo de columna es editable
-  
+ #143			  25.06.2020		MZM KPLIAN		 adicion de campo tipo_movimiento	 
 */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -393,6 +393,28 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 				id_grupo:1,
 				grid:true,
 				form:false
+		},
+		{//#143
+			config:{
+				name: 'tipo_movimiento',
+				fieldLabel: 'Tipo Movimiento',
+				allowBlank:true,
+				emptyText:'Tipo Movimiento...',
+	       		typeAhead: true,
+	       		triggerAction: 'all',
+	       		lazyRender:true,
+	       		mode: 'local',
+				gwidth: 150,
+				store:['ingreso','egreso']
+			},
+				type:'ComboBox',
+				filters:{	
+	       		         type: 'list',
+	       				 options: ['ingreso','egreso'],	
+	       		 	},
+				id_grupo:1,
+				grid:true,
+				form:true
 		}
 	],
 	tam_pag:50,	
@@ -422,7 +444,8 @@ Phx.vista.TipoColumna=Ext.extend(Phx.gridInterfaz,{
 		{name:'id_usuario_mod', type: 'numeric'},
 		{name:'usr_reg', type: 'string'},
 		{name:'usr_mod', type: 'string'},
-		{name:'tiene_detalle', type: 'string'},'editable'
+		{name:'tiene_detalle', type: 'string'},'editable',
+		{name:'tipo_movimiento', type: 'string'}
 		
 	],
 	sortInfo:{

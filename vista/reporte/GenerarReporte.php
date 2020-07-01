@@ -14,6 +14,7 @@
  * #98	ETR			MZM		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
  * #107	ETR			MZM		16.03.2020	Carga automatica de ultima gestion y periodo procesado
  * #119 ETR			MZM		23.04.2020	Reporte acumulado saldo rc-iva
+ * #144	ETR			MZM		29.06.2020	Reporte ingreso/egreso por funcionario
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -557,6 +558,51 @@ header("content-type: text/javascript; charset=UTF-8");
 				type:'ComboBox',				
 				id_grupo:0,
 				grid:true
+		},
+		{
+			config: {
+				name: 'id_funcionario_planilla',
+				fieldLabel: 'Funcionario',
+				typeAhead: false,
+				forceSelection: false,
+				hiddenName: 'id_funcionario_planilla',
+				allowBlank: true,
+				emptyText: 'Funcionario...',
+				store: new Ext.data.JsonStore({
+					url: '../../sis_planillas/control/FuncionarioPlanilla/listarFuncionarioPlanilla',
+					id: 'id_funcionario_planilla',
+					root: 'datos',
+					sortInfo: {
+						field: 'id_funcionario_planilla',
+						direction: 'ASC'
+					},
+					totalProperty: 'total',
+					fields: ['id_funcionario_planilla', 'id_planilla', 'id_funcionario','desc_funcionario2','tipo_contrato'],
+					remoteSort: true,
+					baseParams: {par_filtro: 'desc_funcionario2',
+					}
+				}),
+				valueField: 'id_funcionario_planilla',
+				displayField: 'desc_funcionario2',
+				gdisplayField: 'desc_funcionario2',
+				triggerAction: 'all',
+				lazyRender: true,
+				mode: 'remote',
+				pageSize: 20,
+				queryDelay: 200,
+				listWidth:280,
+				minChars: 2,
+				gwidth: 170,
+				tpl: '<tpl for="."><div class="x-combo-list-item"><p>{desc_funcionario2}</p>Tipo:<strong>{tipo_contrato}</strong></p>Fecha Backup:<strong>{fecha_backup}</strong> </div></tpl>'
+			},
+			type: 'ComboBox',
+			id_grupo: 0,
+			filters: {
+				pfiltro: 'desc_funcionario2',
+				type: 'string'
+			},
+			grid: true,
+			form: true
 		}
 		
 		],
@@ -631,10 +677,14 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.mostrarComponente(this.Cmp.id_gestion);
 				//this.ocultarComponente(this.Cmp.personal_activo);
 				this.ocultarComponente(this.Cmp.consolidar);//#98
-				
-								
 				this.Cmp.periodicidad.setValue(r.data.periodicidad);
 				this.Cmp.codigo_planilla.setValue(r.data.codigo);//#83
+				
+				/************/
+				this.ocultarComponente(this.Cmp.id_funcionario_planilla); //#144
+				this.mostrarComponente(this.Cmp.personal_activo);//#144
+				this.mostrarComponente(this.Cmp.consultar_backup);//#144
+				
 				
 				// obtener la ultima planilla del tipo seleccionado
 				 Ext.Ajax.request({
@@ -682,6 +732,9 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.consultar_backup.setValue('no');//#83
 				this.ocultarComponente(this.Cmp.id_planillabk);//#83
 				this.Cmp.esquema.setValue('plani');
+				
+				
+				
 			},this);
 			
 			
@@ -694,6 +747,8 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
 				
 				this.Cmp.id_periodo.modificado = true;
+				this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
+				
 			},this);
 			
 			this.Cmp.id_tipo_contrato.on('select',function(c,r,i){
@@ -704,6 +759,10 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_planillabk.reset();
 				this.ocultarComponente(this.Cmp.id_planillabk);//#83
 				this.Cmp.esquema.setValue('plani');
+				
+				//#144
+				this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_contrato = this.Cmp.id_tipo_contrato.getValue(); //#144
+				this.Cmp.id_funcionario_planilla.modificado=true;
 			},this);
 			//#83
 			this.Cmp.id_periodo.on('select',function(c,r,i){
@@ -711,6 +770,16 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_planillabk.reset();
 				this.ocultarComponente(this.Cmp.id_planillabk);
 				this.Cmp.esquema.setValue('plani');
+				//#144
+				this.Cmp.id_funcionario_planilla.reset();
+				this.Cmp.id_funcionario_planilla.store.baseParams.id_periodo = this.Cmp.id_periodo.getValue(); //#144
+				this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
+				if (this.Cmp.id_tipo_contrato.getValue()!=''){
+					this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_contrato = this.Cmp.id_tipo_contrato.getValue(); //#144
+				}
+				//#144
+				this.Cmp.id_funcionario_planilla.modificado=true;
+				
 			},this);
 			
 			
@@ -840,6 +909,13 @@ header("content-type: text/javascript; charset=UTF-8");
 										}else{
 											if(r.data.control_reporte=='planilla_tributaria' || r.data.control_reporte=='saldo_fisco'){//#119
 												this.ocultarComponente(this.Cmp.personal_activo);
+											}else{
+												if(r.data.control_reporte=='ingreso_egreso' ){//#144
+													
+													this.mostrarComponente(this.Cmp.id_funcionario_planilla);
+													this.ocultarComponente(this.Cmp.personal_activo);
+													this.ocultarComponente(this.Cmp.consultar_backup);
+												}	
 											}
 										}
 										
@@ -927,12 +1003,32 @@ header("content-type: text/javascript; charset=UTF-8");
 				}
 			},this);
 			
+			//#144
+			this.Cmp.id_funcionario_planilla.on('select',function(c,r,i){
+				
+				if(this.Cmp.id_periodo.getValue()=='' || this.Cmp.id_gestion.getValue()=='' || this.Cmp.id_tipo_planilla.getValue()=='' ){
+					alert("Es necesario que los campos Tipo Planilla, Gestion y Periodo tengan datos");
+				}
+				
+				//this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_planilla = this.Cmp.id_tipo_planilla.getValue();
+				//this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
+				this.Cmp.id_funcionario_planilla.store.baseParams={
+					id_tipo_planilla:this.Cmp.id_tipo_planilla.getValue(),
+					id_periodo:this.Cmp.id_periodo.getValue()
+				}
+				
+				this.Cmp.id_funcionario_planilla.modificado = true;
+			},this);
+			
+			
+			
 		}, successTipoPlani:function(resp){ //#107
 			            Phx.CP.loadingHide();
 			            
 			            var reg = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
-			            
+			            this.Cmp.id_funcionario_planilla.reset();//#144
 			            if(reg.total>0){ 
+			            	
 				            this.Cmp.id_gestion.setValue(reg.datos['0'].id_gestion);
 				            this.Cmp.id_gestion.setRawValue(reg.datos['0'].gestion);
 				            this.Cmp.id_gestion.store.baseParams.gestion_min = reg.datos['0'].min_gestion;
@@ -943,6 +1039,14 @@ header("content-type: text/javascript; charset=UTF-8");
 				            	//#107
 				            	this.Cmp.id_periodo.store.baseParams.id_gestion = reg.datos['0'].id_gestion;
 								this.Cmp.id_periodo.modificado = true;
+				            	
+				            	//#144
+								this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_planilla= this.Cmp.id_tipo_planilla.getValue(); //#144
+				            	this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion =reg.datos['0'].id_gestion; //#144
+				            	this.Cmp.id_funcionario_planilla.store.baseParams.id_periodo=reg.datos['0'].id_periodo; //#144
+				            	this.Cmp.id_funcionario_planilla.modificardo=true;
+				            	
+				            	
 				            	
 				            }
 			            }else{

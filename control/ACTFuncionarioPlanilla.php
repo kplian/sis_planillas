@@ -25,6 +25,13 @@ class ACTFuncionarioPlanilla extends ACTbase{
 		if ($this->objParam->getParametro('id_planilla') != '') {
 			$this->objParam->addFiltro("funplan.id_planilla = ". $this->objParam->getParametro('id_planilla'));
 		}
+		//#144
+		if ($this->objParam->getParametro('id_tipo_planilla') != '') {
+			$this->objParam->addFiltro("funplan.id_planilla in  (select id_planilla from plani.tplanilla where id_tipo_planilla=". $this->objParam->getParametro('id_tipo_planilla')." and id_periodo=".$this->objParam->getParametro('id_periodo'). " and id_gestion=".$this->objParam->getParametro('id_gestion'). " )
+                        and tc.id_tipo_contrato=".$this->objParam->getParametro('id_tipo_contrato') );
+		}
+		
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODFuncionarioPlanilla','listarFuncionarioPlanilla');
