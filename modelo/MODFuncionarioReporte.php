@@ -539,7 +539,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('periodo_lite','varchar');
 								
 		//Ejecuta la instruccion
-		$this->armarConsulta(); //(echo "10****".$this->getConsulta(); exit;
+		$this->armarConsulta(); //echo "10****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -726,7 +726,7 @@ class MODFuncionarioReporte extends MODbase{
 				$this->captura('periodo','varchar');
 				$this->captura('saldo_dep','numeric');
 		 $this->armarConsulta(); 		   
-		// echo '***15'.$this->getConsulta(); exit;
+		 //echo '***15'.$this->getConsulta(); exit;
         //Ejecuta la instruccion
      
 		//var_dump($this->aParam->getParametrosConsulta()); exit;

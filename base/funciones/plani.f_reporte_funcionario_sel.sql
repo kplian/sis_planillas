@@ -2925,12 +2925,19 @@ raise notice '***:%',v_consulta;
     elsif (p_transaccion='PLA_INGEGR_SEL') THEN --#144
         BEGIN
         	v_consulta:='select fun.id_funcionario, fun.desc_funcionario2,
-						 btrim(fun.codigo, ''FUNODTPR'' ), fun.ci, 
-						(plani.f_get_fecha_primer_contrato_empleado(
-                          fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion)
-                		), esc.codigo, (select afp.nombre||''@@@''||fafp.tipo_jubilado from plani.tfuncionario_afp fafp inner join plani.tafp afp on afp.id_afp=fafp.id_afp
-						and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla)
-						), tc.codigo, cv.valor, repcol.orden
+btrim(fun.codigo, ''FUNODTPR'' ), fun.ci, repcol.titulo_reporte_superior, repcol.titulo_reporte_inferior,
+(plani.f_get_fecha_primer_contrato_empleado(
+                fp.id_uo_funcionario, fp.id_funcionario, uofun.fecha_asignacion)
+                )
+, esc.codigo, (select afp.nombre from plani.tfuncionario_afp fafp inner join plani.tafp afp on afp.id_afp=fafp.id_afp
+and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla)
+), tc.codigo, cv.valor, tc.tipo_movimiento, car.nombre as nombre_cargo,
+
+
+(select fafp.tipo_jubilado from plani.tfuncionario_afp fafp inner join plani.tafp afp on afp.id_afp=fafp.id_afp
+and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla)
+) as jubilado,
+(param.f_get_periodo_literal(plani.id_periodo)) as periodo
 						from orga.vfuncionario fun
 						inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
 						inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
@@ -2945,6 +2952,9 @@ raise notice '***:%',v_consulta;
 						and tc.tipo_movimiento is not null
 						where ';
           	v_consulta:=v_consulta||v_parametros.filtro;
+             v_consulta:=v_consulta||'
+						 order by repcol.orden
+						 ';
          	return v_consulta;
         END;
     else

@@ -738,17 +738,13 @@ header("content-type: text/javascript; charset=UTF-8");
 			},this);
 			
 			
-			
-				
-			
-			
 			this.Cmp.id_gestion.on('select',function(c,r,i){
 				this.Cmp.id_periodo.reset();
 				this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
 				
 				this.Cmp.id_periodo.modificado = true;
 				this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
-				
+				this.Cmp.id_funcionario_planilla.modificado=true;
 			},this);
 			
 			this.Cmp.id_tipo_contrato.on('select',function(c,r,i){
@@ -761,8 +757,16 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.esquema.setValue('plani');
 				
 				//#144
+				this.Cmp.id_funcionario_planilla.reset();
 				this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_contrato = this.Cmp.id_tipo_contrato.getValue(); //#144
+				if (this.Cmp.id_periodo.getValue()!=''){
+					this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
+					this.Cmp.id_funcionario_planilla.store.baseParams.id_periodo = this.Cmp.id_periodo.getValue(); //#144
+				}
 				this.Cmp.id_funcionario_planilla.modificado=true;
+				
+				
+				
 			},this);
 			//#83
 			this.Cmp.id_periodo.on('select',function(c,r,i){
@@ -794,7 +798,8 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_tipo_columna.setValue('');
 				this.Cmp.nombre_descuento.setValue('');
 				this.mostrarComponente(this.Cmp.personal_activo);
-				
+				this.ocultarComponente(this.Cmp.id_funcionario_planilla); //#144
+				this.Cmp.id_funcionario_planilla.reset();
 				this.Cmp.id_afp.allowBlank=true;
 				this.Cmp.id_afp.setValue('');
 				//***************
@@ -1006,7 +1011,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			//#144
 			this.Cmp.id_funcionario_planilla.on('select',function(c,r,i){
 				
-				if(this.Cmp.id_periodo.getValue()=='' || this.Cmp.id_gestion.getValue()=='' || this.Cmp.id_tipo_planilla.getValue()=='' ){
+				if(this.Cmp.id_periodo.getValue()=='' || this.Cmp.id_gestion.getValue()=='' || this.Cmp.id_tipo_planilla.getValue()=='' || this.Cmp.id_tipo_contrato.getValue()==''  ){
 					alert("Es necesario que los campos Tipo Planilla, Gestion y Periodo tengan datos");
 				}
 				
@@ -1014,7 +1019,9 @@ header("content-type: text/javascript; charset=UTF-8");
 				//this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
 				this.Cmp.id_funcionario_planilla.store.baseParams={
 					id_tipo_planilla:this.Cmp.id_tipo_planilla.getValue(),
-					id_periodo:this.Cmp.id_periodo.getValue()
+					id_periodo:this.Cmp.id_periodo.getValue(),
+					id_gestion:this.Cmp.id_gestion.getValue(),
+					id_tipo_contrato:this.Cmp.id_tipo_contrato.getValue(),
 				}
 				
 				this.Cmp.id_funcionario_planilla.modificado = true;
