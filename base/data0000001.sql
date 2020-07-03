@@ -999,3 +999,164 @@ select plani.f_import_ttipo_columna_planilla ('insert','BONANT','PLASUE','Bono a
 
 ************F-DAT-RAC-PLANI-137-15/06/2020*************/
 
+
+
+
+************I-DAT-RAC-PLANI-145-03/07/2020*************/
+
+
+select param.f_import_tdocumento ('insert','SPLAPREPRI','Planillas de Previsión de Primas Simple','PLANI','depto','gestion','',NULL);
+select param.f_import_tdocumento ('insert','SPLAPRIVIG','Planilla de Primas Simple','PLANI','depto','gestion','',NULL);
+select param.f_import_tdocumento ('insert','SPRINOVIG','Planilla  Simple de Prima No vigentes','PLANI','depto','gestion','',NULL);
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
+---------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','SPLAPREPRI','Planilla de Previsión de Prima Simple','PLASUB','plani.f_splaprepri_insert_empleados','prorrateo_aguinaldo','plani.f_plaprepri_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPRIMA','SPLAPREPRI','Prima a pagar','formula','prima a pagar','CASE
+WHEN ({SPREDIAS1}+{SPREDIAS2})>=90 THEN
+({PREPROME1}/360*({SPREDIAS1}+{SPREDIAS2}) *({PORCENTAJEPRIM}/100))
+ELSE 0 END
+','no','','2','11','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME1','SPLAPREPRI','Promedio','formula','Promedio de 3 ultimos sueldos','(({SPREPRICOT1}+{SPREPRICOT2}+{SPREPRICOT3})/3)+{TP2}','no','','2','9','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS1','SPLAPREPRI','Dias para calculo','basica','Dias para calculo',NULL,'no',NULL,'2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS2','SPLAPREPRI','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT1','SPLAPREPRI','Prevision Cotizable1','basica','Prevision de primer sueldo para promedio',NULL,'no',NULL,'2','1','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT2','SPLAPREPRI','Prevision Cotizable2','basica','Prevision de segundo sueldo para promedo','','no','','2','2','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT3','SPLAPREPRI','Prevision cotizable3','basica','prevision de tercer sueldo para promedio','','no','','2','3','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP1','SPLAPREPRI','Ajuste por Reintegros','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del primer contrato','','no','','2','-4','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','SPLAPREPRI','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion OBLIGACIONES
+---------------------------------
+
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion REPORTES
+---------------------------------
+
+select plani.f_import_treporte('insert','Planilla Previsoria de Prima','SPLAPREPRI','no','carta_horizontal','no','no','no','no','ninguno','nombre','activo',188,249,'Planilla Previsoria de Prima','','planilla','no','plani.vdatos_func_planilla',0,'no','no','BS',0,7.00);
+select plani.f_import_treporte('insert','Planilla de Prevision de Prima','SPLAPREPRI','no','carta_horizontal','no','no','no','no','ninguno','nombre','activo',0,249,'Planilla de Prevision de Prima','planilla_prevision','formato_especifico','no','',0,'no','no','BS',0,7.00);
+select plani.f_import_treporte_columna('insert','SPREPRICOT2','Planilla Previsoria de Prima','SPLAPREPRI','si',20,3,'activo','Ctto1','Cot2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','SPREPRICOT3','Planilla Previsoria de Prima','SPLAPREPRI','si',20,4,'activo','Ctto1','Cot3','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','SPREDIAS1','Planilla Previsoria de Prima','SPLAPREPRI','si',10,5,'activo','Dias','Ctto1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','SPREDIAS2','Planilla Previsoria de Prima','SPLAPREPRI','si',10,9,'activo','Dias','Ctto2','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPRIMA','Planilla Previsoria de Prima','SPLAPREPRI','si',20,12,'activo','Prev.','Prima','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','','Planilla Previsoria de Prima','SPLAPREPRI','no',68,1,'activo','Nombre','Emp.','otro',0,'nombre_funcionario','vista_externa');
+select plani.f_import_treporte_columna('insert','SPREPRICOT1','Planilla Previsoria de Prima','SPLAPREPRI','si',20,2,'activo','Ctto1','Cot1','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PREPROME1','Planilla Previsoria de Prima','SPLAPREPRI','si',20,11,'activo','Prom','Cot2','otro',0,'','columna_planilla');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
+---------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','SPLAPRIVIG','Planilla de Prima Vigentes Simple','PLASUB','plani.f_splaprivig_insert_empleados','prorrateo_aguinaldo','plani.f_plaprivig_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','SPLAPRIVIG','Factor Frontera','basica','Factor Frontera','','no','','2','14','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FAC_FRONTERAPRI','SPLAPRIVIG','Zona Franca','basica','Si es zona_franca','','no','','2','14','ejecutar','no','no','si','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPDET','SPLAPRIVIG','Impuesto Determinado','formula','Impuesto Determinado','case when {IMPOFAC}> {PRIMA} then 0 else
+({PRIMA}-{IMPOFAC})*13/100*{FAC_FRONTERAPRI} end','si_pago','','2','15','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC','SPLAPRIVIG','Importe de Facturas al 100 porciento','variable','Importe de Facturas al 100 porciento','','no','','2','13','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','SPLAPRIVIG','Prima Liquida','formula','Prima Liquida','{PRIMA}-{TOTDESC}','si_pago','','2','18','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','OTDESC','SPLAPRIVIG','Otros Descuentos','variable','Otros Descuentos','','si_pago','','2','16','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME','SPLAPRIVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','(({SPREPRICOT1}+{SPREPRICOT2}+{SPREPRICOT3})/3)+{TP2}','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','SPLAPRIVIG','Prima a pagar','formula','Prima a pagar','CASE
+WHEN ({SPREDIAS1}+{SPREDIAS2})>=90 THEN
+({PREPROME}/360*({SPREDIAS1}+{SPREDIAS2}) *({PORCENTAJEPRIM}/100))
+ELSE 0 END
+','si_contable','','2','12','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS1','SPLAPRIVIG','Dias para calculo','basica','Días para calculo','','no','','2','7','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS2','SPLAPRIVIG','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT1','SPLAPRIVIG','Prevision Cotizable 21','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT2','SPLAPRIVIG','Prevision Cotizable 22','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','5','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT3','SPLAPRIVIG','Prevision Cotizable 23','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','6','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','SPLAPRIVIG','Total Descuentos','formula','Total Descuentos','{OTDESC}','no','','2','17','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','SPLAPRIVIG','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion OBLIGACIONES
+---------------------------------
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','SPLAPRIVIG','Descuento por Cheque','pago_comun','no','no',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','SPLAPRIVIG','Liquido Prima','pago_empleados','no','si',NULL,'','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','SPLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','SPLAPRIVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','SPLAPRIVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','SPLAPRIVIG','no','si','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion REPORTES
+---------------------------------
+
+select plani.f_import_treporte('insert','PLANILLA DE PRIMA','SPLAPRIVIG','no','carta_horizontal','no','no','no','no','distrito_banco','nombre','activo',0,249,'PLANILLA DE PRIMA','planilla_prima','formato_especifico','no','',0,'no','no','BS',0,7.00);
+select plani.f_import_treporte('insert','PRIMA POR DISTRITO - BANCO : PLANILLA DE PRIMA','SPLAPRIVIG','no','carta_vertical','no','no','no','no','ninguno','nombre','activo',0,186,'PRIMA POR DISTRITO - BANCO : PLANILLA DE PRIMA','relacion_saldos','formato_especifico','no','',0,'no','no','BS',NULL,7.00);
+select plani.f_import_treporte('insert','BOLETA DE PAGO : PRIMA ANUAL','SPLAPRIVIG','no','carta_vertical','no','no','no','no','ninguno','nombre','activo',70,186,'BOLETA DE PAGO : PRIMA ANUAL','','boleta','no','plani.vdatos_func_planilla',0,'no','no','BS',NULL,7.00);
+select plani.f_import_treporte_columna('insert','PRIMA','BOLETA DE PAGO : PRIMA ANUAL','SPLAPRIVIG','no',70,1,'activo','TOTAL','PRIMA','otro',0,'','columna_planilla');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion TIPO PLANILLA
+---------------------------------
+
+select plani.f_import_ttipo_planilla ('insert','SPRINOVIG','Planilla de Prima NO vigentes Simple','PLASUB','plani.f_sprinovig_insert_empleados','prorrateo_aguinaldo','plani.f_prinovig_valid_empleado','no','anual','',NULL,'activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FACFRONTERAPRI','SPRINOVIG','Factor Frontera','basica','Factor Frontera','','no','','2','14','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','FAC_FRONTERAPRI','SPRINOVIG','Zona Franca','basica','Zona Franca','','no','','2','14','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPDET','SPRINOVIG','Impuesto Determinado','formula','Impuesto Determinado','case when {IMPOFAC}> ({PRIMA}*0.13) then 0 else
+({PRIMA}*0.13)-{IMPOFAC}*{FAC_FRONTERAPRI} end','si_pago','','2','15','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','IMPOFAC','SPRINOVIG','Certificado RC-IVA','variable','Importe de Facturas al 100 porciento','','no','','2','13','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','LIQPAG','SPRINOVIG','Prima Liquida','formula','Prima Liquida','{PRIMA} - COALESCE({TOTDESC},0)','si_pago','','2','18','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','OTDESC','SPRINOVIG','Otros Descuentos','variable','Otros Descuentos','','si_pago','','2','16','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PREPROME','SPRINOVIG','Promedio C2','formula','Promedio de 3 últimos sueldos (Penultimo contrato)','(({SPREPRICOT1}+{SPREPRICOT2}+{SPREPRICOT3})/3)+{TP2}','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','PRIMA','SPRINOVIG','Prima a pagar','formula','Prima a pagar','CASE
+WHEN ({SPREDIAS1}+{SPREDIAS2})>=90 THEN
+({PREPROME}/360*({SPREDIAS1}+{SPREDIAS2}) *({PORCENTAJEPRIM}/100))
+ELSE 0 END
+','si_contable','','2','12','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS1','SPRINOVIG','Dias de primer contrato','basica','dias de primer contrato','','no','','2','1','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREDIAS2','SPRINOVIG','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT1','SPRINOVIG','Prevision Cotizable 21','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','4','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT2','SPRINOVIG','Prevision Cotizable 22','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','5','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','SPREPRICOT3','SPRINOVIG','Prevision Cotizable 23','basica','COTIZABLE DE UN CONTRATO ANTERIOR','','no','','2','6','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TOTDESC','SPRINOVIG','Total Descuentos','formula','Total Descuentos','{OTDESC} + {IMPDET}','no','','2','17','ejecutar','no','no','no','activo');
+select plani.f_import_ttipo_columna_planilla ('insert','TP2','SPRINOVIG','Ajuste por Reintegros2','variable','Columna temporal para cargar el ajuste del cotizable por reintegros del segundo contrato','','no','','2','-3','ejecutar','no','no','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion OBLIGACIONES
+---------------------------------
+
+select plani.f_import_ttipo_obligacion('insert','DESCHEQ','SPRINOVIG','Descuento por Cheque','pago_comun','no','no',NULL,NULL,'CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion('insert','IMPDET','SPRINOVIG','Impuesto Retenido','pago_comun','no','si',NULL,'Pago de impeustos retenidos','CUEOBLI','CUEOBLIHAB','activo');
+select plani.f_import_ttipo_obligacion('insert','LIQPAG','SPRINOVIG','Liquido Prima','una_obligacion_x_empleado','no','si',NULL,'','CUEOBLI','CUEOBLI','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','OTDESC','DESCHEQ','SPRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','DESCHEQ','SPRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','IMPDET','IMPDET','SPRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','IMPDET','SPRINOVIG','no','si','si','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','LIQPAG','LIQPAG','SPRINOVIG','si','no','no','activo');
+select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','SPRINOVIG','no','si','si','activo');
+
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM data.sql FILE
+--Configuracion REPORTES
+---------------------------------
+
+select plani.f_import_treporte('insert','PLANILLA DE PRIMA','SPRINOVIG','no','carta_horizontal','no','no','no','no','distrito_banco','nombre','activo',0,249,'PLANILLA DE PRIMA','planilla_prima','formato_especifico','no','',0,'no','no','BS',0,7.00);
+************F-DAT-RAC-PLANI-145-03/07/2020*************/
+
+

@@ -1721,7 +1721,8 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
 
 
-		if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){//#135
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' ){//#145
+		
 			$this->objParam->addParametro('estado',$this->objParam->getParametro('personal_activo'));
 		}
 
@@ -1732,7 +1733,7 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' ){//#145){
 				$this->objReporteFormato=new RPlanillaPrevisionPrima($this->objParam);	
 			}else{
 				$this->objReporteFormato=new RPlanillaPrima($this->objParam);	

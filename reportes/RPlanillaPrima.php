@@ -44,9 +44,9 @@ class RPlanillaPrima extends  ReportePDF {
 				
 			}
 		
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
 				$this->Cell(0,5,'PLANILLA PRIMA ANUAL'.$cadena_nomina,0,1,'C');
-			}elseif($this->objParam->getParametro('codigo_planilla')=='PRINOVIG') {
+			}elseif($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG') {
 				$this->Cell(0,5,'PRIMA POR PAGAR PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG') {
 				$this->Cell(0,5,'PLANILLA DE BONO DE PRODUCCION'.$cadena_nomina,0,1,'C');
@@ -63,7 +63,7 @@ class RPlanillaPrima extends  ReportePDF {
 			
 			$this->SetX(10);
 			$this->Cell(0,5,'Ciudad: '.substr($this->gerencia,0,strpos($this->gerencia, '*')),0,1,'L');
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' ){
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' ){
 				$this->SetX(10);
 				$this->Cell(0,5,'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
 			}
@@ -72,8 +72,8 @@ class RPlanillaPrima extends  ReportePDF {
 			$this->SetFont('','B',8);
 			$this->SetX(10);
 			
-			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG'  ){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
 					$this->Cell(85,5,'','',0,'C');
 					$this->Cell(68,5,'CONTRATO 1','LTR',0,'C');
 					$this->Cell(107,5,'CONTRATO 2','LTR',0,'C');
@@ -88,8 +88,8 @@ class RPlanillaPrima extends  ReportePDF {
 			  
 			  
 			$this->SetX(10);
-			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
-				 if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG' ){
+				 if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
 					  $this->Cell(15,5,'Codigo','T',0,'C');
 					  $this->Cell(70,5,'Nombre','TR',0,'C');
 					  $this->Cell(18,5,'Fecha','T',0,'C');
@@ -160,8 +160,8 @@ class RPlanillaPrima extends  ReportePDF {
 			
 			
 			  $this->SetX(10);
-			 if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){
-				  if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+			 if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG'  ){
+				  if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
 				 	  $this->Cell(15,5,'','B',0,'C');
 					  $this->Cell(70,5,'Cargo','BR',0,'C');
 					  $this->Cell(18,5,'Ingreso','B',0,'C');
@@ -297,7 +297,7 @@ class RPlanillaPrima extends  ReportePDF {
 				$array_datos[$cont][5]= $dd.'/'.$mm.'/'.$aa; //fecha_fin_ctto2
 				$array_datos[$cont][6]= $this->datos[$i]['cargo'];
 				
-				if ($this->datos[$i]['codigo_columna']=='IMPDET' && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG')){
+				if ($this->datos[$i]['codigo_columna']=='IMPDET' && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'  || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG' )){
 				  	$array_datos[$cont][7]= $this->datos[$i]['valor'];  //impdet
 				}
 				if ($this->datos[$i]['codigo_columna']=='APCAJ' && ($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='BONONOVIG')){
@@ -306,19 +306,22 @@ class RPlanillaPrima extends  ReportePDF {
 				$array_datos[$cont][18]= $this->datos[$i]['desc_oficina'];  
 				$array_datos[$cont][21]= $this->datos[$i]['obs_fin'];  
 			}else{
-				if ($this->datos[$i]['codigo_columna']=='PREDIAS1'){
+				if ($this->datos[$i]['codigo_columna']=='PREDIAS1' || $this->datos[$i]['codigo_columna']=='SPREDIAS1'  ){
 					$array_datos[$cont][8]= $this->datos[$i]['valor'];
-				}elseif ($this->datos[$i]['codigo_columna']=='PREDIAS2'){
+				}elseif ($this->datos[$i]['codigo_columna']=='PREDIAS2' || $this->datos[$i]['codigo_columna']=='SPREDIAS2' ){
 					$array_datos[$cont][9]= $this->datos[$i]['valor'];
-				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT21'){
+				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT21' || $this->datos[$i]['codigo_columna']=='SPREPRICOT1' ){
 					$array_datos[$cont][10]= $this->datos[$i]['valor'];
-				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT22'){
+				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT22' || $this->datos[$i]['codigo_columna']=='SPREPRICOT2' ){
 					$array_datos[$cont][11]= $this->datos[$i]['valor'];
-				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT23'){
+				}elseif ($this->datos[$i]['codigo_columna']=='PREPRICOT23' || $this->datos[$i]['codigo_columna']=='SPREPRICOT3' ){
 					$array_datos[$cont][12]= $this->datos[$i]['valor'];
 				}elseif ($this->datos[$i]['codigo_columna']=='PREPROME1'){
-					$array_datos[$cont][13]= $this->datos[$i]['valor'];
-				}elseif ($this->datos[$i]['codigo_columna']=='PREPROME2'){
+					
+						$array_datos[$cont][13]= $this->datos[$i]['valor'];
+				
+					
+				}elseif ($this->datos[$i]['codigo_columna']=='PREPROME2' || $this->datos[$i]['codigo_columna']=='PREPROME'  ){
 					$array_datos[$cont][14]= $this->datos[$i]['valor'];
 				}elseif ($this->datos[$i]['codigo_columna']=='PRIMA'){
 					$array_datos[$cont][15]= $this->datos[$i]['valor'];
@@ -345,8 +348,8 @@ class RPlanillaPrima extends  ReportePDF {
 			
 		}
 	
-	if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){		
-		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){	
+	if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG'  ){		
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){	
 			for ($i=1; $i<=$cont;$i++){
 			
 				if($this->gerencia!=$array_datos[$i][18] ){

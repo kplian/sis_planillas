@@ -737,7 +737,7 @@ class MODFuncionarioReporte extends MODbase{
 	}
 
 ///
-		function listarPlanillaPrima(){
+		function listarPlanillaPrima(){ 
 			$this->procedimiento='plani.f_reporte_funcionario_sel';
 			$this->transaccion='PLA_PRIMA_SEL';
 			$this->tipo_procedimiento='SEL';//tipo de transaccion
@@ -748,7 +748,7 @@ class MODFuncionarioReporte extends MODbase{
 			$this->setParametro('id_tipo_planilla','id_tipo_planilla','integer');
 			
 			
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){//#135
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI'){//#145
 				$this->setParametro('estado','estado','varchar');
 			}
 			
@@ -769,12 +769,12 @@ class MODFuncionarioReporte extends MODbase{
 			$this->captura('obs_fin','varchar');
 			$this->captura('es_vigente','boolean');	//#135	
 		 	$this->armarConsulta(); 		   
-		 //echo '***15'.$this->getConsulta(); exit;
+		
         //Ejecuta la instruccion
-  
+//echo "****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
-		
+		 
 		//Devuelve la respuesta
 		return $this->respuesta;
 		
