@@ -38,6 +38,7 @@ AS $BODY$
  #98	ETR		  23.03.2020		MZM						Inclusion de condiciones para manejo de personal activo/retirado y consolidado
  #128	ETR		  25.05.2020		MZM						Adicion de columna para adecuar reporte por bancos en bono de produccion
  #142	ETR		  19.06.2020	 	MZM						
+ #147	ETR		  03.07.2020		MZM						Ordenacion en reporte relacion saldos para separar cheque de bancos
 */
 
 DECLARE
@@ -375,8 +376,8 @@ BEGIN
                         group by 
                         tc.nombre , ofi.orden,
                         ofi.nombre ,o.tipo_pago, plani.id_periodo
-                        order by 6 desc, 5 desc, 7 asc,1 asc, 4 asc
-                        '; raise notice '%',v_consulta;
+                        order by 5,6 desc, 7 asc,1 asc, 4 asc
+                        '; raise notice '%',v_consulta;  --#147
            return v_consulta;
         
         END; 
