@@ -292,6 +292,7 @@ class MODPlanilla extends MODbase{
     }
 
 
+
     function listarReporteSegAguinaldoMinisterio(){
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='plani.ft_planilla_sel';

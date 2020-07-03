@@ -18,7 +18,6 @@ AS $BODY$
    AUTOR:
    DESCRIP:  inserta a todo el personal vigenteal cual le corresponde pago de bono para la gestion
    Fecha: 16-04-2020
-
     HISTORIAL DE MODIFICACIONES:
 
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
@@ -76,7 +75,6 @@ BEGIN
     FROM plani.tplanilla p
     INNER JOIN param.tgestion ges ON ges.id_gestion = p.id_gestion
     WHERE p.id_planilla = p_id_planilla;
-
     v_fecha_ini_gestion = v_planilla.fecha_ini;
     v_fecha_fin_gestion = v_planilla.fecha_fin;
     --si es necesario filtra los miembro de una determinada UO o por determinado tipo de contrato
@@ -121,7 +119,7 @@ BEGIN
     WHERE p.id_gestion = v_planilla.id_gestion
       AND tp.codigo = 'BONOVIG';
 
-    --si exsite alguna prima de no vigentes debe ser de la misma fecha
+   --si exsite alguna prima de no vigentes debe ser de la misma fecha
     SELECT
           p.id_planilla,
           p.fecha_planilla,
@@ -253,3 +251,4 @@ $BODY$;
 
 ALTER FUNCTION plani.f_bonovig_insert_empleados(integer)
     OWNER TO postgres;
+
