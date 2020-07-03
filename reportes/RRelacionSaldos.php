@@ -12,6 +12,7 @@
  #127	ETR				22.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de prima
  #128	ETR				25.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de produccion
  #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
+ #147	ETR				03.07.2020			MZM	KPLIAN			Separar cheque de bancos para planilla de sueldos
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -131,6 +132,8 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->SetFont('','',8);
 					$this->Cell(25,5,''.$this->tipo_pagoP,'',1,'L');
 				}
+				
+				
 			}else{ $this->SetFont('','B',10);
 				$this->SetX(30);
 				$this->Cell(50,5,'','T',0,'C');
@@ -148,7 +151,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' or $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI'){ //#125 #133
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' or $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' ){ //#125 #133
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
 				}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
 					$this->Cell(30,5,'Produccion','B',0,'C');
@@ -200,15 +203,29 @@ class RRelacionSaldos extends  ReportePDF {
 		$subtotal=0;//#84
 		$caja=0;
 		$cajat=0;
+		$total_gral=0;
+		
+		
 		$this->setY(55);
 		if (count($this->datos)>0){
 				for ($i=0; $i<count($this->datos);$i++){
 					$this->bandera='resumen';
 				
+				   
 				
 					$this->tipo_contratoP= $this->datos[$i]['tipo_contrato'];
 					$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
-					
+					if ($this->datos[$i]['tipo_pago']=='cheque' ){ //#147
+						$this->Cell(150,0.1,'','B',1,'L');
+						$this->Cell(108.5,5,'Total para Banco:','',0,'R');
+						$this->SetFont('','',8);
+						$this->Cell(30,5,number_format($total,2,'.',','),'',1,'R');//#80
+						
+						$total=0;
+						
+						$this->AddPage();
+						$this->setX($this->getX()-5);
+					}
 					if($tipo_contrato!='' && $tipo_contrato!=$this->tipo_contratoP){
 						$this->AddPage();
 						$this->setX($this->getX()-5);
@@ -300,7 +317,7 @@ class RRelacionSaldos extends  ReportePDF {
 						$tipo_pago=$this->datos[$i]['tipo_pago'];
 						$caja=$caja+$this->datos[$i]['caja_oficina'];
 						$cajat=$cajat+$this->datos[$i]['caja_oficina'];
-					
+						$total_gral=$total_gral+$this->datos[$i]['importe'];
 				}
 			if($this->detalle[0]['periodo']>0){//#84
 			}else{
@@ -327,17 +344,22 @@ class RRelacionSaldos extends  ReportePDF {
 			}
 				
 						
-				$this->SetLineWidth(0.2);
-			 	$this->SetDrawColor(0,0,0);
+				/*$this->SetLineWidth(0.2);
+			 	$this->SetDrawColor(0,0,0);//#147
 				$this->Cell(0,0,'','B',1);
 				$this->SetFont('','B',8);
-				
+				*/
 				
 				if($this->detalle[0]['periodo']>0){//#84
+					
+					$this->Cell(150,0.1,'','B',1,'L');
 					$this->Cell(108.5,5,'Total para Banco:','',0,'R');
 					$this->SetFont('','',8);
 					$this->Cell(30,5,number_format($total,2,'.',','),'',1,'R');//#80
-				
+					//$this->AddPage();
+					
+					
+					
 					$this->tipo_contratoP='';
 					$this->tipo_pagoP='';
 					$this->AddPage();
@@ -345,13 +367,13 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(60,5,'','',0,'R');
 					$this->Cell(30,0,'Forma de Pago: Banco','',0,'L');
 					$this->SetFont('','',8);
-					$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
+					$this->Cell(30,0,number_format($total_gral-$total,2,'.',','),'',1,'R');//#80
 					
 					$this->SetFont('','B',8);
 					$this->Cell(65,5,'','',0,'R');
 					$this->Cell(30,0,'Forma de Pago: Cheque','',0,'L');
 					$this->SetFont('','',8);
-					$this->Cell(30,0,number_format(0,2,'.',','),'',1,'R');//#80
+					$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
 					
 					$this->SetFont('','B',8);
 					$this->Cell(65,5,'','',0,'R');
@@ -366,7 +388,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(65,5,'','',0,'R');
 					$this->Cell(30,0,'Total de la Empresa:','',0,'L');
 					$this->SetFont('','',8);
-					$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
+					$this->Cell(30,0,number_format($total_gral,2,'.',','),'',1,'R');//#80
 					
 				}else{
 					$this->Cell(105,5,'Total para Banco:','',0,'R');
