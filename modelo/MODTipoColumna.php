@@ -11,8 +11,8 @@
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #0               17-01-2014         JRR KPLIAN       creacion
- #10              04/06/2019        RAC KPLIAN       añade posibilidad  para configurar  si el tipo de columna es editable
-  
+ #10              04/06/2019        RAC KPLIAN        añade posibilidad  para configurar  si el tipo de columna es editable
+ #143			  26.06.2020		MZM KPLIAN		  adicion de campo tipo_movimiento 
 */
 
 class MODTipoColumna extends MODbase{
@@ -50,7 +50,7 @@ class MODTipoColumna extends MODbase{
 		$this->captura('tiene_detalle','varchar');
 		$this->captura('recalcular','varchar');
 		$this->captura('editable','varchar');  // #10 ++
-		
+		$this->captura('tipo_movimiento','varchar');  // #143
 		
 		//Ejecuta la instruccion
 		$this->armarConsulta();
@@ -82,7 +82,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
 		$this->setParametro('recalcular','recalcular','varchar');
 		$this->setParametro('editable','editable','varchar'); //#10 ++
-		
+		$this->setParametro('tipo_movimiento','tipo_movimiento','varchar'); //#143
 		
 		
 		//Ejecuta la instruccion
@@ -116,7 +116,7 @@ class MODTipoColumna extends MODbase{
 		$this->setParametro('tiene_detalle','tiene_detalle','varchar');
 		$this->setParametro('recalcular','recalcular','varchar');
 		$this->setParametro('editable','editable','varchar'); //#10 ++
-		
+		$this->setParametro('tipo_movimiento','tipo_movimiento','varchar'); //#143
 
 		//Ejecuta la instruccion
 		$this->armarConsulta();
