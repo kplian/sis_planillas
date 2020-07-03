@@ -47,7 +47,8 @@ AS $BODY$
  #133	ETR				03.06.2020			MZM-KPLIAN			Reporte de Prevision de primas (resumen)
  #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
  #137	ETR				10.06.2020			MZM-KPLIAN			Bugs en reportes (antiguedad: faltaba definir fecha para hallar tiempo de antiguedad; afp fondo solidario en plasue: reponer filtro de 13000 bs)
-#144	ETR				29.06.2020			MZM-KPLIAN			REporte de ingresos/egresos por funcionario
+ #144	ETR				29.06.2020			MZM-KPLIAN			REporte de ingresos/egresos por funcionario
+ #146	ETR				03.07.2020			MZM-KPLIAN			Reporte de reserva de beneficios sociales
  ***************************************************************************/
 
 DECLARE
@@ -705,9 +706,9 @@ BEGIN
 			
             if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
             	v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                        and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                       /* and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                         or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
-                        ) ';
+                        )*/ ';--#146
             
             
             else
