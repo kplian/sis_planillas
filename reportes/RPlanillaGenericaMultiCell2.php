@@ -10,6 +10,7 @@
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 //#126	ETR		MZM			15.05.2020				bug reporte multilinea
 //#141	ETR		MZM-KPLIAN	18.06.2020				Ajuste a titulo de reporte
+//#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -48,7 +49,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], $this->ancho_hoja-10, 5, 30, 10);
 		$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 10, 5, 30, 15);
 		$this->SetFont('','B',7);
-	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  ){
+	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  &&  $this->objParam->getParametro('tipo_contrato')!='PLA'  ){//#148
 	    	
 		 if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
 		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
