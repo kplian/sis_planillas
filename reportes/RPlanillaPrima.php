@@ -38,7 +38,7 @@ class RPlanillaPrima extends  ReportePDF {
 			$this->SetY(20);
 			$cadena_nomina='';
 		
-			if($this->objParam->getParametro('nombre_tipo_contrato')!='' && $this->objParam->getParametro('nombre_tipo_contrato')!='Planta' ){//#149
+			if($this->objParam->getParametro('nombre_tipo_contrato')!='' && $this->objParam->getParametro('tipo_contrato')!='PLA' ){//#149
 				
 				
 					$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
@@ -50,7 +50,7 @@ class RPlanillaPrima extends  ReportePDF {
 			}elseif($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG') {
 				$this->Cell(0,5,'PRIMA POR PAGAR PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG') {
-				$this->Cell(0,5,'PLANILLA DE BONO DE PRODUCCION'.$cadena_nomina,0,1,'C');
+				$this->Cell(0,5,'BONO DE PRODUCCION'.$cadena_nomina,0,1,'C');
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONONOVIG') {//bononovig
 				$this->Cell(0,5,'BONO DE PRODUCCION POR PAGAR - PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}
