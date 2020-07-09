@@ -13,6 +13,7 @@
  #128	ETR				25.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de produccion
  #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
  #147	ETR				03.07.2020			MZM	KPLIAN			Separar cheque de bancos para planilla de sueldos
+ #149	ETR				09.07.2020			MZM-KPLIAN 			Gestion en otra linea (titulo) 
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -110,7 +111,7 @@ class RRelacionSaldos extends  ReportePDF {
 		
 				
 			$this->SetFont('','B',12);
-			if($this->tipo_contratoP!=''){
+			if($this->tipo_contratoP!='' && $this->tipo_contratoP!='Planta'){//#149
 				if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
 					$this->Cell(0,5,'Personal '.$this->tipo_contratoP. ' ('.$this->objParam->getParametro('personal_activo').')','',1,'C');
 				}else{

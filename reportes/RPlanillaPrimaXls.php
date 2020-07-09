@@ -2,7 +2,8 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
- #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion 
+ #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion
+ #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta 
 */
 class RPlanillaPrimaXls
 {
@@ -195,7 +196,11 @@ class RPlanillaPrimaXls
 		                $this->docexcel->getActiveSheet()->getStyle('D3:L3')->applyFromArray($styleTitulos2);
 						$this->docexcel->getActiveSheet()->getStyle('A4:N4')->applyFromArray($styleTitulos1);
 						$tit_rep='PLANILLA PRIMA ANUAL';
-						$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');
+						
+						if($this->objParam->getParametro('nombre_tipo_contrato')!='Planta'){//#149
+							$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');	
+						}
+						
 						
 						if($this->objParam->getParametro('fecha_backup')!=''){
 							$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
@@ -420,7 +425,9 @@ class RPlanillaPrimaXls
 	               		$this->docexcel->getActiveSheet()->getStyle('A3:J3')->getAlignment()->setWrapText(true);
 		                $this->docexcel->getActiveSheet()->getStyle('A4:J4')->applyFromArray($styleTitulos1);
 						$tit_rep='PLANILLA DE BONO DE PRODUCCION';
-						$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');
+						if($this->objParam->getParametro('nombre_tipo_contrato')!='Planta'){//#149
+							$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');	
+						}
 						
 						if($this->objParam->getParametro('fecha_backup')!=''){
 							$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
@@ -436,7 +443,10 @@ class RPlanillaPrimaXls
 						$this->docexcel->getActiveSheet()->getStyle('A4:N4')->applyFromArray($styleTitulos1);
 						//$this->docexcel->getActiveSheet()->getColumnDimension('T3')->setWidth(15);
 						$tit_rep='BONO DE PRODUCCION POR PAGAR - PERSONAL RETIRADO';
-						$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');
+						if($this->objParam->getParametro('nombre_tipo_contrato')!='Planta'){//#149
+							$tit_rep= $tit_rep.' '.$this->objParam->getParametro('nombre_tipo_contrato');	
+						}
+						
 						if($this->objParam->getParametro('fecha_backup')!=''){
 							$tit_rep=$tit_rep.'[Backup:'.$dr.'/'.$mr.'/'.$ar.']';
 						}
