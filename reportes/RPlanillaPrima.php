@@ -4,6 +4,7 @@
  #ISSUE                FECHA                AUTOR               DESCRIPCION
   #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
   #124	ETR				21.05.2020			MZM-KPLIAN			Reporte de planilla de bono de produccion
+  #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta
  */
 class RPlanillaPrima extends  ReportePDF {
 	var $datos;	
@@ -37,7 +38,7 @@ class RPlanillaPrima extends  ReportePDF {
 			$this->SetY(20);
 			$cadena_nomina='';
 		
-			if($this->objParam->getParametro('nombre_tipo_contrato')!='' ){
+			if($this->objParam->getParametro('nombre_tipo_contrato')!='' && $this->objParam->getParametro('nombre_tipo_contrato')!='Planta' ){//#149
 				
 				
 					$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
