@@ -8,6 +8,7 @@
  * #83		ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
  * #98		ETR			MZM		04.03.2020	Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
  * #130		ETR			MZM		27.05.2020	Cambio en subtitulo de boleta mensual
+ * #149		ETR			MZM		09.07.2020	Gestion en otra linea (titulo)
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -360,7 +361,8 @@ class RBoletaGenerica extends  ReportePDF {
 							$this->AddPage();
 							$this->SetFont('','B',12);
 							$this->Cell(0,5,'','TRL',1,'C');
-							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'].' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');
+							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'],'LR',1,'C'); 
+							$this->Cell(0,5,' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');//#149
 							$this->Cell(0,8,'','RL',1,'C');
 							
 							$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 25, $this->GetY()-15, 35, 18);
@@ -381,7 +383,8 @@ class RBoletaGenerica extends  ReportePDF {
 							
 							$this->SetFont('','B',12);
 							$this->Cell(0,5,'','TRL',1,'C');
-							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'].' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');
+							$this->Cell(0,5,$this->datos_titulo['titulo_reporte'],'LR',1,'C'); 
+							$this->Cell(0,5,' GESTION '.$this->datos_titulo['gestion'],'LR',1,'C');//#149
 							$this->Cell(0,8,'','RL',1,'C');
 							
 							$this->Image(dirname(__FILE__).'/../../lib'.$_SESSION['_DIR_LOGO'], 25, $this->GetY()-15, 35, 18);
