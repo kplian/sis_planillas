@@ -251,7 +251,7 @@ class RRelacionSaldos extends  ReportePDF {
 							//$this->Cell(5,5,'','',0,'L'); //#56
 							$this->Ln(1);
 						}else{
-							if($ciudad!=''){
+							if($ciudad!=''){ 
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(150,0.1,'','LRB',1,'L');
 								}else{
@@ -273,8 +273,15 @@ class RRelacionSaldos extends  ReportePDF {
 							}
 							$this->SetFont('','B',8);
 							$this->Ln(5);
+							if($this->GetY()>175){//#149
+								$this->AddPage();
+								$this->Cell(10,5,'','',0,'C');
+							}
 							$this->Cell(5,5,'','',0,'C');
 							$this->SetFont('','B',8);
+							
+							
+							
 							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 								$this->Cell(150,5,$this->datos[$i]['nombre'],'RLT',1,'L');
 							}else{
