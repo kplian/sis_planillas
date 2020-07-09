@@ -38,7 +38,7 @@ class RPlanillaPrima extends  ReportePDF {
 			$this->SetY(20);
 			$cadena_nomina='';
 		
-			if($this->objParam->getParametro('nombre_tipo_contrato')!='' && $this->objParam->getParametro('nombre_tipo_contrato')!='Planta' ){//#149
+			if($this->objParam->getParametro('nombre_tipo_contrato')!='' && $this->objParam->getParametro('tipo_contrato')!='PLA' ){//#149
 				
 				
 					$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
