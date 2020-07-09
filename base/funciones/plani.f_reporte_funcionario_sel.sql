@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE
+    VOLATILE 
 AS $BODY$
 /**************************************************************************
  SISTEMA:      Sistema de Planillas
@@ -50,6 +50,7 @@ AS $BODY$
  #144	ETR				29.06.2020			MZM-KPLIAN			REporte de ingresos/egresos por funcionario
  #145   ETR				02.07.2020
  #146	ETR				03.07.2020			MZM-KPLIAN			Reporte de reserva de beneficios sociales
+ #146	ETR				08.07.2020			MZM-KPLIAN			Reposicion inner join en PRIMA_SEL en relacion a tobligacion
  ***************************************************************************/
 
 DECLARE
@@ -2813,10 +2814,10 @@ raise notice '***:%',v_consulta;
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
               if exists (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
               and codigo in ('PLAPRIVIG','BONOVIG','SPLAPRIVIG')  --#145
-              ) then
-                v_filtro = ' left join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
-                  	  		 left join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
-					  		 left join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
+              ) then --#146
+                v_filtro = ' inner join plani.tobligacion obli on obli.id_planilla=plani.id_planilla
+                  	  		 inner join plani.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
+					  		 inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
                       	';
                 v_col:= '(nivel.oficina||''*''||coalesce(inst.nombre,''''))';
 
@@ -2970,6 +2971,7 @@ and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp
 						and tc.tipo_movimiento is not null
 						where ';
           	v_consulta:=v_consulta||v_parametros.filtro;
+
              v_consulta:=v_consulta||'
 						 order by repcol.orden
 						 ';
