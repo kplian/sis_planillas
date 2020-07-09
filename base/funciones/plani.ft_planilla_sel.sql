@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_planilla_sel(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_planilla_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    SISTEMA:        Sistema de Planillas
    FUNCION:         plani.ft_planilla_sel
@@ -1468,7 +1473,7 @@ $body$
                          ,(select extract (month from min(p.fecha_planilla)) from plani.tplanilla p
                          inner join param.tgestion g on g.id_gestion=p.id_gestion
                          where id_tipo_planilla=plani.id_tipo_planilla)::integer as min_periodo
-                         , (select extract (year from min(p.fecha_planilla)) from plani.tplanilla p
+                         , (select min(g.gestion) from plani.tplanilla p
                          inner join param.tgestion g on g.id_gestion=p.id_gestion
                           where id_tipo_planilla=plani.id_tipo_planilla)::integer as min_gestion,
                          (select min(p.fecha_planilla) from plani.tplanilla p
@@ -1528,10 +1533,7 @@ $body$
       v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
       raise exception '%',v_resp;
   END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_planilla_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
