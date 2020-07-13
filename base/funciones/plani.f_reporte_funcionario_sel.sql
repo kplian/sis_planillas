@@ -51,6 +51,7 @@ AS $BODY$
  #145   ETR				02.07.2020
  #146	ETR				03.07.2020			MZM-KPLIAN			Reporte de reserva de beneficios sociales
  #146	ETR				08.07.2020			MZM-KPLIAN			Reposicion inner join en PRIMA_SEL en relacion a tobligacion
+ #151	ETR				31.07.2020			MZM-KPLIAN			Inclusion de tipo SPRINOVIG en reporte PRIMA
  ***************************************************************************/
 
 DECLARE
@@ -2859,7 +2860,7 @@ raise notice '***:%',v_consulta;
                       ';
                     end if;
              elseif (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
-              			and codigo in ('SPLAPRIVIG')) then--#145
+              			and codigo in ('SPLAPRIVIG','SPRINOVIG')) then--#145  --#151
 
             		 v_cols:=' and colval.codigo_columna in (''SPREDIAS1'',''SPREDIAS2'',''PREPROME'',''SPREPRICOT1'',''SPREPRICOT2'',''SPREPRICOT3'',''PRIMA'',
                         ''IMPDET'',''IMPOFAC'',''LIQPAG'')';
@@ -2971,6 +2972,7 @@ and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp
 						and tc.tipo_movimiento is not null
 						where ';
           	v_consulta:=v_consulta||v_parametros.filtro;
+
 
              v_consulta:=v_consulta||'
 						 order by repcol.orden
