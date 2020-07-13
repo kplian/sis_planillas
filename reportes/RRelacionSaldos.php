@@ -152,7 +152,6 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(50,5,'Distrito','B',0,'C');
 				$this->Cell(50,5,'Forma de Pago','B',0,'C');
 				
-
 				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' or $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' ){ //#125 #133
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
 				}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
@@ -414,7 +413,7 @@ class RRelacionSaldos extends  ReportePDF {
 				
 				
 				//#133
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI'  ){
 					$this->ln(6);
 					$this->Cell(20,3,$this->datos[0]['total'],'',0,'C');
 				}

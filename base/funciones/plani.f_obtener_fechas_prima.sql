@@ -74,9 +74,8 @@ AS $BODY$
                                 v_resultado:='#@@@#';
                    else
                    
-                         if( (plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_planilla.fecha_ini, v_registros.fecha_fin_ctto))>= 90 )then
+                         if( (plani.f_get_dias_efectivos_prima(v_registros.id_funcionario, v_planilla.fecha_ini, v_registros.fecha_fin_ctto))>=90 )then
                    			v_resultado:=v_registros.fecha_primer_ctto||'#@@@#'||v_registros.fecha_fin_ctto;         
-                         else v_resultado:='#@@@#';
                          end if;
                             
                    end if;

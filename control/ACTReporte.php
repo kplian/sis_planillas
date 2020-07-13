@@ -26,6 +26,8 @@
  * #131 ETR       RAC KPLIAN     02.06.2020                 Marcar planillas donde ya fueron despachados los correos de boletas de pago
  * #133 ETR       MZM KPLIAN     03.06.2020                 Reporte para prevision de primas
  * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
+ * #144	ETR		  MZM KPLIAN	 29.06.2020					Reporte ingresos/egresos por funcionario
+ * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -69,7 +71,7 @@ include_once(dirname(__FILE__).'/../../lib/lib_general/cls_correo_externo.php');
 
 require_once(dirname(__FILE__).'/../reportes/RPlanillaPrevisionPrima.php');//#135
 
-
+require_once(dirname(__FILE__).'/../reportes/RPlanillaIngresoEgreso.php');//#144
 
 class ACTReporte extends ACTbase{
 
@@ -768,8 +770,10 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 														}elseif ($this->objParam->getParametro('control_reporte')=='relacion_saldos_prevision')
 														
 															$this->reporteBancosPrev($titulo,$fecha);
+														elseif ($this->objParam->getParametro('control_reporte')=='ingreso_egreso')
+															$this->reporteIngresoEgreso($id_tipo_contrato,$id_periodo); //ingreso-egreso
 														else
-                                                         $this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
+                                                         	$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
                                                      }
 
                                                 }
@@ -1610,7 +1614,10 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         $this->objParam->parametros_consulta['filtro']=' 0=0 ';//reset filter
         $this->objParam->addFiltro("plani.id_tipo_planilla = ". $id_tipo_planilla);
         $this->objParam->addFiltro("plani.id_gestion = ". $id_gestion);
-        $this->objParam->addFiltro("plani.id_periodo = ". $id_periodo);
+        if($id_periodo!=''){//#150
+        	$this->objParam->addFiltro("plani.id_periodo = ". $id_periodo);
+		}
+
         $this->objParam->addFiltro("fp.id_funcionario = ". $id_funcionario. " and repo.tipo_reporte= ''boleta'' ");
 
         $this->objFunc=$this->create('MODReporte');
@@ -1721,7 +1728,8 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
 
 
-		if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){//#135
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' ){//#145
+		
 			$this->objParam->addParametro('estado',$this->objParam->getParametro('personal_activo'));
 		}
 
@@ -1732,7 +1740,7 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
             $nombreArchivo.='.pdf';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI'){
+			if($this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' ){//#145){
 				$this->objReporteFormato=new RPlanillaPrevisionPrima($this->objParam);	
 			}else{
 				$this->objReporteFormato=new RPlanillaPrima($this->objParam);	
@@ -1834,8 +1842,63 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 
     }
 
+//#144
+function reporteIngresoEgreso()    {
 
 
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()));
+
+
+        $this->objParam->addParametro('orientacion','P');
+
+        $this->objParam->addParametro('tamano',$this->objParam->getParametro('tamano'));
+        
+        $this->objParam->addParametro('id_periodo',$this->objParam->getParametro('id_periodo'));
+		
+		$this->objParam->addParametro('id_gestion',$this->objParam->getParametro('id_gestion'));
+		//$this->objParam->addParametro('id_reporte',$id_reporte);
+        $this->objParam->addParametro('id_tipo_contrato',$this->objParam->getParametro('id_tipo_contrato'));
+		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
+
+
+		
+        $this->objFunc=$this->create('MODFuncionarioReporte');
+        $this->res=$this->objFunc->listarIngresoEgreso($this->objParam);
+
+
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
+			$this->objReporteFormato=new RPlanillaIngresoEgreso($this->objParam);	
+			
+            
+            $this->objReporteFormato->setDatos($this->res->datos,$this->res->datos);//#83
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        }else{
+            $titulo ='Ingreso/Egreso';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objReporteFormato=new RPlanillaIngresoEgresoXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);//#83
+
+        }
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+
+
+
+    }
 
 }
 

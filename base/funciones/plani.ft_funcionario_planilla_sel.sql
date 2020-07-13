@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_funcionario_planilla_sel(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Planillas
  FUNCION:         plani.ft_funcionario_planilla_sel
@@ -185,7 +190,7 @@ BEGIN
 
 
             -- validar estado de la planilla
-            IF v_registros.estado not in ('planilla_finalizada','comprobante_generado','vobo_conta') THEN --que estado se peude imprimir la boleta
+            IF v_registros.estado not in ('planilla_finalizada','comprobante_generado','vobo_conta','obligaciones_generadas') THEN --que estado se peude imprimir la boleta
                raise exception 'no puede mandar boletas en el estado: %',v_registros.estado;
             END IF;
 
@@ -599,10 +604,7 @@ EXCEPTION
             v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
             raise exception '%',v_resp;
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_funcionario_planilla_sel(integer, integer, character varying, character varying)
+    OWNER TO postgres;
