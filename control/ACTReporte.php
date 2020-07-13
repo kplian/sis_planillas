@@ -27,6 +27,7 @@
  * #133 ETR       MZM KPLIAN     03.06.2020                 Reporte para prevision de primas
  * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
  * #144	ETR		  MZM KPLIAN	 29.06.2020					Reporte ingresos/egresos por funcionario
+ * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -1613,7 +1614,10 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
         $this->objParam->parametros_consulta['filtro']=' 0=0 ';//reset filter
         $this->objParam->addFiltro("plani.id_tipo_planilla = ". $id_tipo_planilla);
         $this->objParam->addFiltro("plani.id_gestion = ". $id_gestion);
-        $this->objParam->addFiltro("plani.id_periodo = ". $id_periodo);
+        if($id_periodo!=''){//#150
+        	$this->objParam->addFiltro("plani.id_periodo = ". $id_periodo);
+		}
+
         $this->objParam->addFiltro("fp.id_funcionario = ". $id_funcionario. " and repo.tipo_reporte= ''boleta'' ");
 
         $this->objFunc=$this->create('MODReporte');
