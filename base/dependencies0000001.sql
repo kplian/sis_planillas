@@ -4142,5 +4142,15 @@ AS
        LEFT JOIN segu.tsubsistema sub ON sub.id_subsistema = dcon.id_subsistema
          AND sub.codigo::TEXT = 'CONTA'::TEXT;
 
+select conta.f_import_ttipo_relacion_contable ('insert','INCAPTEMP',NULL,'Incapacidad Temporal por Cobrar','activo','no','si','si','flujo','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','SALXPALI',NULL,'Salario por Aplicar','activo','no','si','no','flujo','recurso_gasto','no','no','no',NULL);
+select conta.f_import_ttipo_relacion_contable ('insert','CCCLMCTA','TTIP','Centro de costos columnas solo contables','activo','si-unico','no','no','','','no','no','no','');
+
+
+select conta.f_import_ttipo_relacion_contable ('insert','CUEOBLIHAB','TTIO','Cuenta de Obligacion Planillas Haber','activo','no','si','no','flujo','recurso','no','no','no','');
+select conta.f_import_ttipo_relacion_contable ('insert','CUEOBLI','TTIO','Cuenta de Obligacion Planillas','activo','no','si','no','flujo','gasto','no','no','no','');
+select conta.f_import_tplantilla_comprobante ('insert','PAGOPLA','plani.f_conta_eliminacion_comprobante_obligacion','id_obligacion','PLANI','{$tabla.descripcion}','','{$tabla.fecha_actual}','activo','{$tabla.acreedor}','{$tabla.id_depto_conta}','contable','{$tabla.id_int_comprobante}','plani.vcomp_planilla_obli','PAGOCON','{$tabla.id_moneda}','{$tabla.id_gestion_pago}','{$tabla.id_cuenta_bancaria},{$tabla.forma_pago},{$tabla.id_centro_costo_depto}','no','no','no','','','','','{$tabla.nro_tramite}','','','','','','PAGOPLA','','','','','');
+
+
 
 /***********************************F-DEP-RAC-PLANI-113-06/05/2020****************************************/

@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION plani.f_calcular_basica(
     LANGUAGE 'plpgsql'
 
     COST 100
-    VOLATILE
+    VOLATILE 
 AS $BODY$
   /**************************************************************************
    PLANI
@@ -56,6 +56,7 @@ AS $BODY$
  #125             14.05.2020        MZM KPLIAN          Ajuste a funciones para obtencion de fecha_ini-fecha_fin de contratos
  #113             19.05.2020        MZM KPLIAN          Modificacion calculo cotizables para prevision de primas
  #136			  09.06.2020		MZM KPLIAN			Ajuste para calculo de contrato1 para personal odt planilla de prevision de prima			
+ #145			  30.06.2020		MZM KPLIAN			Columnas basicas para planilla de prevision de prima SIMPLE
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -3191,7 +3192,260 @@ v_cons    varchar;
 
       order by fecha_plani desc limit 1;
 
+	--#145
+    ELSIF (p_codigo = 'SPREDIAS1') THEN 
+    	select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        into v_planilla
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+        inner join param.tgestion g on g.id_gestion=p.id_gestion
+        where fp.id_funcionario_planilla=p_id_funcionario_planilla;
 
+		SELECT uofun.id_funcionario,
+                          uofun.id_uo_funcionario,
+                          (CASE
+                             WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
+                             ELSE plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)
+                           END) AS fecha_ini,
+
+                          (CASE
+                             WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
+                             ELSE uofun.fecha_finalizacion
+                           END) AS fecha_fin
+                   into v_registros
+                   FROM orga.tuo_funcionario uofun
+                        INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
+                          uofun.id_funcionario
+
+                     WHERE uofun.estado_reg != 'inactivo'
+                         AND uofun.tipo = 'oficial'
+                         and uofun.id_funcionario=v_planilla.id_funcionario
+                        -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
+                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+
+                         order by uofun.id_uo_funcionario limit 1 offset 0
+                      ;
+					if (v_registros.id_funcionario>0) then
+
+
+                            --no es vigente == preguntar si tiene un contrato q inicie en 2019 == nos quedamos con el valor, sino es 0
+                            if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_planilla.id_funcionario
+                            and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
+                            ) then
+                                v_aux:=0;
+                            else
+                            
+                               v_aux:= (plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
+
+                            end if;
+                    else
+                       v_aux:=0;
+                    end if;
+
+                         	v_resultado:=v_aux;
+                         	
+    ELSIF(p_codigo = 'SPREDIAS2') THEN -- dias del primer contrato #145
+        select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        into v_planilla
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+        inner join param.tgestion g on g.id_gestion=p.id_gestion
+        where fp.id_funcionario_planilla=p_id_funcionario_planilla;
+
+
+
+
+            SELECT uofun.id_funcionario,
+                          uofun.id_uo_funcionario,
+                           (CASE
+                             WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
+                             ELSE plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)
+                           END) AS fecha_ini,
+
+                          (CASE
+                             WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
+                             ELSE uofun.fecha_finalizacion
+                           END) AS fecha_fin
+                   into v_registros
+                   FROM orga.tuo_funcionario uofun
+                        INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
+                          uofun.id_funcionario
+
+                     WHERE uofun.estado_reg != 'inactivo'
+                         AND uofun.tipo = 'oficial'
+                         and uofun.id_funcionario=v_planilla.id_funcionario
+                          and
+                          (plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)< v_planilla.fecha_fin)
+                          order by plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) desc ,uofun.fecha_asignacion desc
+                          limit 1
+                      ;
+
+                      v_aux:= (plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
+
+                      v_resultado:=v_aux;
+                      
+    ELSIF(p_codigo = 'SPREPRICOT1') THEN -- el primer cotizable del contrato mas actual
+
+        select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        into v_planilla
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+        inner join param.tgestion g on g.id_gestion=p.id_gestion
+        where fp.id_funcionario_planilla=p_id_funcionario_planilla;
+        
+        select plani.f_get_dias_efectivos_prima(fp.id_funcionario, per.fecha_ini, per.fecha_fin) as dias, plani.f_es_funcionario_vigente(fp.id_funcionario,v_planilla.fecha_fin)  as vigente ,
+        (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla and codigo_columna='COTIZABLE') as cotizable,
+        (select valor from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla and codigo_columna='COTIZABLE_ANT') as cotizable_ant
+        into v_registros
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+        inner join param.tperiodo per on per.id_periodo=p.id_periodo
+        and plani.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
+        and fp.id_funcionario=v_planilla.id_funcionario
+        order by per.periodo desc limit 1 offset 0;
+        
+        
+       
+        if (v_registros.vigente ) then
+        	v_resultado:=v_registros.cotizable;
+        else
+          if (v_registros.dias<30) then
+	          v_resultado:=v_registros.cotizable_ant;
+          else
+           	  v_resultado:=v_registros.cotizable;
+          end if;
+        end if;
+        
+	
+
+    ELSIF(p_codigo = 'SPREPRICOT2') THEN -- el segundo cotizable
+
+        select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        into v_planilla
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+        inner join param.tgestion g on g.id_gestion=p.id_gestion
+        where fp.id_funcionario_planilla=p_id_funcionario_planilla;
+        
+                       
+        select plani.f_get_dias_efectivos_prima(fp.id_funcionario,per.fecha_ini , per.fecha_fin) as dias
+        into v_dias_total
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+        inner join param.tperiodo per on per.id_periodo=p.id_periodo
+        and plani.fecha_planilla between  v_planilla.fecha_ini and v_planilla.fecha_fin
+        and fp.id_funcionario=v_planilla.id_funcionario
+        order by per.periodo desc limit 1 offset 0;
+        
+        
+        if (plani.f_es_funcionario_vigente(v_planilla.id_funcionario,v_planilla.fecha_fin)) then
+	        v_id_funcionario:=1;
+        else
+        	v_id_funcionario:=0;
+        end if;
+        
+        if (v_id_funcionario=1 or (v_id_funcionario=0 and v_dias_total=30) ) then
+          
+            select cv.valor into v_resultado    
+			from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+            inner join param.tperiodo per on per.id_periodo=p.id_periodo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+            and cv.codigo_columna='COTIZABLE'
+            and plani.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
+            and fp.id_funcionario=v_planilla.id_funcionario
+            order by per.periodo desc limit 1 offset 1;
+		else
+           select cv.valor into v_resultado    
+			from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+            inner join param.tperiodo per on per.id_periodo=p.id_periodo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+            and cv.codigo_columna='COTIZABLE'
+            and plani.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
+            and fp.id_funcionario=v_planilla.id_funcionario
+            order by per.periodo desc limit 1 offset 2;
+        
+        end if;
+ 		
+
+    ELSIF(p_codigo = 'SPREPRICOT3') THEN -- el tercer cotizable
+
+        select p.fecha_planilla, fp.id_funcionario,fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
+        into v_planilla
+        from plani.tfuncionario_planilla fp
+        inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+        inner join param.tgestion g on g.id_gestion=p.id_gestion
+        where fp.id_funcionario_planilla=p_id_funcionario_planilla;
+
+        select plani.f_get_dias_efectivos_prima(fp.id_funcionario,per.fecha_ini , per.fecha_fin) as dias
+        into v_dias_total
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+        inner join param.tperiodo per on per.id_periodo=p.id_periodo
+        and plani.fecha_planilla between  v_planilla.fecha_ini and v_planilla.fecha_fin
+        and fp.id_funcionario=v_planilla.id_funcionario
+        order by per.periodo desc limit 1 offset 0;
+        
+        
+        if (plani.f_es_funcionario_vigente(v_planilla.id_funcionario,v_planilla.fecha_fin)) then
+	        v_id_funcionario:=1;
+        else
+        	v_id_funcionario:=0;
+        end if;
+        
+        select plani.f_get_dias_efectivos_prima(fp.id_funcionario,per.fecha_ini , per.fecha_fin) as dias
+        into v_dias_asignacion
+        from plani.tplanilla p
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+        inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+        inner join param.tperiodo per on per.id_periodo=p.id_periodo
+        and plani.fecha_planilla between  v_planilla.fecha_ini and v_planilla.fecha_fin
+        and fp.id_funcionario=v_planilla.id_funcionario
+        order by per.periodo desc limit 1 offset 3;
+        
+        
+        if (v_id_funcionario=1 or (v_id_funcionario=0 and v_dias_total=30) or v_dias_asignacion!=30 ) then
+          
+            select cv.valor  into v_resultado   
+			from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+            inner join param.tperiodo per on per.id_periodo=p.id_periodo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+            and cv.codigo_columna='COTIZABLE'
+            and plani.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
+            and fp.id_funcionario=v_planilla.id_funcionario
+            order by per.periodo desc limit 1 offset 2;
+		else
+        
+            select cv.valor  into v_resultado   
+			from plani.tplanilla p
+            inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
+            inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
+            inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+            inner join param.tperiodo per on per.id_periodo=p.id_periodo
+            inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+            and cv.codigo_columna='COTIZABLE'
+            and plani.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
+            and fp.id_funcionario=v_planilla.id_funcionario
+            order by per.periodo desc limit 1 offset 3;
+           
+        
+        end if;
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;
     END IF;
