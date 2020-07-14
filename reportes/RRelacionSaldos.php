@@ -13,7 +13,8 @@
  #128	ETR				25.05.2020			MZM-KPLIAN			Adecuacion para reporte de bancos para bono de produccion
  #133   ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
  #147	ETR				03.07.2020			MZM	KPLIAN			Separar cheque de bancos para planilla de sueldos
- #149	ETR				09.07.2020			MZM-KPLIAN 			Gestion en otra linea (titulo) 
+ #149	ETR				09.07.2020			MZM-KPLIAN 			Gestion en otra linea (titulo)
+ #151	ETR				14.07.2020			MZM-KPLIAN			Control de salto para reportes que no usan posicion Landscape 
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -273,7 +274,7 @@ class RRelacionSaldos extends  ReportePDF {
 							}
 							$this->SetFont('','B',8);
 							$this->Ln(5);
-							if($this->GetY()>175){//#149
+							if(($this->GetY()>175 && $this->objParam->getParametro('codigo_planilla')=='BONOVIG') || $this->GetY()>230 ){//#149  //#151
 								$this->AddPage();
 								$this->Cell(10,5,'','',0,'C');
 							}
