@@ -57,6 +57,7 @@ AS $BODY$
  #113             19.05.2020        MZM KPLIAN          Modificacion calculo cotizables para prevision de primas
  #136			  09.06.2020		MZM KPLIAN			Ajuste para calculo de contrato1 para personal odt planilla de prevision de prima			
  #145			  30.06.2020		MZM KPLIAN			Columnas basicas para planilla de prevision de prima SIMPLE
+ #151			  14.07.2020		MZM KPLIAN			Control de 90 dias en SPREDIAS1
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -3237,7 +3238,9 @@ v_cons    varchar;
                             else
                             
                                v_aux:= (plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
-
+								if (v_aux<90) then
+                                	v_aux:=0;
+                                end if;
                             end if;
                     else
                        v_aux:=0;
