@@ -3,7 +3,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #125	ETR				14.05.2020			MZM-KPLIAN			Planilla de Primas
  #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion
- #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta 
+ #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta
+ #151	ETR				14.07.2020			MZM-KPLIAN			Reporte de primas nuevo formato vigente/no vigente 
 */
 class RPlanillaPrimaXls
 {
@@ -190,8 +191,8 @@ class RPlanillaPrimaXls
 				$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				
 			   
-			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){   
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){	
+			if ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPRINOVIG' ){   
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){	
 	               		$this->docexcel->getActiveSheet()->getStyle('A3:N3')->getAlignment()->setWrapText(true);
 		                $this->docexcel->getActiveSheet()->getStyle('D3:L3')->applyFromArray($styleTitulos2);
 						$this->docexcel->getActiveSheet()->getStyle('A4:N4')->applyFromArray($styleTitulos1);
@@ -256,7 +257,7 @@ class RPlanillaPrimaXls
                  $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(12);//cargo
                  $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(12);//fecha
                  
-                 if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+                 if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
                  	$this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(8);
 					$this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(12);
 					$this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(12);
@@ -284,7 +285,7 @@ class RPlanillaPrimaXls
 	                $this->docexcel->getActiveSheet()->setCellValue('G4','Cot. Prom');//7
 	                $this->docexcel->getActiveSheet()->setCellValue('H4','Fecha Ing.');//8
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG'){
 					$this->docexcel->getActiveSheet()->setCellValue('I4','Dias Trab.');//9
 					$this->docexcel->getActiveSheet()->setCellValue('J4','Cot. Oct.');//10
 					$this->docexcel->getActiveSheet()->setCellValue('K4','Cot. Nov.');//11
@@ -356,7 +357,7 @@ class RPlanillaPrimaXls
 							$mm=substr($ff, 5,2);
 							$dd=substr($ff, 8,2);
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,$dd.'/'.$mm.'/'.$aa);
-							if($this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG'){
+							if($this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG' && $this->objParam->getParametro('codigo_planilla')!='SPLAPRIVIG'){
 								$aa=substr($ff, 15,4);
 								$mm=substr($ff, 20,2);
 								$dd=substr($ff, 23,2);
@@ -364,12 +365,12 @@ class RPlanillaPrimaXls
 							}
 						} 
 						
-						if($value['codigo_columna']=='IMPDET' && $this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG'){
+						if($value['codigo_columna']=='IMPDET' && ($this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG' && $this->objParam->getParametro('codigo_planilla')!='SPLAPRIVIG')){
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila ,$value['valor']);
 						}
 					}else{
 						
-						if ($value['codigo_columna']=='PREDIAS1'){
+						if ($value['codigo_columna']=='PREDIAS1' || $value['codigo_columna']=='SPREDIAS1'){
 							if($value['ctto1']!='#@@@#')
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['valor']);
 							else 
@@ -383,35 +384,35 @@ class RPlanillaPrimaXls
 							else 
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,0);
 							
-						}elseif ($value['codigo_columna']=='PREDIAS2'){
-						    if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG')
+						}elseif ($value['codigo_columna']=='PREDIAS2' || $value['codigo_columna']=='SPREDIAS2'){
+						    if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG')
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila ,$value['valor']);
 							else 
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila ,$value['valor']);
 						}
-						elseif ($value['codigo_columna']=='PREPROME2'){
-							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG')
+						elseif ($value['codigo_columna']=='PREPROME2' || $value['codigo_columna']=='PREPROME' ){
+							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' )
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
 							else 
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
 						}elseif ($value['codigo_columna']=='PRIMA'){
-							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG')
+							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' )
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$value['valor']);
 							else{
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila ,$value['valor']);
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']*0.13);
 							} 
 								
-						}elseif ($value['codigo_columna']=='IMPOFAC' && $this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG'){
+						}elseif ($value['codigo_columna']=='IMPOFAC' && ($this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG' && $this->objParam->getParametro('codigo_planilla')!='SPLAPRIVIG')){
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$value['valor']);
 							
-						}elseif ($value['codigo_columna']=='LIQPAG' && $this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG'){
+						}elseif ($value['codigo_columna']=='LIQPAG' && ($this->objParam->getParametro('codigo_planilla')!='PLAPRIVIG' && $this->objParam->getParametro('codigo_planilla')!='SPLAPRIVIG')){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila ,$value['valor']);
-						}elseif ($value['codigo_columna']=='PREPRICOT23' && $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+						}elseif (($value['codigo_columna']=='PREPRICOT23' || $value['codigo_columna']=='SPREPRICOT3') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG')){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila ,$value['valor']);
-						}elseif ($value['codigo_columna']=='PREPRICOT22' && $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+						}elseif (($value['codigo_columna']=='PREPRICOT22' || $value['codigo_columna']=='SPREPRICOT2') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG')){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
-						}elseif ($value['codigo_columna']=='PREPRICOT21' && $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+						}elseif (($value['codigo_columna']=='PREPRICOT21' || $value['codigo_columna']=='SPREPRICOT1') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG')){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila ,$value['valor']);
 						}
 						
