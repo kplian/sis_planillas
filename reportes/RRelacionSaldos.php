@@ -15,6 +15,7 @@
  #147	ETR				03.07.2020			MZM	KPLIAN			Separar cheque de bancos para planilla de sueldos
  #149	ETR				09.07.2020			MZM-KPLIAN 			Gestion en otra linea (titulo)
  #151	ETR				14.07.2020			MZM-KPLIAN			Control de salto para reportes que no usan posicion Landscape 
+ #152	ETR				20.07.2020			MZM-KPLIAN			cambio de nombre de columna
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -161,7 +162,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(30,5,'CPS (Bs.)','B',0,'C');
 					$this->Cell(30,5,'(Bs.)','B',1,'C');
 				}else{//aguinaldo
-					$this->Cell(50,5,'Aguinaldo (Bs)','B',1,'C');
+					$this->Cell(50,5,'(Bs)','B',1,'C'); //#152
 				}
 				
 				
