@@ -1,12 +1,17 @@
---------------- SQL ---------------
+-- FUNCTION: plani.f_inserta_detalle_obligaciones(character varying, integer, integer)
 
-CREATE OR REPLACE FUNCTION plani.f_inserta_detalle_obligaciones (
-  p_nombre_tabla varchar,
-  p_id_tipo_obligacion integer,
-  p_id_planilla integer
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.f_inserta_detalle_obligaciones(character varying, integer, integer);
+
+CREATE OR REPLACE FUNCTION plani.f_inserta_detalle_obligaciones(
+	p_nombre_tabla character varying,
+	p_id_tipo_obligacion integer,
+	p_id_planilla integer)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
   /**************************************************************************
    PLANI
   ***************************************************************************
@@ -16,14 +21,13 @@ $body$
    DESCRIP:  inserta el detalle de obligacion de apgo de planilla
    Fecha: 27/01/2014
 
-
     HISTORIAL DE MODIFICACIONES:
        
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #0               27/01/2014        GUY BOA             Creacion 
  #7               13-05-2019        Rarteaga            considera la obligacion de pago contable (no tiene prorrateo de costos) al validar pago de obligaciones
- 
+ #153			  21.07.2020		MZM-KPLIAN			Considerar el cambio que se pueda hacer en funcionario_planilla (opcion forzar_cheque), para que en las obligaciones que son por banco, se genere una obligacion de cheque
  ********************************************************************************/
 DECLARE
 	v_planilla			   record;
@@ -120,7 +124,11 @@ BEGIN
                   fafp.nro_afp,
                   ins.nombre as nombre_banco,
                   ins.id_institucion, 
-                  fcu.nro_cuenta,
+                  (case when fp.forzar_cheque=''si'' then ''''
+                  else 
+                  fcu.nro_cuenta
+                  end) as nro_cuenta, --#153
+                  
                   tc.compromete
 
               from plani.tprorrateo pro
@@ -206,10 +214,6 @@ BEGIN
                                 and es_ultimo = ''si'' and id_tipo_columna = ' || v_max_tipo_columna );
                 end if;
 
-
-
-
-
         end loop;
      end if;
      --Validar si la suma de pagos es igual a la suma de detalles
@@ -258,9 +262,7 @@ EXCEPTION
 		raise exception '%',v_resp;
 
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.f_inserta_detalle_obligaciones(character varying, integer, integer)
+    OWNER TO postgres;
