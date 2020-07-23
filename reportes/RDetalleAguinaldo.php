@@ -3,6 +3,7 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #87	ETR				10.01.2020			MZM					Habilitacion de opcion detalle de aguinaldo
  #92	ETR				13.02.2020			MZM					Ajuste a nombre de pagina cuando el valor es null
+#155	ETR				22.07.2020			MZM-KPLIAN			Adaptacion de reporte para primas vigentes
  * *  
 */
 class RDetalleAguinaldo
@@ -63,13 +64,97 @@ class RDetalleAguinaldo
 
     function generarDatos($data)
     {
-        $styleTitulos3 = array(
+        $styleTitulos = array(
             'alignment' => array(
-                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
                 'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ),
         );
 
+ 		$styleTitulosT = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'font' => array(
+                'bold'  => true,
+                'size'  => 12,
+                'name'  => 'Arial',
+                
+                )
+        );
+		
+		$styleTitulosST = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'font' => array(
+                'bold'  => false,
+                'size'  => 8,
+                'name'  => 'Arial',
+                
+                ),
+             'borders' => array(
+               
+              'right'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_MEDIUMDASHED     ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+             ),
+            	'allborders'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_THIN     ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+             )
+            )
+        );
+		
+		
+		$styleTitulosSTR = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'font' => array(
+                'bold'  => true,
+                'size'  => 8,
+                'name'  => 'Arial',
+                
+                ),
+             'borders' => array(
+               
+               'bottom'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_SLANTDASHDOT  ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+            ),
+            	'top'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_MEDIUMDASHED     ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+            ),
+            	'right'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_MEDIUMDASHED     ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+             ),
+            	'vertical'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_THIN     ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+             )
+            )
+        );
+		
+		
+		
         $styleTitulos2 = array(
             'font'  => array(
                 'bold'  => true,
@@ -148,6 +233,30 @@ class RDetalleAguinaldo
                 )
             ));
 
+		$styleTitulosFirma = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            ),
+            'borders' => array(
+               
+               'bottom'     => array(
+                'style' => PHPExcel_Style_Border::BORDER_SLANTDASHDOT  ,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+            	)
+			)
+        );
+
+
+		$styleTitulosSFirma = array(
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+            )
+        );
+
         $this->numero = 1;
         $fila = 3;
         $columna = 8;
@@ -169,7 +278,7 @@ class RDetalleAguinaldo
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        
+        if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
        // foreach ($datos as $value)
         //{
             
@@ -185,12 +294,16 @@ class RDetalleAguinaldo
 				$this->docexcel->getActiveSheet()->mergeCells("A1:AH1");
 				$this->docexcel->getActiveSheet()->getStyle('A1:AH1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				
+				//#155
+				//bono antiguedad
+					if($this->objParam->getParametro('fecha_backup')!=''){
+						$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion'].' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion']);
+					}
 				
-				if($this->objParam->getParametro('fecha_backup')!=''){
-					$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion'].' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
-				}else{
-					$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion']);
-				}
+				
+				
 				
                 $this->docexcel->getActiveSheet()->getStyle('A2:AH2')->getAlignment()->setWrapText(true);
                 $this->docexcel->getActiveSheet()->getStyle('A2:AH2')->applyFromArray($styleTitulos3);
@@ -330,6 +443,227 @@ class RDetalleAguinaldo
 					$fila++;
 					$cont++;
 				}
+
+
+
+		}else{//planilla de primas
+			$this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('nombre_tipo_contrato'));
+			$this->docexcel->getActiveSheet()->mergeCells("A1:E1");	
+			$this->docexcel->getActiveSheet()->mergeCells("A2:E2");
+			$this->docexcel->getActiveSheet()->mergeCells("A3:E3");
+			$this->docexcel->getActiveSheet()->mergeCells("A4:E4");
+			//$this->docexcel->getActiveSheet()->getStyle('A1:A1')->getAlignment()->setWrapText(true);
+            $this->docexcel->getActiveSheet()->getStyle('A1:E1')->applyFromArray($styleTitulos);
+			$this->docexcel->getActiveSheet()->getStyle('A2:E2')->applyFromArray($styleTitulos);
+			$this->docexcel->getActiveSheet()->getStyle('A3:E3')->applyFromArray($styleTitulos);
+			$this->docexcel->getActiveSheet()->getStyle('A4:E4')->applyFromArray($styleTitulos);
+            //$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
+                
+		
+		
+			list($razon_social, $nitE, $minT, $numCPS,$nombreGG, $ciGG ) = explode("@@@", $datos[0]['tutor_discapacidad']);
+
+			$this->docexcel->getActiveSheet()->setCellValue('A1','NOMBRE O RAZÓN SOCIAL: '.$razon_social );
+			$this->docexcel->getActiveSheet()->setCellValue('A2','Nº EMPLEADOR MINISTERIO DE TRABAJO: '.$minT );
+			$this->docexcel->getActiveSheet()->setCellValue('A3','Nº DE NIT: '.$nitE );	
+			$this->docexcel->getActiveSheet()->setCellValue('A4','Nº DE EMPLEADOR (Caja de Salud): '.$numCPS );					
+	
+			
+			
+			$dr=substr($this->objParam->getParametro('fecha_backup'),8,2);
+			$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
+			$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
+			$this->docexcel->getActiveSheet()->mergeCells("A6:T6");	
+			
+			$this->docexcel->getActiveSheet()->getStyle('A6:T6')->applyFromArray($styleTitulosT);
+			$this->docexcel->getActiveSheet()->getStyle('A7:T7')->applyFromArray($styleTitulosT);
+			
+			if($this->objParam->getParametro('fecha_backup')!=''){
+				$this->docexcel->getActiveSheet()->setCellValue('A6', 'PLANILLA DE PAGO DE PRIMA ' .' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
+			}else{
+				$this->docexcel->getActiveSheet()->setCellValue('A6', 'PLANILLA DE PAGO DE PRIMA');
+			}
+			$this->docexcel->getActiveSheet()->mergeCells("A7:T7");	
+			$this->docexcel->getActiveSheet()->setCellValue('A7', '(En Bolivianos)');
+			//$datos[0]['gestion']
+
+			$this->docexcel->getActiveSheet()->setCellValue('T8', 'GESTION '.$datos[0]['gestion']);
+			
+			
+				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(4);
+                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categoria
+                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);//pres
+                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
+                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
+                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(14);//cargo
+                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);//fecha
+                $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(6);//fecha
+                $this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(20);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('J')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('K')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('L')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('M')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('N')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('O')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('P')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('Q')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('R')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('S')->setWidth(10);//mes
+                $this->docexcel->getActiveSheet()->getColumnDimension('T')->setWidth(10);//mes
+			
+			//$this->docexcel->getActiveSheet()->getColumnDimension('A10')->setHeight(30);
+				$this->docexcel->getActiveSheet()->getRowDimension(10)->setRowHeight(55);
+				$this->docexcel->getActiveSheet()->getStyle('A10:A10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('B10:H10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('I10:J10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('K10:K10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('L10:Q10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('R10:R10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('S10:S10')->applyFromArray($styleTitulosSTR);
+				$this->docexcel->getActiveSheet()->getStyle('T10:T10')->applyFromArray($styleTitulosSTR);
+				
+				
+ 				$this->docexcel->getActiveSheet()->setCellValue('A10','Nº');//1
+                $this->docexcel->getActiveSheet()->setCellValue('B10','CARNET DE '. PHP_EOL .'IDENTIDAD');//2
+                $this->docexcel->getActiveSheet()->setCellValue('C10','APELLIDO'. PHP_EOL .'PATERNO');//3
+                $this->docexcel->getActiveSheet()->setCellValue('D10','APELLIDO'. PHP_EOL .'MATERNO');//4
+                $this->docexcel->getActiveSheet()->setCellValue('E10','NOMBRES');//5
+                $this->docexcel->getActiveSheet()->setCellValue('F10','NACIONALIDAD');//6
+                $this->docexcel->getActiveSheet()->setCellValue('G10','FECHA DE'. PHP_EOL .'NACIMIENTO');//7
+                $this->docexcel->getActiveSheet()->setCellValue('H10','SEXO'. PHP_EOL .'(F/M)');//8
+                $this->docexcel->getActiveSheet()->setCellValue('I10','OCUPACIÓN QUE'. PHP_EOL .'DESEMPEÑA');//9
+                $this->docexcel->getActiveSheet()->setCellValue('J10','FECHA DE'. PHP_EOL .'INGRESO');//10
+                $this->docexcel->getActiveSheet()->setCellValue('K10','Haber básico'. PHP_EOL .'(A)');//11
+                $this->docexcel->getActiveSheet()->setCellValue('L10','Bono de'. PHP_EOL .'antigüedad'. PHP_EOL .'(B)');//12
+                $this->docexcel->getActiveSheet()->setCellValue('M10','Bono de'. PHP_EOL .'producción'. PHP_EOL .'(C)');//13
+                $this->docexcel->getActiveSheet()->setCellValue('N10','Subsidio de'. PHP_EOL .'frontera'. PHP_EOL .'(D)');//14
+                $this->docexcel->getActiveSheet()->setCellValue('O10','Trabajo'. PHP_EOL .'extraordinario'. PHP_EOL .'y nocturno'. PHP_EOL .'(E)');//15
+                $this->docexcel->getActiveSheet()->setCellValue('P10','Pago'. PHP_EOL .'dominical y'. PHP_EOL .'domingo'. PHP_EOL .'trabajado'. PHP_EOL .'(F)');//16
+                $this->docexcel->getActiveSheet()->setCellValue('Q10','Otros bonos'. PHP_EOL .'(G)');//17
+                $this->docexcel->getActiveSheet()->setCellValue('R10','Total ganado'. PHP_EOL .'(H=A+B+C+D+'. PHP_EOL .'E+F+G)');//18
+                $this->docexcel->getActiveSheet()->setCellValue('S10','Total ganado'. PHP_EOL .'(J=H*I/12)');//19
+                $this->docexcel->getActiveSheet()->setCellValue('T10','FIRMA DEL'. PHP_EOL .'EMPLEADO');//20		
+				$fila=11;
+				$cont=1;
+				
+				
+				$t1=0; $t2=0; $t3=0; $t4=0; $t5=0; $t6=0; $t7=0; $t8=0; $t9=0; 
+				foreach ($datos as $value){
+					
+					
+					$this->docexcel->getActiveSheet()->getRowDimension($fila)->setRowHeight(35);
+					$this->docexcel->getActiveSheet()->getStyle('A'.$fila.':A'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('B'.$fila.':H'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('I'.$fila.':J'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('K'.$fila.':K'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('L'.$fila.':Q'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('R'.$fila.':R'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('S'.$fila.':S'.$fila)->applyFromArray($styleTitulosST);
+					$this->docexcel->getActiveSheet()->getStyle('T'.$fila.':T'.$fila)->applyFromArray($styleTitulosST);
+			
+					
+					
+					
+					
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $cont);
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['num_documento']);
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['paterno']);
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['materno']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nombre'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['nacionalidad'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, date_format(date_create($value['fecha_nacimiento']),'d/m/Y'));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['genero']);
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8,$fila, $value['cargo'] );
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9,$fila, date_format(date_create($value['fecha_ingreso']),'d/m/Y') );
+					
+					
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10,$fila, $value['haber_basico'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11,$fila, $value['bono_ant'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12,$fila, $value['bono_prod'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13,$fila, $value['bono_frontera'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,$fila, $value['extra_noct'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15,$fila, 0 );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16,$fila, $value['otros'] );
+					$tot=($value['otros'] + $value['haber_basico']+$value['bono_ant']+$value['extra_noct']);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17,$fila, $tot);
+					//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,$fila, $value['meses'] );
+					$tot_duo=round(($tot*$value['meses']/360),2);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,$fila, $tot_duo);
+					$t1=$t1+$value['haber_basico'];
+					$t2=$t2+$value['bono_ant'];
+					$t3=$t3+$value['bono_prod'];
+					$t4=$t4+$value['bono_frontera'];
+					$t5=$t5+$value['extra_noct'];
+					$t6=$t6+0;
+					$t7=$t7+$value['otros'];
+					$t8=$t8+$tot;
+					$t9=$t9+$tot_duo;	
+									 
+					$fila++;
+					$cont++;
+				}
+
+
+
+					$this->docexcel->getActiveSheet()->getStyle('A'.$fila.':J'.$fila)->applyFromArray($styleTitulosSTR);
+					//$this->docexcel->getActiveSheet()->getStyle('B'.$fila.':H'.$fila)->applyFromArray($styleTitulosSTR);
+					//$this->docexcel->getActiveSheet()->getStyle('I'.$fila.':J'.$fila)->applyFromArray($styleTitulosSTR);
+					$this->docexcel->getActiveSheet()->getStyle('K'.$fila.':K'.$fila)->applyFromArray($styleTitulosSTR);
+					$this->docexcel->getActiveSheet()->getStyle('L'.$fila.':Q'.$fila)->applyFromArray($styleTitulosSTR);
+					$this->docexcel->getActiveSheet()->getStyle('R'.$fila.':R'.$fila)->applyFromArray($styleTitulosSTR);
+					$this->docexcel->getActiveSheet()->getStyle('S'.$fila.':S'.$fila)->applyFromArray($styleTitulosSTR);
+					$this->docexcel->getActiveSheet()->getStyle('T'.$fila.':T'.$fila)->applyFromArray($styleTitulosSTR);
+			
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8,$fila, 'TOTALES');
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10,$fila, $t1);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11,$fila, $t2);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12,$fila, $t3);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13,$fila, $t4);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,$fila, $t5);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15,$fila, $t6);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16,$fila, $t7);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17,$fila, $t8);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,$fila, $t9);
+				
+				$fila=$fila+5;
+				$this->docexcel->getActiveSheet()->mergeCells("C".$fila.":G".$fila);
+				$this->docexcel->getActiveSheet()->mergeCells("J".$fila.":L".$fila);
+				$this->docexcel->getActiveSheet()->mergeCells("O".$fila.":Q".$fila);	
+				
+				$this->docexcel->getActiveSheet()->getStyle('C'.$fila.':G'.$fila)->applyFromArray($styleTitulosFirma);
+				$this->docexcel->getActiveSheet()->getStyle('J'.$fila.':L'.$fila)->applyFromArray($styleTitulosFirma);
+				$this->docexcel->getActiveSheet()->getStyle('O'.$fila.':Q'.$fila)->applyFromArray($styleTitulosFirma);
+				
+				
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila, $nombreGG);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9,$fila, $ciGG);
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,$fila, '');
+				
+				
+				
+				
+				$fila++;
+				$this->docexcel->getActiveSheet()->mergeCells("C".$fila.":G".$fila);
+				$this->docexcel->getActiveSheet()->mergeCells("J".$fila.":L".$fila);
+				$this->docexcel->getActiveSheet()->mergeCells("O".$fila.":Q".$fila);
+				
+				$this->docexcel->getActiveSheet()->getStyle('C'.$fila.':G'.$fila)->applyFromArray($styleTitulosSFirma);
+				$this->docexcel->getActiveSheet()->getStyle('J'.$fila.':L'.$fila)->applyFromArray($styleTitulosSFirma);
+				$this->docexcel->getActiveSheet()->getStyle('O'.$fila.':Q'.$fila)->applyFromArray($styleTitulosSFirma);
+				
+				
+				
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2,$fila, 'NOMBRE DEL EMPLEADOR O REPRESENTANTE LEGAL');
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9,$fila, 'Nº DE DOCUMENTO DE IDENTIDAD');
+				$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,$fila, 'FIRMA');
+				
+}
+
+
+
+
 
     }
     function obtenerFechaEnLetra($fecha){
