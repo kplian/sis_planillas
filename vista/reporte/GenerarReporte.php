@@ -15,6 +15,7 @@
  * #107	ETR			MZM		16.03.2020	Carga automatica de ultima gestion y periodo procesado
  * #119 ETR			MZM		23.04.2020	Reporte acumulado saldo rc-iva
  * #144	ETR			MZM		29.06.2020	Reporte ingreso/egreso por funcionario
+  #156	ETR			EGS		03/08/2020	Se agrega codigo_afp
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -524,7 +525,17 @@ header("content-type: text/javascript; charset=UTF-8");
 			},
 			type:'Field',
 			form:true 
-		},{//#83
+		},
+        {//#156
+            //configuracion del componente
+            config:{
+                labelSeparator:'',
+                inputType:'hidden',
+                name: 'codigo_afp'
+            },
+            type:'Field',
+            form:true
+        },{//#83
 			//configuracion del componente
 			config:{
 					labelSeparator:'',
@@ -823,6 +834,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						this.Cmp.id_afp.setValue('');
 						//this.Cmp.id_tipo_contrato.allowBlank=true;
 						this.Cmp.nombre_afp.setValue('');
+                        this.Cmp.codigo_afp.setValue('');//#156
 							
 						this.ocultarComponente(this.Cmp.fecha);
 						this.Cmp.fecha.allowBlank=true;
@@ -945,6 +957,7 @@ header("content-type: text/javascript; charset=UTF-8");
 				}else{
 					this.ocultarComponente(this.Cmp.id_afp);
 					this.Cmp.nombre_afp.setValue('');
+                    this.Cmp.codigo_afp.setValue('');//#156
 					if(r.data.tipo_reporte=='bono_descuento'){
 					  this.mostrarComponente(this.Cmp.id_tipo_columna);
 					  this.Cmp.id_tipo_columna.setValue('');
@@ -1006,8 +1019,10 @@ header("content-type: text/javascript; charset=UTF-8");
 				
 				if(r.data.nombre!=''){
 					this.Cmp.nombre_afp.setValue(r.data.nombre);
+                    this.Cmp.codigo_afp.setValue(r.data.codigo);//#156
 				}else{
 					this.Cmp.nombre_afp.setValue('');
+                    this.Cmp.codigo_afp.setValue('');//#156
 				}
 			},this);
 			
