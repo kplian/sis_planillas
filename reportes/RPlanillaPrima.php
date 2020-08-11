@@ -1143,16 +1143,9 @@ class RPlanillaPrima extends  ReportePDF {
 		}
 		
 	}	
-		
+	
 	
 	}
 	
-		
-		
-		
-			
-	
-	
-    
 }
 ?>
