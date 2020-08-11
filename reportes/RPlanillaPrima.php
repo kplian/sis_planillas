@@ -6,6 +6,7 @@
   #124	ETR				21.05.2020			MZM-KPLIAN			Reporte de planilla de bono de produccion
   #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta
   #151	ETR				13.07.2020			MZM-KPLIAN			Ajsute reporte de primas
+  #157	ETR				11.08.2020			MZM-KPLIAN			Bug de nombre regional/banco
  */
 class RPlanillaPrima extends  ReportePDF {
 	var $datos;	
@@ -869,12 +870,12 @@ class RPlanillaPrima extends  ReportePDF {
 			for ($i=1; $i<=$cont;$i++){
 			
 				if($this->gerencia!=$array_datos[$i][18] ){
-					$this->gerencia=$array_datos[$i][18];
+					
 					
 					//añadimos los subtotales
 					$this->Cell(105,5,'SUBTOTAL','TB',0,'C');
 					$this->Cell(25,5,'','TB',0,'C');
-					
+					$this->gerencia=$array_datos[$i][18];//#157
 					$this->Cell(15,5,number_format($s_dias2,0),'TB',0,'R');
 					$this->Cell(25,5,number_format($s_prom2,2),'TB',0,'R');
 					$this->Cell(25,5,number_format($s_prima,2,'.',','),'TB',0,'R');
