@@ -2809,6 +2809,7 @@ raise notice '***:%',v_consulta;
                                         group by cv.codigo_columna
                                         ';
 					else -- plasue #158
+                    v_cols:='SUELDOMES';
                     	v_consulta_det:='select round((sum(cv.valor)),2) as valor,
 							 			 cv.codigo_columna
                                         from plani.tfuncionario_planilla fp
@@ -2828,11 +2829,11 @@ raise notice '***:%',v_consulta;
                     end if;
 						for v_registros_det in execute (v_consulta_det) loop
 
-                             if (v_col in ('DIASAGUI','HORDIA') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
+                             if (v_col in ('DIASAGUI') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
                             	update tt_detalle_aguin
                             	set haber_basico=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='SPREDIAS2' and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
+                            elsif (v_col in ('SPREDIAS2','HORDIA') and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
                             	update tt_detalle_aguin
                             	set haber_basico=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
@@ -2951,7 +2952,7 @@ raise notice '***:%',v_consulta;
                                           inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
                                           inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
                                           inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-										  and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES')
+										  and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES','ASIB')
                                           where fp.id_funcionario =v_registros.id_funcionario
                                           and plani.id_periodo between v_id_periodo_min and v_id_periodo
                                           );
