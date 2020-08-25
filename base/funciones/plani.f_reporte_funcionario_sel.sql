@@ -2720,7 +2720,7 @@ raise notice '***:%',v_consulta;
                   
                   
                   ''2'' as caja_salud,  (case when afp.codigo = ''PREV'' then ''1'' else ''2'' end) as nombre_afp, funafp.nro_afp, ofi.nombre as sucursal,'''' as clasificacion_laboral,car.nombre as cargo,
-                   pxp.f_iif(tcon.codigo=''PLA'' and uofun.fecha_finalizacion is null,''1'',''4'') as tipo_contrato,
+                   pxp.f_iif(tcon.codigo=''PLA'' ,''1'',''4'') as tipo_contrato,
                    plani.id_periodo, cv.valor
                   
                   from segu.tpersona per
