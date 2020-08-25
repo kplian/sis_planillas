@@ -4,7 +4,7 @@
  #87	ETR				10.01.2020			MZM					Habilitacion de opcion detalle de aguinaldo
  #92	ETR				13.02.2020			MZM					Ajuste a nombre de pagina cuando el valor es null
 #155	ETR				22.07.2020			MZM-KPLIAN			Adaptacion de reporte para primas vigentes
- * *  
+ #158	ETR				19.08.2020			MZM-KPLIAN			Para Personal retirado adicionar periodo con el cual generar el reporte
 */
 class RDetalleAguinaldo
 {
@@ -258,7 +258,10 @@ class RDetalleAguinaldo
         );
 
         $this->numero = 1;
-        $fila = 3;
+        $fila = 1;
+		if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+			$fila=3;
+		}
         $columna = 8;
         $datos = $data;//$this->objParam->getParametro('datos');var_dump($datos);exit;
         //subtotales
@@ -278,7 +281,7 @@ class RDetalleAguinaldo
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+        if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLASUE' ){
        // foreach ($datos as $value)
         //{
             
@@ -291,10 +294,9 @@ class RDetalleAguinaldo
 				$mr=substr($this->objParam->getParametro('fecha_backup'),5,2);
 				$ar=substr($this->objParam->getParametro('fecha_backup'),0,4).''.substr($this->objParam->getParametro('fecha_backup'),10);
 				
-				$this->docexcel->getActiveSheet()->mergeCells("A1:AH1");
-				$this->docexcel->getActiveSheet()->getStyle('A1:AH1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-				
-				//#155
+				if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+					$this->docexcel->getActiveSheet()->mergeCells("A1:AH1");
+					//#155
 				//bono antiguedad
 					if($this->objParam->getParametro('fecha_backup')!=''){
 						$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion'].' [Backup: '.$dr.'/'.$mr.'/'.$ar.']');
@@ -302,20 +304,29 @@ class RDetalleAguinaldo
 						$this->docexcel->getActiveSheet()->setCellValue('A1', 'DETALLE DE AGUINALDO ' .$datos[0]['gestion']);
 					}
 				
+				}
+				if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+					$this->docexcel->getActiveSheet()->getStyle('A1:AH1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+					$this->docexcel->getActiveSheet()->getStyle('A1:AH1')->getAlignment()->setWrapText(true);
+	                $this->docexcel->getActiveSheet()->getStyle('A1:AH1')->applyFromArray($styleTitulos3);
+				}else{
+					$this->docexcel->getActiveSheet()->getStyle('A1:AT1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+					$this->docexcel->getActiveSheet()->getStyle('A1:AT1')->getAlignment()->setWrapText(true);
+	                $this->docexcel->getActiveSheet()->getStyle('A1:AT1')->applyFromArray($styleTitulos3);
+   
+				}
+                
 				
 				
-				
-                $this->docexcel->getActiveSheet()->getStyle('A2:AH2')->getAlignment()->setWrapText(true);
-                $this->docexcel->getActiveSheet()->getStyle('A2:AH2')->applyFromArray($styleTitulos3);
-                $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
-                $fila=3;
+                //$this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,3);
+                //$fila=$fila;
                 $this->numero=1;
                 $columna = 8;
 
                 $total_bono = 0;
                 $total_sueldo = 0;
                 $total_frontera = 0;
-                $this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('nombre_tipo_contrato'));
+                //$this->docexcel->getActiveSheet()->setTitle($this->objParam->getParametro('nombre_tipo_contrato'));
                 $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);//categoria
                 $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);//pres
@@ -352,48 +363,93 @@ class RDetalleAguinaldo
                 $this->docexcel->getActiveSheet()->getColumnDimension('AG')->setWidth(20);//mes
                 $this->docexcel->getActiveSheet()->getColumnDimension('AH')->setWidth(20);//mes
 				
-				
-                $this->docexcel->getActiveSheet()->setCellValue('A2','Nº');//1
-                $this->docexcel->getActiveSheet()->setCellValue('B2','Tipo Doc Identificacion');//2
-                $this->docexcel->getActiveSheet()->setCellValue('C2','Nº Doc Identidad');//3
-                $this->docexcel->getActiveSheet()->setCellValue('D2','Lugar de expedición');//4
-                $this->docexcel->getActiveSheet()->setCellValue('E2','Fecha de nacimiento');//5
-                $this->docexcel->getActiveSheet()->setCellValue('F2','Apellido Paterno');//6
-                $this->docexcel->getActiveSheet()->setCellValue('G2','Apellido Materno');//7
-                $this->docexcel->getActiveSheet()->setCellValue('H2','Nombres');//8
-                $this->docexcel->getActiveSheet()->setCellValue('I2','País de nacionalidad');//9
-                $this->docexcel->getActiveSheet()->setCellValue('J2','Sexo');//10
-                $this->docexcel->getActiveSheet()->setCellValue('K2','Jubilado');//11
-                $this->docexcel->getActiveSheet()->setCellValue('L2','¿Aporta a la AFP?');//12
-                $this->docexcel->getActiveSheet()->setCellValue('M2','¿Persona con discapacidad?');//13
-                $this->docexcel->getActiveSheet()->setCellValue('N2','Tutor de persona con discapacidad');//14
-                $this->docexcel->getActiveSheet()->setCellValue('O2','Fecha de ingreso');//15
-                $this->docexcel->getActiveSheet()->setCellValue('P2','Fecha de retiro');//16
-                $this->docexcel->getActiveSheet()->setCellValue('Q2','Motivo retiro');//17
-                $this->docexcel->getActiveSheet()->setCellValue('R2','Caja de salud');//18
-                $this->docexcel->getActiveSheet()->setCellValue('S2','AFP a la que aporta');//19
-                $this->docexcel->getActiveSheet()->setCellValue('T2','NUA/CUA');//20
-                $this->docexcel->getActiveSheet()->setCellValue('U2','Sucursal o ubicación adicional');//21
-                $this->docexcel->getActiveSheet()->setCellValue('V2','Clasificación laboral');//22
-                $this->docexcel->getActiveSheet()->setCellValue('W2','Cargo');//23
-                $this->docexcel->getActiveSheet()->setCellValue('X2','Modalidad de contrato');//24
-                $this->docexcel->getActiveSheet()->setCellValue('Y2','Promedio haber básico');//25
-                $this->docexcel->getActiveSheet()->setCellValue('Z2','Promedio bono de antigüedad');//26
-                $this->docexcel->getActiveSheet()->setCellValue('AA2','Promedio bono producción');//27
-                $this->docexcel->getActiveSheet()->setCellValue('AB2','Promedio subsidio frontera');//28
-                $this->docexcel->getActiveSheet()->setCellValue('AC2','Promedio trabajo extraordinario y nocturno');//29
+				$this->docexcel->getActiveSheet()->getColumnDimension('AI')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AJ')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AK')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AL')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AM')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AN')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AO')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AP')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AQ')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AR')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AS')->setWidth(20);//mes
+				$this->docexcel->getActiveSheet()->getColumnDimension('AT')->setWidth(20);//mes
 				
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AD2','Promedio pago dominical trabajado');//30
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AE2','Promedio otros bonos');//31
-				$this->docexcel->getActiveSheet()->setCellValue('AF2','Promedio total ganado');//32
 				
-				$this->docexcel->getActiveSheet()->setCellValue('AG2','Meses trabajados');//33
-				$this->docexcel->getActiveSheet()->setCellValue('AH2','Total ganado después de duodécimas');//34
-
+                $this->docexcel->getActiveSheet()->setCellValue('A'.$fila,'Nº');//1
+                $this->docexcel->getActiveSheet()->setCellValue('B'.$fila,'Tipo Doc Identificacion');//2
+                $this->docexcel->getActiveSheet()->setCellValue('C'.$fila,'Nº Doc Identidad');//3
+                $this->docexcel->getActiveSheet()->setCellValue('D'.$fila,'Lugar de expedición');//4
+                $this->docexcel->getActiveSheet()->setCellValue('E'.$fila,'Fecha de nacimiento');//5
+                $this->docexcel->getActiveSheet()->setCellValue('F'.$fila,'Apellido Paterno');//6
+                $this->docexcel->getActiveSheet()->setCellValue('G'.$fila,'Apellido Materno');//7
+                $this->docexcel->getActiveSheet()->setCellValue('H'.$fila,'Nombres');//8
+                $this->docexcel->getActiveSheet()->setCellValue('I'.$fila,'País de nacionalidad');//9
+                $this->docexcel->getActiveSheet()->setCellValue('J'.$fila,'Sexo');//10
+                $this->docexcel->getActiveSheet()->setCellValue('K'.$fila,'Jubilado');//11
+                $this->docexcel->getActiveSheet()->setCellValue('L'.$fila,'¿Aporta a la AFP?');//12
+                $this->docexcel->getActiveSheet()->setCellValue('M'.$fila,'¿Persona con discapacidad?');//13
+                $this->docexcel->getActiveSheet()->setCellValue('N'.$fila,'Tutor de persona con discapacidad');//14
+                $this->docexcel->getActiveSheet()->setCellValue('O'.$fila,'Fecha de ingreso');//15
+                $this->docexcel->getActiveSheet()->setCellValue('P'.$fila,'Fecha de retiro');//16
+                $this->docexcel->getActiveSheet()->setCellValue('Q'.$fila,'Motivo retiro');//17
+                $this->docexcel->getActiveSheet()->setCellValue('R'.$fila,'Caja de salud');//18
+                $this->docexcel->getActiveSheet()->setCellValue('S'.$fila,'AFP a la que aporta');//19
+                $this->docexcel->getActiveSheet()->setCellValue('T'.$fila,'NUA/CUA');//20
+                $this->docexcel->getActiveSheet()->setCellValue('U'.$fila,'Sucursal o ubicación adicional');//21
+                $this->docexcel->getActiveSheet()->setCellValue('V'.$fila,'Clasificación laboral');//22
+                $this->docexcel->getActiveSheet()->setCellValue('W'.$fila,'Cargo');//23
+                $this->docexcel->getActiveSheet()->setCellValue('X'.$fila,'Modalidad de contrato');//24
+                
+                if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+                	$this->docexcel->getActiveSheet()->setCellValue('Y'.$fila,'Promedio haber básico');//25
+                	$this->docexcel->getActiveSheet()->setCellValue('Z'.$fila,'Promedio bono de antigüedad');//26
+	                $this->docexcel->getActiveSheet()->setCellValue('AA'.$fila,'Promedio bono producción');//27
+	                $this->docexcel->getActiveSheet()->setCellValue('AB'.$fila,'Promedio subsidio frontera');//28
+	                $this->docexcel->getActiveSheet()->setCellValue('AC'.$fila,'Promedio trabajo extraordinario y nocturno');//29
+					$this->docexcel->getActiveSheet()->setCellValue('AD'.$fila,'Promedio pago dominical trabajado');//30
+					$this->docexcel->getActiveSheet()->setCellValue('AE'.$fila,'Promedio otros bonos');//31
+					$this->docexcel->getActiveSheet()->setCellValue('AF'.$fila,'Promedio total ganado');//32
+					$this->docexcel->getActiveSheet()->setCellValue('AG'.$fila,'Meses trabajados');//33
+					$this->docexcel->getActiveSheet()->setCellValue('AH'.$fila,'Total ganado después de duodécimas');//34
+				}else{
+					
+					
+					$this->docexcel->getActiveSheet()->setCellValue('Y'.$fila,'Tipo contrato');//25
+                	$this->docexcel->getActiveSheet()->setCellValue('Z'.$fila,'Días pagados');//26
+	                $this->docexcel->getActiveSheet()->setCellValue('AA'.$fila,'Horas pagadas');//27
+	                $this->docexcel->getActiveSheet()->setCellValue('AB'.$fila,'Haber Básico');//28
+	                $this->docexcel->getActiveSheet()->setCellValue('AC'.$fila,'Bono de antigüedad');//29
+					$this->docexcel->getActiveSheet()->setCellValue('AD'.$fila,'Horas extra');//30
+					$this->docexcel->getActiveSheet()->setCellValue('AE'.$fila,'Monto horas extra');//31
+					$this->docexcel->getActiveSheet()->setCellValue('AF'.$fila,'Horas recargo nocturno');//32
+					$this->docexcel->getActiveSheet()->setCellValue('AG'.$fila,'Monto horas extra nocturnas');//33
+					$this->docexcel->getActiveSheet()->setCellValue('AH'.$fila,'Horas extra dominicales');//34
+					
+					            
+					
+					$this->docexcel->getActiveSheet()->setCellValue('AI'.$fila,'Monto horas extra dominicales');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AJ'.$fila,'Domingos trabajados');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AK'.$fila,'Monto domingo trabajado');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AL'.$fila,'Nro. dominicales');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AM'.$fila,'Salario dominical');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AN'.$fila,'Bono producción');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AO'.$fila,'Subsidio frontera');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AP'.$fila,'Otros bonos y pagos');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AQ'.$fila,'RC-IVA');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AR'.$fila,'Aporte Caja Salud');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AS'.$fila,'Aporte AFP');//34
+					$this->docexcel->getActiveSheet()->setCellValue('AT'.$fila,'Otros descuentos');//34
+						
+							
+				}
+                
 				$nombre_centro='';
 				$cont=1;
+				$fila++;
 				foreach ($datos as $value){
 					
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $cont);
@@ -426,20 +482,48 @@ class RDetalleAguinaldo
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20,$fila, $value['sucursal'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21,$fila, $value['clasificacion_laboral'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(22,$fila, $value['cargo'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(23,$fila, $value['modalidad_ctto'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(24,$fila, $value['haber_basico'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(25,$fila, $value['bono_ant'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(26,$fila, $value['bono_prod'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(27,$fila, $value['bono_frontera'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28,$fila, $value['extra_noct'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(29,$fila, 0 );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(30,$fila, $value['otros'] );
-					$tot=($value['otros'] + $value['haber_basico']+$value['bono_ant']+$value['extra_noct']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(31,$fila, $tot);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(32,$fila, $value['meses'] );
-					$tot_duo=round(($tot*$value['meses']/360),2);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(33,$fila, $tot_duo);
-										 
+					
+					
+					
+					if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(23,$fila, $value['modalidad_ctto'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(24,$fila, $value['haber_basico'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(25,$fila, $value['bono_ant'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(26,$fila, $value['bono_prod'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(27,$fila, $value['bono_frontera'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28,$fila, $value['extra_noct'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(29,$fila, 0 );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(30,$fila, $value['otros'] );
+						$tot=($value['otros'] + $value['haber_basico']+$value['bono_ant']+$value['extra_noct']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(31,$fila, $tot);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(32,$fila, $value['meses'] );
+						$tot_duo=round(($tot*$value['meses']/360),2);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(33,$fila, $tot_duo);
+					}else{
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(23,$fila, $value['modalidad_ctto'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(24,$fila, $value['tipo_contrato'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(25,$fila, $value['dias_pagados'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(26,$fila, $value['horas_pagadas'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(27,$fila, $value['haber_basico'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28,$fila, $value['bono_ant'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(29,$fila, $value['horas_extra'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(30,$fila, $value['monto_extra'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(31,$fila, $value['horas_noct'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(32,$fila, $value['monto_noct'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(33,$fila, 0.00 );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(34,$fila, 0.00);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(35,$fila, 0.00);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(36,$fila, 0.00);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(37,$fila, 0.00);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(38,$fila, 0.00);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(39,$fila, $value['bono_prod']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(40,$fila, $value['bono_frontera'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(41,$fila, $value['otros'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(42,$fila, $value['rc_iva'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(43,$fila, $value['cps'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(44,$fila, $value['afp'] );
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(45,$fila, $value['otros_desc'] );
+					}				 
 					$fila++;
 					$cont++;
 				}

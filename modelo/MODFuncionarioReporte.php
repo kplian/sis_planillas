@@ -27,6 +27,7 @@
   #133  ETR       		03.06.2020          MZM KPLIAN     		Reporte para prevision de primas
   #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
  *#144	ETR				29.06.2020			MZM-KPLIAN
+ *#158	ETR				19.08.2020			MZM-KPLIAN			Adicion de fecha en reporte de personal retirado
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -211,6 +212,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('id_gestion','id_gestion','integer');	
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');//#77(20.11.19)
+		$this->setParametro('fecha','fecha','date');//#158
 		//Datos del empleado
 		$this->captura('desc_funcionario1','text');
 		$this->captura('fecha','date');
@@ -690,10 +692,23 @@ class MODFuncionarioReporte extends MODbase{
                 $this->captura('otros','numeric');
                 $this->captura('meses','numeric');
 				$this->captura('gestion','integer');
+				
+				//#158
+				$this->captura('tipo_contrato','varchar');
+				$this->captura('dias_pagados','numeric');
+				$this->captura('horas_pagadas','numeric');
+				$this->captura('horas_extra','numeric');
+				$this->captura('monto_extra','numeric');
+				$this->captura('horas_noct','numeric');
+				$this->captura('monto_noct','numeric');
+				$this->captura('rc_iva','numeric');
+				$this->captura('cps','numeric');
+				$this->captura('afp','numeric');
+				$this->captura('otros_desc','numeric');
 		
 		 $this->armarConsulta(); 		   
         //Ejecuta la instruccion
-        
+        //echo $this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
@@ -804,7 +819,6 @@ class MODFuncionarioReporte extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
 	//echo "****".$this->getConsulta(); exit;
-
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -845,6 +859,5 @@ class MODFuncionarioReporte extends MODbase{
 		return $this->respuesta;
 	}
 	 
-
 }
 ?>

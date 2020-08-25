@@ -5,17 +5,18 @@
  *@author  RCM
  *@date    07/08/2013
  *@description Reporte Material Entregado/Recibido
- * #33	etr			MZM		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
- * #66	etr			MZM		24.10.2019	inclusion de opcion de reporte con control_reporte
- * #77	ETR			MZM		15.11.2019	Ajuste Reportes
-   #81	ETR			MZM		20.11.2019	Ampliacion de visualizacion de nombre de reportes
- * #83	ETR			MZM		10.12.2019	Habilitacion de opcion historico de planilla
- * #87	ETR			MZM		10.01.2020	Habilitacion de opcion detalle de aguinaldo
- * #98	ETR			MZM		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
- * #107	ETR			MZM		16.03.2020	Carga automatica de ultima gestion y periodo procesado
- * #119 ETR			MZM		23.04.2020	Reporte acumulado saldo rc-iva
- * #144	ETR			MZM		29.06.2020	Reporte ingreso/egreso por funcionario
-  #156	ETR			EGS		03/08/2020	Se agrega codigo_afp
+ * #33	etr			MZM-KPLIAN		02.09.2019	Adicion de control para reporte multilinea (opcion totales)
+ * #66	etr			MZM-KPLIAN		24.10.2019	inclusion de opcion de reporte con control_reporte
+ * #77	ETR			MZM-KPLIAN		15.11.2019	Ajuste Reportes
+   #81	ETR			MZM-KPLIAN		20.11.2019	Ampliacion de visualizacion de nombre de reportes
+ * #83	ETR			MZM-KPLIAN		10.12.2019	Habilitacion de opcion historico de planilla
+ * #87	ETR			MZM-KPLIAN		10.01.2020	Habilitacion de opcion detalle de aguinaldo
+ * #98	ETR			MZM-KPLIAN		03.03.2020	HAbilitacion de opcion estado_funcionario (activo, retirado, todos) para todos los reportes
+ * #107	ETR			MZM-KPLIAN		16.03.2020	Carga automatica de ultima gestion y periodo procesado
+ * #119 ETR			MZM-KPLIAN		23.04.2020	Reporte acumulado saldo rc-iva
+ * #144	ETR			MZM-KPLIAN		29.06.2020	Reporte ingreso/egreso por funcionario
+  #156	ETR			EGS				03/08/2020	Se agrega codigo_afp
+   #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte 
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -743,7 +744,6 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.consultar_backup.setValue('no');//#83
 				this.ocultarComponente(this.Cmp.id_planillabk);//#83
 				this.Cmp.esquema.setValue('plani');
-
 				
 				
 				
@@ -756,7 +756,6 @@ header("content-type: text/javascript; charset=UTF-8");
 				
 				this.Cmp.id_periodo.modificado = true;
 				this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
-
 				this.Cmp.id_funcionario_planilla.modificado=true;
 			},this);
 			
@@ -770,7 +769,6 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.esquema.setValue('plani');
 				
 				//#144
-
 				this.Cmp.id_funcionario_planilla.reset();
 				this.Cmp.id_funcionario_planilla.store.baseParams.id_tipo_contrato = this.Cmp.id_tipo_contrato.getValue(); //#144
 				if (this.Cmp.id_periodo.getValue()!=''){
@@ -926,6 +924,15 @@ header("content-type: text/javascript; charset=UTF-8");
 											this.Cmp.id_periodo.setValue('');
 											this.ocultarComponente(this.Cmp.personal_activo);
 											this.Cmp.personal_activo.setValue('todos');
+											if (r.data.control_reporte=='personal_ret'){//#158
+												this.mostrarComponente(this.Cmp.fecha);
+												this.Cmp.fecha.allowBlank=false;
+											}else{
+												this.ocultarComponente(this.Cmp.fecha);
+												this.Cmp.fecha.allowBlank=true;
+											}
+											
+											
 										}else{
 											if(r.data.control_reporte=='planilla_tributaria' || r.data.control_reporte=='saldo_fisco'){//#119
 												this.ocultarComponente(this.Cmp.personal_activo);
@@ -1029,7 +1036,6 @@ header("content-type: text/javascript; charset=UTF-8");
 			//#144
 			this.Cmp.id_funcionario_planilla.on('select',function(c,r,i){
 				
-
 				if(this.Cmp.id_periodo.getValue()=='' || this.Cmp.id_gestion.getValue()=='' || this.Cmp.id_tipo_planilla.getValue()=='' || this.Cmp.id_tipo_contrato.getValue()==''  ){
 					alert("Es necesario que los campos Tipo Planilla, Gestion y Periodo tengan datos");
 				}
@@ -1038,7 +1044,6 @@ header("content-type: text/javascript; charset=UTF-8");
 				//this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue();
 				this.Cmp.id_funcionario_planilla.store.baseParams={
 					id_tipo_planilla:this.Cmp.id_tipo_planilla.getValue(),
-
 					id_periodo:this.Cmp.id_periodo.getValue(),
 					id_gestion:this.Cmp.id_gestion.getValue(),
 					id_tipo_contrato:this.Cmp.id_tipo_contrato.getValue(),

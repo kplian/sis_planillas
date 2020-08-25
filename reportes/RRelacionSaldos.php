@@ -16,6 +16,7 @@
  #149	ETR				09.07.2020			MZM-KPLIAN 			Gestion en otra linea (titulo)
  #151	ETR				14.07.2020			MZM-KPLIAN			Control de salto para reportes que no usan posicion Landscape 
  #152	ETR				20.07.2020			MZM-KPLIAN			cambio de nombre de columna
+ #158	ETR				19.08.2020			MZM-KPLIAN			control de tipo pago: banco/cheque
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -219,6 +220,8 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->tipo_contratoP= $this->datos[$i]['tipo_contrato'];
 					
 					if ($this->datos[$i]['tipo_pago']=='cheque' ){ //#147
+					
+					
 						if ($this->datos[$i]['tipo_pago']!=$this->tipo_pagoP){
 							$bandera_salto_cheque=1;
 						}else{
@@ -226,7 +229,16 @@ class RRelacionSaldos extends  ReportePDF {
 						}
 						
 							$this->Cell(5,5,'','',0,'L');
-							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+							
+							if($this->detalle[0]['periodo']>0){//#158
+								$this->Cell(150,0.1,'','B',1,'L');
+								$this->Cell(108.5,5,'Total para '.$this->tipo_pagoP.':','',0,'R');
+								$this->SetFont('','',8);
+								$this->Cell(30,5,number_format($total,2,'.',','),'',1,'R');//#80
+								
+								
+							}else{
+								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(150,0.1,'','LRB',1,'L');
 								}else{
 									$this->Cell(220,0.1,'','LRB',1,'L');
@@ -242,22 +254,27 @@ class RRelacionSaldos extends  ReportePDF {
 									$this->Cell(30,5,number_format($caja,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($subtotal+$caja,2,'.',','),'',1,'R');
 								}
-						$this->Cell(105,5,'Total para '.$this->tipo_pagoP.':','',0,'R');
-						$this->SetFont('','',8);
-						if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-							$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
-						}else{
-							$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
-							$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
-							$this->Cell(30,5,number_format($cajat,2,'.',','),'',0,'R');
-							$this->Cell(30,5,number_format($total+($cajat),2,'.',','),'',1,'R');
-						}
+								
+								$this->Cell(105,5,'Total para '.$this->tipo_pagoP.':','',0,'R');
+								
+								$this->SetFont('','',8);
+								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+									$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
+								}else{
+									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($cajat,2,'.',','),'',0,'R');
+									$this->Cell(30,5,number_format($total+($cajat),2,'.',','),'',1,'R');
+								}
+							}
+						$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
+						
 						$total=0;
 						$subtotal=0;
 						$this->AddPage();
 						$this->setX($this->getX()-5);
 					}
-					$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
+					
 					
 					if($tipo_contrato!='' && $tipo_contrato!=$this->tipo_contratoP){
 						$this->AddPage();
@@ -405,7 +422,14 @@ class RRelacionSaldos extends  ReportePDF {
 					//$this->AddPage();
 					
 					
-					
+					$tot_banco=0; $tot_cheque=0;
+					if ($this->tipo_pagoP=='cheque'){
+						$tot_banco=$total_gral-$total;
+						$tot_cheque=$total;
+					}else{
+						$tot_banco=$total;
+						
+					}
 					$this->tipo_contratoP='';
 					$this->tipo_pagoP='';
 					$this->AddPage();
@@ -413,13 +437,13 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(60,5,'','',0,'R');
 					$this->Cell(30,0,'Forma de Pago: Banco','',0,'L');
 					$this->SetFont('','',8);
-					$this->Cell(30,0,number_format($total_gral-$total,2,'.',','),'',1,'R');//#80
+					$this->Cell(30,0,number_format($tot_banco,2,'.',','),'',1,'R');//#80
 					
 					$this->SetFont('','B',8);
 					$this->Cell(65,5,'','',0,'R');
 					$this->Cell(30,0,'Forma de Pago: Cheque','',0,'L');
 					$this->SetFont('','',8);
-					$this->Cell(30,0,number_format($total,2,'.',','),'',1,'R');//#80
+					$this->Cell(30,0,number_format($tot_cheque,2,'.',','),'',1,'R');//#80
 					
 					$this->SetFont('','B',8);
 					$this->Cell(65,5,'','',0,'R');

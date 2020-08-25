@@ -155,7 +155,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 		$tipo_pago='';
 		
 		
-				$this->bandera='detalle';
+		$this->bandera='detalle';
 				
 		if (count($this->detalle)>0)	{	
 				

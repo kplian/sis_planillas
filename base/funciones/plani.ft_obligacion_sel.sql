@@ -39,6 +39,7 @@ AS $BODY$
  #128	ETR		  25.05.2020		MZM						Adicion de columna para adecuar reporte por bancos en bono de produccion
  #142	ETR		  19.06.2020	 	MZM						
  #147	ETR		  03.07.2020		MZM						Ordenacion en reporte relacion saldos para separar cheque de bancos
+ #158	ETR		  19.08.2020		MZM						Modificacion SIN BANCO a CHEQUE para reporte resumen saldos (Prima)
 */
 
 DECLARE
@@ -356,7 +357,7 @@ BEGIN
                         
                         union all
                         select ofi.nombre as oficina,sum(o.monto_obligacion) as monto_pagar ,
-                        upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,''SIN BANCO'' as banco,
+                        upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,''CHEQUE'' as banco,
                         ''cheque'' as tipo_pago,  tc.nombre as tipo_contrato
                         ,ofi.orden, 0.00 as caja_oficina
                         from plani.tobligacion o 

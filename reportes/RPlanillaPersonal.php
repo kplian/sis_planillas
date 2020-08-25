@@ -6,6 +6,7 @@
  #77	ETR				21.11.2019			MZM					Ajuste a reporte (inclusion de tipo contrato)
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #158	ETR				20.08.2020			MZM-KPLIAN			Personal Retirado a una fecha especifica
  * * 
 */
 class RPlanillaPersonal extends  ReportePDF {
@@ -37,7 +38,7 @@ class RPlanillaPersonal extends  ReportePDF {
 		if($this->objParam->getParametro('id_tipo_contrato')>0){
 			$tipo_con=' ('.$this->datos[0]['nombre'].')';	
 		}
-		
+		var_dump($this->objParam->getParametro); exit;
 		if($this->objParam->getParametro('tipo_reporte')=='personal_ret'){
 			$this->Cell(0,5,'PERSONAL RETIRADO'.$tipo_con,0,1,'C');//#77
 			$this->Cell(0,5,'GESTION '.$this->datos[0]['gestion'],0,1,'C');
