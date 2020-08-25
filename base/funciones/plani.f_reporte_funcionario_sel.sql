@@ -2625,6 +2625,10 @@ raise notice '***:%',v_consulta;
 				v_id_periodo:=v_id_periodo_min;
             end loop;            
                         
+            
+            
+			select fecha_fin into v_fecha_fin from param.tperiodo where id_periodo=v_id_periodo;
+  			select fecha_ini into v_fecha_ini from param.tperiodo where id_periodo=v_id_periodo_min;
                         
 			 create temp table tt_detalle_aguin(
              	id_funcionario integer,
@@ -2710,7 +2714,11 @@ raise notice '***:%',v_consulta;
                   end)::varchar as discapacidad_tutor,
 
                   (plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uofun.fecha_asignacion)) as fecha_ingreso,
-                  uofun.fecha_finalizacion,
+                  (case when uofun.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||''' then
+                     uofun.fecha_finalizacion
+                  else
+                    null
+                  end)::date as fecha_finalizacion,
                   
                   (case when uofun.fecha_finalizacion is not null and uofun.observaciones_finalizacion = ''fin contrato'' then ''3''
                       when uofun.fecha_finalizacion is not null and uofun.observaciones_finalizacion = ''retiro'' then ''11''
