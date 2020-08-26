@@ -38,7 +38,7 @@ class RPlanillaPersonal extends  ReportePDF {
 		if($this->objParam->getParametro('id_tipo_contrato')>0){
 			$tipo_con=' ('.$this->datos[0]['nombre'].')';	
 		}
-		var_dump($this->objParam->getParametro); exit;
+		
 		if($this->objParam->getParametro('tipo_reporte')=='personal_ret'){
 			$this->Cell(0,5,'PERSONAL RETIRADO'.$tipo_con,0,1,'C');//#77
 			$this->Cell(0,5,'GESTION '.$this->datos[0]['gestion'],0,1,'C');
@@ -79,7 +79,7 @@ class RPlanillaPersonal extends  ReportePDF {
 	function setDatos($datos) {
 		$this->datos = $datos;
 	}
-	function generarReporte() {
+	function generarReporte() { 
 		$this->setFontSubsetting(false);
 		$this->AddPage();
 		
