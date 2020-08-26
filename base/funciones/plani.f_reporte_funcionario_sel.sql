@@ -54,6 +54,7 @@ AS $BODY$
  #151	ETR				31.07.2020			MZM-KPLIAN			Inclusion de tipo SPRINOVIG en reporte PRIMA
  #155	ETR				22.07.2020			MZM-KPLIAN			Reporte de detalle de planilla de prima en DETAGUIN
  #158	ETR				19.08.2020			MZM-KPLIAN			En reporte de personal retirado recibir fecha fin para generar el reporte
+ #159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  ***************************************************************************/
 
 DECLARE
@@ -3243,6 +3244,45 @@ and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp
              v_consulta:=v_consulta||'
 						 order by repcol.orden
 						 ';
+         	return v_consulta;
+        END;
+        
+        
+elsif (p_transaccion='PLA_HORTRA_SEL') THEN --#159
+        BEGIN
+        v_condicion:='';
+        if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+        
+        	v_consulta:='select	 fun.id_funcionario,
+            					(pxp.f_iif( pe.periodo<10,''0''||pe.periodo, pe.periodo||'''' )|| g.gestion) ::varchar as periodo,
+                                trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,
+                                fun.desc_funcionario2 as desc_funcionario, 
+                                smtd.id_mes_trabajo_det,smtd.dia, smtd.total_comp, 
+                                smtd.total_normal,smtd.total_extra, smtd.total_nocturna,
+                                cc.codigo_tcc,
+                                pxp.f_obtener_literal_periodo(pe.periodo,0) as periodo_lite
+                                from asis.tmes_trabajo smt
+                                inner join orga.vfuncionario fun on fun.id_funcionario = smt.id_funcionario  
+								inner join orga.tuo_funcionario uofun on uofun.id_funcionario=fun.id_funcionario
+                                inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
+                                inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=car.id_tipo_contrato
+                                inner join plani.tplanilla plani on plani.id_periodo=smt.id_periodo
+                                inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+                                and fp.id_uo_funcionario=uofun.id_uo_funcionario
+                                inner join param.tperiodo pe on pe.id_periodo = smt.id_periodo
+                                inner join param.tgestion g on g.id_gestion = smt.id_gestion
+                                inner join asis.tmes_trabajo_det smtd on smtd.id_mes_trabajo=smt.id_mes_trabajo
+                                inner join param.vcentro_costo cc on cc.id_centro_costo = smtd.id_centro_costo
+                                where '; --smt.id_periodo=41 
+                                --and tc.id_tipo_contrato=2
+                                
+          	v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||v_condicion;
+			v_consulta:=v_consulta||' order by cc.codigo_tcc, fun.desc_funcionario2, smtd.id_mes_trabajo_det ';
+
+
          	return v_consulta;
         END;
     else

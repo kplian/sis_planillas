@@ -28,6 +28,7 @@
   #135	ETR				04.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle)
  *#144	ETR				29.06.2020			MZM-KPLIAN
  *#158	ETR				19.08.2020			MZM-KPLIAN			Adicion de fecha en reporte de personal retirado
+ *#159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -859,5 +860,40 @@ class MODFuncionarioReporte extends MODbase{
 		return $this->respuesta;
 	}
 	 
+	 
+	 //#159
+	 function listarHorasTrab(){ 
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_HORTRA_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('periodo','varchar');
+		$this->captura('codigo','text');
+		$this->captura('desc_funcionario','text');
+		$this->captura('id_mes_trabajo_det','integer');	
+		$this->captura('dia','integer');		
+		$this->captura('total_comp','numeric');	
+		$this->captura('total_normal','numeric');			
+		$this->captura('total_extra','numeric');
+		$this->captura('total_nocturna','numeric');
+		$this->captura('codigo_tcc','varchar');
+		$this->captura('periodo_lite','varchar');
+		//Ejecuta la instruccion
+		$this->armarConsulta(); 
+		
+		 //echo "**REP**".$this->getConsulta(); exit;
+		 
+		 
+		 
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 }
 ?>

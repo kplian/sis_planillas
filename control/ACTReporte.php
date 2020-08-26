@@ -27,7 +27,8 @@
  * #133 ETR       MZM KPLIAN     03.06.2020                 Reporte para prevision de primas
  * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
  * #144	ETR		  MZM KPLIAN	 29.06.2020					Reporte ingresos/egresos por funcionario
- * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo	
+ * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo
+ * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -72,6 +73,8 @@ include_once(dirname(__FILE__).'/../../lib/lib_general/cls_correo_externo.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaPrevisionPrima.php');//#135
 
 require_once(dirname(__FILE__).'/../reportes/RPlanillaIngresoEgreso.php');//#144
+
+require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrab.php');//#159
 
 class ACTReporte extends ACTbase{
 
@@ -663,7 +666,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
         $this->objParam->addParametro('id_gestion',$id_gestion);
 
         //#83
-		if( $this->objParam->getParametro('control_reporte')=='fondo_solidario' ||  $this->objParam->getParametro('control_reporte')=='aporte_afp'  || $this->objParam->getParametro('control_reporte')=='saldo_fisco' ){
+		if( $this->objParam->getParametro('control_reporte')=='fondo_solidario' ||  $this->objParam->getParametro('control_reporte')=='aporte_afp'  || $this->objParam->getParametro('control_reporte')=='saldo_fisco' ||  $this->objParam->getParametro('control_reporte')=='horas_trabajadas'){//#159
         }else{
         	$this->objParam->addFiltro("repo.id_reporte = ". $id_reporte); //#83
 		}
@@ -772,6 +775,9 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 															$this->reporteBancosPrev($titulo,$fecha);
 														elseif ($this->objParam->getParametro('control_reporte')=='ingreso_egreso')
 															$this->reporteIngresoEgreso($id_tipo_contrato,$id_periodo); //ingreso-egreso
+														elseif ($this->objParam->getParametro('control_reporte')=='horas_trabajadas')//#159
+															$this->reporteHorasTrab($id_tipo_contrato,$id_periodo); //ingreso-egreso
+														
 														else
                                                          	$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
                                                      }
@@ -1899,6 +1905,66 @@ function reporteIngresoEgreso()    {
 
 
     }
+
+
+//#159
+function reporteHorasTrab()    {
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()));
+
+
+        $this->objParam->addParametro('orientacion','L');
+
+        $this->objParam->addParametro('tamano',$this->objParam->getParametro('tamano'));
+        
+        $this->objParam->addParametro('id_periodo',$this->objParam->getParametro('id_periodo'));
+		
+		$this->objParam->addParametro('id_gestion',$this->objParam->getParametro('id_gestion'));
+		//$this->objParam->addParametro('id_reporte',$id_reporte);
+        $this->objParam->addParametro('id_tipo_contrato',$this->objParam->getParametro('id_tipo_contrato'));
+		$this->objParam->addParametro('id_tipo_planilla',$this->objParam->getParametro('id_tipo_planilla'));
+
+		
+		
+        $this->objFunc=$this->create('MODFuncionarioReporte');
+        
+		$this->res=$this->objFunc->listarHorasTrab($this->objParam);
+
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+			
+			$this->objReporteFormato=new RPlanillaHorasTrab($this->objParam);	
+			
+            
+            $this->objReporteFormato->datosHeader($this->res->datos,$this->res->datos);//#83
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        }else{
+            $titulo ='Ingreso/Egreso';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objReporteFormato=new RPlanillaHorasTrabXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos);//#83
+
+        }
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+
+
+
+    }
+
+
+
 
 }
 
