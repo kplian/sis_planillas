@@ -2718,7 +2718,10 @@ raise notice '***:%',v_consulta;
                   end)::varchar as discapacidad_tutor,
 
                   (plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uofun.fecha_asignacion)) as fecha_ingreso,
-                  (case when uofun.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||''' then
+                  (case when uofun.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
+                  and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'')
+                  
+                   then
                      uofun.fecha_finalizacion
                   else
                     null
