@@ -3256,7 +3256,7 @@ and fafp.id_funcionario=fun.id_funcionario and plani.fecha_planilla between fafp
         END;
         
         
-elsif (p_transaccion='PLA_HORTRA_SEL') THEN --#159
+elsif (p_transaccion='PLA_HORTRA1_SEL') THEN --#159
         BEGIN
         v_condicion:='';
         if(v_parametros.id_tipo_contrato>0) then

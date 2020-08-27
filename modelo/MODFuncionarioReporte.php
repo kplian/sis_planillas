@@ -865,7 +865,7 @@ class MODFuncionarioReporte extends MODbase{
 	 function listarHorasTrab(){ 
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.f_reporte_funcionario_sel';
-		$this->transaccion='PLA_HORTRA_SEL';
+		$this->transaccion='PLA_HORTRA1_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
