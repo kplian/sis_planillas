@@ -2704,7 +2704,10 @@ raise notice '***:%',v_consulta;
                    (case when funafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
                 ''1''
                 else
-                ''0'' end) as tipo_jubilado, ''1'' as afpsino,
+                ''0'' end) as tipo_jubilado, (case when funafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
+                ''0''
+                else
+                ''1'' end) as afpsino,
                    (case when (per.discapacitado= ''no'' OR per.discapacitado= ''NO'') or per.discapacitado is null then
                 ''0'' else
                 ''1'' end) as discapacidad,
@@ -2961,7 +2964,9 @@ raise notice '***:%',v_consulta;
                                           inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
                                           inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
                                           inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-										  and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES','ASIB')
+										  and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES','ASIB',
+                                          'RETJUD','PRESPER','LICENCIA','DESCANTC'
+                                          )
                                           where fp.id_funcionario =v_registros.id_funcionario
                                           and plani.id_periodo between v_id_periodo_min and v_id_periodo
                                           );
