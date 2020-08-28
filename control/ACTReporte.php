@@ -76,6 +76,9 @@ require_once(dirname(__FILE__).'/../reportes/RPlanillaIngresoEgreso.php');//#144
 
 require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrab.php');//#159
 
+require_once(dirname(__FILE__).'/../reportes/REmpleadoDepXls.php');//#160
+require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrabXls.php');//#158
+
 class ACTReporte extends ACTbase{
 
     function listarReporte(){
@@ -1026,31 +1029,35 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
         //Genera el nombre del archivo (aleatorio + titulo)
         $nombreArchivo=uniqid(md5(session_id()));
 
-         $this->objParam->addParametro('fecha',$fecha);
+        $this->objParam->addParametro('fecha',$fecha);
         $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
         $this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
-
-            $nombreArchivo.='.pdf';
-            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-
-        $this->objFunc=$this->create('MODReporte');
+		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+        
+		$this->objFunc=$this->create('MODReporte');
         $this->res1=$this->objFunc->listarReporteMaestro($this->objParam);
+        $this->objFunc=$this->create('MODFuncionarioReporte');
+    	$this->res=$this->objFunc->listarDatosReporteDep($this->objParam);
+   
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){
+   			$nombreArchivo.='.pdf';
 
-             $this->objFunc=$this->create('MODFuncionarioReporte');
-
-
-        $this->res=$this->objFunc->listarDatosReporteDep($this->objParam);
-
-               $this->objReporteFormato=new REmpleadoDep($this->objParam);
+            $this->objReporteFormato=new REmpleadoDep($this->objParam);
             $this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos);
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
 
-
-
-
-
-
+		}else{
+			$titulo ='Grupo Familiar';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objReporteFormato=new REmpleadoDepXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos, $this->res1->datos);
+			
+		}
         $this->mensajeExito=new Mensaje();
         $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
             'Se generó con éxito el reporte: '.$nombreArchivo,'control');
@@ -1941,14 +1948,14 @@ function reporteHorasTrab()    {
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
         }else{
-            $titulo ='Ingreso/Egreso';
+            $titulo ='HorasTrabCeco';
             //Genera el nombre del archivo (aleatorio + titulo)
             $nombreArchivo=uniqid(md5(session_id()).$titulo);
             $nombreArchivo.='.xls';
             $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             $this->objReporteFormato=new RPlanillaHorasTrabXls($this->objParam);
            // $this->objReporteFormato->imprimeDatos();
-            $this->objReporteFormato->generarReporte($this->res->datos);//#83
+            $this->objReporteFormato->generarReporte($this->res->datos,$this->res->datos);//#83
 
         }
 

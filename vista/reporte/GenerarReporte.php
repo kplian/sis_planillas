@@ -952,8 +952,8 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 							}
 							
-						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes' || r.data.control_reporte=='dependientes_edad' || r.data.control_reporte=='detalle_aguinaldo'
-){//#87
+						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes'  || r.data.control_reporte=='detalle_aguinaldo'
+){//#87 #160: se quita || r.data.control_reporte=='dependientes_edad' porq quieren en pdf y excel
 							this.ocultarComponente(this.Cmp.formato_reporte);
 						}
 
