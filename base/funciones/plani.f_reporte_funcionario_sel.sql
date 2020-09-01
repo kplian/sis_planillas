@@ -3268,7 +3268,7 @@ elsif (p_transaccion='PLA_HORTRA1_SEL') THEN --#159
                                 trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,
                                 fun.desc_funcionario2 as desc_funcionario, 
                                 smtd.id_mes_trabajo_det,smtd.dia, smtd.total_comp, 
-                                smtd.total_normal,smtd.total_extra, smtd.total_nocturna,
+                                smtd.total_normal,smtd.extra_autorizada as total_extra, smtd.total_nocturna,
                                 cc.codigo_tcc,
                                 pxp.f_obtener_literal_periodo(pe.periodo,0) as periodo_lite
                                 from asis.tmes_trabajo smt
