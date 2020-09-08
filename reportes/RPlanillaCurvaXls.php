@@ -7,6 +7,7 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #104	ETR				11.03.2020			MZM					Correccion de variable par titulo de hoja de excel
  #98	ETR				27.02.2020			MZM					Titulo considerando estado de fucnionarios y tipo contrato
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
  * *  
 */
 class RPlanillaCurvaXls
@@ -271,12 +272,14 @@ class RPlanillaCurvaXls
 				$this->addHoja($this->objParam->getParametro('nombre_tipo_contrato'),$index);
 				//#98
 				$tcon='';
-				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+				$tcon=$this->objParam->getParametro('nombre_tipo_contrato');
+				if ($tcon=='Planta') $tcon=''; //#161
+				if($tcon!=''){
 					if($this->objParam->getParametro('personal_activo')!='todos'){
-					  $tcon='('.$this->objParam->getParametro('nombre_tipo_contrato').' - '. $this->objParam->getParametro('personal_activo').')';
+					  $tcon='('.$tcon.' - '. $this->objParam->getParametro('personal_activo').')';
 					}
 					else {
-						$tcon='('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+						$tcon='('.$tcon.')';	
 					}
 				}
 				

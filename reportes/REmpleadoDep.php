@@ -10,6 +10,7 @@
  #90	ETR				15.01.2019			MZM					cambio de dato matricula_dep por edad_dep
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -44,6 +45,7 @@ class REmpleadoDep extends  ReportePDF {
 		$this->SetFont('','B',12);
 		//#66
 		$nombre_tc=$this->objParam->getParametro('nombre_tipo_contrato');
+		if($nombre_tc=='Planta') $nombre_tc=''; //#161
 		if($nombre_tc!=''){
 			//#98
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98

@@ -4,6 +4,7 @@
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #119    ETR            23/04/2020           MZM                 Creacion
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
  */
 class RPlanillaSaldoIva extends  ReportePDF {
 	var $datos;	
@@ -43,7 +44,7 @@ class RPlanillaSaldoIva extends  ReportePDF {
 					$cadena_nomina=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
 				
 			}
-		
+			if ($cadena_nomina==' (Planta)') $cadena_nomina=''; //#161
 		
 			$this->Cell(0,5,'DETALLE DE SALDOS ACUMULADOS RC-IVA '.$cadena_nomina,0,1,'C');
 			$this->SetFont('','B',10);

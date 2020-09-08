@@ -5,7 +5,8 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
- #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte  
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -353,6 +354,7 @@ class RPlanillaAsignacionCargosXls
                
 				
  		$cadena_nomina=$this->objParam->getParametro('nombre_tipo_contrato');
+		if ($cadena_nomina=='Planta') $cadena_nomina='';//#161
 		if($cadena_nomina!=''){
 			//#98
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98

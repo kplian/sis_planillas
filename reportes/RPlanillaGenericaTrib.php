@@ -4,7 +4,8 @@
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #30    ETR            30/07/2019           MZM                 Creacion
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019) 
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+
 */
 class RPlanillaGenericaTrib extends  ReportePDF {
 	var $datos_titulo;
