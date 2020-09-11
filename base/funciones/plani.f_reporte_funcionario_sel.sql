@@ -55,6 +55,7 @@ AS $BODY$
  #155	ETR				22.07.2020			MZM-KPLIAN			Reporte de detalle de planilla de prima en DETAGUIN
  #158	ETR				19.08.2020			MZM-KPLIAN			En reporte de personal retirado recibir fecha fin para generar el reporte
  #159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
+ #162	ETR				11.09.2020			MZM-KPLIAN			ajuse afpsino en dETAGUIN, todos aportan
  ***************************************************************************/
 
 DECLARE
@@ -2704,10 +2705,7 @@ raise notice '***:%',v_consulta;
                    (case when funafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
                 ''1''
                 else
-                ''0'' end) as tipo_jubilado, (case when funafp.tipo_jubilado in (''jubilado_65'',''jubilado_55'') then
-                ''0''
-                else
-                ''1'' end) as afpsino,
+                ''0'' end) as tipo_jubilado, ''1'' as afpsino, --#162
                    (case when (per.discapacitado= ''no'' OR per.discapacitado= ''NO'') or per.discapacitado is null then
                 ''0'' else
                 ''1'' end) as discapacidad,
