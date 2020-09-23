@@ -56,6 +56,7 @@ AS $BODY$
  #158	ETR				19.08.2020			MZM-KPLIAN			En reporte de personal retirado recibir fecha fin para generar el reporte
  #159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  #162	ETR				11.09.2020			MZM-KPLIAN			ajuse afpsino en dETAGUIN, todos aportan
+ #163 	ETR				23.09.2020			MZM-KPLIAN			Planilla tributaria - correccion de control de fecha por fecha_reg
  ***************************************************************************/
 
 DECLARE
@@ -1284,7 +1285,7 @@ BEGIN
                     	v_antiguedad:=0;
                     end if;
 
-                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial' and estado!='inactivo')) then  --#137
+                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial' and estado_reg!='inactivo')) then  --#137  --#163
                      	v_antiguedad_anos:=1;
                      else
                      	v_antiguedad_anos:=0;
