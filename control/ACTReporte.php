@@ -28,7 +28,8 @@
  * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
  * #144	ETR		  MZM KPLIAN	 29.06.2020					Reporte ingresos/egresos por funcionario
  * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo
- * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas	
+ * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas
+ * #164	ETR		  MZM-KPLIAN	 28.09.2020					Adicion de condicion de estado y envio_boletas para reporte de boleta_personal	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -279,7 +280,11 @@ class ACTReporte extends ACTbase{
         if ($this->objParam->getParametro('origen') == 'boleta_personal') {
             //echo "llega aqui".$_SESSION["ss_id_funcionario"]; exit;
             //var_dump($_SESSION['ss_id_funcionario']); exit;
-            $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' ");
+            $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' 
+            and (plani.estado in (''obligaciones_generadas'',''vobo_conta'',''planilla_finalizada'') and coalesce(plani.envios_boleta,0)!=0)
+            
+            
+            ");//#164
         }
 
 
