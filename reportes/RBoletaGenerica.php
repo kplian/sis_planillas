@@ -69,7 +69,7 @@ class RBoletaGenerica extends  ReportePDF {
 					$dimensions=$this->getPageDimensions();
 					
 					$espacio=0;
-					$cadena=$this->datos_detalle[$i]['valor_columna'];
+					$cadena=$this->datos_detalle[$i]['valor'];
 					
 					if($this->datos_detalle[$i]['id_funcionario']!=$id_fun){
 						
@@ -120,94 +120,151 @@ class RBoletaGenerica extends  ReportePDF {
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					  
+					   
 					    $this->grillaDatosBoleta($detalle_col_mod,$alto=$x,$border=0,$this->datos_titulo['num_columna_multilinea'],3.5,'R',8);
+						
+						
+					    
+						
+						
+						
 						
 						$this->Ln(5);
 					    	
 					    $detalle_col_mod=array();
 						$control_fila=0;	
 					   
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
-							array_push($detalle_col_mod,'B'); 
-							array_push($detalle_col_mod,$linea); 
-							array_push($detalle_col_mod,'R');
-							array_push($detalle_col_mod,$ancho_esperado);    
-							array_push($detalle_col_mod,$ancho_esperado);
-							array_push($detalle_col_mod,$contador_espacios);
-							
-							
-							$control_fila=$control_fila+$ancho_esperado;
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,0);
-							array_push($detalle_col_mod,$cadena);
-							array_push($detalle_col_mod,'');
-							array_push($detalle_col_mod,$linea);
-							array_push($detalle_col_mod,'L');  
-							array_push($detalle_col_mod,$ancho_esperado);
-							array_push($detalle_col_mod,$ancho_esperado);   
-							array_push($detalle_col_mod,$contador_espacios); 
-							$control_fila=$control_fila+$ancho_esperado;
-						$this->Ln(30);
-						$contador=1;
-					}else{
+					   	$this->Ln(40);
+					   
 						
-						if($contador==4){// echo $this->datos_detalle[$i]['titulo_reporte_superior']; exit;
-							
-							$linea=1;
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+						$contador=1;
+						
+						    array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
 							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
+							array_push($detalle_col_mod,'           Nombre:');
 							array_push($detalle_col_mod,'B'); 
 							array_push($detalle_col_mod,0); 
-							array_push($detalle_col_mod,'R');  
-							array_push($detalle_col_mod,$ancho_esperado);    
-							array_push($detalle_col_mod,$ancho_esperado);
-							array_push($detalle_col_mod,$contador_espacios);
-							
-							$control_fila=$control_fila+$ancho_esperado;	
-							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
-							array_push($detalle_col_mod,0);
-							array_push($detalle_col_mod,$cadena);
-							array_push($detalle_col_mod,'');
-							array_push($detalle_col_mod,$linea);
 							array_push($detalle_col_mod,'L');  
-							array_push($detalle_col_mod,$ancho_esperado);  
+							array_push($detalle_col_mod,22);    
 							array_push($detalle_col_mod,$ancho_esperado);
-							array_push($detalle_col_mod,$contador_espacios);
-							   
-						    $control_fila=$control_fila+$ancho_esperado;
-						    $control_fila=0;
-						}else{
-							$linea=0;
-							if($contador> 4){
-								//$ancho_esperado=$a1;
-								$alineacion='R';
-								if($cadena>0){//#62
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,mb_strcut($this->datos_detalle[$i]['desc_funcionario2'],0,40, "UTF-8"));
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,80);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Cargo:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,mb_strcut($this->datos_detalle[$i]['cargo'],0,40, "UTF-8"));
+							
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,60);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+											
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Fecha Ingreso:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,22);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['fecha_ingreso']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,55);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+											
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Codigo:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,12);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['codigo']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,55);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Nivel:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['nivel']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,1); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							if($cadena>0){//#62
 									$cadena=number_format($cadena,2,'.',',');//#80
 								}else{
 									$cadena='';
 								}
-							}else{
-								//$ancho_esperado=$ancho_esperado;
-								$alineacion='L';
+							$alineacion='R';
+							
 								
-							}
-						
 								array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
 								array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
 								array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
 								array_push($detalle_col_mod,'B'); 
 								array_push($detalle_col_mod,0); 
 								array_push($detalle_col_mod,'R');//30.09.2019
-								if($contador> 4){
-									array_push($detalle_col_mod,$a1);
-									$control_fila=$control_fila+$a1;
-								}else{
-									array_push($detalle_col_mod,$ancho_esperado);
-									$control_fila=$control_fila+$ancho_esperado;
-								}   
+								array_push($detalle_col_mod,$a1);
+								$control_fila=$control_fila+$a1;
 								array_push($detalle_col_mod,$ancho_esperado);
 								array_push($detalle_col_mod,$contador_espacios);
 								
@@ -220,17 +277,13 @@ class RBoletaGenerica extends  ReportePDF {
 								array_push($detalle_col_mod,$linea);
 								array_push($detalle_col_mod,$alineacion); 
 								
-								
-								if($contador> 4){
-									
-									array_push($detalle_col_mod,$a2);  
-									array_push($detalle_col_mod,$ancho_esperado);
-									array_push($detalle_col_mod,$contador_espacios);
-									$control_fila=$control_fila+$a2;
-									if($contador==16){
-										//echo $contador_espacios.'---'.$this->datos_detalle[$i]['espacio_previo']; exit;
-									}
-									if ($this->datos_detalle[$i]['espacio_previo']/2!=0){
+								array_push($detalle_col_mod,$a2);  
+								array_push($detalle_col_mod,$ancho_esperado);
+								array_push($detalle_col_mod,$contador_espacios);
+								$control_fila=$control_fila+$a2;
+						
+						
+						if ($this->datos_detalle[$i]['espacio_previo']/2!=0){
 										$ii=0;
 										for ($ii=0; $ii<$this->datos_detalle[$i]['espacio_previo']/2; $ii++){
 											$contador_espacios++;
@@ -260,18 +313,190 @@ class RBoletaGenerica extends  ReportePDF {
 											$contador_espacios=0;
 											
 										}
-										
-									
-									
+					}else{
+						if($contador==0){
 							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'           Nombre:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,22);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['desc_funcionario2']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,80);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Cargo:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['cargo']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,60);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+											
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Fecha Ingreso:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,22);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['fecha_ingreso']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,55);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+											
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Codigo:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,12);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['codigo']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,55);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,'Nivel:');
+							array_push($detalle_col_mod,'B'); 
+							array_push($detalle_col_mod,0); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+							array_push($detalle_col_mod,$this->datos_detalle[$i]['nivel']);
+							array_push($detalle_col_mod,''); 
+							array_push($detalle_col_mod,1); 
+							array_push($detalle_col_mod,'L');  
+							array_push($detalle_col_mod,10);    
+							array_push($detalle_col_mod,$ancho_esperado);
+							array_push($detalle_col_mod,0);
+							
+							
+							
+					    }
+
+ 								if($cadena>0){//#62
+									$cadena=number_format($cadena,2,'.',',');//#80
 								}else{
-									array_push($detalle_col_mod,$ancho_esperado); 
-									$control_fila=$control_fila+$ancho_esperado;
-									array_push($detalle_col_mod,$ancho_esperado); 
-									array_push($detalle_col_mod,$contador_espacios);
+									$cadena='';
 								}
-						}
-						
+
+
+
+							$alineacion='R';
+							
+								
+								array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+								array_push($detalle_col_mod,$this->datos_detalle[$i]['espacio_previo']);
+								array_push($detalle_col_mod,$this->datos_detalle[$i]['titulo_reporte_superior'].' '.$this->datos_detalle[$i]['titulo_reporte_inferior']);
+								array_push($detalle_col_mod,'B'); 
+								array_push($detalle_col_mod,0); 
+								array_push($detalle_col_mod,'R');//30.09.2019
+								array_push($detalle_col_mod,$a1);
+								$control_fila=$control_fila+$a1;
+								array_push($detalle_col_mod,$ancho_esperado);
+								array_push($detalle_col_mod,$contador_espacios);
+								
+								
+								
+								array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+								array_push($detalle_col_mod,0);
+								array_push($detalle_col_mod,$cadena);
+								array_push($detalle_col_mod,'');
+								array_push($detalle_col_mod,$linea);
+								array_push($detalle_col_mod,$alineacion); 
+								
+								array_push($detalle_col_mod,$a2);  
+								array_push($detalle_col_mod,$ancho_esperado);
+								array_push($detalle_col_mod,$contador_espacios);
+								$control_fila=$control_fila+$a2;
+								
+								
+								if ($this->datos_detalle[$i]['espacio_previo']/2!=0){
+										$ii=0;
+										for ($ii=0; $ii<$this->datos_detalle[$i]['espacio_previo']/2; $ii++){
+											$contador_espacios++;
+											if($contador_espacios>$control_espacios_extra){
+												$contador_espacios=0;
+											}
+											
+										}
+										
+									}
+									
+									
+										if($control_espacios_extra>$contador_espacios){
+										//if($control_fila+5 < $this->ancho_hoja){
+											array_push($detalle_col_mod,$this->datos_detalle[$i]['id_funcionario']);
+											array_push($detalle_col_mod,0);
+											array_push($detalle_col_mod,'');
+											array_push($detalle_col_mod,''); 
+											array_push($detalle_col_mod,0); 
+											array_push($detalle_col_mod,'R');//30.09.2019
+											array_push($detalle_col_mod,5); 
+											array_push($detalle_col_mod,$ancho_esperado);
+											array_push($detalle_col_mod,$contador_espacios);
+											$contador_espacios++;
+											
+										}else{
+											$contador_espacios=0;
+											
+										}
+									
 						$contador++;
 						
 					}

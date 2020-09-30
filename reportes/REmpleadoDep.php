@@ -180,12 +180,13 @@ class REmpleadoDep extends  ReportePDF {
 				 	  	
 				 	  	    
 				 	  	  $this->SetFont('','',8);
+						  $this->Cell(15,5,'','',0,'C');
 						  $this->Cell(20,5,$this->datos[$i]['relacion'],'',0,'C');
 						  $this->Cell(10,5,'','',0,'C');
 						  $this->Cell(65,5,$this->datos[$i]['nombre_dep'],'',0,'L');
 						  $this->Cell(30,5,substr($this->datos[$i]['fecha_nacimiento_dep'],8,2).'/'.substr($this->datos[$i]['fecha_nacimiento_dep'],5,2).'/'.substr($this->datos[$i]['fecha_nacimiento_dep'],0,4),'',0,'C');
-				 	  	  $this->Cell(30,5,$this->datos[$i]['historia_clinica_dep'],'',0,'C');
-						  $this->Cell(30,5,$this->datos[$i]['matricula_dep'],'',1,'C');
+				 	  	  //$this->Cell(30,5,$this->datos[$i]['historia_clinica_dep'],'',0,'C');
+						  $this->Cell(30,5,$this->datos[$i]['edad_dep'],'',1,'C');//#90
 				 	  	 
 				
 		
