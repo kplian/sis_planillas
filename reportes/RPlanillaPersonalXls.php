@@ -2,7 +2,8 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #77    ETR            14/11/2019           MZM                 Creacion
- #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
+ #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
 */
 class RPlanillaPersonalXls
 {
@@ -230,6 +231,8 @@ class RPlanillaPersonalXls
  if($this->objParam->getParametro('id_tipo_contrato')>0){
  	$tip=$datos[0]['nombre'];
  }             
+ if ($tip=='Planta') $tip='';
+
 	   //#83
 	   $fecha_back='';
 	   if($this->objParam->getParametro('fecha_backup')!=''){

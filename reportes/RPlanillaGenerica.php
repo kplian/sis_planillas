@@ -12,6 +12,7 @@
 //#98		ETR	MZM			04.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 //#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 //#141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
+//#161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
 
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
@@ -60,13 +61,14 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		$this->SetFont('','B',12);
 		$tipo_con='';
-		
+		$tipo_con=$this->datos_detalle[0]['nombre'];
+		if ($tipo_con=='Planta') $tipo_con='';
 		if ($this->objParam->getParametro('id_tipo_contrato')!=''){//01.10.2019
 		    if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+				$tipo_con=' ('.$tipo_con.' - '.$this->objParam->getParametro('personal_activo').')';
 			}else{
-				
-				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+				if ($tipo_con!='')				
+				$tipo_con=' ('.$tipo_con.')';
 			}
 		
 			

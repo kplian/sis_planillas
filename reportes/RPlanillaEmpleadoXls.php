@@ -5,7 +5,8 @@
  #80	ETR				25.11.2019			MZM-KPLIAN			Ajuste formato numeric, inclusion de totales, campo de columna en nomina salarios ct
  #83	ETR				10.12.2019			MZM-KPLIAN			Habilitacion de opcion historico de planilla
  #89	ETR				14.01.2020			MZM-KPLIAN			Inclusion de tipo contrato en titulo de reporte
- #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)  
+ #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
 */
 class RPlanillaEmpleadoXls
 {
@@ -311,13 +312,14 @@ class RPlanillaEmpleadoXls
 					$fecha_backup=' [Backup:'.($dr.'/'.$mr.'/'.$ar).']';
 				}
 				//#89				      
-				$tipcon='';
-				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+				$tipcon=''; $tipcon=$this->objParam->getParametro('nombre_tipo_contrato');
+				if ($tipcon=='Planta') $tipcon='';
+				if($tipcon!=''){
 					//#98
 					if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
+						$tipcon=' ('.$tipcon.' - '.$this->objParam->getParametro('personal_activo').')';
 					}else{
-						$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+						$tipcon=' ('.$tipcon.')';
 					}
 					
 					

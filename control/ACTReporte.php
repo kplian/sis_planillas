@@ -28,7 +28,8 @@
  * #135	ETR		  MZM KPLIAN	 04.06.2020					Reporte de prevision de primas (detalle)
  * #144	ETR		  MZM KPLIAN	 29.06.2020					Reporte ingresos/egresos por funcionario
  * #150	ETR		  MZM KPLIAN	 10.07.2020					Habilitacion de envio de boleta de pago (bono de produccion) que no tiene id_periodo
- * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas	
+ * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas
+ * #164	ETR		  MZM-KPLIAN	 28.09.2020					Adicion de condicion de estado y envio_boletas para reporte de boleta_personal	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -279,7 +280,11 @@ class ACTReporte extends ACTbase{
         if ($this->objParam->getParametro('origen') == 'boleta_personal') {
             //echo "llega aqui".$_SESSION["ss_id_funcionario"]; exit;
             //var_dump($_SESSION['ss_id_funcionario']); exit;
-            $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' ");
+            $this->objParam->addFiltro("fp.id_funcionario = ". $_SESSION['ss_id_funcionario']. " and repo.tipo_reporte= ''boleta'' 
+            and (plani.estado in (''obligaciones_generadas'',''vobo_conta'',''planilla_finalizada'') and coalesce(plani.envios_boleta,0)!=0)
+            
+            
+            ");//#164
         }
 
 
@@ -301,19 +306,25 @@ class ACTReporte extends ACTbase{
 
         $filtro_previo=$this->objParam->parametros_consulta['filtro'];
         $this->objFunc=$this->create('MODReporte');
-        if($this->res->datos[0]['multilinea']=='si' || $this->res->datos[0]['id_periodo']==''){
+        /*if($this->res->datos[0]['multilinea']=='si' || $this->res->datos[0]['id_periodo']==''){
             $i=0;
              $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
              $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
              $this->objReporteFormato->generarReporte();
         }else{
             for ($i = 0; $i < count($this->res->datos); $i++){
+		 * 
+		 
+*/				
 
+
+$i=0;
                 $this->res2=$this->objFunc->listarReporteDetalleBoleta($this->objParam);
+				
                 $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                 $this->objReporteFormato->generarReporte();
-            }
-        }
+  //          }
+    //    }
 
 
         $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
@@ -1023,25 +1034,31 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 
 
 function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
+		$tamano = 'LETTER';
+        $orientacion = 'P';
 
 
-
-        //Genera el nombre del archivo (aleatorio + titulo)
-        $nombreArchivo=uniqid(md5(session_id()));
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        
+        
 
         $this->objParam->addParametro('fecha',$fecha);
         $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
         $this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
-		$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-        
+		
+		
 		$this->objFunc=$this->create('MODReporte');
         $this->res1=$this->objFunc->listarReporteMaestro($this->objParam);
         $this->objFunc=$this->create('MODFuncionarioReporte');
     	$this->res=$this->objFunc->listarDatosReporteDep($this->objParam);
-   
+   		$titulo = $this->res1->datos[0]['titulo_reporte'];
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+		
         if($this->objParam->getParametro('formato_reporte')=='pdf'){
    			$nombreArchivo.='.pdf';
-
+			$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
             $this->objReporteFormato=new REmpleadoDep($this->objParam);
             $this->objReporteFormato->setDatos($this->res->datos,$this->res1->datos);
             $this->objReporteFormato->generarReporte();
@@ -1650,18 +1667,19 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
             $filtro_previo = $this->objParam->parametros_consulta['filtro'];
             $this->objFunc = $this->create('MODReporte');
 
-            if($this->res->datos[0]['multilinea'] == 'si' || $this->res->datos[0]['id_periodo'] == ''){
+            /*if($this->res->datos[0]['multilinea'] == 'si' || $this->res->datos[0]['id_periodo'] == ''){
                  $i = 0;
                  $this->res2 = $this->objFunc->listarReporteDetalle($this->objParam);
                  $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                  $this->objReporteFormato->generarReporte();
-            } else {
-                for ($i = 0; $i < count($this->res->datos); $i++){
+            } else {*/
+                //for ($i = 0; $i < count($this->res->datos); $i++){
+                	$i=0;
                     $this->res2 = $this->objFunc->listarReporteDetalleBoleta($this->objParam);
                     $this->objReporteFormato->datosHeader($this->res->datos[$i], $this->res2->datos);
                     $this->objReporteFormato->generarReporte();
-                }
-            }
+              /*  }
+            }*/
 
 
             if($this->res2->getTipo()=='EXITO'){

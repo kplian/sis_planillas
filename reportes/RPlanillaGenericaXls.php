@@ -6,6 +6,7 @@
 //#83	ETR				07.01.2020			MZM-KPLIAN			Habilitacion de opcion historico de planilla
 //#89	ETR				14.01.2020			MZM-KPLIAN			Inclusion de condicion bono/descuento para imprimir el concepto que se consulta
 //#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+//#161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
 class RPlanillaGenericaXls
 {
 	private $docexcel;
@@ -166,13 +167,15 @@ class RPlanillaGenericaXls
 		
 		
 		$tit_rep=$config['titulo_reporte'];
-		if ($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+		$tcon=$this->objParam->getParametro('nombre_tipo_contrato');
+		if ($tcon=='Planta') $tcon=''; //#161
+		if ($tcon!=''){
 			//#98
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
 				
-				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';	
+				$tit_rep=$tit_rep.' ('.$tcon.' - '.$this->objParam->getParametro('personal_activo').')';	
 			}else{
-				$tit_rep=$tit_rep.' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';	
+				$tit_rep=$tit_rep.' ('.$tcon.')';	
 			}
 			
 			

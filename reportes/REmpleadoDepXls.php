@@ -1,7 +1,8 @@
 <?php
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
- #160	ETR				27.08.2020			MZM-KPLIAN			Grupo Familiar xls  
+ #160	ETR				27.08.2020			MZM-KPLIAN			Grupo Familiar xls
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
 */
 class REmpleadoDepXls
 {
@@ -236,14 +237,16 @@ class REmpleadoDepXls
 					$fecha_backup=' [Backup:'.($dr.'/'.$mr.'/'.$ar).']';
 				}}
 				//#89				      
-				$tipcon='';
-				if($this->objParam->getParametro('nombre_tipo_contrato')!=''){
+				$tipcon='';//#161
+				$tipcon=$this->objParam->getParametro('nombre_tipo_contrato');
+				if ($tipcon=='Planta') $tipcon='';
+				if($tipcon!=''){
 					//#98
-					if ($this->objParam->getParametro('nombre_tipo_contrato')!='Planta'){
+					if ($tipcon!='Planta'){
 						if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-							$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').' - '.$this->objParam->getParametro('personal_activo').')';
+							$tipcon=' ('.$tipcon.' - '.$this->objParam->getParametro('personal_activo').')';
 						}else{
-							$tipcon=' ('.$this->objParam->getParametro('nombre_tipo_contrato').')';
+							$tipcon=' ('.$tipcon.')';
 						}
 					
 					}else{

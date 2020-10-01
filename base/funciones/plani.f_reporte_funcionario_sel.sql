@@ -56,6 +56,8 @@ AS $BODY$
  #158	ETR				19.08.2020			MZM-KPLIAN			En reporte de personal retirado recibir fecha fin para generar el reporte
  #159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  #162	ETR				11.09.2020			MZM-KPLIAN			ajuse afpsino en dETAGUIN, todos aportan
+ #163 	ETR				23.09.2020			MZM-KPLIAN			Planilla tributaria - correccion de control de fecha por fecha_reg
+
  ***************************************************************************/
 
 DECLARE
@@ -1284,7 +1286,7 @@ BEGIN
                     	v_antiguedad:=0;
                     end if;
 
-                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial' and estado!='inactivo')) then  --#137
+                     if(v_registros.fecha_finalizacion is not null and v_registros.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>v_registros.fecha_finalizacion and tipo='oficial' and estado_reg!='inactivo')) then  --#137  --#163
                      	v_antiguedad_anos:=1;
                      else
                      	v_antiguedad_anos:=0;
@@ -1413,27 +1415,29 @@ BEGIN
             if (v_parametros.tipo_reporte='dependientes') then --#89
 
             v_consulta:='  select p.id_persona , p.matricula, p.historia_clinica, trim (both ''FUNODTPR'' from fun.codigo)::varchar as codigo, p.fecha_nacimiento,
-               plani.f_get_fecha_primer_contrato_empleado(repf.id_uo_funcionario, repf.id_funcionario,repf.fecha_asignacion) as fecha_ingreso,
+               plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario, repf.id_funcionario,uofun.fecha_asignacion) as fecha_ingreso,
               repf.desc_funcionario2 as nombre_funcionario, pr.relacion, pr.nombre::text as nombre_dep, pr.fecha_nacimiento as fecha_nacimiento_dep, ''''::varchar as matricula_dep, ''''::varchar as historia_clinica_dep
               , date_part(''year'', age(pr.fecha_nacimiento))::integer AS edad_dep
               from segu.tpersona p
               inner join segu.tpersona_relacion pr on pr.id_persona=p.id_persona
               inner join orga.tfuncionario fun on fun.id_persona=p.id_persona
-              inner join plani.vrep_funcionario repf on repf.id_funcionario=fun.id_funcionario
-              inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
+              inner join orga.vfuncionario repf on repf.id_funcionario=fun.id_funcionario
+              
+              inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=repf.id_funcionario
                             --#66
-              inner join orga.tcargo car on car.id_cargo=repf.id_cargo
+            inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+              inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
               inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                             --#66
               inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
               inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
               inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
-              inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
+
               and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
               --where pla.id_periodo='||v_id_periodo||v_condicion||'
               where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
               order by repf.desc_funcionario2, pr.relacion, pr.fecha_nacimiento';
-              raise notice 'dep%', v_consulta;
+              
 
             else
 
@@ -3266,7 +3270,7 @@ elsif (p_transaccion='PLA_HORTRA1_SEL') THEN --#159
                                 trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,
                                 fun.desc_funcionario2 as desc_funcionario, 
                                 smtd.id_mes_trabajo_det,smtd.dia, smtd.total_comp, 
-                                smtd.total_normal,smtd.total_extra, smtd.total_nocturna,
+                                smtd.total_normal,smtd.extra_autorizada as total_extra, smtd.total_nocturna,
                                 cc.codigo_tcc,
                                 pxp.f_obtener_literal_periodo(pe.periodo,0) as periodo_lite
                                 from asis.tmes_trabajo smt

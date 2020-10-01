@@ -12,7 +12,8 @@
  #90	ETR				15.01.2019			MZM-KPLIAN			Inclusion de TC a reporte Reserva de beneficios sociales - resumen
  #98	ETR				03.03.2020  		MZM-KPLIAN			Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
- #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte 		
+ #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 		
 */
 class RPlanillaEmpleado extends  ReportePDF {
 	var $datos;	
@@ -49,14 +50,14 @@ class RPlanillaEmpleado extends  ReportePDF {
 		$this->SetFont('','B',12);//#77
 		$this->SetY(20);
 		$cadena_nomina='';
-		
+		$cadena_nomina=$this->datos[0]['tipo_contrato'];
+		if ($cadena_nomina=='Planta') $cadena_nomina='';//#161
 		if($this->objParam->getParametro('id_tipo_contrato')!='' && $this->objParam->getParametro('id_tipo_contrato')>0){
 			
 			//#98
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-				$cadena_nomina=' ('.$this->datos[0]['tipo_contrato'].' - '.$this->objParam->getParametro('personal_activo').')';
-			}else{
-				$cadena_nomina=' ('.$this->datos[0]['tipo_contrato'].')';
+				$cadena_nomina=' ('.$cadena_nomina.' - '.$this->objParam->getParametro('personal_activo').')';
+			}else{ if($cadena_nomina!='')	$cadena_nomina=' ('.$cadena_nomina.')';
 				
 			}
 		}else{

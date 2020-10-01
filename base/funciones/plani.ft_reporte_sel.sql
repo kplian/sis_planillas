@@ -48,6 +48,7 @@ AS $BODY$
    #98		ETR			02.03.2020			MZM					Inclusion de parametro activo/inactivo/todos para funcionarios
    #105		ETR			12.02.2020			MZM					Control de consolidado solo para planillas que se consultan por periodo
    #125		ETR			14.05.2020			MZM					Control para reporte de planilla de aguinaldo (boleta de pago)
+   #165		ETR			29.09.2020			MZM					Modificacion a consulta PLA_REPODETBOL_SEL
   ***************************************************************************/
 
   DECLARE
@@ -511,7 +512,7 @@ raise notice 'aaa%',v_consulta;
       begin
 
         --Sentencia de la consulta
-        v_consulta:='select
+        /*v_consulta:='select
 
                             repcol.titulo_reporte_superior,
                             repcol.titulo_reporte_inferior,
@@ -526,11 +527,33 @@ raise notice 'aaa%',v_consulta;
                         inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte and
                         											repcol.codigo_columna = colval.codigo_columna
 
-				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';
+				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';*/
+                        
+                        
+		v_consulta:='select vf.id_funcionario, vf.desc_funcionario2,  trim(both ''FUNODTPR'' from vf.codigo) as codigo, esc.codigo as nivel,
+					 c.nombre as cargo 
+                     , to_char(plani.f_get_fecha_primer_contrato_empleado(
+                	 fp.id_uo_funcionario, fp.id_funcionario, uof.fecha_asignacion)::timestamp without time zone, ''dd/mm/YYYY'' ::text) as fecha_ingreso
+                     ,
+                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, cv.valor, rc.espacio_previo, rc.orden
+                 	 
+                     from plani.tfuncionario_planilla fp
+                    inner join orga.vfuncionario vf on vf.id_funcionario=fp.id_funcionario
+                    inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                    inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
+                    inner join orga.tcargo c on c.id_cargo=uof.id_cargo
+                    inner join orga.tescala_salarial esc on esc.id_escala_salarial=c.id_escala_salarial
+                    inner join orga.toficina ofi on ofi.id_oficina=c.id_oficina
+                    inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla and repo.tipo_reporte=''boleta''
+                    inner join plani.treporte_columna rc on rc.id_reporte=repo.id_reporte
+                    inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla and rc.estado_reg = ''activo'' and cv.estado_reg = ''activo''
+                    and cv.codigo_columna=rc.codigo_columna
+					where ';                        
 
         --Definicion de la respuesta
         v_consulta:=v_consulta||v_parametros.filtro;
-        v_consulta:=v_consulta||' order by repcol.tipo_columna,repcol.orden asc';
+        v_consulta:=v_consulta||' order by ofi.orden, 
+          vf.desc_funcionario2,rc.orden asc';
 
         --Devuelve la respuesta
         return v_consulta;

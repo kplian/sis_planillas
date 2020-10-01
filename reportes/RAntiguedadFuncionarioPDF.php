@@ -9,6 +9,7 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta		
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -51,6 +52,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$this->SetY(20);
 		//#66
 		$tipo_cto=$this->objParam->getParametro('nombre_tipo_contrato');
+		if ($tipo_cto=='Planta'){$tipo_cto='';}//#161
 		if($tipo_cto!=''){
 			//#98
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98

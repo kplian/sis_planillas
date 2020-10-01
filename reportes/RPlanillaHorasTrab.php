@@ -40,13 +40,14 @@ class RPlanillaHorasTrab extends  ReportePDF {
 		
 		$this->SetFont('','B',12);
 		$tipo_con='';
-		
+		$tipo_con=$this->datos_detalle[0]['nombre'];
+		if ($tipo_con=='Planta') $tipo_con='';
 		if ($this->objParam->getParametro('id_tipo_contrato')!=''){//01.10.2019
 		    if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+				$tipo_con=' ('.$tipo_con.' - '.$this->objParam->getParametro('personal_activo').')';
 			}else{
 				
-				$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
+				$tipo_con=' ('.$tipo_con.')';
 			}
 		
 			

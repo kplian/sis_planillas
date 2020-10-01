@@ -14,8 +14,8 @@
  * #83    ETR            MZM        09.12.2019    Habilitacion de reporte para backup de planilla
  * #98    ETR            MZM        03.03.2020    Adicion de opciones estado_funcionario (activo, retirado, todos)
  * #103   ETR            RAC        02/04/2020    Listado de funcionario toda sin contador para envo de boletas de pago
-
-**/
+   #165   ETR            MZM        30/09/2020    Reformulacion a procedimiento REPODETBOL
+ **/
 
 class MODReporte extends MODbase{
 
@@ -70,7 +70,7 @@ class MODReporte extends MODbase{
         //Ejecuta la instruccion
         $this->armarConsulta();
         $this->ejecutarConsulta();
-
+//echo $this->getConsulta(); exit;
         //Devuelve la respuesta
         return $this->respuesta;
     }
@@ -227,8 +227,8 @@ class MODReporte extends MODbase{
         $this->captura('interlineado','numeric');//#77
         $this->captura('fecha_backup','text');//#83
         //Ejecuta la instruccion
-        $this->armarConsulta(); 
-        $this->ejecutarConsulta();
+        $this->armarConsulta(); //echo $this->getConsulta(); exit;
+        $this->ejecutarConsulta(); 
 
         //Devuelve la respuesta
         return $this->respuesta;
@@ -378,17 +378,25 @@ class MODReporte extends MODbase{
 		$this->transaccion='PLA_REPODETBOL_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-		
-		$this->setParametro('id_funcionario','id_funcionario','int4');	
-		
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
+		/*$this->setParametro('id_funcionario','id_funcionario','int4');	
 		$this->captura('titulo_reporte_superior','varchar');	
 		$this->captura('titulo_reporte_inferior','varchar');	
 		$this->captura('tipo_columna','varchar');	
-		
-		//Datos de la columna
 		$this->captura('codigo_columna','varchar');	
-		$this->captura('valor_columna','numeric');			
-		
+		$this->captura('valor_columna','numeric');*/
+		$this->captura('id_funcionario','int4');
+		$this->captura('desc_funcionario2','text');			
+		$this->captura('codigo','text');
+		$this->captura('nivel','varchar');
+		$this->captura('cargo','varchar');
+		$this->captura('fecha_ingreso','text');
+		$this->captura('titulo_reporte_superior','varchar');
+		$this->captura('titulo_reporte_inferior','varchar');
+		$this->captura('codigo_columna','varchar');
+		$this->captura('valor','numeric');
+		$this->captura('espacio_previo','integer');
+		$this->captura('orden','integer');
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		//echo "****".$this->getConsulta(); exit;
