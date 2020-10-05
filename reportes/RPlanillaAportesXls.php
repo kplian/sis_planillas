@@ -173,7 +173,7 @@ class RPlanillaAportesXls
         $total_bono = 0;
         $total_sueldo = 0;
         $total_frontera = 0;
-        $codigo_col = '';
+        $codigo_col = '';  $tipo_cotizante='1';
         $index = 0;
         $color_pestana = array('ff0000','1100ff','55ff00','3ba3ff','ff4747','697dff','78edff','ba8cff',
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
@@ -426,6 +426,16 @@ class RPlanillaAportesXls
                     }
 
                     $dias = $value['dias'];
+					//X
+					if ($value['tipo_jubilado']=='mayor_65'){
+						$tipo_cotizante='8';
+					}
+					elseif ($value['tipo_jubilado']=='jubilado_55'){
+						$tipo_cotizante='C';
+					}else{
+						$tipo_cotizante='1';
+					}
+					
                     if ($this->objParam->getParametro('codigo_afp') == 'PREV') {//#156
                         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila, $novedad);
                         $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila, $fecha_novedad);
@@ -439,6 +449,8 @@ class RPlanillaAportesXls
                     if ($this->objParam->getParametro('tipo_reporte') == 'aporte_afp') {
                         if ($this->objParam->getParametro('codigo_afp') == 'PREV') {
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['valor']);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $tipo_cotizante);
+							
                         } else {
 
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, ''); //tipo asegurado
@@ -510,6 +522,8 @@ class RPlanillaAportesXls
                     }else {
                         if($this->objParam->getParametro('codigo_afp')=='PREV'){
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$tipo_cotizante);
+							
                         }else{
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, number_format($value['valor'], 2, '.', ','));//#80
                             if ($value['valor'] > 13000) {//#45
