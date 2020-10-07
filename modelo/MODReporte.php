@@ -15,6 +15,7 @@
  * #98    ETR            MZM        03.03.2020    Adicion de opciones estado_funcionario (activo, retirado, todos)
  * #103   ETR            RAC        02/04/2020    Listado de funcionario toda sin contador para envo de boletas de pago
    #165   ETR            MZM        30/09/2020    Reformulacion a procedimiento REPODETBOL
+ * #168	  ETR			 MZM		07/10/2020	  Adicion de uo (centro) en planilla multilinea por distrito	
  **/
 
 class MODReporte extends MODbase{
@@ -360,7 +361,7 @@ class MODReporte extends MODbase{
 		$this->captura('espacio_previo','integer');
 				
 		$this->captura('orden','integer');//#80
-
+		$this->captura('regional','varchar');//#168
 		//Ejecuta la instruccion
 		$this->armarConsulta(); 
 

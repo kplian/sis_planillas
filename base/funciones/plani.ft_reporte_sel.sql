@@ -28,27 +28,28 @@ AS $BODY$
    FECHA:
    
    #ISSUE				FECHA				AUTOR				DESCRIPCION
-   #8		EndeEtr		06-06-2019 			MZM				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
+   #8		EndeEtr		06-06-2019 			MZM-KPLIAN				Se agrego los campos multilinea,vista_datos_externos,num_columna_multilinea en las operaciones basicas (inserciones, modificaciones, eliminaciones, listar, contar) de la tabla 'plani.treporte',asi tb en procedimiento REPODET_SEL	
    					y en REPOMAES_SEL, adicion de campos multilinea,vista_datos_externos,num_columna_multilinea, adicionalmente la obtencion de columnas de reporte adicionando los espacios para el caso multilinea
                     
-   #17		etr			28-06-2019			MZM               adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
-   #32		ETR			02.09.2019			MZM					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
-   #40		ETR			12.09.2019			MZM				  Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
-   #50		ETR			24.09.2019			MZM					Ajuste de forma en reporte
-   #58		ETR			30.09.2019			MZM					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
-   #60		ETR			01.10.2019			MZM					Adicion de campo incluir_retirados para reporte de reintegros
-   #65		ETR			10.10.2019			MZM					Adicion de campo id_moneda_reporte en treporte
-   #71		ETR			31.10.2019			MZM					Refactorizacion para obtncion de periodo para planilla de prima y especificacion de firmas
-   #76		ETR			06.11.2019			MZM					Reconfiguracion de ordenamiento en reporte multilinea
-   #77		ETR			13.11.2019			MZM					Ajustes varios reportes
-   #82		ETR			27.11.2019			MZM					Adicion de opcion organigrama en check ordenar_por
-   #83		ETR			09.12.2019			MZM					Habilitacion de reporte para backup de planilla
-   #89		ETR			14.01.2020			MZM					Ajuste a esquema para obtencion de ufv_ini y ufv_fin
-   #90		ETR			15.01.2020			MZM					Ajuste a ancho de columna para reporte bono-descuento
-   #98		ETR			02.03.2020			MZM					Inclusion de parametro activo/inactivo/todos para funcionarios
-   #105		ETR			12.02.2020			MZM					Control de consolidado solo para planillas que se consultan por periodo
-   #125		ETR			14.05.2020			MZM					Control para reporte de planilla de aguinaldo (boleta de pago)
-   #165		ETR			29.09.2020			MZM					Modificacion a consulta PLA_REPODETBOL_SEL
+   #17		etr			28-06-2019			MZM-KPLIAN                  adicion de join con vista vuo_centro y ordenacion por mismo criterio en REPODET_SEL
+   #32		ETR			02.09.2019			MZM-KPLIAN					Adicion de relacion id_pie_firma en REPO_SEL y adicion de procedimiento PLA_FIRREP_SEL
+   #40		ETR			12.09.2019			MZM-KPLIAN				    Cambios solicitados por RRHH a formato de reporte (titulo, paginacion y pie de reporte)
+   #50		ETR			24.09.2019			MZM-KPLIAN					Ajuste de forma en reporte
+   #58		ETR			30.09.2019			MZM-KPLIAN					Adicion de campo mostrar_ufv en tabla reporte y adicion de campos para procedimiento REPOMAES
+   #60		ETR			01.10.2019			MZM-KPLIAN					Adicion de campo incluir_retirados para reporte de reintegros
+   #65		ETR			10.10.2019			MZM-KPLIAN					Adicion de campo id_moneda_reporte en treporte
+   #71		ETR			31.10.2019			MZM-KPLIAN					Refactorizacion para obtncion de periodo para planilla de prima y especificacion de firmas
+   #76		ETR			06.11.2019			MZM-KPLIAN					Reconfiguracion de ordenamiento en reporte multilinea
+   #77		ETR			13.11.2019			MZM-KPLIAN					Ajustes varios reportes
+   #82		ETR			27.11.2019			MZM-KPLIAN					Adicion de opcion organigrama en check ordenar_por
+   #83		ETR			09.12.2019			MZM-KPLIAN					Habilitacion de reporte para backup de planilla
+   #89		ETR			14.01.2020			MZM-KPLIAN					Ajuste a esquema para obtencion de ufv_ini y ufv_fin
+   #90		ETR			15.01.2020			MZM-KPLIAN					Ajuste a ancho de columna para reporte bono-descuento
+   #98		ETR			02.03.2020			MZM-KPLIAN					Inclusion de parametro activo/inactivo/todos para funcionarios
+   #105		ETR			12.02.2020			MZM-KPLIAN					Control de consolidado solo para planillas que se consultan por periodo
+   #125		ETR			14.05.2020			MZM-KPLIAN					Control para reporte de planilla de aguinaldo (boleta de pago)
+   #165		ETR			29.09.2020			MZM-KPLIAN					Modificacion a consulta PLA_REPODETBOL_SEL
+   #168		ETR			07.10.2020			MZM-KPLIAN					Adicion de centro en reporte multilinea por distrito
   ***************************************************************************/
 
   DECLARE
@@ -96,6 +97,8 @@ AS $BODY$
     v_group	varchar;
     v_periodo_fin	varchar;
     
+    --#168
+    v_nombre_uo	varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -1163,7 +1166,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                             as ancho_col
                             ,repo.titulo_reporte
                             , repo.tipo_reporte--#80
-        
+        					,pxp.f_iif(repo.multilinea=''si'' and  repo.agrupar_por=''distrito'',''si'',''no'') as adicionar_centro
            			from '||v_esquema||'.tplanilla plani
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
@@ -1318,6 +1321,13 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
              end if;
         end if;
 
+            --#168
+            v_nombre_uo:='''''';
+            if( v_datos_externos.adicionar_centro='si' ) then
+           		v_consulta_orden:='nivel.id_uo_centro, nivel.nombre_uo_centro,'; 
+            	v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
+                v_nombre_uo:=' nivel.oficina';
+			end if;
            
             --Sentencia de la consulta
             v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, ''''::varchar, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,
@@ -1326,6 +1336,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       '||v_columnas_externas||'
                       ,tcon.nombre, repcol.espacio_previo
                       , repcol.orden --#80
+                      ,'||v_nombre_uo||'::varchar  as regional  --#168
                       from '||v_esquema||'.vorden_planilla nivel
                       inner join '||v_esquema||'.tfuncionario_planilla fp on 
                       --fp.id_funcionario=nivel.id_funcionario
@@ -1368,6 +1379,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''(Bs.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, cv.valor::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +1 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
+                      ,'''' as regional --#168
                       from '||v_esquema||'.tfuncionario_planilla fp 
                       inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                       inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
@@ -1388,6 +1400,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       ''Monto''::varchar as titulo_reporte_superior,
                       ''($us.)''::varchar as titulo_reporte_inferior, tipcol.codigo as codigo_columna, (cv.valor/(param.f_get_tipo_cambio(2,plani.fecha_planilla,''O'')))::varchar, ''''::varchar as nombre, 0 as espacio_previo
                       ,(select max(orden) +2 from plani.treporte_columna where id_reporte=repo.id_reporte)::integer as orden --#80
+                      ,'''' as regional --#168
                       from '||v_esquema||'.tfuncionario_planilla fp 
                       inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                       inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
