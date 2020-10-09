@@ -55,7 +55,7 @@ class RPlanillaPrima extends  ReportePDF {
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG') {
 				$this->Cell(0,5,'BONO DE PRODUCCION'.$cadena_nomina,0,1,'C');
 			}elseif($this->objParam->getParametro('codigo_planilla')=='BONONOVIG') {//bononovig
-				$this->Cell(0,5,'BONO DE PRODUCCION POR PAGAR - PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
+				$this->Cell(0,5,'BONO DE PRODUCCION - PERSONAL RETIRADO'.$cadena_nomina,0,1,'C');
 			}
 			$this->SetFont('','B',10);
 			
