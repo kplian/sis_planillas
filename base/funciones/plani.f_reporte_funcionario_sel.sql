@@ -57,6 +57,7 @@ AS $BODY$
  #159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  #162	ETR				11.09.2020			MZM-KPLIAN			ajuse afpsino en dETAGUIN, todos aportan
  #163 	ETR				23.09.2020			MZM-KPLIAN			Planilla tributaria - correccion de control de fecha por fecha_reg
+ #169	ETR				09.10.2020			MZM-KPLIAN			Adicion de columna OTDESC para planilla de bono de produccion no vigente
  ***************************************************************************/
 
 DECLARE
@@ -3141,7 +3142,7 @@ raise notice '***:%',v_consulta;
 
             else --#124
              v_cols:=' and colval.codigo_columna in (''PREDIAS2'',''PREPROME2'',''BONO'',
-                        ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'')';
+                        ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'',''OTDESC'')'; --#169
             end if;
        end if;
             v_consulta:='select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2,

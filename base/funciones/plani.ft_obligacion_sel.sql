@@ -40,6 +40,7 @@ AS $BODY$
  #142	ETR		  19.06.2020	 	MZM						
  #147	ETR		  03.07.2020		MZM						Ordenacion en reporte relacion saldos para separar cheque de bancos
  #158	ETR		  19.08.2020		MZM						Modificacion SIN BANCO a CHEQUE para reporte resumen saldos (Prima)
+ #169	ETR		  09.10.2020		MZM-KPLIAN				Adecuacion de restriccion de pago_empleados a %empleado% para que funcione reporte relacion_saldos en bono de prod no vigente
 */
 
 DECLARE
@@ -280,7 +281,7 @@ BEGIN
 							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
           
           if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
-          
+
               if(v_parametros.id_periodo is not null) then
                     
                  if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
@@ -317,7 +318,7 @@ BEGIN
                   end if;
                 end if;
           end if;
-            
+                    
            v_consulta:='select ofi.nombre as oficina,sum(df.monto_transferencia)  as monto_pagar,
                         upper( param.f_get_periodo_literal(plani.id_periodo)) as periodo_lite,ins.nombre as banco,
 
@@ -370,8 +371,8 @@ BEGIN
                         join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina 
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
-                        and o.tipo_pago = ''cheque'' and tob.tipo_obligacion = ''pago_empleados''
-                        where ';
+                        and o.tipo_pago = ''cheque'' and tob.tipo_obligacion like ''%empleado%''
+                        where ';  --#169
                         v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
                         v_consulta:=v_consulta||'
                         group by 
