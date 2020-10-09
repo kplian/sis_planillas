@@ -17,6 +17,7 @@
  #151	ETR				14.07.2020			MZM-KPLIAN			Control de salto para reportes que no usan posicion Landscape 
  #152	ETR				20.07.2020			MZM-KPLIAN			cambio de nombre de columna
  #158	ETR				19.08.2020			MZM-KPLIAN			control de tipo pago: banco/cheque
+ #169	ETR				09.10.2020			MZM-KPLIAN			Control de registros del tipo banco, si no existe ninguno no dibujar subtotales
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -238,6 +239,8 @@ class RRelacionSaldos extends  ReportePDF {
 								
 								
 							}else{
+								if($subtotal!=0){
+								
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(150,0.1,'','LRB',1,'L');
 								}else{
@@ -265,7 +268,7 @@ class RRelacionSaldos extends  ReportePDF {
 									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($cajat,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($total+($cajat),2,'.',','),'',1,'R');
-								}
+								}}
 							}
 						$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
 						
@@ -301,7 +304,8 @@ class RRelacionSaldos extends  ReportePDF {
 							$this->Ln(1);
 						}else{
 							
-							if($ciudad!='' && $bandera_salto_cheque==0){ 
+							if($ciudad!='' && $bandera_salto_cheque==0){
+								if($subtotal!=0){ 
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(150,0.1,'','LRB',1,'L');
 								}else{
@@ -317,7 +321,7 @@ class RRelacionSaldos extends  ReportePDF {
 									$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($caja,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($subtotal+$caja,2,'.',','),'',1,'R');
-								}
+								}}
 								$subtotal=0;
 								$caja=0;
 							}
