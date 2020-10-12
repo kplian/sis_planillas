@@ -553,8 +553,6 @@ class RBoletaGenerica extends  ReportePDF {
 					    
 						
 						
-						
-						
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					   
@@ -661,10 +659,6 @@ class RBoletaGenerica extends  ReportePDF {
 				   
 				}
 				  
-				  
-		
-				
-				
 			}else{ 
 				//la boleta anterior
 				if (($this->num_boleta%2) == 1) {
