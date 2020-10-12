@@ -897,7 +897,6 @@ class RPlanillaPrima extends  ReportePDF {
 					//----
 					
 					
-					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
