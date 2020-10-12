@@ -58,7 +58,7 @@ AS $BODY$
  #162	ETR				11.09.2020			MZM-KPLIAN			ajuse afpsino en dETAGUIN, todos aportan
  #163 	ETR				23.09.2020			MZM-KPLIAN			Planilla tributaria - correccion de control de fecha por fecha_reg
  #169	ETR				09.10.2020			MZM-KPLIAN			Adicion de columna OTDESC para planilla de bono de produccion no vigente
-
+ #ETR-1290				12.10.2020			MZM-KPLIAN			Correccion a parametro de envio para obtencion de fecha_primer_contrato en CURVSAL
  ***************************************************************************/
 
 DECLARE
@@ -1681,7 +1681,7 @@ BEGIN
                end if;
 			end if;
 
-
+			-- #ETR-1290
             v_filtro:='select tf.id_funcionario,  trim (both ''FUNODTPR'' from tf.codigo) as codigo,p.ci, p.tipo_documento, p.expedicion,
                                 fafp.nro_afp,
                                 p.apellido_paterno, p.apellido_materno,
@@ -1700,7 +1700,7 @@ BEGIN
                                             tcon.codigo in (''PLA'',''EVE'') and ha.tipo = ''oficial'' and ha.estado_reg!=''inactivo --#137''
                                             order by fecha_asignacion desc limit 1)
                                  ,(select orga.f_get_cargo_x_funcionario_str(tf.id_funcionario,plani.fecha_planilla))) as cargo,
-                                (plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario))) as fecha_ingreso,
+                                (plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,uof.fecha_asignacion)) as fecha_ingreso,
                                  pxp.f_iif(tcon.codigo=''PLA'' and uof.fecha_finalizacion is null,''Indefinido'',''Fijo'') as tiempo_contrato,
                                 ofi.nombre as distrito,
                                 (select  codigo_uo_centro from orga.vuo_centro where id_uo= uof.id_uo) as codigo_centro,

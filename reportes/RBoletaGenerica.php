@@ -9,7 +9,7 @@
  * #98		ETR			MZM		04.03.2020	Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
  * #130		ETR			MZM		27.05.2020	Cambio en subtitulo de boleta mensual
  * #149		ETR			MZM		09.07.2020	Gestion en otra linea (titulo)
- * #169		ETR			MZM		08.10.2020	Ajuste de campo para boletas anuales (prima/produccion)
+ * #169, ETR-1317		MZM		08.10.2020	Ajuste de campo para boletas anuales (prima/produccion)
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -553,8 +553,6 @@ class RBoletaGenerica extends  ReportePDF {
 					    
 						
 						
-						
-						
 					    $this->Ln(5);
 					    $this->SetFont('','',10);
 					   
@@ -598,7 +596,7 @@ class RBoletaGenerica extends  ReportePDF {
 							$this->Cell(30,5,'Nombre: ','LB',0,'R');
 							$this->SetFont('','',8);
 							
-							$this->Cell(0,5,$this->datos_detalle[$i]['desc_funcionario2'],'BR',1,'L');//#169
+							$this->Cell(0,5,$this->datos_detalle[$i]['desc_funcionario2'],'BR',1,'L');//#169 -- #ETR-1317
 							
 							$this->Ln(10);
 							if($es_aguinaldo=='no'){
@@ -619,7 +617,7 @@ class RBoletaGenerica extends  ReportePDF {
 							$this->SetFont('','B',8);
 							$this->Cell(30,5,'Nombre: ','LB',0,'R');
 							$this->SetFont('','',8);
-							$this->Cell(0,5,$this->datos_detalle[$i]['desc_funcionario2'],'BR',1,'L');//#169
+							$this->Cell(0,5,$this->datos_detalle[$i]['desc_funcionario2'],'BR',1,'L');//#169-- #ETR-1317
 							
 							$this->Ln(10);
 							
@@ -637,7 +635,7 @@ class RBoletaGenerica extends  ReportePDF {
 							
 						$this->SetFont('','',8);
 						
-						$this->Cell(0,5,' Bs. '.number_format($this->datos_detalle[$i]['valor'],2,'.',','),0,1,'L');//#169
+						$this->Cell(0,5,' Bs. '.number_format($this->datos_detalle[$i]['valor'],2,'.',','),0,1,'L');//#169-- #ETR-1317
 						if($es_aguinaldo=='no'){
 							$this->Image(dirname(__FILE__).'/../../lib/imagenes/anual.png', 110, $this->GetY()-15, 40, 20);	
 							$this->Ln(20);
@@ -661,10 +659,6 @@ class RBoletaGenerica extends  ReportePDF {
 				   
 				}
 				  
-				  
-		
-				
-				
 			}else{ 
 				//la boleta anterior
 				if (($this->num_boleta%2) == 1) {

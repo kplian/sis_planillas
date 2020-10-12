@@ -11,7 +11,8 @@
 //#126	ETR		MZM			15.05.2020				bug reporte multilinea
 //#141	ETR		MZM-KPLIAN	18.06.2020				Ajuste a titulo de reporte
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
-//#168	ETR		MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
+//#168-ETR-1252	MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
+
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -109,7 +110,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			$this->Cell(0,5,$this->tipo_ordenacion.'Banco : '.substr($this->gerencia,strpos($this->gerencia, '*')+1),0,1,'L');
 		}else{
 			
-			if ($this->datos_detalle[0]['regional']!=''){
+			if ($this->datos_detalle[0]['regional']!=''){//ETR-1252
 				if($this->regional==''){
 					$this->regional=$this->datos_detalle[0]['regional'];
 				}
@@ -174,11 +175,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//iniciacion de datos 
 		$id_funcionario = $this->datos_detalle[0]['id_funcionario'];
 		//$this->gerencia=$this->datos_detalle[0]['gerencia'];
-		$this->regional=$this->datos_detalle[0]['regional'];//#168
+		$this->regional=$this->datos_detalle[0]['regional'];//#168 ETR-1252
 		$this->id_fun0=$id_funcionario;
 		$sum_subtotal = array();
 		$sum_total = array();
-		$sum_subtotal_regional = array(); //#168
+		$sum_subtotal_regional = array(); //#168 ETR-1252
 		$empleados_gerencia = 0;
 		$empleados_regional = 0;
 		$this->numeracion=1;
@@ -236,7 +237,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					}
 				
 				
-				if($this->regional!=$this->datos_detalle[$i]['regional']){//#168
+				if($this->regional!=$this->datos_detalle[$i]['regional']){//#168 ETR-1252
 					$this->SetY($this->GetY()+5);
 				
 				    $dimensions_h = $this->getPageDimensions();
@@ -310,8 +311,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$sum_total[$columnas]=($sum_total[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 				}
-				
-			
 				
 				
 				$columnas++;
@@ -494,8 +493,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//planilla
 		
 		
-		
-		
 		//$this->ln(2);}
 		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
@@ -519,8 +516,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			
 			//$this->Cell($ancho_sep/2,2,'',0,0,'C');
 			$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
-			
-		
 			
 			
 			

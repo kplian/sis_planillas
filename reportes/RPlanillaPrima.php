@@ -7,7 +7,7 @@
   #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta
   #151	ETR				13.07.2020			MZM-KPLIAN			Ajsute reporte de primas
   #157	ETR				11.08.2020			MZM-KPLIAN			Bug de nombre regional/banco
-  #169	ETR				08.10.2020			MZM-KPLIAN			Modificacion a reporte bono produccion no vigente, omision de motivo_ret y adicion de cert. rc.iva y otros desc
+  #169- #ETR-1312		08.10.2020			MZM-KPLIAN			Modificacion a reporte bono produccion no vigente, omision de motivo_ret y adicion de cert. rc.iva y otros desc
  */
 class RPlanillaPrima extends  ReportePDF {
 	var $datos;	
@@ -179,15 +179,15 @@ class RPlanillaPrima extends  ReportePDF {
 					  $this->Cell(70,5,'Nombre','T',0,'C');
 					  $this->Cell(17,5,'Fecha','T',0,'C');
 					  $this->Cell(17,5,'Fecha ','T',0,'C');
-					  //$this->Cell(30,5,'Motivo','T',0,'C');//#169
+					  //$this->Cell(30,5,'Motivo','T',0,'C');//#169 #ETR-1312
 					  $this->Cell(10,5,'Dias','T',0,'C');
 					  $this->Cell(17,5,'Cotizable','T',0,'C');
 				  
 				  	  $this->Cell(20,5,'% obtenido ','T',0,'C');
 				  	  $this->Cell(17,5,'Incentivo','T',0,'C');
 				  	  $this->Cell(17,5,'13%','T',0,'C');
-					  $this->Cell(15,5,'Certif.','T',0,'C');//#169
-					  $this->Cell(15,5,'Otros','T',0,'C');//#169
+					  $this->Cell(15,5,'Certif.','T',0,'C');//#169 #ETR-1312
+					  $this->Cell(15,5,'Otros','T',0,'C');//#169 #ETR-1312
 					  $this->Cell(17,5,'Importe','T',0,'C');
 					  $this->Cell(17,5,'Aporte Pat.','T',0,'C');
 					  $this->Cell(17,5,'Costo Total','T',1,'C'); 
@@ -276,15 +276,15 @@ class RPlanillaPrima extends  ReportePDF {
 					  $this->Cell(70,5,'Cargo','B',0,'C');
 					  $this->Cell(17,5,'Ingreso','B',0,'C');
 					  $this->Cell(17,5,'Retiro','B',0,'C');
-					  //$this->Cell(30,5,'Retiro','B',0,'C');//#169
+					  //$this->Cell(30,5,'Retiro','B',0,'C');//#169 #ETR-1312
 					  $this->Cell(10,5,'Trab.','B',0,'C');
 					  $this->Cell(17,5,'Promedio','B',0,'C');
 				  
 				  	  $this->Cell(20,5,'en Evaluacion','B',0,'C');
 				  	  $this->Cell(17,5,'Desempeño','B',0,'C');
 				  	  $this->Cell(17,5,'RC-IVA','B',0,'C');
-					  $this->Cell(15,5,'RC-IVA','B',0,'C');//#169
-					  $this->Cell(15,5,'Descuentos','B',0,'C');//#169
+					  $this->Cell(15,5,'RC-IVA','B',0,'C');//#169 #ETR-1312
+					  $this->Cell(15,5,'Descuentos','B',0,'C');//#169 #ETR-1312
 					  $this->Cell(17,5,'a pagar','B',0,'C');
 					  $this->Cell(17,5,'CPS','B',0,'C');
 					  $this->Cell(17,5,'','B',1,'C'); 
@@ -332,7 +332,7 @@ class RPlanillaPrima extends  ReportePDF {
 		$t_prom1=0; $t_prom2=0;
 		$t_cot1=0; $t_cot2=0; $t_cot3=0;
 		$t_prima=0; $t_13=0; $t_iva=0; $t_des=0; $t_lq=0;
-		$t_impofact=0; $t_otdesc=0; //#169
+		$t_impofact=0; $t_otdesc=0; //#169 #ETR-1312
 			
 		$this->SetX(10);
 		$array_datos=array();
@@ -410,7 +410,7 @@ class RPlanillaPrima extends  ReportePDF {
 				}elseif ($this->datos[$i]['codigo_columna']=='IMPDET' && ($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='BONONOVIG')){
 				  	$array_datos[$cont][7]= $this->datos[$i]['valor'];  //impdet
 				}elseif ($this->datos[$i]['codigo_columna']=='OTDESC' && ($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='BONONOVIG')){
-				  	$array_datos[$cont][24]= $this->datos[$i]['valor'];  //otdesc #169
+				  	$array_datos[$cont][24]= $this->datos[$i]['valor'];  //otdesc #169 #ETR-1312
 				}
 			}
 
@@ -897,7 +897,6 @@ class RPlanillaPrima extends  ReportePDF {
 					//----
 					
 					
-					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
@@ -1003,8 +1002,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_cot1=0;//apcaj 
 					$s_cot2=0;
 					
-					$s_impofact=0;//16 #169
-					$s_otdesc=0;//24 #169
+					$s_impofact=0;//16 #169 #ETR-1312
+					$s_otdesc=0;//24 #169 #ETR-1312
 					
 			for ($i=1; $i<=$cont;$i++){
 			
@@ -1012,15 +1011,15 @@ class RPlanillaPrima extends  ReportePDF {
 					$this->gerencia=$array_datos[$i][18];
 					//añadimos los subtotales
 					$this->Cell(85,5,'SUBTOTAL','TB',0,'C');
-					$this->Cell(34,5,'','TB',0,'C');//#169
+					$this->Cell(34,5,'','TB',0,'C');//#169 #ETR-1312
 					$this->Cell(10,5,number_format($s_dias2,0),'TB',0,'R');
 					$this->Cell(17,5,number_format($s_prom2,2,'.',','),'TB',0,'R');
 					$this->Cell(20,5,number_format($s_dias1,2,'.',','),'TB',0,'R');
 					$this->Cell(17,5,number_format($s_prima,2,'.',','),'TB',0,'R');
 					$this->Cell(17,5,number_format($s_13,2,'.',','),'TB',0,'R');
 					
-					$this->Cell(15,5,number_format($s_impofact,2,'.',','),'TB',0,'R');//**#169
-					$this->Cell(15,5,number_format($s_otdesc,2,'.',','),'TB',0,'R');//**#169
+					$this->Cell(15,5,number_format($s_impofact,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
+					$this->Cell(15,5,number_format($s_otdesc,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
 					
 					$this->Cell(17,5,number_format($s_lq,2,'.',','),'TB',0,'R');
 					
@@ -1035,8 +1034,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_iva=0; $s_des=0; $s_lq=0;
 					$s_cot1=0;//apcaj 
 					$s_cot2=0;//costo_total
-					$s_impofact=0;//16#169
-					$s_otdesc=0;//24#169
+					$s_impofact=0;//16#169 #ETR-1312
+					$s_otdesc=0;//24#169 #ETR-1312
 					//----
 					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
@@ -1056,8 +1055,8 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->Cell(17,5,number_format(($array_datos[$i][20]),2,'.',','),'',0,'R');
 					$this->Cell(17,5,number_format($array_datos[$i][7],2,'.',','),'',0,'R');
-					$this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//**#169
-					$this->Cell(15,5,number_format($array_datos[$i][24],2,'.',','),'',0,'R');//**#169
+					$this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//**#169 #ETR-1312
+					$this->Cell(15,5,number_format($array_datos[$i][24],2,'.',','),'',0,'R');//**#169 #ETR-1312
 					
 					$this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');
 					$this->Cell(17,5,number_format($array_datos[$i][19],2,'.',','),'',0,'R');
@@ -1072,8 +1071,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_lq=$s_lq+$array_datos[$i][17];
 					$s_cot1=$s_cot1+$array_datos[$i][19];
 					$s_cot2=$s_cot2+$array_datos[$i][23];
-					$s_impofact=$s_impofact+$array_datos[$i][16];//#169
-					$s_otdesc=$s_otdesc+$array_datos[$i][24];//#169
+					$s_impofact=$s_impofact+$array_datos[$i][16];//#169 #ETR-1312
+					$s_otdesc=$s_otdesc+$array_datos[$i][24];//#169 #ETR-1312
 					
 					
 					
@@ -1085,8 +1084,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$t_lq=$t_lq+$array_datos[$i][17];
 					$t_cot1=$t_cot1+$array_datos[$i][19];
 					$t_cot2=$t_cot2+$array_datos[$i][23];
-					$t_impofact=$t_impofact+$array_datos[$i][16];//#169
-					$t_otdesc=$t_otdesc+$array_datos[$i][24];//#169
+					$t_impofact=$t_impofact+$array_datos[$i][16];//#169 #ETR-1312
+					$t_otdesc=$t_otdesc+$array_datos[$i][24];//#169 #ETR-1312
 					
 					
 					$this->Ln(-1);
@@ -1110,8 +1109,8 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->Cell(17,5,number_format(($array_datos[$i][20]),2,'.',','),'',0,'R');
 					$this->Cell(17,5,number_format($array_datos[$i][7],2,'.',','),'',0,'R');
-					$this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//**#169
-					$this->Cell(15,5,number_format($array_datos[$i][24],2,'.',','),'',0,'R');//**#169
+					$this->Cell(15,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');//**#169 #ETR-1312
+					$this->Cell(15,5,number_format($array_datos[$i][24],2,'.',','),'',0,'R');//**#169 #ETR-1312
 					$this->Cell(17,5,number_format($array_datos[$i][17],2,'.',','),'',0,'R');
 					$this->Cell(17,5,number_format($array_datos[$i][19],2,'.',','),'',0,'R');
 					$this->Cell(17,5,number_format($array_datos[$i][23],2,'.',','),'',1,'R');
@@ -1125,8 +1124,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$s_lq=$s_lq+$array_datos[$i][17];
 					$s_cot1=$s_cot1+$array_datos[$i][19];
 					$s_cot2=$s_cot2+$array_datos[$i][23];
-					$s_impofact=$s_impofact+$array_datos[$i][16];//#169
-					$s_otdesc=$s_otdesc+$array_datos[$i][24];//#169
+					$s_impofact=$s_impofact+$array_datos[$i][16];//#169 #ETR-1312
+					$s_otdesc=$s_otdesc+$array_datos[$i][24];//#169 #ETR-1312
 					
 					
 					$t_dias2=$t_dias2+$array_datos[$i][9];
@@ -1137,8 +1136,8 @@ class RPlanillaPrima extends  ReportePDF {
 					$t_lq=$t_lq+$array_datos[$i][17];
 					$t_cot1=$t_cot1+$array_datos[$i][19];
 					$t_cot2=$t_cot2+$array_datos[$i][23];
-					$t_impofact=$t_impofact+$array_datos[$i][16];//#169
-					$t_otdesc=$t_otdesc+$array_datos[$i][24];//#169
+					$t_impofact=$t_impofact+$array_datos[$i][16];//#169 #ETR-1312
+					$t_otdesc=$t_otdesc+$array_datos[$i][24];//#169 #ETR-1312
 					
 					
 					$this->Ln(-1);
@@ -1158,8 +1157,8 @@ class RPlanillaPrima extends  ReportePDF {
 				$this->Cell(17,5,number_format($s_prima,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($s_13,2,'.',','),'TB',0,'R');
 				
-				$this->Cell(15,5,number_format($s_impofact,2,'.',','),'TB',0,'R');//**#169
-				$this->Cell(15,5,number_format($s_otdesc,2,'.',','),'TB',0,'R');//**#169
+				$this->Cell(15,5,number_format($s_impofact,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
+				$this->Cell(15,5,number_format($s_otdesc,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
 				
 				$this->Cell(17,5,number_format($s_lq,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($s_cot1,2,'.',','),'TB',0,'R');
@@ -1174,8 +1173,8 @@ class RPlanillaPrima extends  ReportePDF {
 				$this->Cell(20,5,number_format($t_dias1,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($t_prima,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($t_13,2,'.',','),'TB',0,'R');
-				$this->Cell(15,5,number_format($t_impofact,2,'.',','),'TB',0,'R');//**#169
-				$this->Cell(15,5,number_format($t_otdesc,2,'.',','),'TB',0,'R');//**#169
+				$this->Cell(15,5,number_format($t_impofact,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
+				$this->Cell(15,5,number_format($t_otdesc,2,'.',','),'TB',0,'R');//**#169 #ETR-1312
 				$this->Cell(17,5,number_format($t_lq,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($t_cot1,2,'.',','),'TB',0,'R');
 				$this->Cell(17,5,number_format($t_cot2,2,'.',','),'TB',1,'R');
