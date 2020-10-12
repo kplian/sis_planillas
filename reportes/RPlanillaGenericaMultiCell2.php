@@ -12,6 +12,7 @@
 //#141	ETR		MZM-KPLIAN	18.06.2020				Ajuste a titulo de reporte
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
 //#168-ETR-1252	MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
+
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -311,8 +312,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 				}
 				
-			
-				
 				
 				$columnas++;
 			}else{
@@ -494,8 +493,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		//planilla
 		
 		
-		
-		
 		//$this->ln(2);}
 		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
@@ -519,8 +516,6 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			
 			//$this->Cell($ancho_sep/2,2,'',0,0,'C');
 			$this->Cell($ancho_firma,2,'________________________________________________________________',0,1,'C');
-			
-		
 			
 			
 			
