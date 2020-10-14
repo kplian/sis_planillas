@@ -7,7 +7,8 @@
 //#83	ETR		MZM			10.12.2019				Habilitacion de opcion historico de planilla
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
-//#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte 
+//#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
+//#ETR-1361		MZM-KPLIAN	14.10.2020				Adicion de regional en reporte multilinea por distrito 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -97,7 +98,17 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		//$this->Cell(0,5, $nro_pla,0,1,'C');
 		$this->SetFont('','B',10);
 		//$this->gerencia=$this->datos_detalle[0]['nombre_unidad'];
-		$this->Cell(0,5,$this->gerencia,0,1,'L');
+		if ($this->datos_detalle[0]['regional']!=''){//#ETR-1361
+				if($this->regional==''){
+					$this->regional=$this->datos_detalle[0]['regional'];
+				}
+				 
+				$this->Cell(0,5,$this->regional,0,1,'L');
+				$this->SetFont('','B',8);
+				$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');
+				$this->Ln(-5);
+			}else{$this->Cell(0,5,$this->tipo_ordenacion.$this->gerencia,0,1,'L');}
+			
 		$this->Ln(2);
 		$this->SetFont('','B',8);
 		
@@ -142,7 +153,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->cantidad_columnas_estaticas = 0;
 		$this->SetMargins(5,$this->GetY()+($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*9), 5);
 	}
-	function generarReporte() {
+	function generarReporte() { 
 		$this->setFontSubsetting(false);
 		$this->AddPage();
 		
@@ -153,6 +164,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->SetMargins(5,$this->alto_grupo*2, 5);
 		//iniciacion de datos 
 		$id_funcionario = $this->datos_detalle[0]['id_funcionario'];
+		$this->regional=$this->datos_detalle[0]['regional'];//#ETR-1361
 		$this->gerencia=$this->datos_detalle[0]['gerencia'];
 		
 		$this->id_fun0=$id_funcionario;
@@ -160,13 +172,14 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$sum_total = array();
 		
 		$empleados_gerencia = 0;
+		$empleados_regional = 0;//#ETR-1361
 		$this->numeracion=1;
 		$this->ancho_col=35;
 		$array_show = array(); 
 		array_push($this->tablewidths, $this->ancho_col); 
 		
 		for ($i = 0; $i < $this->datos_titulo['cantidad_columnas']; $i++) {
-		
+			$sum_subtotal_regional[$i]=0;//#ETR-1361
 	 		$sum_subtotal[$i]=0;
 			$sum_total[$i]=0;
 		}
@@ -203,6 +216,35 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 				 		$sum_subtotal[$m]=0;
 						
 					}
+				if($this->regional!=$this->datos_detalle[$i]['regional']){//#ETR-1361
+					$this->SetY($this->GetY()+5);
+				
+				    $dimensions_h = $this->getPageDimensions();
+						if ($this->GetY()+$this->alto_grupo+$dimensions_h['bm']+3> $dimensions_h['hk']){
+							$this->AddPage();
+							$this->ln(-4);
+						}else{
+							$this->ln(2);
+							$this->SetDrawColor(0,0,0);
+							$this->SetLineWidth(0.2);
+							$this->Cell(0,0,'','B',1);
+							$this->Cell(0,0,'','B',1);
+						}
+					$this->SetFont('','B',8);
+					$this->Cell(0,0,'Total:'.$this->regional,'',1);
+					$this->Cell(30,3,'# Empl.' . $empleados_regional,'',1,'L');
+					
+					$this->subtotales($detalle_col_mod,$sum_subtotal_regional);
+					$this->SetFont('','',8);
+					for ($m = 0; $m < $this->datos_titulo['cantidad_columnas']; $m++) {
+		
+				 		$sum_subtotal_regional[$m]=0;
+						
+					}
+					$empleados_regional=0;
+				}
+				$this->regional=$this->datos_detalle[$i]['regional'];//#ETR-1361
+				
 				$this->gerencia=$this->datos_detalle[$i]['gerencia'];
 				$empleados_gerencia=0;
 				$detalle_col_mod=array();
@@ -238,7 +280,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 				    
 					$sum_subtotal[$columnas]=($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 					$sum_total[$columnas]=($sum_total[$columnas]+$this->datos_detalle[$i]['valor_columna']);
-					
+					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);//#ETR-1361
 				}
 				
 			
@@ -318,7 +360,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 					$sum_subtotal[$columnas] =($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 					
 					$sum_total[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
-						
+					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);//#ETR-1361
 				}
 
 				
@@ -327,11 +369,12 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 			}
 			if($id_funcionario!=$this->datos_detalle[$i]['id_funcionario']){
 				$empleados_gerencia++;
+				$empleados_regional++;//#ETR-1361
 				$this->numeracion++;
 			}
 			
 			$this->gerencia=$this->datos_detalle[$i]['gerencia'];
-			
+			$this->regional=$this->datos_detalle[$i]['regional'];//#ETR-1361
 				
 			}
 			
@@ -348,7 +391,25 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		
 		$this->SetFont('','B',8);
 		
-	 	
+	 	if ($this->datos_detalle[0]['regional']!=''){//#ETR-1361
+				$dimensions_h = $this->getPageDimensions();
+						if ($this->GetY()+$this->alto_grupo+$dimensions_h['bm']+3> $dimensions_h['hk']){
+							$this->AddPage();
+							$this->ln(-4);
+						}else{
+							$this->ln(2);
+							$this->SetDrawColor(0,0,0);
+							$this->SetLineWidth(0.2);
+							$this->Cell(0,0,'','B',1);
+							$this->Cell(0,0,'','B',1);
+						}
+						
+		
+				$this->Cell(80,3,'Total:' .  $this->regional.'','',1,'L');
+				$this->Cell(30,3,'# Empl.' . $empleados_regional ,'',1,'L');
+				$this->subtotales($detalle_col_mod,$sum_subtotal_regional);
+				$this->regional='EMPRESA';
+		}
 		
 		//planilla
 		$this->gerencia='TOTAL EMPRESA';
