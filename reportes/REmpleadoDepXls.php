@@ -2,7 +2,8 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #160	ETR				27.08.2020			MZM-KPLIAN			Grupo Familiar xls
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-1379				16.10.2020			MZM-KPLIAN 			Modificacion reporte grupo familiar, genero del depediente  
 */
 class REmpleadoDepXls
 {
@@ -206,8 +207,8 @@ class REmpleadoDepXls
 	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
 	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);//categoria
 	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);//pres
-	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(30);//ci
-	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
+	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
+	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(30);//funcionario
 	                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(30);//cargo
 	                
 	                
@@ -215,8 +216,9 @@ class REmpleadoDepXls
 	                $this->docexcel->getActiveSheet()->setCellValue('A3','Fecha Nac');//1
 	                $this->docexcel->getActiveSheet()->setCellValue('B3','Nombre Dependiente');//2
 	                $this->docexcel->getActiveSheet()->setCellValue('C3','Edad');//3
-	                $this->docexcel->getActiveSheet()->setCellValue('D3','Nombre del Trabajador');//4
-	                $this->docexcel->getActiveSheet()->setCellValue('E3','Sexo');//5
+	                $this->docexcel->getActiveSheet()->setCellValue('D3','Sexo');//5//ETR-1379
+	                $this->docexcel->getActiveSheet()->setCellValue('E3','Nombre del Trabajador');//4
+	                
 	                $this->docexcel->getActiveSheet()->setCellValue('F3','Distrito');//6
 	                
 	                
@@ -287,8 +289,9 @@ class REmpleadoDepXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, date_format(date_create($value['fecha_nacimiento_dep']),'d/m/Y'));
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['nombre_dep']);
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['edad_dep'] );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['nombre_funcionario']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['genero'] );
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['genero'] );//#ETR-1379
+                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['nombre_funcionario']);
+					
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['distrito'] );
 					
 				    $rango=$value['rango'];

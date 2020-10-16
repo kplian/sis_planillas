@@ -1,7 +1,3 @@
--- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
-
--- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
-
 CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
 	p_administrador integer,
 	p_id_usuario integer,
@@ -59,6 +55,7 @@ AS $BODY$
  #163 	ETR				23.09.2020			MZM-KPLIAN			Planilla tributaria - correccion de control de fecha por fecha_reg
  #169	ETR				09.10.2020			MZM-KPLIAN			Adicion de columna OTDESC para planilla de bono de produccion no vigente
  #ETR-1290				12.10.2020			MZM-KPLIAN			Correccion a parametro de envio para obtencion de fecha_primer_contrato en CURVSAL
+ #ETR-1379				16.10.2020			MZM-KPLIAN			Reporte de grupo familiar: genero del dependiente
  ***************************************************************************/
 
 DECLARE
@@ -1462,7 +1459,7 @@ BEGIN
                     v_filtro:='SELECT repf.desc_funcionario2 as nombre_funcionario,
                             pr.nombre::text as nombre_dep, pr.fecha_nacimiento as fecha_nacimiento_dep
                             , date_part(''year'', age(pr.fecha_nacimiento)) AS edad_dep,
-                            upper(substring(p.genero,1,1)) as genero
+                            upper(substring(pr.genero,1,1)) as genero --#ETR-1379
                             ,ofi.nombre as distrito
                             FROM segu.tpersona p
                             inner join segu.tpersona_relacion pr on pr.id_persona=p.id_persona
