@@ -10,7 +10,8 @@
  #90	ETR				15.01.2019			MZM					cambio de dato matricula_dep por edad_dep
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-1379				16.10.2020			MZM-KPLIAN 			Modificacion reporte grupo familiar, genero del depediente
 */
 class REmpleadoDep extends  ReportePDF {
 	var $datos;	
@@ -274,24 +275,27 @@ class REmpleadoDep extends  ReportePDF {
 						$this->Cell(15,5,'Fecha Nac',0,0,'L');
 						$this->Cell(60,5,'Nombre Dependiente',0,0,'L');
 						$this->Cell(10,5,'Edad',0,0,'L');
+						$this->Cell(10,5,'Sexo',0,0,'L');//#ETR-1379
 						$this->Cell(60,5,'Nombre del trabajador',0,0,'L');
-						$this->Cell(10,5,'Sexo',0,0,'L');
+						
 						$this->Cell(35,5,'Distrito',0,1,'L');
 									
 						$this->SetFont('','',8);//#77(20.11.19)
 						$this->Cell(15,5,$this->datos[$i]['fecha_nacimiento_dep'],0,0,'L');
 						$this->Cell(60,5,mb_strcut($this->datos[$i]['nombre_dep'],0,30, "UTF-8"),0,0,'L');
 						$this->Cell(10,5,$this->datos[$i]['edad_dep'],0,0,'R');
+						$this->Cell(10,5,$this->datos[$i]['genero'],0,0,'L');//#ETR-1379
 						$this->Cell(60,5,mb_strcut($this->datos[$i]['nombre_funcionario'],0,30, "UTF-8"),0,0,'L');
-						$this->Cell(10,5,$this->datos[$i]['genero'],0,0,'L');
+						
 						$this->Cell(35,5,mb_strcut($this->datos[$i]['distrito'],0,18, "UTF-8"),0,1,'L');
 					 }else{
 					 	$this->SetFont('','',8);//#77(20.11.19)
 						$this->Cell(15,5,$this->datos[$i]['fecha_nacimiento_dep'],0,0,'L');
 						$this->Cell(60,5,mb_strcut($this->datos[$i]['nombre_dep'],0,30, "UTF-8"),0,0,'L');
 						$this->Cell(10,5,$this->datos[$i]['edad_dep'],0,0,'R');
-						$this->Cell(60,5,mb_strcut($this->datos[$i]['nombre_funcionario'],0,30, "UTF-8"),0,0,'L');
 						$this->Cell(10,5,$this->datos[$i]['genero'],0,0,'L');
+						$this->Cell(60,5,mb_strcut($this->datos[$i]['nombre_funcionario'],0,30, "UTF-8"),0,0,'L');
+						
 						$this->Cell(35,5,mb_strcut($this->datos[$i]['distrito'],0,18, "UTF-8"),0,1,'L');
 					 }
 					 $rango=$this->datos[$i]['rango'];
