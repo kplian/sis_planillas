@@ -16,7 +16,8 @@
  * #119 ETR			MZM-KPLIAN		23.04.2020	Reporte acumulado saldo rc-iva
  * #144	ETR			MZM-KPLIAN		29.06.2020	Reporte ingreso/egreso por funcionario
   #156	ETR			EGS				03/08/2020	Se agrega codigo_afp
-   #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte 
+   #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte
+ *#ETR-1378			MZM-KPLIAN		18.10.2020	Adicion de filtro por empleado_planilla 
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -591,7 +592,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					totalProperty: 'total',
 					fields: ['id_funcionario_planilla', 'id_planilla', 'id_funcionario','desc_funcionario2','tipo_contrato'],
 					remoteSort: true,
-					baseParams: {par_filtro: 'desc_funcionario2',
+					baseParams: {par_filtro: 'funcio.desc_funcionario2',
 					}
 				}),
 				valueField: 'id_funcionario_planilla',
@@ -609,10 +610,7 @@ header("content-type: text/javascript; charset=UTF-8");
 			},
 			type: 'ComboBox',
 			id_grupo: 0,
-			filters: {
-				pfiltro: 'desc_funcionario2',
-				type: 'string'
-			},
+			filters:{pfiltro:'funcio.desc_funcionario2',type:'string'},
 			grid: true,
 			form: true
 		}
@@ -756,9 +754,19 @@ header("content-type: text/javascript; charset=UTF-8");
 				
 				this.Cmp.id_periodo.modificado = true;
 				this.Cmp.id_funcionario_planilla.store.baseParams.id_gestion = this.Cmp.id_gestion.getValue(); //#144
+				
 				this.Cmp.id_funcionario_planilla.modificado=true;
 			},this);
 			
+			
+			// ETR-1378
+			this.Cmp.id_funcionario_planilla.on('change',function(c,r,i){
+				this.Cmp.id_funcionario_planilla.store.baseParams.par_filtro = 'funcio.desc_funcionario2'; 
+				
+				this.Cmp.id_funcionario_planilla.modificado=true;
+			},this);
+
+				
 			this.Cmp.id_tipo_contrato.on('select',function(c,r,i){
 				this.Cmp.tipo_contrato.setValue(r.data.codigo);
 				this.Cmp.nombre_tipo_contrato.setValue(r.data.nombre);
