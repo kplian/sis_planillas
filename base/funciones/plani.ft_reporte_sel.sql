@@ -1323,7 +1323,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 
             --#168
             v_nombre_uo:='''''';
-            if( v_datos_externos.adicionar_centro='si' ) then
+            if( v_datos_externos.adicionar_centro='si' and v_parametros.totales='no') then --#168
+            --solo si totales es no == 
+            
            		v_consulta_orden:='nivel.id_uo_centro, nivel.nombre_uo_centro,'; 
             	v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
                 v_nombre_uo:=' nivel.oficina';
