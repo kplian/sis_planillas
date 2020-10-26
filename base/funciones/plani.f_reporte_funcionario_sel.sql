@@ -1,3 +1,7 @@
+-- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
+
+-- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
+
 CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
 	p_administrador integer,
 	p_id_usuario integer,
@@ -56,6 +60,7 @@ AS $BODY$
  #169	ETR				09.10.2020			MZM-KPLIAN			Adicion de columna OTDESC para planilla de bono de produccion no vigente
  #ETR-1290				12.10.2020			MZM-KPLIAN			Correccion a parametro de envio para obtencion de fecha_primer_contrato en CURVSAL
  #ETR-1379				16.10.2020			MZM-KPLIAN			Reporte de grupo familiar: genero del dependiente
+ #ETR-1489				26.10.2020			MZM-KPLIAN			Reporte CURVSAL, sin condiciones en fecha_retiro/motivo_retiro, incluso que sea en el futuro mostrar como estè registrado
  ***************************************************************************/
 
 DECLARE
@@ -1763,7 +1768,7 @@ BEGIN
                                 plani.id_periodo='||v_id_periodo||v_condicion||' and
             					plani.fecha_planilla between fafp.fecha_ini and coalesce(fafp.fecha_fin,plani.fecha_planilla) and
 
-                                tippla.codigo=''PLASUE'' '||v_filtro_estado||'
+                                tippla.codigo=''PLASUE''  '||v_filtro_estado||'
                                 order by '||v_ordenar;
 
             raise notice '----%', v_filtro;
@@ -1806,19 +1811,19 @@ BEGIN
                           v_estado_afp:='Mayor de 65';
                     end if;
 
-
-                    if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
-                      if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion and estado_reg!='inactivo' and tipo='oficial') then
+					--ETR-1489: se quita las condiciones por fecha de consulta, aunq la finalizacion sea en el futuro, mostrar como este el registro
+                   -- if(v_registros.fecha_finalizacion is not null and v_registros.fecha_finalizacion <=v_fecha) then
+                     -- if not exists (select 1 from orga.tuo_funcionario where id_funcionario=v_registros.id_funcionario and fecha_asignacion>v_registros.fecha_finalizacion and estado_reg!='inactivo' and tipo='oficial') then
                           v_fecha_fin:=v_registros.fecha_finalizacion;
                           v_motivo:=v_registros.observaciones_finalizacion;
-                      else
-                          v_fecha_fin:=null;
-                          v_motivo:=null;
-                      end if;
-                    else
-                      v_fecha_fin:=null;
-                      v_motivo:=null;
-                    end if;
+                      --else
+                        --  v_fecha_fin:=null;
+                         -- v_motivo:=null;
+                      --end if;
+                   -- else
+                     -- v_fecha_fin:=null;
+                     -- v_motivo:=null;
+                   -- end if;
 
                     if (v_registros_det.codigo='HABBAS') then
                       v_sueldo:=v_registros_det.valor;
