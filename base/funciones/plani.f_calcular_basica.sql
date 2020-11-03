@@ -58,6 +58,7 @@ AS $BODY$
  #136			  09.06.2020		MZM KPLIAN			Ajuste para calculo de contrato1 para personal odt planilla de prevision de prima			
  #145			  30.06.2020		MZM KPLIAN			Columnas basicas para planilla de prevision de prima SIMPLE
  #151			  14.07.2020		MZM KPLIAN			Control de 90 dias en SPREDIAS1
+ #ETR-1527		  28.10.2020		MZM KPLIAN			basica para SIETE_RG_ANT
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -3449,6 +3450,42 @@ v_cons    varchar;
            
         
         end if;
+    ELSIF (p_codigo = 'SIETE_RG_ANT') THEN --#ETR-1527
+
+      --v_id_periodo_anterior = param.f_get_id_periodo_anterior(v_planilla.id_periodo);
+
+      select   (case when  per.id_periodo is not null then
+                           per.fecha_fin
+                      else
+                         p.fecha_planilla
+                       end
+                ) as fecha_plani,
+               cv.valor
+        into
+             v_fecha_plani,
+             v_resultado
+      from plani.tplanilla p
+        inner join plani.tfuncionario_planilla fp on p.id_planilla = fp.id_planilla and fp.id_funcionario = v_planilla.id_funcionario
+        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'SALDORGSIGPER'
+        left join param.tperiodo per on per.id_periodo = p.id_periodo
+      where
+          (
+             (
+                   tp.codigo = 'PLASUE'
+               and p.id_periodo is not NULL
+               and per.fecha_fin < coalesce(v_planilla.fecha_planilla,p_fecha_fin)
+             )
+             or
+             (
+                  tp.codigo = 'PLAREISU'
+               and p.id_periodo is null
+               and p.fecha_planilla < coalesce(v_planilla.fecha_planilla,p_fecha_fin)
+             )
+          )
+
+      order by fecha_plani desc limit 1;
+        
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;
     END IF;
