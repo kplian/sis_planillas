@@ -1,13 +1,18 @@
---------------- SQL ---------------
+-- FUNCTION: plani.ft_planilla_ime(integer, integer, character varying, character varying)
 
-CREATE OR REPLACE FUNCTION plani.ft_planilla_ime (
-  p_administrador integer,
-  p_id_usuario integer,
-  p_tabla varchar,
-  p_transaccion varchar
-)
-RETURNS varchar AS
-$body$
+-- DROP FUNCTION plani.ft_planilla_ime(integer, integer, character varying, character varying);
+
+CREATE OR REPLACE FUNCTION plani.ft_planilla_ime(
+	p_administrador integer,
+	p_id_usuario integer,
+	p_tabla character varying,
+	p_transaccion character varying)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
 /**************************************************************************
  SISTEMA:        Sistema de Planillas
  FUNCION:         plani.ft_planilla_ime
@@ -828,13 +833,10 @@ BEGIN
 
             va_funcionarios = string_to_array(v_parametros.fallas,'|')::INTEGER[];
 
-            UPDATE plani.tfuncionario_planilla SET
+           UPDATE plani.tfuncionario_planilla SET
                 sw_boleta = 'si'
-            FROM plani.tfuncionario_planilla fp
-            JOIN plani.tplanilla p ON p.id_planilla = fp.id_planilla
-            WHERE p.id_planilla = v_parametros.id_planilla
-            AND fp.id_funcionario!=ALL(va_funcionarios); --si tuvimos fallar modificamos os funcioarios correpondientes al fallo
-
+            	WHERE id_planilla = v_parametros.id_planilla
+                and id_funcionario != ALL (va_funcionarios);
 
 
 
@@ -863,10 +865,7 @@ EXCEPTION
         raise exception '%',v_resp;
 
 END;
-$body$
-LANGUAGE 'plpgsql'
-VOLATILE
-CALLED ON NULL INPUT
-SECURITY INVOKER
-PARALLEL UNSAFE
-COST 100;
+$BODY$;
+
+ALTER FUNCTION plani.ft_planilla_ime(integer, integer, character varying, character varying)
+    OWNER TO postgres;
