@@ -283,7 +283,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		$sum_subtotal = array();
 		$sum_total = array();
 		$this->numeracion = 1;
-		$empleados_gerencia = 1;
+		$empleados_gerencia = 0;
 		$array_show = $this->iniciarArrayShow($this->datos_detalle[0]);		
 		
 		for ($i = 0; $i < $this->cantidad_columnas_repo; $i++) {  //#80
@@ -476,7 +476,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				$sum_subtotal[$i] = 0;
 			}
 			$this->ln(10);
-			$empleados_gerencia=$empleados_gerencia-1;
+			//$empleados_gerencia=$empleados_gerencia-1;
 			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 			$this->ln(10);
 		
