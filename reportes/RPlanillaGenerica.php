@@ -364,7 +364,7 @@ class RPlanillaGenerica extends  ReportePDF {
 							//generar subtotales
 							$this->SetFont('','B',8); 
 							
-							if ($this->ancho_sin_totales>5){
+							if ($this->ancho_sin_totales>5){ $this->SetFont('','B',10);
 								$this->Cell($this->ancho_sin_totales,3,'TOTAL ' . $this->gerencia . ' : ','RBT',0,'R');
 							}else{
 								if ($this->ancho_sin_totales!=0){
@@ -475,7 +475,7 @@ class RPlanillaGenerica extends  ReportePDF {
 				//reiniciar subtotales
 				$sum_subtotal[$i] = 0;
 			}
-			$this->ln(10);
+			$this->ln(10); $this->SetFont('','B',10);
 			//$empleados_gerencia=$empleados_gerencia-1;
 			$this->Cell($this->ancho_sin_totales*2,3,'SUBTOTAL EMPLEADOS '.$this->gerencia . ' : ' .$empleados_gerencia,'',0,'L');
 			$this->ln(10);
@@ -485,7 +485,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		//planilla
 		//#70
-		if($this->ancho_sin_totales > 5){
+		if($this->ancho_sin_totales > 5){ $this->SetFont('','B',10);
 			$this->Cell($this->ancho_sin_totales,3,'TOTAL PLANILLA : ','RBT',0,'R');
 		}else{
 			if ($this->ancho_sin_totales!=0){
@@ -504,7 +504,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		
 		$this->ln(2);
 		$this->numeracion=$this->numeracion-1;
-		if(count($this->datos_detalle)>0){
+		if(count($this->datos_detalle)>0){ $this->SetFont('','B',10);
 			$this->Cell($this->ancho_sin_totales*2,3,'TOTAL EMPLEADOS PLANILLA: '.(($this->numeracion)),'',0,'L');
 		}
 	}
