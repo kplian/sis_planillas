@@ -16,6 +16,7 @@
   #60   ETR     10/09/2019        MMV              	  Histórico código de empleado
   #89	ETR		04.12.2019		  MZM				  Habilitacion de catalogo profesiones en funcionario
  *#ETR-1595		04.11.2020		  MZM				  Omision de herencia por arrastre de filtros en vista funcionario_planilla, que generaba errores en listado
+ *#ETR-1672		11.11.2020		  MZM				  Correccion de campo codigo_profesion en comboBox y adicion en listado
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -443,7 +444,7 @@ Phx.vista.FuncionarioPla=function(config){//#ETR-1595
 			},
 			{//#89
                 config : {
-                    name:'profesion',
+                    name:'codigo_profesion',
                     qtip:'Profesion',
                     fieldLabel : 'Profesion:',
                     resizable:true,
@@ -785,6 +786,7 @@ Ext.extend(Phx.vista.FuncionarioPla,Phx.gridInterfaz,{
 	{name:'id_biometrico', type: 'numeric'},
 	'profesion','codigo_rciva',
 	{name:'fecha_quinquenio', type: 'date', dateFormat:'Y-m-d'},
+	'codigo_profesion'
 	],
 	sortInfo:{
 		field: 'PERSON.nombre_completo1',
