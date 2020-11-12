@@ -140,7 +140,7 @@ class RPlanillaHorasTrab extends  ReportePDF {
 						$this->Cell(20,5,$ts5,'LTBR',0,'R');
 						$this->Cell(20,5,$ts6,'LTBR',1,'R');
 						$this->Ln(2);
-						$this->Cell(100,5,'Subtotal Empleados '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
+						$this->Cell(100,5,'SUBTOTAL EMPLEADOS '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
 						$this->Ln(7);
 						$ts1=0; $ts2=0; $ts3=0; $ts4=0; $ts5=0; $ts6=0; 
 					}else{
@@ -219,7 +219,7 @@ class RPlanillaHorasTrab extends  ReportePDF {
 			$this->Cell(20,5,$ts5,'LTBR',0,'R');
 			$this->Cell(20,5,$ts6,'LTBR',1,'R');
 			$this->Ln(3);
-			$this->Cell(100,5,'Subtotal Empleados '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
+			$this->Cell(100,5,'SUBTOTAL EMPLEADOS '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
 			$this->SetFont('','B',8);
 			$this->Cell(100,5,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',1,'L');
 						
