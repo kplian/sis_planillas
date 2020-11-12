@@ -895,5 +895,41 @@ class MODFuncionarioReporte extends MODbase{
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+
+
+function listarTotalHorasTrab(){ //#ETR-1712
+		//Definicion de variables para ejecucion del procedimientp
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_HORTRATOT_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','int4');	//#83
+		//Datos del empleado
+		$this->captura('id_funcionario','integer');
+		$this->captura('codigo','text');
+		$this->captura('desc_funcionario','text');
+		$this->captura('nombre_uo_centro','varchar');	
+		$this->captura('total_comp','numeric');	
+		$this->captura('total_normal','numeric');			
+		$this->captura('total_extra','numeric');
+		$this->captura('total_nocturna','numeric');
+		$this->captura('total_extra_vac','numeric');
+		$this->captura('total_nocturna_vac','numeric');
+		$this->captura('periodo_lite','varchar');
+		$this->captura('gestion','integer');
+		//Ejecuta la instruccion
+		$this->armarConsulta(); 
+		
+		 //echo "**REP**".$this->getConsulta(); exit;
+		 
+		 
+		 
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+	}
 }
 ?>
