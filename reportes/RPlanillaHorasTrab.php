@@ -27,7 +27,13 @@ class RPlanillaHorasTrab extends  ReportePDF {
 		$this->SetFont('','B',7);
 		$this->Ln(1);
 		$this->Cell($this->ancho_hoja-20,3,'',0,0,'R');
-		$this->Cell(40,3,$this->datos_titulo['depto'],0,1,'C');
+		
+		if($this->datos_titulo['depto']==''){
+			$this->Cell(40,3,'Depto RRHH CENTRAL Cbba',0,1,'C');
+		}else{
+			$this->Cell(40,3,$this->datos_titulo['depto'],0,1,'C');
+		}
+		
 		$this->Cell($this->ancho_hoja-20,3,'',0,0,'R');
 		$this->Cell(40,3,$this->datos_titulo['uo'],0,1,'R');
 		
@@ -57,16 +63,24 @@ class RPlanillaHorasTrab extends  ReportePDF {
 			}
 		}
 		
+		if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
+			$this->Cell(0,5,'TOTAL HORAS TRABAJADAS',0,1,'C');
+		}else{//horas trabajadas en detalle
+			$this->Cell(0,5,'TOTAL HORAS TRABAJADAS POR CECO/ORDEN/PEP',0,1,'C');
+		}
 		
 		
-		$this->Cell(0,5,'TOTAL HORAS TRABAJADAS POR CECO/ORDEN/PEP',0,1,'C');
 		
 		//Al Mes De  '.$this->datos_titulo['periodo'].'-'.$this->datos_titulo['gestion']
 		
 		$this->SetFont('','B',10);
 		
+		if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
+			$this->Cell(0,5,'Correspondiente a : ' . $this->datos_detalle[0]['periodo_lite'].' '.$this->datos_detalle[0]['gestion'],0,1,'C'); //#141
+		}else{
+			$this->Cell(0,5,'Correspondiente al periodo : ' . $this->datos_detalle[0]['periodo_lite'].' de '.substr($this->datos_detalle[0]['periodo'],2,4),0,1,'C'); //#141	
+		}
 		
-		$this->Cell(0,5,'Correspondiente al periodo : ' . $this->datos_detalle[0]['periodo_lite'].' de '.substr($this->datos_detalle[0]['periodo'],2,4),0,1,'C'); //#141
 						
 		$this->Ln(10);
 		$this->SetFont('','B',8);
@@ -101,81 +115,182 @@ class RPlanillaHorasTrab extends  ReportePDF {
 		$id_funcionario = '0';
 		$sum_subtotal = array();
 		$sum_total = array();
-		$this->numeracion = 1;
-		$empleados_gerencia = 1;
+		$this->numeracion = 0;
+		$empleados_gerencia = 0;
 				
 		$ts1=0; $ts2=0; $ts3=0; $ts4=0;
 		
-		
+		$ts5=0; $ts6=0;
 		$columnas = 0;
-		
-		foreach ($this->datos_detalle as $value) {
-			if ($id_funcionario != $value['codigo_tcc']  ) {
-				
-				if ($id_funcionario!='0'){
-					//totales
+		if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
+			foreach ($this->datos_detalle as $value) {
+				if ($id_funcionario != $value['nombre_uo_centro']  ) {
 					
-					$this->SetFont('','B',8);
-					$this->SetLineWidth(0.2);
-			 	 	$this->SetDrawColor(0,0,0);
-					$this->Cell(0,0,'','B',1);
-				
-					$this->Cell(140,5,'Totales','',0,'C');
-					$this->Cell(30,5,$ts1,'',0,'C');
-					$this->Cell(30,5,$ts2,'',0,'C');
-					$this->Cell(30,5,$ts3,'',0,'C');
-					$this->Cell(30,5,$ts4,'',1,'C');
-					$ts1=0; $ts2=0; $ts3=0; $ts4=0;
 					
+					if ($id_funcionario!='0'){
+						
+						
+						$this->SetFont('','B',7.5);
+						$this->Cell(140,5,'','LTBR',0,'C');
+						$this->Cell(20,5,$ts1,'LTBR',0,'R');
+						$this->Cell(20,5,$ts2,'LTBR',0,'R');
+						$this->Cell(20,5,$ts3,'LTBR',0,'R');
+						$this->Cell(20,5,$ts4,'LTBR',0,'R');
+						$this->Cell(20,5,$ts5,'LTBR',0,'R');
+						$this->Cell(20,5,$ts6,'LTBR',1,'R');
+						$this->Ln(3);
+						$this->Cell(100,5,'Subtotal Empleados '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
+						$this->Ln(7);
+						$ts1=0; $ts2=0; $ts3=0; $ts4=0; $ts5=0; $ts6=0; 
+					}
+					
+					$this->SetFont('','B',10);
+					$this->Cell(120,5,$value['nombre_uo_centro'],'',1,'L');
+					$this->SetFont('','B',7.5);
+					$this->Cell(20,5,'Codigo','RLT',0,'C');
+					$this->Cell(120,5,'Nombre','RLT',0,'L');
+					$this->Cell(20,5,'Horas','RLT',0,'C');
+					$this->Cell(20,5,'Horas','RLT',0,'C');
+					$this->Cell(20,5,'Horas','RLT',0,'C');
+					$this->Cell(20,5,'Horas','RLT',0,'C');
+					$this->Cell(20,5,'Horas Extra','RLT',0,'C');
+					$this->Cell(20,5,'Horas Noct.','RLT',1,'C');
+					
+					$this->Cell(20,5,'','RLB',0,'C');
+					$this->Cell(120,5,'','RLB',0,'L');
+					$this->Cell(20,5,'Comp','RLB',0,'C');
+					$this->Cell(20,5,'Normales','RLB',0,'C');
+					$this->Cell(20,5,'Extra','RLB',0,'C');
+					$this->Cell(20,5,'Nocturnas','RLB',0,'C');
+					$this->Cell(20,5,'Vacacion','RLB',0,'C');
+					$this->Cell(20,5,'Vacacion','RLB',1,'C');
+					
+					
+					
+					$this->SetFont('','',7.5);
+					$this->Cell(20,5,$value['codigo'],'',0,'C');
+					$this->Cell(120,5,$value['desc_funcionario'],'',0,'L');
+					$this->Cell(20,5,$value['total_comp'],'',0,'R');
+					$this->Cell(20,5,$value['total_normal'],'',0,'R');
+					$this->Cell(20,5,$value['total_extra'],'',0,'R');
+					$this->Cell(20,5,$value['total_nocturna'],'',0,'R');
+					$this->Cell(20,5,$value['total_extra_vac'],'',0,'R');
+					$this->Cell(20,5,$value['total_nocturna_vac'],'',1,'R');
+				
+					$ts1=$ts1+$value['total_comp']; 
+					$ts2=$ts2+$value['total_normal']; 
+					$ts3=$ts3+$value['total_extra']; 
+					$ts4=$ts4+$value['total_nocturna'];
+					$ts5=$ts5+$value['total_extra_vac']; 
+					$ts6=$ts6+$value['total_nocturna_vac'];	
+				
+					$empleados_gerencia=0;
+				}else{
+					$this->Cell(20,5,$value['codigo'],'',0,'C');
+					$this->Cell(120,5,$value['desc_funcionario'],'',0,'L');
+					$this->Cell(20,5,$value['total_comp'],'',0,'R');
+					$this->Cell(20,5,$value['total_normal'],'',0,'R');
+					$this->Cell(20,5,$value['total_extra'],'',0,'R');
+					$this->Cell(20,5,$value['total_nocturna'],'',0,'R');
+					$this->Cell(20,5,$value['total_extra_vac'],'',0,'R');
+					$this->Cell(20,5,$value['total_nocturna_vac'],'',1,'R');
+					
+					$ts1=$ts1+$value['total_comp']; 
+					$ts2=$ts2+$value['total_normal']; 
+					$ts3=$ts3+$value['total_extra']; 
+					$ts4=$ts4+$value['total_nocturna'];
+					$ts5=$ts5+$value['total_extra_vac']; 
+					$ts6=$ts6+$value['total_nocturna_vac'];
 				}
-				$this->SetFont('','B',8);
-				$this->SetLineWidth(0.2);
-		 	 	$this->SetDrawColor(0,0,0);
-				$this->Cell(0,0,'','B',1);
-				$this->Cell(20,5,'Ceco/Orden/Pep','',0,'C');
-				$this->Cell(100,5,''.$value['codigo_tcc'],'',1,'C');
-				$this->Ln(2);
-				
-				$this->Cell(20,5,'Periodo','',0,'C');
-				$this->Cell(20,5,'Codigo','',0,'C');
-				$this->Cell(80,5,'Nombre Completo','',0,'C');
-				$this->Cell(20,5,'Día','',0,'C');
-				$this->Cell(30,5,'Hrs Compensación','',0,'C');
-				$this->Cell(30,5,'Hrs Normales','',0,'C');
-				$this->Cell(30,5,'Hrs Extras','',0,'C');
-				$this->Cell(30,5,'Hrs Nocturnas','',1,'C');
-				$this->SetLineWidth(0.2);
-		 	 	$this->SetDrawColor(0,0,0);
-				$this->Cell(0,0,'','B',1);
-				$this->SetFont('','',8);
-				$this->Cell(20,5,$value['periodo'],'',0,'C');
-				$this->Cell(20,5,$value['codigo'],'',0,'C');
-				$this->Cell(80,5,$value['desc_funcionario'],'',0,'L');
-				$this->Cell(20,5,$value['dia'],'',0,'C');
-				$this->Cell(30,5,$value['total_comp'],'',0,'C');
-				$this->Cell(30,5,$value['total_normal'],'',0,'C');
-				$this->Cell(30,5,$value['total_extra'],'',0,'C');
-				$this->Cell(30,5,$value['total_nocturna'],'',1,'C');
-				
-				$ts1=$ts1+$value['total_comp']; $ts2=$ts2+$value['total_normal']; $ts3=$ts3+$value['total_extra']; $ts4=$ts4+$value['total_nocturna'];
-				
-			//si no es un nuevo funcionario hacer push al arreglo con el dato recibido
-			} else{ $this->SetFont('','',8);
-				$this->Cell(20,5,$value['periodo'],'',0,'C');
-				$this->Cell(20,5,$value['codigo'],'',0,'C');
-				$this->Cell(80,5,$value['desc_funcionario'],'',0,'L');
-				$this->Cell(20,5,$value['dia'],'',0,'C');
-				$this->Cell(30,5,$value['total_comp'],'',0,'C');
-				$this->Cell(30,5,$value['total_normal'],'',0,'C');
-				$this->Cell(30,5,$value['total_extra'],'',0,'C');
-				$this->Cell(30,5,$value['total_nocturna'],'',1,'C');
-				$ts1=$ts1+$value['total_comp']; $ts2=$ts2+$value['total_normal']; $ts3=$ts3+$value['total_extra']; $ts4=$ts4+$value['total_nocturna'];
+				$id_funcionario=$value['nombre_uo_centro'];
+				$this->numeracion++;
+				$empleados_gerencia++;
 			}
+
+			$this->SetFont('','B',7.5);
+			$this->Cell(140,5,'','LTBR',0,'C');
+			$this->Cell(20,5,$ts1,'LTBR',0,'R');
+			$this->Cell(20,5,$ts2,'LTBR',0,'R');
+			$this->Cell(20,5,$ts3,'LTBR',0,'R');
+			$this->Cell(20,5,$ts4,'LTBR',0,'R');
+			$this->Cell(20,5,$ts5,'LTBR',0,'R');
+			$this->Cell(20,5,$ts6,'LTBR',1,'R');
+			$this->Ln(3);
+			$this->Cell(100,5,'Subtotal Empleados '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
+			$this->SetFont('','B',8);
+			$this->Cell(100,5,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',1,'L');
+						
+
+
+		}else{
 			
-			$id_funcionario=$value['codigo_tcc'];
-				
-	  		
-		}
+			foreach ($this->datos_detalle as $value) {
+					if ($id_funcionario != $value['codigo_tcc']  ) {
+						
+						if ($id_funcionario!='0'){
+							//totales
+							
+							$this->SetFont('','B',8);
+							$this->SetLineWidth(0.2);
+					 	 	$this->SetDrawColor(0,0,0);
+							$this->Cell(0,0,'','B',1);
+						
+							$this->Cell(140,5,'Totales','',0,'C');
+							$this->Cell(30,5,$ts1,'',0,'C');
+							$this->Cell(30,5,$ts2,'',0,'C');
+							$this->Cell(30,5,$ts3,'',0,'C');
+							$this->Cell(30,5,$ts4,'',1,'C');
+							$ts1=0; $ts2=0; $ts3=0; $ts4=0;
+							
+						}
+						$this->SetFont('','B',8);
+						$this->SetLineWidth(0.2);
+				 	 	$this->SetDrawColor(0,0,0);
+						$this->Cell(0,0,'','B',1);
+						$this->Cell(20,5,'Ceco/Orden/Pep','',0,'C');
+						$this->Cell(100,5,''.$value['codigo_tcc'],'',1,'C');
+						$this->Ln(2);
+						
+						$this->Cell(20,5,'Periodo','',0,'C');
+						$this->Cell(20,5,'Codigo','',0,'C');
+						$this->Cell(80,5,'Nombre Completo','',0,'C');
+						$this->Cell(20,5,'Día','',0,'C');
+						$this->Cell(30,5,'Hrs Compensación','',0,'C');
+						$this->Cell(30,5,'Hrs Normales','',0,'C');
+						$this->Cell(30,5,'Hrs Extras','',0,'C');
+						$this->Cell(30,5,'Hrs Nocturnas','',1,'C');
+						$this->SetLineWidth(0.2);
+				 	 	$this->SetDrawColor(0,0,0);
+						$this->Cell(0,0,'','B',1);
+						$this->SetFont('','',8);
+						$this->Cell(20,5,$value['periodo'],'',0,'C');
+						$this->Cell(20,5,$value['codigo'],'',0,'C');
+						$this->Cell(80,5,$value['desc_funcionario'],'',0,'L');
+						$this->Cell(20,5,$value['dia'],'',0,'C');
+						$this->Cell(30,5,$value['total_comp'],'',0,'C');
+						$this->Cell(30,5,$value['total_normal'],'',0,'C');
+						$this->Cell(30,5,$value['total_extra'],'',0,'C');
+						$this->Cell(30,5,$value['total_nocturna'],'',1,'C');
+						
+						$ts1=$ts1+$value['total_comp']; $ts2=$ts2+$value['total_normal']; $ts3=$ts3+$value['total_extra']; $ts4=$ts4+$value['total_nocturna'];
+						
+					//si no es un nuevo funcionario hacer push al arreglo con el dato recibido
+					} else{ $this->SetFont('','',8);
+						$this->Cell(20,5,$value['periodo'],'',0,'C');
+						$this->Cell(20,5,$value['codigo'],'',0,'C');
+						$this->Cell(80,5,$value['desc_funcionario'],'',0,'L');
+						$this->Cell(20,5,$value['dia'],'',0,'C');
+						$this->Cell(30,5,$value['total_comp'],'',0,'C');
+						$this->Cell(30,5,$value['total_normal'],'',0,'C');
+						$this->Cell(30,5,$value['total_extra'],'',0,'C');
+						$this->Cell(30,5,$value['total_nocturna'],'',1,'C');
+						$ts1=$ts1+$value['total_comp']; $ts2=$ts2+$value['total_normal']; $ts3=$ts3+$value['total_extra']; $ts4=$ts4+$value['total_nocturna'];
+					}
+					
+					$id_funcionario=$value['codigo_tcc'];
+						
+			  		
+				}
 
 					$this->SetFont('','B',8);
 					$this->SetLineWidth(0.2);
@@ -192,6 +307,10 @@ class RPlanillaHorasTrab extends  ReportePDF {
 					$this->SetLineWidth(0.2);
 			 	 	$this->SetDrawColor(0,0,0);
 					$this->Cell(0,0,'','B',1);
+
+			}
+
+					
 		
 		
 	}

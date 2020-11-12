@@ -192,45 +192,14 @@ class RPlanillaHorasTrabXls
 
        if(count($datos)>0){//#123
        
+       
                 
                 $this->docexcel->getActiveSheet()->getTabColor()->setRGB($color_pestana[$index]);
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
                 $fila=4;
                 $this->numero=1;
                 //$columna = 8;
-
-				
-				
-	                $this->docexcel->getActiveSheet()->setTitle('GrupoFamiliar');
-	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
-	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categoria
-	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
-	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
-	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
-	                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);//cargo
-	                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);//cargo
-	                $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);//cargo
-	                
-	                
-					
-	                $this->docexcel->getActiveSheet()->setCellValue('A3','Periodo');//1
-	                $this->docexcel->getActiveSheet()->setCellValue('B3','Codigo');//2
-	                $this->docexcel->getActiveSheet()->setCellValue('C3','Nombre Completo');//3
-	                $this->docexcel->getActiveSheet()->setCellValue('D3','Dia');//4
-	                $this->docexcel->getActiveSheet()->setCellValue('E3','Hrs Compesación');//5
-	                $this->docexcel->getActiveSheet()->setCellValue('F3','Hrs Normales');//6
-	                $this->docexcel->getActiveSheet()->setCellValue('G3','Hrs Extras');//6
-	                $this->docexcel->getActiveSheet()->setCellValue('H3','Hrs Nocturnas');//6
-	                
-	                
-	                $this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-					$this->docexcel->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-					$this->docexcel->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
-				
-				
-                
-             
- 				if($data_titulo[0]['fecha_backup']!=''){
+if($data_titulo[0]['fecha_backup']!=''){
 				$dr=substr($data_titulo[0]['fecha_backup'],0,2);
 				$mr=substr($data_titulo[0]['fecha_backup'],3,2);
 				$ar=substr($data_titulo[0]['fecha_backup'],6);
@@ -257,10 +226,73 @@ class RPlanillaHorasTrabXls
 					
 					
 					
-				}	  
+				}
+	   if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
+	   				$this->docexcel->getActiveSheet()->setTitle('Total Horas Trabajadas');
+	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categoria
+	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
+	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
+	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
+	                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);//cargo
+	                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);//cargo
+	                $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);//cargo
+	                
+	                
+					
+	                $this->docexcel->getActiveSheet()->setCellValue('A3','Codigo');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B3','Nombre');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('C3','Horas Compensación');//3
+	                $this->docexcel->getActiveSheet()->setCellValue('D3','Horas Normales');//4
+	                $this->docexcel->getActiveSheet()->setCellValue('E3','Horas Extras');//5
+	                $this->docexcel->getActiveSheet()->setCellValue('F3','Horas Nocturnas');//6
+	                $this->docexcel->getActiveSheet()->setCellValue('G3','Horas Extras Vac');//6
+	                $this->docexcel->getActiveSheet()->setCellValue('H3','Horas Nocturnas Vac');//6
+	                
+	                $this->docexcel->getActiveSheet()->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('D')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+	                $this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('H')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+				$tit_rep='TOTAL HORAS TRABAJADAS '.$tipcon.$fecha_backup;
+	   }else{
+	   	$this->docexcel->getActiveSheet()->setTitle('GrupoFamiliar');
+	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categoria
+	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
+	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
+	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
+	                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);//cargo
+	                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);//cargo
+	                $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);//cargo
+	                
+	                
+					
+	                $this->docexcel->getActiveSheet()->setCellValue('A3','Periodo');//1
+	                $this->docexcel->getActiveSheet()->setCellValue('B3','Codigo');//2
+	                $this->docexcel->getActiveSheet()->setCellValue('C3','Nombre Completo');//3
+	                $this->docexcel->getActiveSheet()->setCellValue('D3','Dia');//4
+	                $this->docexcel->getActiveSheet()->setCellValue('E3','Hrs Compesación');//5
+	                $this->docexcel->getActiveSheet()->setCellValue('F3','Hrs Normales');//6
+	                $this->docexcel->getActiveSheet()->setCellValue('G3','Hrs Extras');//6
+	                $this->docexcel->getActiveSheet()->setCellValue('H3','Hrs Nocturnas');//6
+	                
+	                
+	                $this->docexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+					$this->docexcel->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+				$tit_rep='TOTAL HORAS TRABAJADAS POR CECO/ORDEN/PEP '.$tipcon.$fecha_backup;
+	   }
+				
+	                
+				
+                
+             
+ 					  
 					         
 				
-				$tit_rep='TOTAL HORAS TRABAJADAS POR CECO/ORDEN/PEP '.$tipcon.$fecha_backup;
+				
 				
 				$this->docexcel->getActiveSheet()->getStyle('A1:H1')->applyFromArray($styleTitulos3);
                 $this->docexcel->getActiveSheet()->mergeCells("A1:H1"); 
@@ -274,40 +306,61 @@ class RPlanillaHorasTrabXls
 				
 				$rango=''; 
 			
+				 if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
+				 		foreach ($datos as $value){
+								
+								if ($rango!=$value['nombre_uo_centro']){
+									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":F".$fila);
+									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":F".$fila)->applyFromArray($styleTitulos2);
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila,''.$value['nombre_uo_centro']);
+															
+									$fila++;
+								
+								}
+								
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['codigo']);
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['desc_funcionario'] );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['total_comp']);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['total_normal'] );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['total_extra'] );
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['total_nocturna'] );
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['total_extra_vac'] );
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['total_nocturna_vac'] );
+								
+							    $rango=$value['nombre_uo_centro'];
+								$fila++;
+							}
+				 
+				 
+				 }else{
+				 	
 				
-				foreach ($datos as $value){
-					
-					if ($rango!=$value['codigo_tcc']){
-						$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":F".$fila);
-						$this->docexcel->getActiveSheet()->getStyle("A".$fila.":F".$fila)->applyFromArray($styleTitulos2);
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila,'Ceco/Orden/Pep: '.$value['codigo_tcc']);
-												
-						$fila++;
-					
-					}
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['periodo']);
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['codigo']);
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_funcionario'] );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['dia']);
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['total_comp'] );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['total_normal'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['total_extra'] );
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['total_nocturna'] );
-					
-				    $rango=$value['codigo_tcc'];
-					$fila++;
-				}
-					/*$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila,'TOTALES' );
-              		$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila,number_format($tot_cot,2,'.',',') );
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, number_format($tot_reserva,2,'.',','));
-					
-					//$value['tc']
-                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, number_format($tot_reserva1,2,'.',','));
-                  */
-            
+							foreach ($datos as $value){
+								
+								if ($rango!=$value['codigo_tcc']){
+									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":F".$fila);
+									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":F".$fila)->applyFromArray($styleTitulos2);
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila,'Ceco/Orden/Pep: '.$value['codigo_tcc']);
+															
+									$fila++;
+								
+								}
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila, $value['periodo']);
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila, $value['codigo']);
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila, $value['desc_funcionario'] );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila, $value['dia']);
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila, $value['total_comp'] );
+			                    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila, $value['total_normal'] );
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila, $value['total_extra'] );
+								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila, $value['total_nocturna'] );
+								
+							    $rango=$value['codigo_tcc'];
+								$fila++;
+							}
+				 }	
+			
 		}
-        //}
-       // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(28, $fila, $total_sueldo);
+      
     }
     function obtenerFechaEnLetra($fecha){
         setlocale(LC_ALL,"es_ES@euro","es_ES","esp");

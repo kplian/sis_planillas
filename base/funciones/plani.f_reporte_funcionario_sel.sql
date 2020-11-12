@@ -61,6 +61,7 @@ AS $BODY$
  #ETR-1290				12.10.2020			MZM-KPLIAN			Correccion a parametro de envio para obtencion de fecha_primer_contrato en CURVSAL
  #ETR-1379				16.10.2020			MZM-KPLIAN			Reporte de grupo familiar: genero del dependiente
  #ETR-1489				26.10.2020			MZM-KPLIAN			Reporte CURVSAL, sin condiciones en fecha_retiro/motivo_retiro, incluso que sea en el futuro mostrar como estè registrado
+ #ETR-1712				12.11.2020			MZM-KPLIAN			Reporte independiente de total horas 
  ***************************************************************************/
 
 DECLARE
@@ -3294,6 +3295,43 @@ elsif (p_transaccion='PLA_HORTRA1_SEL') THEN --#159
           	v_consulta:=v_consulta||v_parametros.filtro;
             v_consulta:=v_consulta||v_condicion;
 			v_consulta:=v_consulta||' order by cc.codigo_tcc, fun.desc_funcionario2, smtd.id_mes_trabajo_det ';
+
+
+         	return v_consulta;
+        END;
+elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
+        BEGIN
+        v_condicion:='';
+        if(v_parametros.id_tipo_contrato>0) then
+                v_condicion = ' and tc.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+        
+        	v_consulta:='select nivel.id_funcionario,  trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,nivel.desc_funcionario2, nivel.nombre_uo_centro::varchar,
+                        0::numeric as tot_comp,
+                        tot.total_normal, 
+                         tot.total_extra, 
+                         tot.total_nocturna,
+                         0::numeric as total_extra_vac,
+                         0::numeric as total_noctura_vac,
+                         pxp.f_obtener_literal_periodo(per.periodo,0)::varchar as periodo_lite
+                         ,(SELECT gestion FROM param.tgestion where id_gestion=per.id_gestion) as gestion
+                        from asis.vtotales_horas tot
+                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario=tot.id_funcionario --and tot.id_planilla=fp.id_planilla
+                        inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo=uof.id_cargo
+                        inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato
+                        inner join plani.vorden_planilla nivel on nivel.id_funcionario_planilla=fp.id_funcionario_planilla
+                        and nivel.id_tipo_contrato=tc.id_tipo_contrato and nivel.id_cargo=c.id_cargo
+                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla 
+                        inner join param.tperiodo per on per.id_periodo=plani.id_periodo
+                        inner join orga.vfuncionario fun on fun.id_funcionario=tot.id_funcionario
+                        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo=''PLASUE''
+                        where nivel.id_periodo=tot.id_periodo and ';
+
+
+          	v_consulta:=v_consulta||v_parametros.filtro;
+            v_consulta:=v_consulta||v_condicion;
+			v_consulta:=v_consulta||' order by nivel.ruta,nivel.prioridad,nivel.desc_funcionario2 ';
 
 
          	return v_consulta;
