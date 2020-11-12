@@ -105,6 +105,7 @@ class RPlanillaHorasTrab extends  ReportePDF {
 		$this->bordes= $this->datos_titulo['bordes'];
 		$this->interlineado=$this->datos_titulo['interlineado'];
 		
+		
 	}
 	function generarReporte() {
 		$this->setFontSubsetting(false);
@@ -138,10 +139,12 @@ class RPlanillaHorasTrab extends  ReportePDF {
 						$this->Cell(20,5,$ts4,'LTBR',0,'R');
 						$this->Cell(20,5,$ts5,'LTBR',0,'R');
 						$this->Cell(20,5,$ts6,'LTBR',1,'R');
-						$this->Ln(3);
+						$this->Ln(2);
 						$this->Cell(100,5,'Subtotal Empleados '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
 						$this->Ln(7);
 						$ts1=0; $ts2=0; $ts3=0; $ts4=0; $ts5=0; $ts6=0; 
+					}else{
+						$this->setX(10);
 					}
 					
 					$this->SetFont('','B',10);
