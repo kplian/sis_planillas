@@ -1474,10 +1474,10 @@ BEGIN
                             inner join orga.vfuncionario repf on repf.id_funcionario=fun.id_funcionario  --#ETR-1817
                             inner join plani.tfuncionario_planilla fp on fp.id_funcionario=repf.id_funcionario
 							inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                            inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                            inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
                             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
-                            and uofun.estado_reg!='inactivo' and uofun.tipo='oficial' --#137
+                            and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
                             inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                             inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                             inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
