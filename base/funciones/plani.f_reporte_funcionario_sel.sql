@@ -61,7 +61,8 @@ AS $BODY$
  #ETR-1290				12.10.2020			MZM-KPLIAN			Correccion a parametro de envio para obtencion de fecha_primer_contrato en CURVSAL
  #ETR-1379				16.10.2020			MZM-KPLIAN			Reporte de grupo familiar: genero del dependiente
  #ETR-1489				26.10.2020			MZM-KPLIAN			Reporte CURVSAL, sin condiciones en fecha_retiro/motivo_retiro, incluso que sea en el futuro mostrar como estè registrado
- #ETR-1712				12.11.2020			MZM-KPLIAN			Reporte independiente de total horas 
+ #ETR-1712				12.11.2020			MZM-KPLIAN			Reporte independiente de total horas
+ #ETR-1817				16.11.2020			MZM-KPLIAN			CAmbio de vista de BD a usar en listado de grupo familiar 
  ***************************************************************************/
 
 DECLARE
@@ -1470,17 +1471,16 @@ BEGIN
                             FROM segu.tpersona p
                             inner join segu.tpersona_relacion pr on pr.id_persona=p.id_persona
                             inner join orga.tfuncionario fun on fun.id_persona=p.id_persona
-                            inner join plani.vrep_funcionario repf on repf.id_funcionario=fun.id_funcionario
-                            inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_uo_funcionario=repf.id_uo_funcionario
-
-                            inner join orga.tcargo car on car.id_cargo=repf.id_cargo
-                            inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
-                            inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
-               				inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
+                            inner join orga.vfuncionario repf on repf.id_funcionario=fun.id_funcionario  --#ETR-1817
+                            inner join plani.tfuncionario_planilla fp on fp.id_funcionario=repf.id_funcionario
+							inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
                             inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
                             inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                             inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario --#98
                             and uofun.estado_reg!=''inactivo'' and uofun.tipo=''oficial'' --#137
+                            inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
+                            inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
+                            inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
                             where '||v_parametros.filtro||v_condicion||v_filtro_estado||' --#98
 
                             and pr.relacion ilike ''%hij%''
