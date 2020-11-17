@@ -10,6 +10,7 @@
  * #130		ETR			MZM		27.05.2020	Cambio en subtitulo de boleta mensual
  * #149		ETR			MZM		09.07.2020	Gestion en otra linea (titulo)
  * #169, ETR-1317		MZM		08.10.2020	Ajuste de campo para boletas anuales (prima/produccion)
+ * #ETR-1827			MZM		17.11.2020	Adecuacion de espacio por inclusion de columnas, incrementando 2 filas 
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -74,7 +75,8 @@ class RBoletaGenerica extends  ReportePDF {
 					
 					if($this->datos_detalle[$i]['id_funcionario']!=$id_fun){
 						
-						if ($this->GetY()+$x+$dimensions['bm']> $dimensions['hk']){
+						if ($this->GetY()+$x> $dimensions['hk']){ //ETR-1827
+						
 						$this->AddPage();
 						
 					   }
@@ -135,7 +137,7 @@ class RBoletaGenerica extends  ReportePDF {
 					    $detalle_col_mod=array();
 						$control_fila=0;	
 					   
-					   	$this->Ln(40);
+					   	$this->Ln(45);//ETR-1827
 					   
 						
 						$contador=1;
