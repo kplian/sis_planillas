@@ -371,7 +371,7 @@ BEGIN
                         join orga.ttipo_contrato tc on tc.id_tipo_contrato = c.id_tipo_contrato
                         inner join orga.toficina ofi on ofi.id_oficina = c.id_oficina 
                         inner join orga.vfuncionario fun on fun.id_funcionario = uofun.id_funcionario
-                        and o.tipo_pago = ''cheque'' and tob.tipo_obligacion like ''%empleado%''
+                        and o.tipo_pago = ''cheque'' and tob.tipo_obligacion like ''%pago_empleado%''
                         where ';  --#169
                         v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
                         v_consulta:=v_consulta||'
