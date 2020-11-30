@@ -7,7 +7,8 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  #158	ETR				20.08.2020			MZM-KPLIAN			Personal Retirado a una fecha especifica
-#161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
+#161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-1992				30.11.2020			MZM-KPLIAN			Modificacion a formato de campo fecha
 */
 class RPlanillaPersonal extends  ReportePDF {
 	var $datos;	
@@ -105,7 +106,12 @@ class RPlanillaPersonal extends  ReportePDF {
 							  $array_datos[$cont][1]=mb_strcut($this->datos[$i]['desc_funcionario1'],0,40, "UTF-8");//#77
 							  $array_datos[$cont][2]=mb_strcut($this->datos[$i]['cargo'],0,30, "UTF-8");//#77
 							  $array_datos[$cont][3]=mb_strcut($this->datos[$i]['centro'],0,30, "UTF-8");//#77
-							  $array_datos[$cont][4]=$this->datos[$i]['fecha'];
+							  
+							  $a=substr($this->datos[$i]['fecha'],0,4);
+							  $m=substr($this->datos[$i]['fecha'],5,2);
+							  $d=substr($this->datos[$i]['fecha'],8,2);
+							  
+							  $array_datos[$cont][4]=$d.'/'.$m.'/'.$a;
 							  $array_datos[$cont][5]= $this->datos[$i]['observaciones_finalizacion'];
 							  $array_datos[$cont][6]= $this->datos[$i]['valor'];
 							 
