@@ -4,6 +4,7 @@
  #77    ETR            14/11/2019           MZM                 Creacion
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
+ #ETR-1992				30.11.2020			MZM-KPLIAN			Modificacion a formato de campo fecha
 */
 class RPlanillaPersonalXls
 {
@@ -272,8 +273,13 @@ if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont); 
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['desc_funcionario1']); 
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$value['cargo']); 
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$value['centro']); 
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['fecha']); 
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$value['centro']);
+					
+					$a=substr($value['fecha'],0,4);
+					$m=substr($value['fecha'],5,2);
+					$d=substr($value['fecha'],8,2);
+					 
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$d.'/'.$m.'/'.$a); 
 					
 					if($this->objParam->getParametro('tipo_reporte')=='personal_ret'){
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['observaciones_finalizacion']); 
