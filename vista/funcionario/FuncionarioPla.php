@@ -423,7 +423,7 @@ Phx.vista.FuncionarioPla=function(config){//#ETR-1595
 	       				 options: ['activo','inactivo'],	
 	       		 	},
 	       		grid:true,
-	       		form:true
+	       		form:false
 	       	},
 			{
 				config:{
