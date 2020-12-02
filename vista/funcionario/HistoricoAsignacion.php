@@ -218,7 +218,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 type:'Field',
                 gwidth: 250,
                 form:false,
-                grid:true
+                grid:false
             },
             {	config:{//ETR-1999
                     labelSeparator:'',
