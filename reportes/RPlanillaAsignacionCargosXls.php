@@ -6,7 +6,8 @@
  #98	ETR				03.04.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo  
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -481,9 +482,9 @@ class RPlanillaAsignacionCargosXls
 			   }else{
 			   	if($value['nueva_unidad']!='' && $value['nueva_unidad']!=$value['unidad']){
 				   	  	$cont++; 	  
-					  	$a=substr($value['fecha_finalizacion'],0,4);
-					  	$m=substr($value['fecha_finalizacion'],5,2);
-					  	$d=substr($value['fecha_finalizacion'],8,2);
+					  	$a=substr($value['fecha_movimiento'],0,4);//ETR-1993
+					  	$m=substr($value['fecha_movimiento'],5,2);//ETR-1993
+					  	$d=substr($value['fecha_movimiento'],8,2);//ETR-1993
 				  
 				  			    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont);
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['codigo']);

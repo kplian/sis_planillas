@@ -10,7 +10,8 @@
  #98	ETR				03.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta  
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo  
 **/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -144,7 +145,7 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 		   		//movimiento_personal
 				$this->Cell(10,5,'Nro','TB',0,'C');
 				$this->Cell(15,5,'Cod.','TB',0,'C');
-				$this->Cell(18,5,'Fecha','TB',0,'C');
+				$this->Cell(18,5,'Fecha Mov.','TB',0,'C');//ETR-1993
 				$this->Cell(60,5,'Nombre Completo','TB',0,'C');
 				$this->Cell(55,5,'De','TB',0,'C');
 				$this->Cell(55,5,'A','TB',0,'C');
@@ -268,9 +269,9 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 			 	
 				if($this->datos[$i]['nueva_unidad']!='' && $this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad']){//#81
 			   	  $cont++; 	  
-				  $a=substr($this->datos[$i]['fecha_finalizacion'],0,4);
-				  $m=substr($this->datos[$i]['fecha_finalizacion'],5,2);
-				  $d=substr($this->datos[$i]['fecha_finalizacion'],8,2);
+				  $a=substr($this->datos[$i]['fecha_movimiento'],0,4);//ETR-1993
+				  $m=substr($this->datos[$i]['fecha_movimiento'],5,2);//ETR-1993
+				  $d=substr($this->datos[$i]['fecha_movimiento'],8,2);//ETR-1993
 				  if($cont ==1){
 				  	//$this->Cell(5,4,'','',0,'R');
 				  	$this->SetX($this->GetX()-5);
