@@ -216,6 +216,7 @@ header("content-type: text/javascript; charset=UTF-8");
                     name: 'oficina'
                 },
                 type:'Field',
+                gwidth: 250,
                 form:false,
                 grid:true
             },
@@ -227,6 +228,7 @@ header("content-type: text/javascript; charset=UTF-8");
                 },
                 type:'Field',
                 form:false,
+                gwidth: 250,
                 grid:true
             },
 
