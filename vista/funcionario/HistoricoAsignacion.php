@@ -11,7 +11,7 @@
 
 #0             14-02-2011          JRR KPLIAN            creacion
 #138 ETR       12.06.2020          RAC                   Agregar motivo de rescisión en las finalización de contrato
-
+#ETR-1999	   01.12.2020		   MZM-KPLIAN			 Adicion de Regional y Dependencia
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -209,6 +209,26 @@ header("content-type: text/javascript; charset=UTF-8");
                 grid: true,
                 form: true
             },
+            {	config:{//ETR-1999
+                    labelSeparator:'',
+                    fieldLabel:'Regional',
+                    inputType:'hidden',
+                    name: 'oficina'
+                },
+                type:'Field',
+                form:false,
+                grid:true
+            },
+            {	config:{//ETR-1999
+                    labelSeparator:'',
+                    fieldLabel:'Dependencia',
+                    inputType:'hidden',
+                    name: 'uo'
+                },
+                type:'Field',
+                form:false,
+                grid:true
+            },
 
             {
                 config:{
@@ -330,7 +350,7 @@ header("content-type: text/javascript; charset=UTF-8");
             'USUREG',
             'USUMOD','correspondencia',
             {name:'haber_basico', type: 'numeric'},
-            'tipo_contrato'
+            'tipo_contrato','oficina','uo'//ETR-1999
         ],
         sortInfo:{
             field: 'fecha_asignacion',
