@@ -63,6 +63,7 @@ AS $BODY$
  #ETR-1489				26.10.2020			MZM-KPLIAN			Reporte CURVSAL, sin condiciones en fecha_retiro/motivo_retiro, incluso que sea en el futuro mostrar como estè registrado
  #ETR-1712				12.11.2020			MZM-KPLIAN			Reporte independiente de total horas
  #ETR-1817				16.11.2020			MZM-KPLIAN			CAmbio de vista de BD a usar en listado de grupo familiar 
+ #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
  ***************************************************************************/
 
 DECLARE
@@ -2092,7 +2093,13 @@ BEGIN
                         inner join orga.vuo_centro uocn on uocn.id_uo=uofunn.id_uo
                         where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
                         and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
-                        ) as nueva_unidad
+                        ) as nueva_unidad,
+                        (select uofunn.fecha_asignacion
+                        from  orga.tuo_funcionario uofunn
+                        inner join orga.vuo_centro uocn on uocn.id_uo=uofunn.id_uo
+                        where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
+                        and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
+                        ) as fecha_movimiento --#ETR-1993
                         from orga.tcargo car
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                         inner join orga.tuo_funcionario uofun on uofun.id_cargo=car.id_cargo
