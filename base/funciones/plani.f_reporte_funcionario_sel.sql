@@ -64,6 +64,7 @@ AS $BODY$
  #ETR-1712				12.11.2020			MZM-KPLIAN			Reporte independiente de total horas
  #ETR-1817				16.11.2020			MZM-KPLIAN			CAmbio de vista de BD a usar en listado de grupo familiar 
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
+ #ETR-2064				04.12.2020			MZM-KPLIAN			Correccion de fecha_quinquenio, considerando la asignacion oficial
  ***************************************************************************/
 
 DECLARE
@@ -1721,7 +1722,7 @@ BEGIN
                                 inner join orga.tescala_salarial esct on esct.id_escala_salarial=tcar.id_escala_salarial_max
                                 where tcar.id_tipo_cargo=car.id_tipo_cargo),0) as basico_limite,
 
-                                pxp.f_iif(tf.fecha_quinquenio is null,(plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario)))||'''', tf.fecha_quinquenio||'''')::date as fecha_quinquenio,
+                                pxp.f_iif(tf.fecha_quinquenio is null,(plani.f_get_fecha_primer_contrato_empleado(0,tf.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=tf.id_funcionario and estado_reg!=''inactivo'' and tipo=''oficial'' )))||'''', tf.fecha_quinquenio||'''')::date as fecha_quinquenio,  --ETR-2064
                                 tf.antiguedad_anterior, plani.fecha_planilla,
                                 p.celular1,
 
