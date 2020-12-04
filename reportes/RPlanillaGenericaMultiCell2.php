@@ -12,6 +12,7 @@
 //#141	ETR		MZM-KPLIAN	18.06.2020				Ajuste a titulo de reporte
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
 //#168-ETR-1252	MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
+//#ETR-2046		MZM-KPLIAN	04.12.2020				Omision de separador de lineas para planilla de aguinaldos
 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
@@ -149,7 +150,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 			}
 			
 			$this->SetFont('','B',7);
+			
 			$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
+			
+			
+			
 			$this->Ln(1);
 			$this->SetLineWidth(0.1);
  	 		$this->SetDrawColor(0,0,0);
@@ -208,8 +213,11 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				$this->SetY($this->posY);
 				
-				$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0,$this->datos_titulo['num_columna_multilinea']);
-				
+				if($this->datos_titulo['titulo_reporte']=='PLANILLA DE AGUINALDO'){ //ETR-2046
+					$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea'],2.5, 'R',7,'no');
+				}else{
+					$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
+				}
 				
 				
 				
@@ -223,8 +231,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						}
 					
 					
+					if($this->datos_titulo['titulo_reporte']=='PLANILLA DE AGUINALDO'){//ETR-2046
+						$this->Cell(80,3,'Sub Total:','',1,'L');	
+					}else{
+						$this->Cell(0,0,'Sub Total:'.$this->tipo_ordenacion.$this->gerencia,'',1);	
+					} 
 					
-					$this->Cell(0,0,'Sub Total:'.$this->tipo_ordenacion.$this->gerencia,'',1);
 					$this->Cell(30,3,'# Empl.' . $empleados_gerencia,'',1,'L');
 					
 				$this->subtotales($detalle_col_mod,$sum_subtotal);
@@ -265,6 +277,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				}
 				$this->regional=$this->datos_detalle[$i]['regional'];
 				$this->gerencia=$this->datos_detalle[$i]['gerencia'];
+				
+				
+				
 				$empleados_gerencia=0;
 				
 				$detalle_col_mod=array();
@@ -439,7 +454,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		}
 		$this->SetFont('','',6);
 		
-		$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
+		//$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,$border=0, $this->datos_titulo['num_columna_multilinea']);
+		if($this->datos_titulo['titulo_reporte']=='PLANILLA DE AGUINALDO'){ //ETR-2046
+			$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea'],2.5, 'R',7,'no');
+		}else{
+			$this->grillaDatos($detalle_col_mod,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
+		}
 		$ultima_ger=$this->gerencia;
 		$ultima_reg=$this->regional;
 		$ultima_ord=$this->tipo_ordenacion;
@@ -455,8 +475,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->ln(2);
 						
 		
+		if($this->datos_titulo['titulo_reporte']=='PLANILLA DE AGUINALDO'){//ETR-2046
+			$this->Cell(80,3,'Sub Total:','',1,'L');	
+		}else{
+			$this->Cell(80,3,'Sub Total:' .  $ultima_ord.$ultima_ger.'','',1,'L');	
+		}
 		
-		$this->Cell(80,3,'Sub Total:' .  $ultima_ord.$ultima_ger.'','',1,'L');
 		$this->Cell(30,3,'# Empl.' . $empleados_gerencia ,'',1,'L');
 		$this->subtotales($detalle_col_mod,$sum_subtotal);
 		
@@ -487,9 +511,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->gerencia='TOTAL EMPRESA';
 		$this->SetFont('','B',8);
 		
-	 				
-		$this->AddPage();//#50
-		
+	 	if($this->datos_titulo['titulo_reporte']!='PLANILLA DE AGUINALDO'){	//ETR-2046		
+			$this->AddPage();//#50
+		}
 		//planilla
 		
 		
