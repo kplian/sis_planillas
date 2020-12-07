@@ -521,8 +521,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->SetFont('','B',7);
 		$xxx=$this->numeracion-1;
 		$this->Cell(30,3,'TOTAL EMPLEADOS PLANILLA: '.$xxx,'',1,'L');
-		
-		$this->subtotales($detalle_col_mod,$sum_total);			
+		if($this->datos_titulo['titulo_reporte']!='PLANILLA DE AGUINALDO'){	//ETR-2046
+			$this->subtotales($detalle_col_mod,$sum_total);	
+		}else{
+			$this->subtotales($detalle_col_mod,$sum_total,1);	//ETR-2046
+		}
+				
 		//#50
 		
 		
@@ -557,7 +561,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	
 	
 	
-    function subtotales($data, $data_sub){
+    function subtotales($data, $data_sub,$borde=0){
     	
     	$result=array();
 		$id_emp=$data[0];
@@ -596,8 +600,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		if ($this->GetY()+$this->alto_grupo+$dimensions['bm']> $dimensions['hk']){
 						$this->AddPage();
 		}
-
-		$this->grillaDatos($result,$alto=$this->alto_grupo,0, $this->datos_titulo['num_columna_multilinea']);
+		if($borde==0){
+			$this->grillaDatos($result,$alto=$this->alto_grupo,$borde, $this->datos_titulo['num_columna_multilinea']);	
+		}else{
+			$this->grillaDatos($result,$alto=$this->alto_grupo,'T', $this->datos_titulo['num_columna_multilinea']);//ETR-2046
+		}
+		
     }
 	
 	function Footer(){ 
