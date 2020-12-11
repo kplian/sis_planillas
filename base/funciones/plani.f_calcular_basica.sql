@@ -58,7 +58,8 @@ AS $BODY$
  #136			  09.06.2020		MZM KPLIAN			Ajuste para calculo de contrato1 para personal odt planilla de prevision de prima			
  #145			  30.06.2020		MZM KPLIAN			Columnas basicas para planilla de prevision de prima SIMPLE
  #151			  14.07.2020		MZM KPLIAN			Control de 90 dias en SPREDIAS1
- #ETR-1527		  28.10.2020		MZM KPLIAN			basica para SIETE_RG_ANT
+ #ETR-1527		  28.10.2020		MZM KPLIAN			basica para SIETE_RG_ANT y modificacion a SALDOPERIANTDEP
+ #ETR-2120		  10.12.2020		MZM KPLIAN			Modificacion a SALDOPERIANTDEP para que en los ingresos del mes, independientemente del tipo contrato, no recupere su saldo
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -722,10 +723,15 @@ v_cons    varchar;
 
     --Saldo del periodo anterior del dependiente
     ELSIF (p_codigo = 'SALDOPERIANTDEP') THEN
-
-      --v_id_periodo_anterior = param.f_get_id_periodo_anterior(v_planilla.id_periodo);
-
-      select   (case when  per.id_periodo is not null then
+		--#ETR-2120
+      v_fecha_ini:=(select plani.f_get_fecha_primer_contrato_empleado(v_planilla.id_uo_funcionario, v_planilla.id_funcionario, v_planilla.fecha_asignacion));
+     
+      if (v_fecha_ini between v_planilla.fecha_ini_periodo and v_planilla.fecha_fin_periodo) then
+         v_resultado:=0;
+      else
+        
+        
+        select   (case when  per.id_periodo is not null then
                            per.fecha_fin
                       else
                          p.fecha_planilla
@@ -735,12 +741,14 @@ v_cons    varchar;
         into
              v_fecha_plani,
              v_resultado
-      from plani.tplanilla p
+      	from plani.tplanilla p
         inner join plani.tfuncionario_planilla fp on p.id_planilla = fp.id_planilla and fp.id_funcionario = v_planilla.id_funcionario
         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
-        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'SALDODEPSIGPER'
+        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla = fp.id_funcionario_planilla and cv.codigo_columna = 'SALDOCREDFIS' --'SALDODEPSIGPER' vigente hasta 09.11.2020
+        inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
+        inner join orga.tcargo c on c.id_cargo=uof.id_cargo
         left join param.tperiodo per on per.id_periodo = p.id_periodo
-      where
+      	where
           (
              (
                    tp.codigo = 'PLASUE'
@@ -754,9 +762,9 @@ v_cons    varchar;
                and p.fecha_planilla < coalesce(v_planilla.fecha_planilla,p_fecha_fin)
              )
           )
-
-      order by fecha_plani desc limit 1;
-
+        and plani.f_get_tipo_contrato(uof.id_uo_funcionario)=( select plani.f_get_tipo_contrato(v_planilla.id_uo_funcionario))
+        order by fecha_plani desc limit 1;
+	end if;
 
    -- #2 recuperara cotizable planilla anterior
     ELSIF (p_codigo = 'COTIZABLE_ANT') THEN
