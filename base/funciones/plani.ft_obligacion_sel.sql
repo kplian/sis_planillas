@@ -41,6 +41,7 @@ AS $BODY$
  #147	ETR		  03.07.2020		MZM						Ordenacion en reporte relacion saldos para separar cheque de bancos
  #158	ETR		  19.08.2020		MZM						Modificacion SIN BANCO a CHEQUE para reporte resumen saldos (Prima)
  #169	ETR		  09.10.2020		MZM-KPLIAN				Adecuacion de restriccion de pago_empleados a %empleado% para que funcione reporte relacion_saldos en bono de prod no vigente
+ #ETR-2137		  11.12.2020		MZM-KPLIAN				Adicion de coalesce para evitar valor null en id_periodo (planilla de aguinaldos) en REPOBANCDET
 */
 
 DECLARE
@@ -406,12 +407,12 @@ BEGIN
           execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
 							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
 							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;
-                             
-          if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then
+                            
+          if (pxp.f_existe_parametro(p_tabla, 'id_periodo')) then   
           		--v_fecha_backup:=(select fecha_fin from param.tperiodo where id_periodo=v_parametros.id_periodo);
                 
-                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
-                      if(v_parametros.estado_funcionario='activo') then
+                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then 
+                      if(v_parametros.estado_funcionario='activo') then 
                           v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                          		and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
                                 or (uofun.fecha_finalizacion>'''||v_fecha_backup||'''
@@ -419,32 +420,32 @@ BEGIN
                                 )
                                 ) ';
                           
-                	  elsif (v_parametros.estado_funcionario='retirado') then
-                          v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                	  elsif (v_parametros.estado_funcionario='retirado') then  
+                            v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
                                      --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
                                       and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
                                 ';
-                      else
-                     v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
-                and 
-                 (
-                (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-        		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' 
-                --and plani.id_periodo='||v_parametros.id_periodo||'
-                )
-        		)
-                or
-                (
-                  uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
-                          -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
-                          and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
-                )
-                )';
+                      else  
+                     		v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                                    and 
+                                     (
+                                    (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                                    or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' 
+                                    --and plani.id_periodo='||v_parametros.id_periodo||'
+                                    )
+                                    )
+                                    or
+                                    (
+                                      uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
+                                              -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                                              and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                                    )
+                                    )';
                       end if;
                       
                   end if;
           end if;
-          
+          v_filtro:=coalesce(v_filtro,''); --#ETR-2137
           
           v_sum_group:='';
           v_group:='';
