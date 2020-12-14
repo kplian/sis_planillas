@@ -18,6 +18,7 @@
  #152	ETR				20.07.2020			MZM-KPLIAN			cambio de nombre de columna
  #158	ETR				19.08.2020			MZM-KPLIAN			control de tipo pago: banco/cheque
  #169	ETR				09.10.2020			MZM-KPLIAN			Control de registros del tipo banco, si no existe ninguno no dibujar subtotales
+ #ETR-2135				14.12.2020			MZM-KPLIAN			cambios en formato para planilla de aguinaldo (orientacion y pie de firmas solo con cargos )
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -49,7 +50,7 @@ class RRelacionSaldos extends  ReportePDF {
 		$this->SetY(10);
 		$fecha_rep = date("d/m/Y");
 		$ampliar=0;//#127
-		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
+		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#ETR-2135
 			$ampliar=60;
 		}
 		$this->SetFont('','B',7);
@@ -129,7 +130,7 @@ class RRelacionSaldos extends  ReportePDF {
 			
 			
 			$this->SetFont('','B',8);
-			//$this->Cell(5,5,'','',0,'C');
+			//$this->Cell(5,5,'*****************************','',0,'C');
 			if($this->detalle[0]['periodo']>0){//#84
 				if($this->tipo_pagoP!=''){
 					$this->Cell(25,5,'Forma de Pago','LBTR',0,'L');
@@ -139,10 +140,18 @@ class RRelacionSaldos extends  ReportePDF {
 				}
 				
 				
-			}else{ $this->SetFont('','B',10);
+			}else{
+				
+				if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+					$ampliar=25;//$ampliar/3*2;
+				}else{
+					$ampliar=0;
+				}
+				
+			    $this->SetFont('','B',10);
 				$this->SetX(30);
-				$this->Cell(50,5,'','T',0,'C');
-				$this->Cell(50,5,'','T',0,'C');
+				$this->Cell(50+$ampliar,5,'','T',0,'C');
+				$this->Cell(50+$ampliar,5,'','T',0,'C');
 				if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
 					$this->Cell(30,5,'Bono','T',0,'C');
 					$this->Cell(30,5,'Total por','T',0,'C');
@@ -150,11 +159,11 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(30,5,'Costo Total','T',1,'C');
 				
 				}else{
-					$this->Cell(50,5,'Total','T',1,'C');
+					$this->Cell(50+$ampliar,5,'Total','T',1,'C');
 				}
 				$this->SetX(30);
-				$this->Cell(50,5,'Distrito','B',0,'C');
-				$this->Cell(50,5,'Forma de Pago','B',0,'C');
+				$this->Cell(50+$ampliar,5,'Distrito','B',0,'C');  //
+				$this->Cell(50+$ampliar,5,'Forma de Pago','B',0,'C');  //
 				
 				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' or $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' ){ //#125 #133
 					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
@@ -164,7 +173,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(30,5,'CPS (Bs.)','B',0,'C');
 					$this->Cell(30,5,'(Bs.)','B',1,'C');
 				}else{//aguinaldo
-					$this->Cell(50,5,'(Bs)','B',1,'C'); //#152
+					$this->Cell(50+$ampliar,5,'(Bs)','B',1,'C'); //#152
 				}
 				
 				
@@ -195,7 +204,14 @@ class RRelacionSaldos extends  ReportePDF {
 		$array_datos;
 		
 		$this->SetFont('','',7);
-	
+	  
+	    if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+					$ampliar=25;//$ampliar/3*2;
+				}else{
+					$ampliar=0;
+				}
+	  
+	  
 		if($this->detalle[0]['periodo']>0){//#84
 			$this->SetMargins(10,$this->alto_header+17, 5);
 		}else{
@@ -242,12 +258,12 @@ class RRelacionSaldos extends  ReportePDF {
 								if($subtotal!=0){
 								
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-									$this->Cell(150,0.1,'','LRB',1,'L');
+									$this->Cell(150+($ampliar*3),0.1,'','LRB',1,'L');
 								}else{
 									$this->Cell(220,0.1,'','LRB',1,'L');
 								}
 								$this->SetFont('','B',8);
-								$this->Cell(105,5,'Subtotal:','',0,'R');
+								$this->Cell(105+($ampliar*3),5,'Subtotal:','',0,'R');
 								$this->SetFont('','',8);
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(50,5,number_format($subtotal,2,'.',','),'',1,'R');
@@ -262,7 +278,7 @@ class RRelacionSaldos extends  ReportePDF {
 								
 								$this->SetFont('','',8);
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-									$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
+									$this->Cell(50+$ampliar,5,number_format($total,2,'.',','),'',0,'R');
 								}else{
 									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
@@ -307,12 +323,12 @@ class RRelacionSaldos extends  ReportePDF {
 							if($ciudad!='' && $bandera_salto_cheque==0){
 								if($subtotal!=0){ 
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-									$this->Cell(150,0.1,'','LRB',1,'L');
+									$this->Cell(150+($ampliar*3),0.1,'','LRB',1,'L');
 								}else{
 									$this->Cell(220,0.1,'','LRB',1,'L');
 								}
 								$this->SetFont('','B',8);
-								$this->Cell(105,5, 'Subtotal:','',0,'R');
+								$this->Cell(105+($ampliar*3),5, 'Subtotal:','',0,'R');
 								$this->SetFont('','',8);
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 									$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
@@ -337,7 +353,7 @@ class RRelacionSaldos extends  ReportePDF {
 							
 							
 							if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-								$this->Cell(150,5,$this->datos[$i]['nombre'],'RLT',1,'L');
+								$this->Cell(150+($ampliar*3),5,$this->datos[$i]['nombre'],'RLT',1,'L');
 							}else{
 								$this->Cell(220,5,$this->datos[$i]['nombre'],'RLT',1,'L');
 							}
@@ -359,11 +375,11 @@ class RRelacionSaldos extends  ReportePDF {
 					
 						$this->SetFont('','',8);
 						$this->SetX(30);
-						$this->Cell(50,5,'','L',0,'L');	
-						$this->Cell(50,5,$this->datos[$i]['banco'],'',0,'L');	
+						$this->Cell(50+$ampliar,5,'','L',0,'L');	
+						$this->Cell(50+$ampliar,5,$this->datos[$i]['banco'],'',0,'L');	
 						
 						if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-						 	$this->Cell(50,5,number_format($this->datos[$i]['importe'],2,'.',','),'R',1,'R');//#80
+						 	$this->Cell(50+$ampliar,5,number_format($this->datos[$i]['importe'],2,'.',','),'R',1,'R');//#80
 						}else{
 							$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,'.',','),'',0,'R');//#80
 							$this->Cell(30,5,number_format($this->datos[$i]['importe'],2,'.',','),'',0,'R');//#80
@@ -388,14 +404,14 @@ class RRelacionSaldos extends  ReportePDF {
 				
 				$this->SetX(30);
 				if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-					$this->Cell(150,0.1,'','LRB',1,'L');
+					$this->Cell(150+($ampliar*3),0.1,'','LRB',1,'L');
 				}else{
 					$this->Cell(220,0.1,'','LRB',1,'L');
 				}
 				$this->SetFont('','B',8);
 				
 				
-				$this->Cell(105,5,'Subtotal:','',0,'R');
+				$this->Cell(105+($ampliar*3),5,'Subtotal:','',0,'R');
 				$this->SetFont('','',8);
 				if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 					$this->Cell(50,5,number_format($subtotal,2,'.',','),'',0,'R');
@@ -465,7 +481,7 @@ class RRelacionSaldos extends  ReportePDF {
 					$this->Cell(30,0,number_format($total_gral,2,'.',','),'',1,'R');//#80
 					
 				}else{
-					$this->Cell(105,5,'Total para '.$this->tipo_pagoP.':','',0,'R');
+					$this->Cell(105+($ampliar*3),5,'Total para '.$this->tipo_pagoP.':','',0,'R');
 					$this->SetFont('','',8);
 					if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
 						$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
