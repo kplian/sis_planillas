@@ -41,7 +41,7 @@ AS $BODY$
  #147	ETR		  03.07.2020		MZM						Ordenacion en reporte relacion saldos para separar cheque de bancos
  #158	ETR		  19.08.2020		MZM						Modificacion SIN BANCO a CHEQUE para reporte resumen saldos (Prima)
  #169	ETR		  09.10.2020		MZM-KPLIAN				Adecuacion de restriccion de pago_empleados a %empleado% para que funcione reporte relacion_saldos en bono de prod no vigente
- #ETR-2137		  11.12.2020		MZM-KPLIAN				Adicion de coalesce para evitar valor null en id_periodo (planilla de aguinaldos) en REPOBANCDET
+ #ETR-2137		  11.12.2020		MZM-KPLIAN				Adicion de coalesce para no evitar valor null en id_periodo (planilla de aguinaldos) en REPOBANCDET
 */
 
 DECLARE
@@ -449,7 +449,13 @@ BEGIN
           
           v_sum_group:='';
           v_group:='';
-          v_periodo_group:='upper( param.f_get_periodo_literal(plani.id_periodo))';
+          --#ETR-2137    
+          v_periodo_group:='(case when (plani.id_periodo is not null) then  
+		                        upper( param.f_get_periodo_literal(plani.id_periodo))
+							else
+							   (select ''Gestion ''||gestion from param.tgestion where id_gestion= plani.id_gestion)
+							end)';
+          
           v_periodo_fin:='';
           v_oficina_inner:='';
           v_oficina_dato:='ofi.nombre';
@@ -506,7 +512,7 @@ BEGIN
             v_consulta:=v_consulta||v_parametros.filtro||v_condicion||v_filtro;--#84
             v_consulta:=v_consulta||' group by  tc.nombre , '||v_oficina_orden||',
             '||v_oficina_group||' ,o.tipo_pago
-            , plani.id_periodo , ins.nombre,fun.desc_funcionario2, df.nro_cuenta, fun.codigo, fun.ci
+            , plani.id_periodo , ins.nombre,fun.desc_funcionario2, df.nro_cuenta, fun.codigo, fun.ci, plani.id_gestion --#ETR-2137
                         union all
                         select '||v_oficina_dato||' as oficina,sum(o.monto_obligacion) as monto_pagar ,
                         '||v_periodo_group||' as periodo_lite,''SIN BANCO'' as banco,
@@ -532,7 +538,7 @@ BEGIN
             tc.nombre , '||v_oficina_orden||',
             '||v_oficina_group||' ,o.tipo_pago
             , plani.id_periodo
-            , fun.desc_funcionario2, fun.codigo, fun.ci
+            , fun.desc_funcionario2, fun.codigo, fun.ci, plani.id_gestion --#ETR-2137
                         order by  6 desc, 5 desc,  9 asc,
                         1 asc,4 asc
                         , 7 asc
