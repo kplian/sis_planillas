@@ -50,6 +50,8 @@ AS $BODY$
    #125		ETR			14.05.2020			MZM-KPLIAN					Control para reporte de planilla de aguinaldo (boleta de pago)
    #165		ETR			29.09.2020			MZM-KPLIAN					Modificacion a consulta PLA_REPODETBOL_SEL
    #168		ETR			07.10.2020			MZM-KPLIAN					Adicion de centro en reporte multilinea por distrito
+   #ETR-2046			10.12.2020			MZM-KPLIAN					Adicion de control para generar planilla de aguinaldo con informacion de bancos o no (cuando existen obligaciones)
+   #ETR-2135			14.12.2020			MZM-KPLIAN					Adicion de excepcion para planilla de aguinaldo 2020
   ***************************************************************************/
 
   DECLARE
@@ -99,6 +101,9 @@ AS $BODY$
     
     --#168
     v_nombre_uo	varchar;
+    
+    --#ETR-2046
+    v_id_planilla	integer;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -1127,6 +1132,13 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
           		v_ordenar_por ='fun.codigo';
         end if;
         
+        --ETR-2046
+        execute	'select distinct plani.id_planilla
+           			from '||v_esquema||'.tplanilla plani
+					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
+                    inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+                    inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=plani.id_tipo_contrato and tcon.codigo='''||v_parametros.tipo_contrato||'''
+           			where '||v_parametros.filtro into v_id_planilla;
         
        
         if (v_agrupar_por='ninguno' ) then
@@ -1144,8 +1156,18 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 --            v_ordenar_por='nivel.ruta, nivel.prioridad,'||v_ordenar_por;
                  -- fin 28..06.2019 
         elsif(v_agrupar_por='distrito_banco') then --#71  -------------------------------------------*****
-        	v_consulta_orden:='nivel.id_oficina,(nivel.oficina ||''*''|| inst.nombre)::varchar , ';
-            v_ordenar_por ='nivel.orden_oficina,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
+           if exists (select 1 from plani.tobligacion where id_planilla=v_id_planilla) then --ETR-2046
+           
+        		v_consulta_orden:='nivel.id_oficina,(nivel.oficina ||''*''|| inst.nombre)::varchar , ';
+            	v_ordenar_por ='nivel.orden_oficina,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
+            	--cambio para planilla de aguinaldos
+           else
+           		v_consulta_orden:='nivel.id_oficina,(nivel.oficina)::varchar , ';
+            	v_ordenar_por ='nivel.orden_oficina,'||v_consulta_orden||v_ordenar_por; -- 12.09.2019  
+           end if;
+           
+            
+            
         else --gerencia (id_uo, nombre_unidad)
          	v_consulta_orden:=' nivel.id_uo, nivel.nombre_unidad,';
          	v_ordenar_por =v_consulta_orden||v_ordenar_por; -- 12.09.2019
@@ -1229,11 +1251,16 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         
 	--#71
 	if(v_agrupar_por='distrito_banco') then
-		v_consulta_externa:=v_consulta_externa ||' inner join '||v_esquema||'.tobligacion obli on obli.id_planilla=plani.id_planilla
+    
+    	if exists (select 1 from plani.tobligacion where id_planilla=v_id_planilla) then
+        	v_consulta_externa:=v_consulta_externa ||' inner join '||v_esquema||'.tobligacion obli on obli.id_planilla=plani.id_planilla
                             inner join '||v_esquema||'.tdetalle_transferencia detra on detra.id_obligacion=obli.id_obligacion
 							inner join param.tinstitucion inst on inst.id_institucion=detra.id_institucion and detra.id_funcionario=fun.id_funcionario
                             ';
-    end if;
+        --else
+    	--	v_consulta_externa:=v_consulta_externa ;
+    	end if;
+	end if;
     
     
    
@@ -1433,24 +1460,42 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
               ELSE
                      v_esquema = 'plani';
               END IF;
-               v_consulta:='select distinct car.nombre, fc.desc_funcionario1,per.abreviatura_titulo,piedet.orden  from plani.treporte repo
-                                inner join '||v_esquema||'.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
-                                inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
-                                inner join orga.tcargo car on car.id_cargo=piedet.id_cargo
-                                inner join orga.vfuncionario_cargo fc on fc.id_cargo=piedet.id_cargo
-                                inner join orga.tfuncionario fun on fun.id_funcionario=fc.id_funcionario
-		                        inner join segu.tpersona per on per.id_persona=fun.id_persona
-                                 inner join orga.tuo_funcionario uofun on uofun.id_funcionario=fun.id_funcionario
-                                
-                                and uofun.fecha_asignacion <= plani.fecha_planilla
-     and coalesce(uofun.fecha_finalizacion, plani.fecha_planilla)>=plani.fecha_planilla
-     and uofun.estado_reg = ''activo''
-     and uofun.tipo in (''oficial'',''funcional'')
-     and uofun.id_cargo = car.id_cargo
-                                
-                                where ';
-               v_consulta:=v_consulta||v_parametros.filtro;  
-               v_consulta:=v_consulta||' order by piedet.orden '  ;             
+              --#ETR-2135
+              execute ' select tp.codigo, g.gestion 
+              from plani.tplanilla plani
+              inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+              inner join param.tgestion g on g.id_gestion=plani.id_gestion where '||v_parametros.filtro || ' limit 1 ' into v_asignacion;
+              
+				if v_asignacion.codigo='PLAGUIN' and v_asignacion.gestion=2020 then
+                		v_consulta:='select distinct car.nombre, ''''::text as desc_funcionario1,''''::varchar as abreviatura_titulo,piedet.orden  from plani.treporte repo
+                                        inner join plani.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
+                                        inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
+                                        inner join orga.tcargo car on car.id_cargo=piedet.id_cargo
+                                        where ';
+                       v_consulta:=v_consulta||v_parametros.filtro;  
+                       v_consulta:=v_consulta||' order by piedet.orden '  ;    
+                else
+              
+                       v_consulta:='select distinct car.nombre, fc.desc_funcionario1,per.abreviatura_titulo,piedet.orden  from plani.treporte repo
+                                        inner join '||v_esquema||'.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
+                                        inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
+                                        inner join orga.tcargo car on car.id_cargo=piedet.id_cargo
+                                        inner join orga.vfuncionario_cargo fc on fc.id_cargo=piedet.id_cargo
+                                        inner join orga.tfuncionario fun on fun.id_funcionario=fc.id_funcionario
+                                        inner join segu.tpersona per on per.id_persona=fun.id_persona
+                                         inner join orga.tuo_funcionario uofun on uofun.id_funcionario=fun.id_funcionario
+                                        
+                                        and uofun.fecha_asignacion <= plani.fecha_planilla
+                                        and coalesce(uofun.fecha_finalizacion, plani.fecha_planilla)>=plani.fecha_planilla
+                                        and uofun.estado_reg = ''activo''
+                                        and uofun.tipo in (''oficial'',''funcional'')
+                                        and uofun.id_cargo = car.id_cargo
+                                        
+                                        where ';
+                       v_consulta:=v_consulta||v_parametros.filtro;  
+                       v_consulta:=v_consulta||' order by piedet.orden '  ;      
+     			end if;       
                return v_consulta;                
           end;    
     else
