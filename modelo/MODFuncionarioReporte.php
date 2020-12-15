@@ -250,6 +250,7 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('tipo_reporte','tipo_reporte','varchar');	
 		$this->setParametro('id_periodo','id_periodo','integer');	//#77
 		$this->setParametro('esquema','esquema','varchar');	//#83
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');	//15.12.2020
 		//Datos del empleado
 		$this->captura('id_funcionario','integer');
 		$this->captura('apellido_paterno','varchar');

@@ -1266,6 +1266,14 @@ BEGIN
 
             )on commit drop;
 
+			v_condicion:=' and 0=0 ';
+          
+			 if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then
+            if(v_parametros.id_tipo_contrato>0) then
+              v_condicion = ' and p.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+            end if;
+          end if;
+
 			v_cons:=' select distinct fp.id_funcionario, plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario, f.fecha_asignacion) as fecha_ingreso ,
                      (select fecha_finalizacion from orga.tuo_funcionario uoff
 									 inner join orga.tcargo cc on cc.id_cargo=uoff.id_cargo
@@ -1280,7 +1288,7 @@ BEGIN
                       inner join '||v_esquema||'.tplanilla p on p.id_planilla=fp.id_planilla
                       inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
                       and f.id_uo_funcionario=fp.id_uo_funcionario
-                      where p.id_periodo='||v_id_periodo||' and f.codigo_tipo_contrato=''PLA'' ';
+                      where p.id_periodo='||v_id_periodo|| '' ||v_condicion ;
 
             for v_registros in execute(
                  v_cons
