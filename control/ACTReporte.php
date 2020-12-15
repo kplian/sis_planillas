@@ -31,6 +31,7 @@
  * #159	ETR		  MZM-KPLIAN	 25.08.2020					Reporte horas trabajadas
  * #164	ETR		  MZM-KPLIAN	 28.09.2020					Adicion de condicion de estado y envio_boletas para reporte de boleta_personal
  * #ETR-1712	  MZM-KPLIAN	 12.11.2020					Independizacion de reporte total horas trabajadas
+ * #ETR-2135	  MZM-KPLIAN	 11.12.2020					orientacion de resumen relacion saldos en planilla de aguinaldo
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -1188,7 +1189,7 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
         $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
 
 		//#127
-		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){//#127
+		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#127 #ETR-2135
             $this->objParam->addParametro('orientacion','L');}
         else{
             $this->objParam->addParametro('orientacion','P');
