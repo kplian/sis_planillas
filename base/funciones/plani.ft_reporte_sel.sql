@@ -1467,7 +1467,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
               inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
               inner join param.tgestion g on g.id_gestion=plani.id_gestion where '||v_parametros.filtro || ' limit 1 ' into v_asignacion;
               
-				if v_asignacion.codigo='PLAGUIN' and v_asignacion.gestion=2020 then
+			/*	if v_asignacion.codigo='PLAGUIN' and v_asignacion.gestion=2020 then
                 		v_consulta:='select distinct car.nombre, ''''::text as desc_funcionario1,''''::varchar as abreviatura_titulo,piedet.orden  from plani.treporte repo
                                         inner join plani.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
                                         inner join param.tpie_firma_det piedet on piedet.id_pie_firma=repo.id_pie_firma
@@ -1475,7 +1475,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                                         where ';
                        v_consulta:=v_consulta||v_parametros.filtro;  
                        v_consulta:=v_consulta||' order by piedet.orden '  ;    
-                else
+                else*/
               
                        v_consulta:='select distinct car.nombre, fc.desc_funcionario1,per.abreviatura_titulo,piedet.orden  from plani.treporte repo
                                         inner join '||v_esquema||'.tplanilla plani on plani.id_tipo_planilla=repo.id_tipo_planilla
@@ -1495,7 +1495,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                                         where ';
                        v_consulta:=v_consulta||v_parametros.filtro;  
                        v_consulta:=v_consulta||' order by piedet.orden '  ;      
-     			end if;       
+     			--end if;       
                return v_consulta;                
           end;    
     else
