@@ -1,6 +1,7 @@
 <?php
 // Extend the TCPDF class to create custom MultiRow
 //159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
+//#ETR-2359				30.12.2020			MZM-KPLIAN			Adicion de totales a reporte Total horas trabajadas
 
 class RPlanillaHorasTrab extends  ReportePDF { 
 	var $datos_titulo;
@@ -120,8 +121,13 @@ class RPlanillaHorasTrab extends  ReportePDF {
 		$empleados_gerencia = 0;
 				
 		$ts1=0; $ts2=0; $ts3=0; $ts4=0;
-		
 		$ts5=0; $ts6=0;
+		
+		
+		//#ETR-2359
+		$tt1=0; $tt2=0; $tt3=0; $tt4=0;
+		$tt5=0; $tt6=0;
+		
 		$columnas = 0;
 		if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
 			foreach ($this->datos_detalle as $value) {
@@ -186,6 +192,10 @@ class RPlanillaHorasTrab extends  ReportePDF {
 					$ts4=$ts4+$value['total_nocturna'];
 					$ts5=$ts5+$value['total_extra_vac']; 
 					$ts6=$ts6+$value['total_nocturna_vac'];	
+					
+					$tt1=$tt1+$value['total_comp']; $tt2=$tt2+$value['total_normal']; $tt3=$tt3+$value['total_extra']; $tt4=$tt4+$value['total_nocturna']; $tt5=$tt5+$value['total_extra_vac']; $tt6=$tt6+$value['total_nocturna_vac'];//#ETR-2359
+					
+					
 				
 					$empleados_gerencia=0;
 				}else{
@@ -204,6 +214,7 @@ class RPlanillaHorasTrab extends  ReportePDF {
 					$ts4=$ts4+$value['total_nocturna'];
 					$ts5=$ts5+$value['total_extra_vac']; 
 					$ts6=$ts6+$value['total_nocturna_vac'];
+					$tt1=$tt1+$value['total_comp']; $tt2=$tt2+$value['total_normal']; $tt3=$tt3+$value['total_extra']; $tt4=$tt4+$value['total_nocturna']; $tt5=$tt5+$value['total_extra_vac']; $tt6=$tt6+$value['total_nocturna_vac'];//#ETR-2359
 				}
 				$id_funcionario=$value['nombre_uo_centro'];
 				$this->numeracion++;
@@ -221,9 +232,17 @@ class RPlanillaHorasTrab extends  ReportePDF {
 			$this->Ln(3);
 			$this->Cell(100,5,'SUBTOTAL EMPLEADOS '.$id_funcionario.' : '.$empleados_gerencia ,'',1,'L');
 			$this->SetFont('','B',8);
-			$this->Cell(100,5,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',1,'L');
-						
-
+			//#ETR-2359
+			$this->Ln(3);
+			$this->Cell(140,5,'','LTBR',0,'C');
+			$this->Cell(20,5,$tt1,'LTBR',0,'R');
+			$this->Cell(20,5,$tt2,'LTBR',0,'R');
+			$this->Cell(20,5,$tt3,'LTBR',0,'R');
+			$this->Cell(20,5,$tt4,'LTBR',0,'R');
+			$this->Cell(20,5,$tt5,'LTBR',0,'R');
+			$this->Cell(20,5,$tt6,'LTBR',1,'R');		
+			$this->Cell(100,5,'TOTAL EMPLEADOS PLANILLA: '.$this->numeracion,'',1,'L');	
+        
 
 		}else{
 			
