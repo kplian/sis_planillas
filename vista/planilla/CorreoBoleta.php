@@ -7,7 +7,8 @@ HISTORIAL DE MODIFICACIONES:
 #103		endeetr		01/04/2020		Rensi Arteaga KPLIAN	crearonformulario de envio de boletas de pago
 #130					27/05/2020		MZM	KPLIAN				Modificacion de texto para envio por correo
 #139  		   ETR      10/02/2020      MZM KPLIAN  	   		Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
-*/
+#SDP-77                     04/01/2012          EGS             Modificacin texto de boleta de pago
+ */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
 <script>
@@ -22,8 +23,8 @@ Phx.vista.CorreoBoleta=Ext.extend(Phx.frmInterfaz,{
 
     loadValoresIniciales:function()
     {
-		//#130
-        var CuerpoCorreo = " Estimado Colaborador: <br/><br/>" ;
+		//#130 #SDP-77
+        var CuerpoCorreo = " Estimado Compañer@: <br/><br/>" ;
         if (this.id_periodo > 0){//#139
         	CuerpoCorreo+='En archivo adjunto encontrará su boleta de pago correspondiente al mes de '+this.text_rep_boleta.replace('de','')+'.<BR/><br/>';
         }else{
