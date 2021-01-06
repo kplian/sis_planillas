@@ -65,6 +65,8 @@ AS $BODY$
  #ETR-1817				16.11.2020			MZM-KPLIAN			CAmbio de vista de BD a usar en listado de grupo familiar 
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
  #ETR-2064				04.12.2020			MZM-KPLIAN			Correccion de fecha_quinquenio, considerando la asignacion oficial
+ #ETR-2416				04.01.2021			MZM-KPLIAN			Cambio de uso de vista vrep_funcionario, debido a que registraron datos de afp (misma), solo con cambio de vigencia (ambos activos)
+ #ETR-2457		        06.01.2021			MZM-KPLIAN			Modificacion a reporte reserva_beneficios: el funcionario a la fecha del reporte debe pertenecer al tipo de contrato del filtro y solo para esos obtener lo demas: Los q pasan de ODT a planta generan error, dado que tienen informacion de meses previos como ODT, pero ya no tienen q salir
  ***************************************************************************/
 
 DECLARE
@@ -643,6 +645,38 @@ BEGIN
                 end if;
 
 
+       --XXXX
+          if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
+             --tabla temporal para seleccionar a los funcionarios que a la fecha de consulta tienen el tipo de contrato del filtro
+             create temp  table tt_totplan(id_funcionario integer) on commit drop;
+
+                	v_cons:='SELECT fp_1.id_funcionario
+                  		FROM  '||v_esquema||'.tfuncionario_planilla fp_1 
+                       JOIN '||v_esquema||'.tplanilla plani ON plani.id_planilla =
+                        fp_1.id_planilla
+                       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                        plani.id_tipo_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                        inner join orga.tuo_funcionario uof on uof.id_cargo=fp_1.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo=uof.id_cargo 
+                  		WHERE  '||v_parametros.filtro||' and
+                        plani.id_periodo = '||v_id_periodo||' and 0=0 ';
+                        
+                        if(v_parametros.id_tipo_contrato>0) then
+                        v_cons:=v_cons || ' and c.id_tipo_contrato='|| v_parametros.id_tipo_contrato;
+                        end if;
+
+
+
+
+                    for v_registros in execute(v_cons) loop
+                        insert into tt_totplan values (v_registros.id_funcionario);
+                    end loop;
+             
+             v_condicion=v_condicion ||' and fp.id_funcionario in (select id_funcionario from tt_totplan)';
+          
+       	  end if;
+
        /* if(v_parametros.tipo_reporte='reserva_beneficios2') then
            create temp table tt_reserva2(
               id_funcionario integer,
@@ -900,7 +934,7 @@ BEGIN
            v_condicion:=' and 0=0';
             if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then
           		if(v_parametros.id_tipo_contrato>0) then
-        			v_condicion := ' and rep.codigo_tipo_contrato=(select codigo from orga.ttipo_contrato where id_tipo_contrato='||v_parametros.id_tipo_contrato||') ';
+        			v_condicion := ' and tt.id_tipo_contrato='||v_parametros.id_tipo_contrato;
 
           		end if;
         	end if;
@@ -965,6 +999,11 @@ BEGIN
               nvar2	numeric,
               nvar3	numeric,
               fecha_finalizacion date
+              --ETR-2416
+              ,nro_afp varchar,
+              id_afp integer,
+              nombre_afp	varchar,
+              id_tipo_contrato	integer
 
             )on commit drop;
 			v_cons:=v_sum_group||'select fp.id_funcionario,
@@ -997,6 +1036,8 @@ BEGIN
                   (select cvv.valor from '||v_esquema||'.tcolumna_valor cvv where cvv.codigo_columna=''AFP_VAR3''
                   and cvv.id_funcionario_planilla=fp.id_funcionario_planilla
                   ) as var3 --#45
+                  ,tc.id_tipo_contrato
+                  
                   from '||v_esquema||'.tfuncionario_planilla fp
                   inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
                   --inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
@@ -1018,11 +1059,12 @@ BEGIN
       			v_antiguedad:=((v_registros.valor/v_registros.hordia)-v_registros.incap);
 
                   --#72
-				select tipo_jubilado into v_tipo_jub
-                  from plani.tfuncionario_afp
-                  where id_funcionario=v_registros.id_funcionario
-                  and estado_reg='activo'
-                  and v_fecha between fecha_ini and coalesce(fecha_fin,v_fecha) order by fecha_fin desc ;
+				select fa.tipo_jubilado, fa.nro_afp, fa.id_afp, afp.nombre as nombre_afp
+                  into v_registros_det  --ETR-2416
+                  from plani.tfuncionario_afp fa inner join plani.tafp afp on afp.id_afp=fa.id_afp
+                  where fa.id_funcionario=v_registros.id_funcionario
+                  and fa.estado_reg='activo'
+                  and v_fecha between fa.fecha_ini and coalesce(fa.fecha_fin,v_fecha) order by fa.fecha_fin desc ;
                   --#77
                   /*if(v_tipo_jub is NULL) then
                   select tipo_jubilado into v_tipo_jub
@@ -1033,7 +1075,7 @@ BEGIN
                   end if;*/
 
               		insert into tt_func
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_tipo_jub, 0, 0, 0, 0 ,v_registros.fecha_finalizacion );
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_registros_det.tipo_jubilado, 0, 0, 0, 0 ,v_registros.fecha_finalizacion, v_registros_det.nro_afp, v_registros_det.id_afp, v_registros_det.nombre_afp, v_registros.id_tipo_contrato ); --ETR-2416
 
           			--#84: si la planilla para la cual se consulta no es sueldo == añadir mas columnas porq es de reintegro (7 columnas)
                    if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
@@ -1089,11 +1131,12 @@ BEGIN
            			end if;
            end if;
         	v_consulta:='select distinct fp.id_funcionario,per.apellido_paterno, per.apellido_materno,split_part(per.nombre,'' '',1)::varchar as primer_nombre,
-						(split_part(per.nombre,'' '',2)||'' ''||split_part(per.nombre,'' '',3))::varchar as segundo_nombre,rep.ci,
-                         ''CI''::varchar as ci, rep.expedicion,
-                         sum(cv.valor), tcol.codigo,  rep.edad::integer, rep.nro_afp, tt.tipo_jub  ,
+						(split_part(per.nombre,'' '',2)||'' ''||split_part(per.nombre,'' '',3))::varchar as segundo_nombre,per.ci,
+                         ''CI''::varchar as ci, per.expedicion,
+                         sum(cv.valor), tcol.codigo,   date_part(''year''::text, age(per.fecha_nacimiento::timestamp with time zone))::integer, 
+                         tt.nro_afp, tt.tipo_jub  ,
                          (select nombre from param.tlugar where id_lugar =(select param.f_get_id_lugar_tipo(fp.id_lugar,''departamento'')))::varchar as departamento,
-                         rep.desc_funcionario2
+                         ffun.desc_funcionario2
                          ,
 						(case when
                             tt.fecha_ingreso between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''  then
@@ -1106,7 +1149,7 @@ BEGIN
                          else
                            null::date
                            end
-                         ) as fecha_finalizacion, rep.nombre_afp, rep.id_afp,
+                         ) as fecha_finalizacion,  tt.nombre_afp, tt.id_afp, --ETR-2416
                          param.f_get_periodo_literal('||v_parametros.id_periodo||') as periodo,
 
    						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
@@ -1115,19 +1158,20 @@ BEGIN
                          inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
                          inner join orga.tfuncionario fun on fun.id_funcionario=fp.id_funcionario
                          inner join segu.tpersona per on per.id_persona=fun.id_persona
-                         inner join plani.vrep_funcionario rep on rep.id_funcionario=fp.id_funcionario and fp.id_uo_funcionario=rep.id_uo_funcionario
+                         --inner join plani.vrep_funcionario rep on rep.id_funcionario=fp.id_funcionario and fp.id_uo_funcionario=rep.id_uo_funcionario
+                         inner join orga.vfuncionario ffun on ffun.id_funcionario=fp.id_funcionario
                          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo in (''PLASUE'')
-                         inner join tt_func tt on tt.id_funcionario=fp.id_funcionario and tt.tipo_jub =rep.tipo_jubilado
+                         inner join tt_func tt on tt.id_funcionario=fp.id_funcionario --and tt.tipo_jub =rep.tipo_jubilado
                          inner join plani.ttipo_columna tcol on tcol.id_tipo_planilla=tp.id_tipo_planilla
                          inner join '||v_esquema||'.tcolumna_valor cv on cv.id_tipo_columna=tcol.id_tipo_columna and fp.id_funcionario_planilla=cv.id_funcionario_planilla
                          inner join param.tlugar lug on lug.id_lugar=fp.id_lugar
                         -- inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                          where '||v_parametros.filtro||' and tcol.codigo in (''COTIZABLE'')
-                         and rep.id_afp='||v_parametros.id_afp||v_condicion||v_filtro||'
+                         and tt.id_afp='||v_parametros.id_afp||v_condicion||v_filtro||'
 
                          group by fp.id_funcionario,per.apellido_paterno, per.apellido_materno,per.nombre,
-                         rep.ci, rep.expedicion,tcol.codigo,  rep.edad,nro_afp, tt.tipo_jub,rep.desc_funcionario2, tt.fecha_ingreso,  tt.fecha_finalizacion,
-                         rep.nombre_afp, rep.id_afp, fp.id_lugar,
+                         per.ci, per.expedicion,tcol.codigo,  date_part(''year''::text, age(per.fecha_nacimiento::timestamp with time zone)), nro_afp, tt.tipo_jub,ffun.desc_funcionario2, tt.fecha_ingreso,  tt.fecha_finalizacion,
+                         tt.nombre_afp, tt.id_afp, fp.id_lugar,
 
    						 tt.dias, tt.dias_incap, tt.var1, tt.var2, tt.var3 --#45
 						 , tt.ncotiz, tt.nvar1, tt.nvar2, tt.nvar3';
@@ -1136,7 +1180,7 @@ BEGIN
                         v_consulta:=v_consulta||' having  sum(cv.valor)>13000';
             	   end if;
 
-					v_consulta:=v_consulta|| ' order by  rep.desc_funcionario2';
+					v_consulta:=v_consulta|| ' order by  ffun.desc_funcionario2';
 
                          raise notice '**%',v_consulta;
 
