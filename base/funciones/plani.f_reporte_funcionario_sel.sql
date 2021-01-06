@@ -650,15 +650,13 @@ BEGIN
              --tabla temporal para seleccionar a los funcionarios que a la fecha de consulta tienen el tipo de contrato del filtro
              create temp  table tt_totplan(id_funcionario integer) on commit drop;
 
-                	v_cons:='SELECT fp_1.id_funcionario
-                  		FROM  '||v_esquema||'.tfuncionario_planilla fp_1 
-                       JOIN '||v_esquema||'.tplanilla plani ON plani.id_planilla =
-                        fp_1.id_planilla
-                       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
-                        plani.id_tipo_planilla
+                	v_cons:='                       
+                         SELECT fp.id_funcionario FROM '||v_esquema||'.tfuncionario_planilla fp
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=fp.id_planilla
+                        inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo=uof.id_cargo
                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
-                        inner join orga.tuo_funcionario uof on uof.id_cargo=fp_1.id_uo_funcionario
-                        inner join orga.tcargo c on c.id_cargo=uof.id_cargo 
+                        
                   		WHERE  '||v_parametros.filtro||' and
                         plani.id_periodo = '||v_id_periodo||' and 0=0 ';
                         
