@@ -66,6 +66,7 @@ AS $BODY$
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
  #ETR-2064				04.12.2020			MZM-KPLIAN			Correccion de fecha_quinquenio, considerando la asignacion oficial
  #ETR-2416				04.01.2021			MZM-KPLIAN			Cambio de uso de vista vrep_funcionario, debido a que registraron datos de afp (misma), solo con cambio de vigencia (ambos activos)
+ #ETR-2457		        06.01.2021			MZM-KPLIAN			Modificacion a reporte reserva_beneficios: el funcionario a la fecha del reporte debe pertenecer al tipo de contrato del filtro y solo para esos obtener lo demas: Los q pasan de ODT a planta generan error, dado que tienen informacion de meses previos como ODT, pero ya no tienen q salir
  ***************************************************************************/
 
 DECLARE
@@ -643,6 +644,38 @@ BEGIN
                     v_condicion =v_condicion ||' and '|| v_parametros.filtro;
                 end if;
 
+
+       --XXXX
+          if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
+             --tabla temporal para seleccionar a los funcionarios que a la fecha de consulta tienen el tipo de contrato del filtro
+             create temp  table tt_totplan(id_funcionario integer) on commit drop;
+
+                	v_cons:='SELECT fp_1.id_funcionario
+                  		FROM  '||v_esquema||'.tfuncionario_planilla fp_1 
+                       JOIN '||v_esquema||'.tplanilla plani ON plani.id_planilla =
+                        fp_1.id_planilla
+                       JOIN plani.ttipo_planilla tp ON tp.id_tipo_planilla =
+                        plani.id_tipo_planilla
+                        inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                        inner join orga.tuo_funcionario uof on uof.id_cargo=fp_1.id_uo_funcionario
+                        inner join orga.tcargo c on c.id_cargo=uof.id_cargo 
+                  		WHERE  '||v_parametros.filtro||' and
+                        plani.id_periodo = '||v_id_periodo||' and 0=0 ';
+                        
+                        if(v_parametros.id_tipo_contrato>0) then
+                        v_cons:=v_cons || ' and c.id_tipo_contrato='|| v_parametros.id_tipo_contrato;
+                        end if;
+
+
+
+
+                    for v_registros in execute(v_cons) loop
+                        insert into tt_totplan values (v_registros.id_funcionario);
+                    end loop;
+             
+             v_condicion=v_condicion ||' and fp.id_funcionario in (select id_funcionario from tt_totplan)';
+          
+       	  end if;
 
        /* if(v_parametros.tipo_reporte='reserva_beneficios2') then
            create temp table tt_reserva2(
