@@ -3243,12 +3243,12 @@ v_cons    varchar;
                             --no es vigente == preguntar si tiene un contrato q inicie en 2019 == nos quedamos con el valor, sino es 0
                             if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_planilla.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
-                            ) then
-                                v_aux:=0;
+                            ) then 
+                                v_aux:=v_aux+0;
                             else
-                                
+                               
                                v_aux:= v_aux + (plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
-								
+
                             end if;
                     else
                        v_aux:=0;
@@ -3256,9 +3256,9 @@ v_cons    varchar;
                       
              end loop;
 			
-            if (v_aux<90) then
-                 v_aux:=0;
-            end if;		
+           -- if (v_aux<90 and plani.f_get_fecha_primer_contrato_empleado(v_planilla.id_uo_funcionario, v_planilla.id_funcionario, v_fecha_ini);) then
+            --     v_aux:=0;
+         --   end if;		
 
             v_resultado:=v_aux;
                          	
