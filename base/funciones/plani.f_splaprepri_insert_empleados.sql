@@ -1,6 +1,6 @@
--- FUNCTION: plani.f_plaprepri_insert_empleados(integer)
+-- FUNCTION: plani.f_splaprepri_insert_empleados(integer)
 
--- DROP FUNCTION plani.f_plaprepri_insert_empleados(integer);
+-- DROP FUNCTION plani.f_splaprepri_insert_empleados(integer);
 
 CREATE OR REPLACE FUNCTION plani.f_splaprepri_insert_empleados(
 	p_id_planilla integer)
@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION plani.f_splaprepri_insert_empleados(
     COST 100
     VOLATILE 
 AS $BODY$
- /**************************************************************************
+/**************************************************************************
    PLANI
   ***************************************************************************
    SCRIPT:
@@ -25,7 +25,7 @@ AS $BODY$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #145             02-07-2020       Mzambrana-KPLIAN         funcion de insercion de funcionarios para planilla de primas Simple
- 
+ #ETR-2467		  08.01.2020		MZM-KPLIAN				Adicion de condicion para considerar funcionarios con licencia (Caso Wilder Ureña)
  ********************************************************************************/
 DECLARE
   v_registros            record;
@@ -49,7 +49,8 @@ DECLARE
   
   v_fecha_ini_gestion	date;
   v_fecha_fin_gestion	date;
-  
+  --#ETR-2467
+  v_motivo				varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.f_splaprepri_insert_empleados';
@@ -140,9 +141,14 @@ BEGIN
     raise notice 'llega--> %',v_main_query;               
     for v_registros in execute(v_main_query)loop
                 
-   
-              
-              if (v_registros.dias_efectivos >= 90 ) then
+   			  --#ETR-2467
+              --obtener el motivo finalizacion previa a su incorporacion del funcionario, en caso de ser licencia, entonces si le corresponde aunq no tenga 90 dias
+              v_motivo:=(select observaciones_finalizacion from orga.tuo_funcionario 
+              where id_funcionario=v_registros.id_funcionario and id_uo_funcionario<v_registros.id_uo_funcionario
+              and estado_reg='activo' and tipo='oficial'
+              order by fecha_finalizacion desc limit 1);
+                           
+              if (v_registros.dias_efectivos >= 90 or (v_registros.dias_efectivos < 90 and v_motivo='licencia') ) then
                     
                     v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla); --recuperamos la cuenta bancaria a la fecha de la planilla (fecha de pago)
                     v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
