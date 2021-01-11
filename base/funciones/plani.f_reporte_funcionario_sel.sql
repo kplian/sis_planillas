@@ -67,6 +67,7 @@ AS $BODY$
  #ETR-2064				04.12.2020			MZM-KPLIAN			Correccion de fecha_quinquenio, considerando la asignacion oficial
  #ETR-2416				04.01.2021			MZM-KPLIAN			Cambio de uso de vista vrep_funcionario, debido a que registraron datos de afp (misma), solo con cambio de vigencia (ambos activos)
  #ETR-2457		        06.01.2021			MZM-KPLIAN			Modificacion a reporte reserva_beneficios: el funcionario a la fecha del reporte debe pertenecer al tipo de contrato del filtro y solo para esos obtener lo demas: Los q pasan de ODT a planta generan error, dado que tienen informacion de meses previos como ODT, pero ya no tienen q salir
+ #ETR-2464				11.01.2021			MZM-KPLIAN			Mejora reporte de reservas: Caso retirados del mes, considerar cotizables completos (considerar un mes mas) dias de quinquenio ajustar a fecha de retiro 
  ***************************************************************************/
 
 DECLARE
@@ -518,7 +519,7 @@ BEGIN
         end if;
         -- fin 03.09.2019
 
-
+        
 
         v_cols:='tcol.codigo,round(colval.valor,2),';
         --#77
@@ -545,11 +546,21 @@ BEGIN
                 		v_col:=v_col||' and tcol.codigo in (''CACSELFIJO'') and colval.valor>0';
                         v_condicion =v_condicion || v_parametros.filtro;
                  elseif(v_parametros.tipo_reporte='reserva_beneficios') then
-                    v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
+                    v_col:=v_col||' and
+                    (case when plani.f_es_funcionario_vigente(fp.id_funcionario,'''||v_fecha||''') then
+                    	tcol.codigo in (''COTIZABLE'') 
+                    else
+                       tcol.codigo in (''COTIZABLE_ANT'') 
+                    end)
+                    ';
                     v_condicion =v_condicion ||' and '|| v_parametros.filtro;
 
                 elseif(v_parametros.tipo_reporte='reserva_beneficios3' or v_parametros.tipo_reporte='reserva_beneficios2' ) then
-                    v_col:=v_col||' and tcol.codigo in (''COTIZABLE'') ';
+                    v_col:=v_col||' and  (case when plani.f_es_funcionario_vigente(fp.id_funcionario,'''||v_fecha||''') then
+                    	tcol.codigo in (''COTIZABLE'') 
+                    else
+                       tcol.codigo in (''COTIZABLE_ANT'') 
+                    end) ';
 					v_condicion:=' plani.id_periodo<='||v_id_periodo||' and plani.id_periodo>='||v_id_periodo_min || ' and fp.id_funcionario in (select funp.id_funcionario from  '||v_esquema||'.tfuncionario_planilla funp inner join '||v_esquema||'.tplanilla planil on planil.id_planilla=funp.id_planilla where planil.id_periodo='||v_id_periodo||')';
                      if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then
                         if(v_parametros.id_tipo_contrato>0) then
@@ -840,14 +851,37 @@ BEGIN
 
 
                           (case when ff.fecha_quinquenio is null then
-								pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))),'''||v_fecha||''')
+								--pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial''))),'''||v_fecha||''')
+                                
+                               pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)),coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
+                                and estado_reg=''activo'' and tipo=''oficial'' and
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
+                                ),'''||v_fecha||'''))  
+                                
+                                
                            else
                                (case when ff.fecha_quinquenio>'''||v_fecha||''' then
 
-                                   pxp.f_get_dias_mes_30( (ff.fecha_quinquenio -  interval ''60 month'')::date, '''||v_fecha||''')
+                                   pxp.f_get_dias_mes_30( (ff.fecha_quinquenio -  interval ''60 month'')::date, 
+                                   coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
+                                and estado_reg=''activo'' and tipo=''oficial'' and
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
+                                ),'''||v_fecha||''')
+                                   
+                                   
+                                   )
 
                                 else
-		                           pxp.f_get_dias_mes_30( ff.fecha_quinquenio, '''||v_fecha||''')
+		                           pxp.f_get_dias_mes_30( ff.fecha_quinquenio, 
+                                   coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
+                                and estado_reg=''activo'' and tipo=''oficial'' and
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
+                                ),'''||v_fecha||''')
+                                   
+                                   )
                                 end )
                            end ) as dias_quinquenio
 
@@ -3207,7 +3241,7 @@ raise notice '***:%',v_consulta;
                         ''IMPDET'',''IMPOFAC'',''LIQPAG'',''PORCBONO'',''APCAJ'',''CTOTAL'',''OTDESC'')'; --#169
             end if;
        end if;
-            v_consulta:='select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2,
+            v_consulta:='select  fun.id_funcionario, fun.desc_funcionario2  as desc_funcionario2,
            			    trim(both ''FUNODTPR'' from fun.codigo) as codigo,
                       	nivel.id_oficina,'||v_col||' as desc_oficina,
                       --	fp.id_funcionario_planilla,
