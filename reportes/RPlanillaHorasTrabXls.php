@@ -2,6 +2,7 @@
 /*
 #ISSUE                FECHA                AUTOR               DESCRIPCION
  #158	ETR				27.08.2020			MZM-KPLIAN			Horas trabajadas por centro xls  
+ #ETR-2494				11.01.2021			MZM-KPLIAN			Modificacion de celdas agrupadas (centro, CC)	
 */
 class RPlanillaHorasTrabXls
 {
@@ -230,8 +231,8 @@ if($data_titulo[0]['fecha_backup']!=''){
 	   if($this->objParam->getParametro('tipo_reporte')=='total_horas_trabajadas'){//ETR-1712
 	   				$this->docexcel->getActiveSheet()->setTitle('Total Horas Trabajadas');
 	                $this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
-	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categoria
-	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(30);//pres
+	                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);//categoria //#ETR-2494	
+	                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);//pres
 	                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);//ci
 	                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);//funcionario
 	                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);//cargo
@@ -310,8 +311,8 @@ if($data_titulo[0]['fecha_backup']!=''){
 				 		foreach ($datos as $value){
 								
 								if ($rango!=$value['nombre_uo_centro']){
-									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":F".$fila);
-									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":F".$fila)->applyFromArray($styleTitulos2);
+									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":B".$fila);//#ETR-2494
+									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":B".$fila)->applyFromArray($styleTitulos2);//#ETR-2494
 									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila,''.$value['nombre_uo_centro']);
 															
 									$fila++;
@@ -338,8 +339,8 @@ if($data_titulo[0]['fecha_backup']!=''){
 							foreach ($datos as $value){
 								
 								if ($rango!=$value['codigo_tcc']){
-									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":F".$fila);
-									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":F".$fila)->applyFromArray($styleTitulos2);
+									$this->docexcel->getActiveSheet()->mergeCells("A".$fila.":C".$fila);//#ETR-2494
+									$this->docexcel->getActiveSheet()->getStyle("A".$fila.":C".$fila)->applyFromArray($styleTitulos2);//#ETR-2494
 									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila,'Ceco/Orden/Pep: '.$value['codigo_tcc']);
 															
 									$fila++;
