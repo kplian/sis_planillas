@@ -8,6 +8,7 @@
  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo  
+ #ETR-2476				11.01.2021			MZM-KPLIAN			Ajuste para considerar cuando tb hay cambio de cargo
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -480,7 +481,7 @@ class RPlanillaAsignacionCargosXls
 				  $fila++;
 			   }
 			   }else{
-			   	if($value['nueva_unidad']!='' && $value['nueva_unidad']!=$value['unidad']){
+			   	if($this->datos[$i]['nueva_unidad']!=''  &&  (($this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad'] || $this->datos[$i]['cargo']!=$this->datos[$i]['nuevo_cargo']) )  ) { //ETR-2476
 				   	  	$cont++; 	  
 					  	$a=substr($value['fecha_movimiento'],0,4);//ETR-1993
 					  	$m=substr($value['fecha_movimiento'],5,2);//ETR-1993
