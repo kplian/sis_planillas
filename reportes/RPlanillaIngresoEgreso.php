@@ -3,7 +3,7 @@
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
   #144	ETR				29.06.2020			MZM-KPLIAN			Planilla de Ingreso/egreso por empleado
-  
+  #ETR-2509				12.01.2021			MZM-KPLIAN			Adicion de cred fiscal, cambio formato tipo fecha, cambio nombre de columna  
  */
 class RPlanillaIngresoEgreso extends  ReportePDF {
 	var $datos;	
@@ -107,11 +107,12 @@ class RPlanillaIngresoEgreso extends  ReportePDF {
 		$this->Cell(23,5,'Fecha Ingreso:','',0,'L');
 		$this->SetFont('','',8);
 		
-		$this->Cell(50,5,$this->datos[0]['primer_contrato'],'',0,'L');
+		$this->Cell(50,5, date_format(date_create($this->datos[0]['primer_contrato']),'d/m/Y')  ,'',0,'L');
+		
 		$this->SetFont('','B',8);
-		$this->Cell(13,5,'Codigo:','',0,'L');
+		$this->Cell(12,5,'Codigo:','',0,'L');
 		$this->SetFont('','',8);
-		$this->Cell(50,5,$this->datos[0]['codigo_empleado'],'',0,'L');
+		$this->Cell(30,5,$this->datos[0]['codigo_empleado'],'',0,'L');
 		
 		$this->SetFont('','B',8);
 		$this->Cell(10,5,'Nivel:','',0,'L');
@@ -126,9 +127,14 @@ class RPlanillaIngresoEgreso extends  ReportePDF {
 		
 		
 		$this->SetFont('','B',8);
-		$this->Cell(13,5,'Jubilado:','',0,'L');
+		$this->Cell(15,5,'Jubilado:','',0,'L');
 		$this->SetFont('','',8);
-		$this->Cell(50,5,  $this->datos[0]['jubilado'] ,'',1,'L');
+		$this->Cell(27,5,  $this->datos[0]['jubilado'] ,'',0,'L');
+		
+		$this->SetFont('','B',8);
+		$this->Cell(25,5,'Saldo Cred Fiscal:','',0,'L');
+		$this->SetFont('','',8);
+		$this->Cell(30,5,  number_format($this->datos[0]['valor'],2,'.',',') ,'',0,'L');//#ETR-2509
 		$this->Ln(5);
 		$this->SetFont('','B',10);
 		$this->Cell(110,5,'INGRESOS ACUMULADOS','',0,'L');
@@ -139,7 +145,7 @@ class RPlanillaIngresoEgreso extends  ReportePDF {
 		$t_egr=0;
 		
 		
-		for ($i=0; $i<count($this->datos);$i++){
+		for ($i=1; $i<count($this->datos);$i++){//#ETR-2509: a partir del registro 1 dado q el primero es el credito fiscal
 			if ($this->datos[$i]['tipo_movimiento']=='egreso'){
 				
 				if ($this->GetX()<110){
