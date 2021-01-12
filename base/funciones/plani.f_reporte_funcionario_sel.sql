@@ -68,6 +68,7 @@ AS $BODY$
  #ETR-2416				04.01.2021			MZM-KPLIAN			Cambio de uso de vista vrep_funcionario, debido a que registraron datos de afp (misma), solo con cambio de vigencia (ambos activos)
  #ETR-2457		        06.01.2021			MZM-KPLIAN			Modificacion a reporte reserva_beneficios: el funcionario a la fecha del reporte debe pertenecer al tipo de contrato del filtro y solo para esos obtener lo demas: Los q pasan de ODT a planta generan error, dado que tienen informacion de meses previos como ODT, pero ya no tienen q salir
  #ETR-2464				11.01.2021			MZM-KPLIAN			Mejora reporte de reservas: Caso retirados del mes, considerar cotizables completos (considerar un mes mas) dias de quinquenio ajustar a fecha de retiro 
+ #ETR-2467				11.01.2021			MZM-KPLIAN			Adicion de condicion retirado para planilla de prevision en PRIMA_SEL
  ***************************************************************************/
 
 DECLARE
@@ -3229,6 +3230,8 @@ raise notice '***:%',v_consulta;
                       --and fp.id_funcionario=551
 
                       ';
+                    elsif (v_parametros.estado='retirado') then --#ETR-2467
+                     	v_condicion:=v_condicion || ' and (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla))=false  ';
                     end if;
              elseif (select 1 from plani.ttipo_planilla where id_tipo_planilla=v_parametros.id_tipo_planilla
               			and codigo in ('SPLAPRIVIG','SPRINOVIG')) then--#145  --#151
