@@ -3,7 +3,7 @@
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
   #135	ETR				04.06.2020			MZM-KPLIAN			Planilla de Prevision de Primas
-  
+  #ETR-2467				11.01.2021			MZM-KPLIAN			Omision de columna cotizable perteneciente a primer contrato, ajuste interno de columnas. Adicion de total general
  */
 class RPlanillaPrevisionPrima extends  ReportePDF {
 	var $datos;	
@@ -71,14 +71,14 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 			if ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI'){
 				if($this->objParam->getParametro('estado')=='activo'){
 					$this->Cell(85,5,'','',0,'C');
-					$this->Cell(68,5,'CONTRATO 1','LTR',0,'C');
-					$this->Cell(107,5,'CONTRATO 2','LTR',0,'C');
+					$this->Cell(55,5,'CONTRATO 1','LTR',0,'C');
+					$this->Cell(119,5,'CONTRATO 2','LTR',0,'C');
 					$this->Cell(20,5,'','',1,'C');
 				}else{
 					$this->Cell(80,5,'','',0,'C');
-					$this->Cell(60,5,'CONTRATO 1','LTR',0,'C');
-					$this->Cell(60,5,'CONTRATO 2','LTR',0,'C');
-					$this->Cell(80,5,'','',1,'C');
+					$this->Cell(50,5,'CONTRATO 1','LTR',0,'C');
+					$this->Cell(68,5,'CONTRATO 2','LTR',0,'C');
+					$this->Cell(82,5,'','',1,'C');
 				}
 			}
 			  
@@ -88,32 +88,32 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 				 if($this->objParam->getParametro('estado')=='activo'){
 					 $this->Cell(15,5,'Codigo','T',0,'C');
 					  $this->Cell(70,5,'Nombre','TR',0,'C');
-					  $this->Cell(18,5,'Fecha','T',0,'C');
-					  $this->Cell(18,5,'Fecha ','T',0,'C');
-					  $this->Cell(13,5,'Dias','T',0,'C');
-					  $this->Cell(19,5,'Cotizable','TR',0,'C');
-					  $this->Cell(18,5,'Fecha','T',0,'C');
+					  $this->Cell(20,5,'Fecha','T',0,'C');
+					  $this->Cell(20,5,'Fecha ','T',0,'C');
+					  $this->Cell(15,5,'Dias','TR',0,'C');
+					  //$this->Cell(19,5,'Cotizable','TR',0,'C');//#ETR-2467
+					  $this->Cell(20,5,'Fecha','T',0,'C');
 				  
 				  
-				  	  $this->Cell(13,5,'Dias','T',0,'C');
-					  $this->Cell(19,5,'Cotizable','T',0,'C');
-					  $this->Cell(19,5,'Cotizable','T',0,'C');
-					  $this->Cell(19,5,'Cotizable','T',0,'C');
-					  $this->Cell(19,5,'Cotizable','T',0,'C');
-					  $this->Cell(20,5,'Total','LT',1,'C');
+				  	  $this->Cell(15,5,'Dias','T',0,'C');
+					  $this->Cell(21,5,'Cotizable','T',0,'C');
+					  $this->Cell(21,5,'Cotizable','T',0,'C');
+					  $this->Cell(21,5,'Cotizable','T',0,'C');
+					  $this->Cell(21,5,'Cotizable','T',0,'C');
+					  $this->Cell(21,5,'Total','LT',1,'C');
 				  }else{//no vigentes
 				  	  $this->Cell(15,5,'Codigo','T',0,'C');
 					  $this->Cell(65,5,'Nombre','TR',0,'C');
-					  $this->Cell(17,5,'Fecha','T',0,'C');
-					  $this->Cell(17,5,'Fecha ','T',0,'C');
-					  $this->Cell(10,5,'Dias','T',0,'C');
-					  $this->Cell(16,5,'Cotizable','TR',0,'C');
-					  $this->Cell(17,5,'Fecha','T',0,'C');
+					  $this->Cell(19,5,'Fecha','T',0,'C');
+					  $this->Cell(19,5,'Fecha ','T',0,'C');
+					  $this->Cell(12,5,'Dias','TR',0,'C');
+					  //$this->Cell(16,5,'Cotizable','TR',0,'C');//#ETR-2467
+					  $this->Cell(19,5,'Fecha','T',0,'C');
 				  
-				  	  $this->Cell(17,5,'Fecha ','T',0,'C');
-				  	  $this->Cell(10,5,'Dias','T',0,'C');
-				  	  $this->Cell(16,5,'Cotizable','TR',0,'C');
-					  $this->Cell(16,5,'Total','T',0,'C');
+				  	  $this->Cell(19,5,'Fecha ','T',0,'C');
+				  	  $this->Cell(12,5,'Dias','T',0,'C');
+				  	  $this->Cell(18,5,'Cotizable','TR',0,'C');
+					  $this->Cell(18,5,'Total','T',0,'C');
 					  $this->Cell(16,5,'13%','T',0,'C');
 					  $this->Cell(16,5,'Certif.','T',0,'C'); //Saldo RC IVA
 					  $this->Cell(16,5,'Descuento','T',0,'C');// RC IVA
@@ -160,30 +160,30 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 				  if($this->objParam->getParametro('estado')=='activo'){
 				 	  $this->Cell(15,5,'','B',0,'C');
 					  $this->Cell(70,5,'Cargo','BR',0,'C');
-					  $this->Cell(18,5,'Ingreso','B',0,'C');
-					  $this->Cell(18,5,'Retiro','B',0,'C');
-					  $this->Cell(13,5,'Trab.','B',0,'C');
-					  $this->Cell(19,5,'Prom','BR',0,'C');
-					  $this->Cell(18,5,'Ingreso','B',0,'C');
-				  	  $this->Cell(13,5,'Trab','B',0,'C');
-					  $this->Cell(19,5,'Octubre','B',0,'C');
-					  $this->Cell(19,5,'Noviembre','B',0,'C');
-					  $this->Cell(19,5,'Diciembre','B',0,'C');
-					  $this->Cell(19,5,'Prom','B',0,'C');
-					  $this->Cell(20,5,'Prima','LB',1,'C');
+					  $this->Cell(20,5,'Ingreso','B',0,'C');
+					  $this->Cell(20,5,'Retiro','B',0,'C');
+					  $this->Cell(15,5,'Trab.','BR',0,'C');
+					  //$this->Cell(19,5,'Prom','BR',0,'C');//#ETR-2467
+					  $this->Cell(20,5,'Ingreso','B',0,'C');
+				  	  $this->Cell(15,5,'Trab','B',0,'C');
+					  $this->Cell(21,5,'Octubre','B',0,'C');
+					  $this->Cell(21,5,'Noviembre','B',0,'C');
+					  $this->Cell(21,5,'Diciembre','B',0,'C');
+					  $this->Cell(21,5,'Prom','B',0,'C');
+					  $this->Cell(21,5,'Prima','LB',1,'C');
 				  }else{
 				  	  $this->Cell(15,5,'','B',0,'C');
 					  $this->Cell(65,5,'Cargo','BR',0,'C');
-					  $this->Cell(17,5,'Ingreso','B',0,'C');
-					  $this->Cell(17,5,'Retiro','B',0,'C');
-					  $this->Cell(10,5,'Trab.','B',0,'C');
-					  $this->Cell(16,5,'Prom','BR',0,'C');
-					  $this->Cell(17,5,'Ingreso','B',0,'C');
+					  $this->Cell(19,5,'Ingreso','B',0,'C');
+					  $this->Cell(19,5,'Retiro','B',0,'C');
+					  $this->Cell(12,5,'Trab.','RB',0,'C');
+					  //$this->Cell(16,5,'Prom','BR',0,'C');//#ETR-2467
+					  $this->Cell(19,5,'Ingreso','B',0,'C');
 					  
-				  	  $this->Cell(17,5,'Retiro ','B',0,'C');
-				  	  $this->Cell(10,5,'Trab','B',0,'C');
-				  	  $this->Cell(16,5,'Prom','BR',0,'C');
-					  $this->Cell(16,5,'Prima','B',0,'C');
+				  	  $this->Cell(19,5,'Retiro ','B',0,'C');
+				  	  $this->Cell(12,5,'Trab','B',0,'C');
+				  	  $this->Cell(18,5,'Prom','BR',0,'C');
+					  $this->Cell(18,5,'Prima','B',0,'C');
 					  $this->Cell(16,5,'','B',0,'C');
 					  $this->Cell(16,5,'RC IVA','B',0,'C'); //
 					  $this->Cell(16,5,'RC IVA','B',0,'C');// 
@@ -260,7 +260,6 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 		$t_prom1=0; $t_prom2=0;
 		$t_cot1=0; $t_cot2=0; $t_cot3=0;
 		$t_prima=0; $t_13=0; $t_iva=0; $t_des=0; $t_lq=0;
-			
 			
 		$this->SetX(10);
 		$array_datos=array();
@@ -366,16 +365,16 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					
 					//añadimos los subtotales
 					$this->Cell(85,5,'SUBTOTAL','TRB',0,'C');
-					$this->Cell(36,5,'','TB',0,'C');
-					$this->Cell(13,5,number_format($s_dias1,0),'TB',0,'R');
-					$this->Cell(19,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
-					$this->Cell(18,5,'','TB',0,'C');
-					$this->Cell(13,5,number_format($s_dias2,0),'TB',0,'R');
-					$this->Cell(19,5,number_format($s_cot1,2,'.',','),'TB',0,'R');
-					$this->Cell(19,5,number_format($s_cot2,2,'.',','),'TB',0,'R');
-					$this->Cell(19,5,number_format($s_cot3,2,'.',','),'TB',0,'R');
-					$this->Cell(19,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
-					$this->Cell(20,5,number_format($s_prima,2,'.',','),'TB',1,'R');
+					$this->Cell(40,5,'','TB',0,'C');//
+					$this->Cell(15,5,number_format($s_dias1,0),'TRB',0,'R');
+					//$this->Cell(19,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
+					$this->Cell(20,5,'','TB',0,'C');
+					$this->Cell(15,5,number_format($s_dias2,0),'TB',0,'R');
+					$this->Cell(21,5,number_format($s_cot1,2,'.',','),'TB',0,'R');
+					$this->Cell(21,5,number_format($s_cot2,2,'.',','),'TB',0,'R');
+					$this->Cell(21,5,number_format($s_cot3,2,'.',','),'TB',0,'R');
+					$this->Cell(21,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
+					$this->Cell(21,5,number_format($s_prima,2,'.',','),'TB',1,'R');
 					
 					$s_dias1=0; $s_dias2=0;
 					$s_prom1=0; $s_prom2=0;
@@ -391,10 +390,10 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Cell(70,5,mb_strcut ( $array_datos[$i][1], 0, 38, "UTF-8"),'R',0,'L');
 				
 					if($array_datos[$i][8]>0){
-						$this->Cell(18,5,$array_datos[$i][2],'',0,'C');
-						$this->Cell(18,5,$array_datos[$i][3],'',0,'C');
-						$this->Cell(13,5,number_format($array_datos[$i][8],0),'',0,'R');
-						$this->Cell(19,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
+						$this->Cell(20,5,$array_datos[$i][2],'',0,'C');
+						$this->Cell(20,5,$array_datos[$i][3],'',0,'C');
+						$this->Cell(15,5,number_format($array_datos[$i][8],0),'R',0,'R');
+						//$this->Cell(19,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
 						
 						$s_dias1=$array_datos[$i][8];
 						$s_prom1=$array_datos[$i][13];
@@ -404,19 +403,19 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 						
 						
 					}else{
-						$this->Cell(18,5,'','',0,'C');
-						$this->Cell(18,5,'','',0,'C');
-						$this->Cell(13,5,'','',0,'C');
-						$this->Cell(19,5,'','R',0,'C');
+						$this->Cell(20,5,'','',0,'C');
+						$this->Cell(20,5,'','',0,'C');
+						$this->Cell(15,5,'','R',0,'C');
+						//$this->Cell(19,5,'','R',0,'C');
 					}
 				
-					$this->Cell(18,5,$array_datos[$i][4],'',0,'C');
-					$this->Cell(13,5,number_format($array_datos[$i][9],0),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][12],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][11],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][10],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
-					$this->Cell(20,5,number_format($array_datos[$i][15],2,'.',','),'',1,'R');
+					$this->Cell(20,5,$array_datos[$i][4],'',0,'C');
+					$this->Cell(15,5,number_format($array_datos[$i][9],0),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][12],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][11],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][10],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][15],2,'.',','),'',1,'R');
 					
 					$s_dias2=$array_datos[$i][9];
 					$s_cot1=$array_datos[$i][12]; $s_cot2=$array_datos[$i][11]; $s_cot3=$array_datos[$i][10];
@@ -429,19 +428,19 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Ln(-1);
 					$this->Cell(15,5,'','',0,'C');
 					$this->Cell(70,5,mb_strcut ( $array_datos[$i][6], 0, 38, "UTF-8"),'R',0,'L');
-					$this->Cell(68,5,'','R',0,'C');
-					$this->Cell(107,5,'','R',0,'C');
-					$this->Cell(20,5,'','',1,'L');
+					$this->Cell(55,5,'','R',0,'C');
+					$this->Cell(119,5,'','R',0,'C');
+					$this->Cell(21,5,'','',1,'L');
 					
 				}else{
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					$this->Cell(70,5,mb_strcut ( $array_datos[$i][1], 0, 38, "UTF-8"),'R',0,'L');
 					
 					if($array_datos[$i][8]>0){
-						$this->Cell(18,5,$array_datos[$i][2],'',0,'C');
-						$this->Cell(18,5,$array_datos[$i][3],'',0,'C');
-						$this->Cell(13,5,number_format($array_datos[$i][8],0),'',0,'R');
-						$this->Cell(19,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
+						$this->Cell(20,5,$array_datos[$i][2],'',0,'C');
+						$this->Cell(20,5,$array_datos[$i][3],'',0,'C');
+						$this->Cell(15,5,number_format($array_datos[$i][8],0),'R',0,'R');
+						//$this->Cell(19,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
 						//number_format($this->datos_detalle[$i]['valor_columna'],2,'.',',')
 						$s_dias1=$s_dias1+$array_datos[$i][8];
 						$s_prom1=$s_prom1+$array_datos[$i][13];
@@ -450,19 +449,19 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 						$t_prom1=$t_prom1+$array_datos[$i][13];
 						
 					}else{
-						$this->Cell(18,5,'','',0,'C');
-						$this->Cell(18,5,'','',0,'C');
-						$this->Cell(13,5,'','',0,'C');
-						$this->Cell(19,5,'','R',0,'C');
+						$this->Cell(20,5,'','',0,'C');
+						$this->Cell(20,5,'','',0,'C');
+						$this->Cell(15,5,'','R',0,'C');
+						//$this->Cell(19,5,'','R',0,'C');
 					}
 					
-					$this->Cell(18,5,$array_datos[$i][4],'',0,'C');
-					$this->Cell(13,5,number_format($array_datos[$i][9],0),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][12],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][11],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][10],2,'.',','),'',0,'R');
-					$this->Cell(19,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
-					$this->Cell(20,5,number_format($array_datos[$i][15],2,'.',','),'',1,'R');
+					$this->Cell(20,5,$array_datos[$i][4],'',0,'C');
+					$this->Cell(15,5,number_format($array_datos[$i][9],0),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][12],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][11],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][10],2,'.',','),'',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
+					$this->Cell(21,5,number_format($array_datos[$i][15],2,'.',','),'',1,'R');
 					
 					$s_dias2=$s_dias2+$array_datos[$i][9];
 					$s_cot1=$s_cot1+$array_datos[$i][12]; $s_cot2=$s_cot2+$array_datos[$i][11]; $s_cot3=$s_cot3+$array_datos[$i][10];
@@ -476,9 +475,9 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Ln(-1);
 					$this->Cell(15,5,'','',0,'C');
 					$this->Cell(70,5,mb_strcut ( $array_datos[$i][6], 0, 38, "UTF-8"),'R',0,'L');
-					$this->Cell(68,5,'','R',0,'C');
-					$this->Cell(107,5,'','R',0,'C');
-					$this->Cell(20,5,'','',1,'L');
+					$this->Cell(55,5,'','R',0,'C');
+					$this->Cell(119,5,'','R',0,'C');
+					$this->Cell(21,5,'','',1,'L');
 				
 				}
 				$this->gerencia=$array_datos[$i][18];
@@ -486,29 +485,29 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 
 				//subtotal del ultimo grupo
 				$this->Cell(85,5,'SUBTOTAL','TRB',0,'C');
-				$this->Cell(36,5,'','TB',0,'C');
-				$this->Cell(13,5,number_format($s_dias1,0),'TB',0,'R');
-				$this->Cell(19,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
-				$this->Cell(18,5,'','TB',0,'C');
-				$this->Cell(13,5,number_format($s_dias2,0),'TB',0,'R');
-				$this->Cell(19,5,number_format($s_cot1,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($s_cot2,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($s_cot3,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
-				$this->Cell(20,5,number_format($s_prima,2,'.',','),'TB',1,'R');
+				$this->Cell(40,5,'','TB',0,'C');
+				$this->Cell(15,5,number_format($s_dias1,0),'TRB',0,'R');
+				//$this->Cell(19,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
+				$this->Cell(20,5,'','TB',0,'C');
+				$this->Cell(15,5,number_format($s_dias2,0),'TB',0,'R');
+				$this->Cell(21,5,number_format($s_cot1,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($s_cot2,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($s_cot3,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
+				$this->Cell(21,5,number_format($s_prima,2,'.',','),'TB',1,'R');
 				//totales
 				$this->SetFont('','B',8); $this->Ln(2);
 				$this->Cell(85,5,'TOTAL','TRB',0,'C');
-				$this->Cell(36,5,'','TB',0,'C');
-				$this->Cell(13,5,number_format($t_dias1,0),'TB',0,'R');
-				$this->Cell(19,5,number_format($t_prom1,2,'.',','),'TRB',0,'R');
-				$this->Cell(18,5,'','TB',0,'C');
-				$this->Cell(13,5,number_format($t_dias2,0),'TB',0,'R');
-				$this->Cell(19,5,number_format($t_cot1,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($t_cot2,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($t_cot3,2,'.',','),'TB',0,'R');
-				$this->Cell(19,5,number_format($t_prom2,2,'.',','),'TBR',0,'R');
-				$this->Cell(20,5,number_format($t_prima,2,'.',','),'TB',1,'R');
+				$this->Cell(40,5,'','TB',0,'C');
+				$this->Cell(15,5,number_format($t_dias1,0),'TRB',0,'R');
+				//$this->Cell(19,5,number_format($t_prom1,2,'.',','),'TRB',0,'R');
+				$this->Cell(20,5,'','TB',0,'C');
+				$this->Cell(15,5,number_format($t_dias2,0),'TB',0,'R');
+				$this->Cell(21,5,number_format($t_cot1,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($t_cot2,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($t_cot3,2,'.',','),'TB',0,'R');
+				$this->Cell(21,5,number_format($t_prom2,2,'.',','),'TBR',0,'R');
+				$this->Cell(21,5,number_format($t_prima,2,'.',','),'TB',1,'R');
 			//----------------------------------*******************
 		}else{
 		
@@ -518,13 +517,13 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->gerencia=$array_datos[$i][18];
 					//añadimos los subtotales
 					$this->Cell(80,5,'SUBTOTAL','TRB',0,'C');
-					$this->Cell(34,5,'','TB',0,'C');
-					$this->Cell(10,5,number_format($s_dias1,0),'TB',0,'R');
-					$this->Cell(16,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
-					$this->Cell(34,5,'','TB',0,'C');
-					$this->Cell(10,5,number_format($s_dias2,0),'TB',0,'R');
-					$this->Cell(16,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
-					$this->Cell(16,5,number_format($s_prima,2,'.',','),'TB',0,'R');
+					$this->Cell(38,5,'','TB',0,'C');
+					$this->Cell(12,5,number_format($s_dias1,0),'TRB',0,'R');
+					//$this->Cell(16,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
+					$this->Cell(38,5,'','TB',0,'C');
+					$this->Cell(12,5,number_format($s_dias2,0),'TB',0,'R');
+					$this->Cell(18,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
+					$this->Cell(18,5,number_format($s_prima,2,'.',','),'TB',0,'R');
 					
 					$this->Cell(16,5,number_format($s_13,2,'.',','),'TB',0,'R');
 					$this->Cell(16,5,number_format($s_iva,2,'.',','),'TB',0,'R');
@@ -543,10 +542,10 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
 				
 					if($array_datos[$i][8]>0){
-						$this->Cell(17,5,$array_datos[$i][2],'',0,'C');
-						$this->Cell(17,5,$array_datos[$i][3],'',0,'C');
-						$this->Cell(10,5,number_format($array_datos[$i][8],0),'',0,'R');
-						$this->Cell(16,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
+						$this->Cell(19,5,$array_datos[$i][2],'',0,'C');
+						$this->Cell(19,5,$array_datos[$i][3],'',0,'C');
+						$this->Cell(12,5,number_format($array_datos[$i][8],0),'R',0,'R');
+						//$this->Cell(16,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
 						
 						$s_dias1=$array_datos[$i][8];
 						$s_prom1=$array_datos[$i][13];
@@ -555,17 +554,17 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 						$t_prom1=$t_prom1+$array_datos[$i][13];
 						
 					}else{
-						$this->Cell(17,5,'','',0,'C');
-						$this->Cell(17,5,'','',0,'C');
-						$this->Cell(10,5,'','',0,'C');
-						$this->Cell(16,5,'','R',0,'C');
+						$this->Cell(19,5,'','',0,'C');
+						$this->Cell(19,5,'','',0,'C');
+						$this->Cell(12,5,'','R',0,'C');
+						//$this->Cell(16,5,'','R',0,'C');
 					}
 					
-					$this->Cell(17,5,$array_datos[$i][4],'',0,'C');
-					$this->Cell(17,5,$array_datos[$i][5],'',0,'R');
-					$this->Cell(10,5,number_format($array_datos[$i][9],0),'',0,'R');
-					$this->Cell(16,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
-					$this->Cell(16,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
+					$this->Cell(19,5,$array_datos[$i][4],'',0,'C');
+					$this->Cell(19,5,$array_datos[$i][5],'',0,'R');
+					$this->Cell(12,5,number_format($array_datos[$i][9],0),'',0,'R');
+					$this->Cell(18,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
+					$this->Cell(18,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
 					
 					$this->Cell(16,5,number_format(($array_datos[$i][15]*0.13),2,'.',','),'',0,'R');
 					$this->Cell(16,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
@@ -585,19 +584,19 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Ln(-1);
 					$this->Cell(15,5,'','',0,'C');
 					$this->Cell(65,5,$array_datos[$i][6],'R',0,'L');
-					$this->Cell(60,5,'','R',0,'C');
-					$this->Cell(60,5,'','R',0,'C');
-					$this->Cell(80,5,'','',1,'L');
+					$this->Cell(50,5,'','R',0,'C');
+					$this->Cell(68,5,'','R',0,'C');
+					$this->Cell(82,5,'','',1,'L');
 					
 				}else{
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
 					
 					if($array_datos[$i][8]>0){
-						$this->Cell(17,5,$array_datos[$i][2],'',0,'C');
-						$this->Cell(17,5,$array_datos[$i][3],'',0,'C');
-						$this->Cell(10,5,number_format($array_datos[$i][8],0),'',0,'R');
-						$this->Cell(16,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
+						$this->Cell(19,5,$array_datos[$i][2],'',0,'C');
+						$this->Cell(19,5,$array_datos[$i][3],'',0,'C');
+						$this->Cell(12,5,number_format($array_datos[$i][8],0),'R',0,'R');
+						//$this->Cell(16,5,number_format($array_datos[$i][13],2,'.',','),'R',0,'R');
 						
 						$s_dias1=$s_dias1+$array_datos[$i][8];
 						$s_prom1=$s_prom1+$array_datos[$i][13];
@@ -605,17 +604,17 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 						$t_dias1=$t_dias1+$array_datos[$i][8];
 						$t_prom1=$t_prom1+$array_datos[$i][13];
 					}else{
-						$this->Cell(17,5,'','',0,'C');
-						$this->Cell(17,5,'','',0,'C');
-						$this->Cell(10,5,'','',0,'C');
-						$this->Cell(16,5,'','R',0,'C');
+						$this->Cell(19,5,'','',0,'C');
+						$this->Cell(19,5,'','',0,'C');
+						$this->Cell(12,5,'','R',0,'C');
+						//$this->Cell(16,5,'','R',0,'C');
 					}
 					
-					$this->Cell(17,5,$array_datos[$i][4],'',0,'C');
-					$this->Cell(17,5,$array_datos[$i][5],'',0,'R');
-					$this->Cell(10,5,number_format($array_datos[$i][9],0),'',0,'R');
-					$this->Cell(16,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
-					$this->Cell(16,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
+					$this->Cell(19,5,$array_datos[$i][4],'',0,'C');
+					$this->Cell(19,5,$array_datos[$i][5],'',0,'R');
+					$this->Cell(12,5,number_format($array_datos[$i][9],0),'',0,'R');
+					$this->Cell(18,5,number_format($array_datos[$i][14],2,'.',','),'R',0,'R');
+					$this->Cell(18,5,number_format($array_datos[$i][15],2,'.',','),'',0,'R');
 					
 					$this->Cell(16,5,number_format(($array_datos[$i][15]*0.13),2,'.',','),'',0,'R');
 					$this->Cell(16,5,number_format($array_datos[$i][16],2,'.',','),'',0,'R');
@@ -636,9 +635,9 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Ln(-1);
 					$this->Cell(15,5,'','',0,'C');
 					$this->Cell(65,5,mb_strcut ( $array_datos[$i][6], 0, 35, "UTF-8"),'R',0,'L');
-					$this->Cell(60,5,'','R',0,'C');
-					$this->Cell(60,5,'','R',0,'C');
-					$this->Cell(80,5,'','',1,'L');
+					$this->Cell(50,5,'','R',0,'C');
+					$this->Cell(68,5,'','R',0,'C');
+					$this->Cell(82,5,'','',1,'L');
 				
 				}
 				$this->gerencia=$array_datos[$i][18];
@@ -646,13 +645,13 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 
 				//
 				$this->Cell(80,5,'SUBTOTAL','TRB',0,'C');
-				$this->Cell(34,5,'','TB',0,'C');
-				$this->Cell(10,5,number_format($s_dias1,0),'TB',0,'R');
-				$this->Cell(16,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
-				$this->Cell(34,5,'','TB',0,'C');
-				$this->Cell(10,5,number_format($s_dias2,0),'TB',0,'R');
-				$this->Cell(16,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
-				$this->Cell(16,5,number_format($s_prima,2,'.',','),'TB',0,'R');
+				$this->Cell(38,5,'','TB',0,'C');
+				$this->Cell(12,5,number_format($s_dias1,0),'TBR',0,'R');
+				//$this->Cell(18,5,number_format($s_prom1,2,'.',','),'TRB',0,'R');
+				$this->Cell(38,5,'','TB',0,'C');
+				$this->Cell(12,5,number_format($s_dias2,0),'TB',0,'R');
+				$this->Cell(18,5,number_format($s_prom2,2,'.',','),'TBR',0,'R');
+				$this->Cell(18,5,number_format($s_prima,2,'.',','),'TB',0,'R');
 				
 				$this->Cell(16,5,number_format($s_13,2,'.',','),'TB',0,'R');
 				$this->Cell(16,5,number_format($s_iva,2,'.',','),'TB',0,'R');
@@ -661,13 +660,13 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 				//TOTALES
 				$this->SetFont('','B',8); $this->Ln(4);
 				$this->Cell(80,5,'TOTAL','TRB',0,'C');
-				$this->Cell(34,5,'','TB',0,'C');
-				$this->Cell(10,5,number_format($t_dias1,0),'TB',0,'R');
-				$this->Cell(16,5,number_format($t_prom1,2,'.',','),'TRB',0,'R');
-				$this->Cell(34,5,'','TB',0,'C');
-				$this->Cell(10,5,number_format($t_dias2,0),'TB',0,'R');
-				$this->Cell(16,5,number_format($t_prom2,2,'.',','),'TBR',0,'R');
-				$this->Cell(16,5,number_format($t_prima,2,'.',','),'TB',0,'R');
+				$this->Cell(38,5,'','TB',0,'C');
+				$this->Cell(12,5,number_format($t_dias1,0),'TBR',0,'R');
+				//$this->Cell(16,5,number_format($t_prom1,2,'.',','),'TRB',0,'R');
+				$this->Cell(38,5,'','TB',0,'C');
+				$this->Cell(12,5,number_format($t_dias2,0),'TB',0,'R');
+				$this->Cell(18,5,number_format($t_prom2,2,'.',','),'TBR',0,'R');
+				$this->Cell(18,5,number_format($t_prima,2,'.',','),'TB',0,'R');
 				
 				$this->Cell(16,5,number_format($t_13,2,'.',','),'TB',0,'R');
 				$this->Cell(16,5,number_format($t_iva,2,'.',','),'TB',0,'R');
@@ -675,7 +674,13 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 				$this->Cell(16,5,number_format($t_lq,2,'.',','),'TB',1,'R');
 		}
 
-	}/*else{//bono de produccion
+	}
+	$this->Ln(5);
+	
+	$this->Cell(16,5,'# Empleados:','',0,'L');
+	$this->Cell(10,5,$cont,'',1,'R');
+	
+	/*else{//bono de produccion
 		 
 		 if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){
 		  	
