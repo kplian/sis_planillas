@@ -3,7 +3,8 @@
 /**
  #ISSUE                FECHA                AUTOR               DESCRIPCION
   #144	ETR				29.06.2020			MZM-KPLIAN			Planilla de Ingreso/egreso por empleado
-  #ETR-2509				12.01.2021			MZM-KPLIAN			Adicion de cred fiscal, cambio formato tipo fecha, cambio nombre de columna  
+  #ETR-2509				12.01.2021			MZM-KPLIAN			Adicion de cred fiscal, cambio formato tipo fecha, cambio nombre de columna
+ *   
  */
 class RPlanillaIngresoEgreso extends  ReportePDF {
 	var $datos;	
