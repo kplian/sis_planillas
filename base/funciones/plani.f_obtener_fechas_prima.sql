@@ -22,6 +22,7 @@ AS $BODY$
  HISTORIAL DE MODIFICACIONES:
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #135	ETR				12.06.2020			MZM-KPLIAN			Reporte de prevision de primas (detalle), modificacion funcion CTOO1
+ #ETR-2467				11.01.2021			MZM-KPLIAN			Modificacion para CTTO1, considerando todos los contratos antes del vigente ya que se tiene que considerar la suma de contratos para verificar si llegan a 90 dias
 **************************************************************************/
 
  DECLARE
@@ -31,9 +32,14 @@ AS $BODY$
     v_registros					record;
     v_planilla				record;
     v_resultado					text;
+    v_fecha_ini	date;
+    v_fecha_fin	date;
+    v_dias	integer;
+    v_tope	integer;
      BEGIN
     v_nombre_funcion = 'plani.f_obtener_fechas_prima';
-    v_resultado = 0;
+    v_resultado = 0; v_dias:=0;
+    v_fecha_ini=null;
     select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
         into v_planilla
         from plani.tfuncionario_planilla fp
@@ -43,8 +49,24 @@ AS $BODY$
     v_resultado:='#@@@#';
     IF (p_codigo = 'CTTO1') THEN  -- 
     
+    
+    v_tope:=(select count (*) from orga.tuo_funcionario uofun
+                        INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
+                          uofun.id_funcionario
+                          
+                      WHERE uofun.estado_reg != 'inactivo'
+                         AND uofun.tipo = 'oficial'
+                         and uofun.id_funcionario=v_planilla.id_funcionario
+						 --and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario  --#135
+ 						 and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','') 
+ 						 );
     	
-    	SELECT uofun.id_funcionario,
+    --#ETR-2467
+     if (plani.f_es_funcionario_vigente(v_planilla.id_funcionario,v_planilla.fecha_planilla)=false) then
+            v_tope:=v_tope-1;
+     end if;
+     for v_registros in (	SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) > v_planilla.fecha_fin THEN null
@@ -55,7 +77,7 @@ AS $BODY$
                              WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
                              ELSE uofun.fecha_finalizacion
                            END) as fecha_fin_ctto
-                           into v_registros
+                          
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
@@ -63,22 +85,40 @@ AS $BODY$
                       WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
-						-- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario  --#135
+						 --and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario  --#135
  						 and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','') 
- 						 order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;  
-      			   if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
-                            and fecha_asignacion>=v_registros.fecha_fin_ctto and estado_reg='activo' and tipo='oficial'
-                            ) then
-                                v_resultado:='#@@@#';
-                   else
-                   
-                         if( (plani.f_get_dias_efectivos_prima(v_registros.id_funcionario, v_planilla.fecha_ini, v_registros.fecha_fin_ctto))>=90 )then
-                   			v_resultado:=v_registros.fecha_primer_ctto||'#@@@#'||v_registros.fecha_fin_ctto;         
-                         end if;
-                            
-                   end if;
+ 						 order by uofun.id_uo_funcionario 
+                         )loop
+                             
+                         
+							 if (v_tope>0) then                             
+                               if (v_fecha_ini is null) then
+                                  v_fecha_ini:=v_registros.fecha_primer_ctto;
+                               end if;
+                                 
+
+                                 
+                               -- if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
+                                --    and fecha_asignacion>=v_registros.fecha_fin_ctto and estado_reg='activo' and tipo='oficial'
+                               --     ) then
+                               --     v_resultado:='#@@@#';
+                               -- else
+                                    v_fecha_fin:=v_registros.fecha_fin_ctto;
+                                    v_dias:=v_dias+(plani.f_get_dias_efectivos_prima(v_registros.id_funcionario, v_registros.fecha_primer_ctto, v_registros.fecha_fin_ctto));
+                                 -- end if;
+                                    v_tope:=v_tope-1;
+                                 
+                            end if;
+                         end loop;
+                         
+
+                         
+                      if(v_dias>=90)then
+                                      v_resultado:=v_fecha_ini||'#@@@#'||v_fecha_fin;         
+                       end if;  
+                         
+                         
                             
     ELSIF (p_codigo = 'CTTO2') THEN                   
                       
@@ -126,4 +166,4 @@ AS $BODY$
 $BODY$;
 
 ALTER FUNCTION plani.f_obtener_fechas_prima(integer, character varying)
-    OWNER TO ukplian;
+    OWNER TO postgres;
