@@ -25,7 +25,8 @@ AS $BODY$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
    
  #145             02-07-2020       Mzambrana-KPLIAN         funcion de insercion de funcionarios para planilla de primas Simple
- #ETR-2467		  08.01.2020		MZM-KPLIAN				Adicion de condicion para considerar funcionarios con licencia (Caso Wilder Ureña)
+ #ETR-2467		  08.01.2021		MZM-KPLIAN				Adicion de condicion para considerar funcionarios con licencia (Caso Wilder Ureña)
+ #ETR-2544		  13.01.2021		MZM-KPLIAN				Cambio en condicion de 90 dias, solo funcionarios que acumulen mas de 90 dias entran a planilla de prevision, se omite los de 90
  ********************************************************************************/
 DECLARE
   v_registros            record;
@@ -147,8 +148,8 @@ BEGIN
               where id_funcionario=v_registros.id_funcionario and id_uo_funcionario<v_registros.id_uo_funcionario
               and estado_reg='activo' and tipo='oficial'
               order by fecha_finalizacion desc limit 1);
-                           
-              if (v_registros.dias_efectivos >= 90 or (v_registros.dias_efectivos < 90 and v_motivo='licencia') ) then
+              --#ETR-2544
+              if (v_registros.dias_efectivos > 90 or (v_registros.dias_efectivos <= 90 and v_motivo='licencia') ) then
                     
                     v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla); --recuperamos la cuenta bancaria a la fecha de la planilla (fecha de pago)
                     v_tipo_contrato = plani.f_get_tipo_contrato(v_registros.id_uo_funcionario);
