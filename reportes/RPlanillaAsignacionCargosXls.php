@@ -10,6 +10,7 @@
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo  
  #ETR-2476				11.01.2021			MZM-KPLIAN			Ajuste para considerar cuando tb hay cambio de cargo
  #ETR-2552				13.01.2021			MZM-KPLIAN			Correccion de condicion $datos[$i] por $value['campo'] ya que en value ya se tiene el registro q se consulta
+ #ETR-2476				14.01.2021			MZM-KPLIAN			Reporte de incremento_salarial
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -207,6 +208,10 @@ class RPlanillaAsignacionCargosXls
 						$this->docexcel->getActiveSheet()->getStyle('A3:C3')->getAlignment()->setWrapText(true);
 	                	$this->docexcel->getActiveSheet()->getStyle('A3:C3')->applyFromArray($styleTitulos3);
 						
+					}elseif($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){//#ETR-2476
+						$this->docexcel->getActiveSheet()->getStyle('A3:I3')->getAlignment()->setWrapText(true);
+	                	$this->docexcel->getActiveSheet()->getStyle('A3:I3')->applyFromArray($styleTitulos3);
+						
 					}
                 	
                 }
@@ -318,7 +323,27 @@ class RPlanillaAsignacionCargosXls
                 $this->docexcel->getActiveSheet()->setCellValue('C3','Cargo');//3
                  
 			}
-			
+			elseif($this->objParam->getParametro('tipo_reporte')=='incremento_salarial' ){ //#ETR-2476
+				$this->docexcel->getActiveSheet()->getColumnDimension('A')->setWidth(8);
+                $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);//categori
+                $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(12);//pres
+                $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(30);//ci
+                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(30);//funcionario
+                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(10);//cargo
+                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(10);//cargo
+                $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);//cargo
+                $this->docexcel->getActiveSheet()->getColumnDimension('I')->setWidth(10);//cargo
+                $this->docexcel->getActiveSheet()->setCellValue('A3','N');//1
+                $this->docexcel->getActiveSheet()->setCellValue('B3','Codigo');//2
+                $this->docexcel->getActiveSheet()->setCellValue('C3','Fecha Incr.');//3
+                $this->docexcel->getActiveSheet()->setCellValue('D3','Nombre Completo');//4
+                $this->docexcel->getActiveSheet()->setCellValue('E3','Cargo');//4
+                $this->docexcel->getActiveSheet()->setCellValue('F3','Nivel Anterior');//4
+                $this->docexcel->getActiveSheet()->setCellValue('G3','Sueldo Basico');//4
+                $this->docexcel->getActiveSheet()->setCellValue('H3','Nivel Actual');//4
+                $this->docexcel->getActiveSheet()->setCellValue('I3','Sueldo Basico');//4
+                 
+			}
 			else 
 						
 			{//asignacion_cargos, movimiento_personal
@@ -404,6 +429,8 @@ class RPlanillaAsignacionCargosXls
 					$tit_rep='FRECUENCIA DE PROFESIONES '.$cadena_nomina.$fecha_backup;
 				}elseif( $this->objParam->getParametro('tipo_reporte')=='listado_centros'){
 					$tit_rep='LISTADO POR CENTROS '.$cadena_nomina.$fecha_backup;
+				}elseif( $this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){ //#ETR-2476
+					$tit_rep='INCREMENTOS SALARIALES '.$cadena_nomina.$fecha_backup;
 				}
 
 
@@ -443,7 +470,12 @@ class RPlanillaAsignacionCargosXls
 						
 						if($this->objParam->getParametro('tipo_reporte')=='nacimiento_ano' || $this->objParam->getParametro('tipo_reporte')=='nacimiento_mes' || $this->objParam->getParametro('tipo_reporte')=='profesiones' || $this->objParam->getParametro('tipo_reporte')=='directorio_empleados' || $this->objParam->getParametro('tipo_reporte')=='listado_centros'){///////////////////
 							$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.str_replace ('de ','',$datos[0]['periodo_lite'])); //#141
-						}else{
+						}elseif($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){
+							$this->docexcel->getActiveSheet()->mergeCells("A1:I1"); 
+							$this->docexcel->getActiveSheet()->mergeCells("A2:I2");
+							$this->docexcel->getActiveSheet()->setCellValue('A2', 'Gestion: '.$datos[0]['gestion']); //#ETR-2476
+						}
+						else{
 							$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.$datos[0]['gestion']);	
 						}
 						
@@ -603,7 +635,30 @@ class RPlanillaAsignacionCargosXls
 				$centro_uo=$value['nombre_uo_centro'];			
 			}
 		}
-		
+		elseif($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){//#ETR-2476
+			foreach ($datos as $value){
+				
+			if ($value['observaciones_finalizacion']=='incremento_salarial'){
+				
+			$cont++; 	  
+					  	$a=substr($value['fecha_movimiento'],0,4);
+					  	$m=substr($value['fecha_movimiento'],5,2);
+					  	$d=substr($value['fecha_movimiento'],8,2);
+				  
+		  			    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont);
+					    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['codigo']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$d.'/'.$m.'/'.$a);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,$value['desc_funcionario2']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['nuevo_cargo']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['nivel']);	
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['haber_basico']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,$value['nuevo_nivel']);
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(8, $fila ,$value['nuevo_haber']);
+					  
+				  $fila++;
+				}
+			}
+		}
 		
 		else{//lista_cargos
 		  if( $this->objParam->getParametro('tipo_reporte')=='lista_cargos' ){

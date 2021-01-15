@@ -11,8 +11,8 @@
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
- #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo  
- #ETR-2476				11.01.2021			MZM-KPLIAN			Ajuste para considerar cuando tb hay cambio de cargo
+ #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
+ #ETR-2476				14.01.2021			MZM-KPLIAN			Reporte de incremento salarial  
 **/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -105,7 +105,10 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(0,5,'LISTADO POR CENTROS '.$cadena_nomina,0,1,'C');
 								
 							}  
-							  
+							elseif($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){//#ETR-2476
+								$this->Cell(0,5,'INCREMENTO SALARIAL '.$cadena_nomina,0,1,'C');
+								
+							}   
 							else{
 								$this->Cell(0,5,'CLASIFICACION DE PERSONAL POR PROFESIONES '.$cadena_nomina,0,1,'C');	
 							}
@@ -210,6 +213,27 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 								$this->Cell(80,5,'Nombre','TB',0,'C');
 								$this->Cell(80,5,'Cargo','TB',1,'C');
 								
+							}elseif ($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){
+								$this->Cell(10,5,'Nro','T',0,'C');
+								$this->Cell(15,5,'Cod.','T',0,'C');
+								$this->Cell(18,5,'Fecha Incr.','T',0,'C');//ETR-1993
+								$this->Cell(60,5,'Nombre Completo','T',0,'C');
+								$this->Cell(60,5,'Cargo','T',0,'C');
+								$this->Cell(24,5,'Nivel','T',0,'C');
+								$this->Cell(24,5,'Sueldo','T',0,'C');
+								$this->Cell(24,5,'Nivel','T',0,'C');
+								$this->Cell(24,5,'Sueldo','T',1,'C');
+								$this->SetX($this->GetX()-5);
+								$this->Cell(10,5,'','B',0,'C');
+								$this->Cell(15,5,'','B',0,'C');
+								$this->Cell(18,5,'','B',0,'C');//ETR-1993
+								$this->Cell(60,5,'','B',0,'C');
+								$this->Cell(60,5,'','B',0,'C');
+								$this->Cell(24,5,'Anterior','B',0,'C');
+								$this->Cell(24,5,'Basico','B',0,'C');
+								$this->Cell(24,5,'Actual','B',0,'C');
+								$this->Cell(24,5,'Basico','B',1,'C');
+								
 							}
 						}
 					}
@@ -266,10 +290,36 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 					    $this->Cell(69,5,mb_strcut($this->datos[$i]['cargo'],0,38, "UTF-8"),'',0,'L');
 					    $this->Cell(69,5,mb_strcut($this->datos[$i]['nuevo_cargo'],0,39, "UTF-8"),'',1,'L');
 			   }
-			 }else{
+			 }
+			 elseif ($this->objParam->getParametro('tipo_reporte')=='incremento_salarial'){//#ETR-2476
+			 
+			 	if($this->datos[$i]['observaciones_finalizacion']=='incremento_salarial'){
+			 		$cont++; 	  
+					  $a=substr($this->datos[$i]['fecha_movimiento'],0,4);//ETR-1993
+					  $m=substr($this->datos[$i]['fecha_movimiento'],5,2);//ETR-1993
+					  $d=substr($this->datos[$i]['fecha_movimiento'],8,2);//ETR-1993
+					  if($cont ==1){
+					  	//$this->Cell(5,4,'','',0,'R');
+					  	$this->SetX($this->GetX()-5);
+					  }
+				
+					  	$this->Cell(10,5,$cont,'',0,'R');
+						$this->Cell(15,5,$this->datos[$i]['codigo'],'',0,'C');
+						$this->Cell(18,5,$d.'/'.$m.'/'.$a,'',0,'C');
+						$this->Cell(60,5,mb_strcut($this->datos[$i]['desc_funcionario2'],0,32, "UTF-8"),'',0,'L');
+						$this->Cell(60,5,mb_strcut($this->datos[$i]['nuevo_cargo'],0,32, "UTF-8"),'',0,'L');
+						$this->Cell(24,5,$this->datos[$i]['nivel'],'',0,'C');
+						$this->Cell(24,5,$this->datos[$i]['haber_basico'],'',0,'R');
+						$this->Cell(24,5,$this->datos[$i]['nuevo_nivel'],'',0,'C');
+						$this->Cell(24,5,$this->datos[$i]['nuevo_haber'],'',1,'R');
+				
+			 	}
+			 }
+			 
+			 else{
 			 	
 				//if($this->datos[$i]['nueva_unidad']!='' && $this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad']){//#81
-				if($this->datos[$i]['nueva_unidad']!='' &&   (($this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad'] || $this->datos[$i]['cargo']!=$this->datos[$i]['nuevo_cargo']) )  ) { //ETR-2476
+				if($this->datos[$i]['nueva_unidad']!='' &&   (($this->datos[$i]['unidad']!=$this->datos[$i]['nueva_unidad'] || $this->datos[$i]['cargo']!=$this->datos[$i]['nuevo_cargo']) )  ) {
 			   	  $cont++; 	  
 				  $a=substr($this->datos[$i]['fecha_movimiento'],0,4);//ETR-1993
 				  $m=substr($this->datos[$i]['fecha_movimiento'],5,2);//ETR-1993
