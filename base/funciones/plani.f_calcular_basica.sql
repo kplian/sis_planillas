@@ -3243,6 +3243,7 @@ v_cons    varchar;
                             --no es vigente == preguntar si tiene un contrato q inicie en 2019 == nos quedamos con el valor, sino es 0
                             if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_planilla.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
+                            and fecha_asignacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                             ) then 
                                 v_aux:=v_aux+0;
                             else
