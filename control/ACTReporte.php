@@ -32,6 +32,7 @@
  * #164	ETR		  MZM-KPLIAN	 28.09.2020					Adicion de condicion de estado y envio_boletas para reporte de boleta_personal
  * #ETR-1712	  MZM-KPLIAN	 12.11.2020					Independizacion de reporte total horas trabajadas
  * #ETR-2135	  MZM-KPLIAN	 11.12.2020					orientacion de resumen relacion saldos en planilla de aguinaldo
+ * #ETR-2476	  MZM-KPLIAN	 14.01.2021					Reporte incremento salarial
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -773,7 +774,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
                                         if($this->objParam->getParametro('control_reporte')=='relacion_saldos_det' || $this->objParam->getParametro('control_reporte')=='relacion_saldos_det_ci'  ){//#56
                                             $this->reporteBancosDet($titulo,$fecha);
                                         }else{
-                                            if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' ||  $this->objParam->getParametro('control_reporte')=='listado_centros'){//#67
+                                            if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' ||  $this->objParam->getParametro('control_reporte')=='listado_centros' ||  $this->objParam->getParametro('control_reporte')=='incremento_salarial'){//#67  #ETR-2476
 
                                                 $this->reporteAsignacionCargos($titulo,$id_gestion,$id_tipo_contrato);
                                             }else{
@@ -1315,7 +1316,7 @@ function reporteBancosDet()    { //#56
          if($this->objParam->getParametro('control_reporte')=='frecuencia_cargos' || $this->objParam->getParametro('control_reporte')=='lista_cargos' || $this->objParam->getParametro('control_reporte')=='profesiones' || $this->objParam->getParametro('control_reporte')=='nacimiento_ano' || $this->objParam->getParametro('control_reporte')=='nacimiento_mes' || $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' || $this->objParam->getParametro('control_reporte')=='listado_centros'){//#115
             $this->objParam->addParametro('orientacion','P');}
         else{
-            $this->objParam->addParametro('orientacion','L');
+            $this->objParam->addParametro('orientacion','L');  // movimiento de personal, incremento salarial
         }
         $this->objParam->addParametro('tamano',$this->objParam->getParametro('tamano'));
         $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
@@ -1350,7 +1351,7 @@ function reporteBancosDet()    { //#56
 
                         $this->res=$this->objFunc->listarFrecuenciaProfesiones($this->objParam);
                     }
-                    else{
+                    else{//movimiento_personal, incremento_salarial
                         $this->res=$this->objFunc->listarRepAsignacionCargos($this->objParam);
                     }
 
