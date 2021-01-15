@@ -30,6 +30,7 @@
  *#158	ETR				19.08.2020			MZM-KPLIAN			Adicion de fecha en reporte de personal retirado
  *#159	ETR				25.08.2020			MZM-KPLIAN			Reporte horas trabajadas
  *#ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
+ *#ETR-2476				14.01.2021			MZM-KPLIAN			Reporte incremento_salarial
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -456,6 +457,13 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('unidad','varchar');
 		$this->captura('nueva_unidad','varchar');
 		$this->captura('fecha_movimiento','date'); //ETR-1993
+		//#ETR-2476
+		$this->captura('observaciones_finalizacion','varchar');
+		$this->captura('haber_basico','numeric');
+		$this->captura('nuevo_haber','numeric');
+		$this->captura('nivel','varchar');
+		$this->captura('nuevo_nivel','varchar');
+		
 						
 		//Ejecuta la instruccion
 		$this->armarConsulta(); //echo "7****".$this->getConsulta(); exit;

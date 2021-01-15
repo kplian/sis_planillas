@@ -69,6 +69,7 @@ AS $BODY$
  #ETR-2457		        06.01.2021			MZM-KPLIAN			Modificacion a reporte reserva_beneficios: el funcionario a la fecha del reporte debe pertenecer al tipo de contrato del filtro y solo para esos obtener lo demas: Los q pasan de ODT a planta generan error, dado que tienen informacion de meses previos como ODT, pero ya no tienen q salir
  #ETR-2464				11.01.2021			MZM-KPLIAN			Mejora reporte de reservas: Caso retirados del mes, considerar cotizables completos (considerar un mes mas) dias de quinquenio ajustar a fecha de retiro 
  #ETR-2467				11.01.2021			MZM-KPLIAN			Adicion de condicion retirado para planilla de prevision en PRIMA_SEL
+ #ETR-2476				14.01.2021			MZM-KPLIAN			Adicion de condicion incremento_Salarial en reporte de personal retirado
  ***************************************************************************/
 
 DECLARE
@@ -211,22 +212,22 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''
-                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  and uofunc.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
           		else
                      v_filtro_estado:='
                     and (( uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''
-                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunc.fecha_finalizacion is null or (uofunc.fecha_finalizacion<='''||v_fecha_estado||''' and uofunc.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofunc.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
                       ( uofunc.fecha_asignacion <= '''||v_fecha_estado||''' and uofunc.estado_reg = ''activo'' and uofunc.tipo = ''oficial''  and uofunc.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofunc.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial''))) --#ETR-2476
                           ';
 
                end if;
@@ -250,7 +251,7 @@ BEGIN
               select fecha_ini, fecha_fin into v_fecha_ini, v_fecha_fin
               from param.tperiodo where id_periodo=v_id_periodo;
               v_fecha_control:=v_fecha_fin;  --#137
-              if(v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin and v_registros.observaciones_finalizacion not in ('transferencia','promocion','')) then
+              if(v_registros.fecha_finalizacion between v_fecha_ini and v_fecha_fin and v_registros.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial')) then --#ETR-2476
 				    v_fecha_control:=v_registros.fecha_finalizacion;
               end if;
               v_antiguedad:=(select v_fecha_control - v_fecha_ini_ctto );
@@ -856,7 +857,7 @@ BEGIN
                                 
                                pxp.f_get_dias_mes_30( (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,uofun.fecha_asignacion)),coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
                                 and estado_reg=''activo'' and tipo=''oficial'' and
-                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''',''incremento_salarial'') --#ETR-2476
                                 and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
                                 ),'''||v_fecha||'''))  
                                 
@@ -867,7 +868,7 @@ BEGIN
                                    pxp.f_get_dias_mes_30( (ff.fecha_quinquenio -  interval ''60 month'')::date, 
                                    coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
                                 and estado_reg=''activo'' and tipo=''oficial'' and
-                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''',''incremento_salarial'') --#ETR-2476
                                 and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
                                 ),'''||v_fecha||''')
                                    
@@ -878,7 +879,7 @@ BEGIN
 		                           pxp.f_get_dias_mes_30( ff.fecha_quinquenio, 
                                    coalesce((select fecha_finalizacion from orga.tuo_funcionario where id_uo_funcionario=uofun.id_uo_funcionario 
                                 and estado_reg=''activo'' and tipo=''oficial'' and
-                                observaciones_finalizacion not in (''transferencia'',''promocion'','''')
+                                observaciones_finalizacion not in (''transferencia'',''promocion'','''',''incremento_salarial'')  --#ETR-2476
                                 and fecha_finalizacion between pxp.f_obtener_primer_dia_mes(per.periodo,ges.gestion) and '''||v_fecha||'''
                                 ),'''||v_fecha||''')
                                    
@@ -1047,7 +1048,7 @@ BEGIN
   									 where id_funcionario=fp.id_funcionario
                                      and uoff.estado_reg!=''inactivo'' and uoff.tipo=''oficial''  --#137
 									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
-									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
 									 and cc.id_tipo_contrato=tc.id_tipo_contrato
 									 order by fecha_finalizacion desc limit 1
 									) as fecha_finalizacion
@@ -1262,7 +1263,7 @@ BEGIN
                         and uof.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
                         --#94
                         --and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uof.fecha_asignacion and tipo=''oficial'' and estado_reg!=''inactivo'') --#137
-                        and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')--#96
+                        and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')--#96  --ETR-2476
                 		'||v_condicion||'
 		                and uof.estado_reg=''activo''
                         order by uof.fecha_finalizacion
@@ -1357,7 +1358,7 @@ BEGIN
                                      and uoff.estado_reg!=''inactivo'' and uoff.tipo=''oficial'' --#137
   									 where id_funcionario=fp.id_funcionario
 									 and fecha_finalizacion<='''||v_fecha_fin||''' and fecha_finalizacion>='''||v_fecha_ini||'''
-									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+									 and observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'') --#ETR-2476
 									 and cc.id_cargo=f.id_cargo
 									 order by fecha_finalizacion desc limit 1
 									) as fecha_finalizacion
@@ -1481,24 +1482,24 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
           		else
                      v_filtro_estado:='
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
 
 
                       ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
 
                end if;
@@ -1748,25 +1749,25 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''
-                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  and uof.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
 
             	else
                      v_filtro_estado:='
                     and (( uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''
-                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_estado||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') ) --#ETR-2476
                     or (uof.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
 
 
                       ( uof.fecha_asignacion <= '''||v_fecha_estado||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  and uof.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial''))) --#ETR-2476
                           ';
                end if;
 			end if;
@@ -2186,6 +2187,23 @@ BEGIN
                         where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
                         and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
                         ) as fecha_movimiento --#ETR-1993
+                        --#ETR-2476
+                        ,uofun.observaciones_finalizacion,
+						esc.haber_basico,
+                        (select esc1.haber_basico
+                        from orga.tcargo carn inner join orga.tuo_funcionario uofunn on uofunn.id_cargo=carn.id_cargo
+                        inner join orga.tescala_salarial esc1 on esc1.id_escala_salarial=carn.id_escala_salarial
+                        where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
+                        and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
+                        ) as nuevo_haber,
+                        esc.codigo as nivel,
+                        (select esc1.codigo
+                        from orga.tcargo carn inner join orga.tuo_funcionario uofunn on uofunn.id_cargo=carn.id_cargo
+                        inner join orga.tescala_salarial esc1 on esc1.id_escala_salarial=carn.id_escala_salarial
+                        where uofunn.id_funcionario=fun.id_funcionario and uofunn.fecha_asignacion=uofun.fecha_finalizacion+1
+                        and uofunn.estado_reg=''activo'' and uofunn.tipo=''oficial''  --#137
+                        ) as nuevo_nivel
+                        
                         from orga.tcargo car
                         inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
                         inner join orga.tuo_funcionario uofun on uofun.id_cargo=car.id_cargo
@@ -2194,6 +2212,7 @@ BEGIN
 
                         inner join orga.tuo uo on uo.id_uo=uofun.id_uo
                         inner JOIN orga.vuo_centro uoc ON uoc.id_uo = uo.id_uo
+                         inner join orga.tescala_salarial esc on esc.id_escala_salarial=car.id_escala_salarial --#ETR-2476
                         where uofun.fecha_finalizacion between '''||v_fecha_ini||''' and '''||v_fecha_fin||'''
                         and uofun.estado_reg=''activo'' '||v_condicion||'
                         and uofun.tipo=''oficial''
@@ -2241,42 +2260,42 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
 
                     v_filtro_estado1:='  and uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''
-                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
 
                           v_filtro_estado1:='  and uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  and uofunn.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'') --#ETR-2476
                           ';
 
                 else
                      v_filtro_estado:='
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
                       ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
 
                     v_filtro_estado1:='
                     and (( uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''
-                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofunn.fecha_finalizacion is null or (uofunn.fecha_finalizacion<='''||v_fecha_estado||''' and uofunn.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofunn.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
                       ( uofunn.fecha_asignacion <= '''||v_fecha_estado||''' and uofunn.estado_reg = ''activo'' and uofunn.tipo = ''oficial''  and uofunn.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofunn.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
                end if;
 			end if;
@@ -2361,24 +2380,24 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'') --#ETR-2476
                           ';
             	else
                      v_filtro_estado:='
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') ) --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
 
 
                       ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
 
 
@@ -2432,24 +2451,24 @@ BEGIN
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
           		else
                      v_filtro_estado:='
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') ) --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
 
 
                       ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
 
                end if;
@@ -2540,22 +2559,22 @@ raise notice '***:%',v_consulta;
             if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
                 if(v_parametros.estado_funcionario='activo') then
                     v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     ) ';
                 elsif (v_parametros.estado_funcionario='retirado') then
                        v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')  --#ETR-2476
                           ';
             	else
                      v_filtro_estado:='
                     and (( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+                    and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''',''incremento_salarial'') )  --#ETR-2476
                     or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
                     )
                      ) or
                       ( uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_estado||'''
-                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')))
+                             and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''',''incremento_salarial'')))  --#ETR-2476
                           ';
                 end if;
 			end if;

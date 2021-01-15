@@ -17,7 +17,8 @@
  * #144	ETR			MZM-KPLIAN		29.06.2020	Reporte ingreso/egreso por funcionario
   #156	ETR			EGS				03/08/2020	Se agrega codigo_afp
    #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte
- *#ETR-1378			MZM-KPLIAN		18.10.2020	Adicion de filtro por empleado_planilla 
+ *#ETR-1378			MZM-KPLIAN		18.10.2020	Adicion de filtro por empleado_planilla
+ *#ETR-2476			MZM-KPLIAN		14.01.2021	Adicion de tipo incremento_salarial para ocultar periodo 
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -926,7 +927,7 @@ header("content-type: text/javascript; charset=UTF-8");
 										this.Cmp.personal_activo.setValue('todos');
 										
 									}else{
-										if(r.data.control_reporte=='asignacion_cargos' || r.data.control_reporte=='movimiento_personal' || r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc' ){
+										if(r.data.control_reporte=='asignacion_cargos' || r.data.control_reporte=='movimiento_personal' || r.data.control_reporte=='personal_ret' || r.data.control_reporte=='personal_inc' ||  r.data.control_reporte=='incremento_salarial' ){ //#ETR-2476
 											this.ocultarComponente(this.Cmp.id_periodo);
 											this.Cmp.id_periodo.allowBlank=true;
 											this.Cmp.id_periodo.setValue('');
