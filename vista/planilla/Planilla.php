@@ -15,7 +15,7 @@
  #124    ETR          13/05/2020            RAC KPLIAN          Registrar calcular_bono_rciva
  #132	 ETR		  01/06/2020			MZM KPLIAN			Habilitacion de opcion para reseteo de valores de columnas variables
  #131   ETR           05/06/2020            RAC KPLIAN          Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
- *
+ #ETR-2156			  31.12.2020			MZM KPLIAN			control para no dividir el cbte presupuestario de planilla
  * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -673,6 +673,14 @@ Phx.vista.Planilla=Ext.extend(Phx.gridInterfaz,{
         this.Cmp.id_gestion.on('select',function(c,r,i){
             this.Cmp.id_periodo.reset();
             this.Cmp.id_periodo.store.baseParams.id_gestion = r.data.id_gestion;
+            //31.12.2020 #ETR-2156
+            if (r.data.gestion>=2021){
+            	this.Cmp.dividir_comprobante.disable();
+            }else{
+            	this.Cmp.dividir_comprobante.enable();
+            }
+            
+            
         },this);
 
 
