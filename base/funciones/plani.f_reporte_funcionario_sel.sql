@@ -70,6 +70,7 @@ AS $BODY$
  #ETR-2464				11.01.2021			MZM-KPLIAN			Mejora reporte de reservas: Caso retirados del mes, considerar cotizables completos (considerar un mes mas) dias de quinquenio ajustar a fecha de retiro 
  #ETR-2467				11.01.2021			MZM-KPLIAN			Adicion de condicion retirado para planilla de prevision en PRIMA_SEL
  #ETR-2476				14.01.2021			MZM-KPLIAN			Adicion de condicion incremento_Salarial en reporte de personal retirado
+ #ETR-2780				02.02.2021			MZM-KPLIAN			Cambio de columna extra por extra_autorizada  en PLA_HORTRATOT_SEL
  ***************************************************************************/
 
 DECLARE
@@ -3423,7 +3424,7 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
         	v_consulta:='select nivel.id_funcionario,  trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,nivel.desc_funcionario2, nivel.nombre_uo_centro::varchar,
                         0::numeric as tot_comp,
                         tot.total_normal, 
-                         tot.total_extra, 
+                         tot.total_extra_autorizada,  --#ETR-2780 
                          tot.total_nocturna,
                          0::numeric as total_extra_vac,
                          0::numeric as total_noctura_vac,
