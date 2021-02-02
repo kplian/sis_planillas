@@ -3424,7 +3424,7 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
         	v_consulta:='select nivel.id_funcionario,  trim(both ''FUNODTPR'' from  fun.codigo ) as codigo,nivel.desc_funcionario2, nivel.nombre_uo_centro::varchar,
                         0::numeric as tot_comp,
                         tot.total_normal, 
-                         tot.total_extra_autorizada,  --#ETR-2780 
+                         tot.extra_autorizada,  --#ETR-2780 
                          tot.total_nocturna,
                          0::numeric as total_extra_vac,
                          0::numeric as total_noctura_vac,
