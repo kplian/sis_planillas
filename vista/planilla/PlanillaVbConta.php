@@ -12,6 +12,7 @@
  #47    ETR      24-09-2019        Manuel Guerra        reporte de verificacion presupuestaria
  #74             04-11-2019        Rensi Arteaga        esconde opciones para contadores
  #79    ETR      27/11/2019        RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
+ #ETR-2755		 02.02.2021		   MZM KPLIAN	   		Reporte de verificacion presupuestaria xls
  */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -76,6 +77,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     tooltip: 'Verificacion Presupuestaria' ,
                     scope: this
                 },
+                {   
+                    text: 'Verificacion Presupuestaria Xls',
+                    id: 'btnVerPreXls-' + this.idContenedor,
+                    handler: this.onVerPreXls,
+                    tooltip: 'Verificacion Presupuestaria Xls' ,
+                    scope: this
+                }
                 ]                              
             }
         );
@@ -1047,5 +1055,28 @@ header("content-type: text/javascript; charset=UTF-8");
 				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
 			}
 		},
+		onVerPreXls : function() {
+			var rec = this.getSelectedData();		
+			if(rec)
+			{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
+					params:{
+						'id_planilla':rec.id_planilla,
+						'nro_planilla':rec.nro_planilla,
+						'tipo_reporte':'xls'
+					},
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});		
+			}
+			else
+			{
+				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+			}
+		}
     })
 </script>
