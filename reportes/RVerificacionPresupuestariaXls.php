@@ -231,7 +231,7 @@ class RVerificacionPresupuestariaXls
              
                 
 
-			$tit_rep='VERIFICACION PRESUPUESTARIA '.$tip.$fecha_back;
+			$tit_rep='VERIFICACION PRESUPUESTARIA '. $this->objParam->getParametro('nro_planilla');
 
 
 
