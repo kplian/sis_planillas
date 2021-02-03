@@ -22,6 +22,7 @@ require_once(dirname(__FILE__).'/../reportes/RAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RSegAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RCertificacionPresupuestaria.php');
 require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestaria.php');
+require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestariaXls.php');//#ETR-2755
 
 
 class ACTPlanilla extends ACTbase{
@@ -259,23 +260,39 @@ class ACTPlanilla extends ACTbase{
     }
     //#47
     function reporteVerifPresu(){
-        $nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria]').'.pdf';
-        $dataSource = $this->listaVerPresu();
-        $orientacion = 'P';
-        $tamano = 'LETTER';
-        $titulo = 'Consolidado';
-        $this->objParam->addParametro('orientacion',$orientacion);
-        $this->objParam->addParametro('tamano',$tamano);
-        $this->objParam->addParametro('titulo_archivo',$titulo);
-        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-        $reporte = new RVerificacionPresupuestaria($this->objParam);
-        $reporte->datosHeader($dataSource->getDatos());
-        $reporte->generarReporte();
-        $reporte->output($reporte->url_archivo,'F');
-        $this->mensajeExito=new Mensaje();
-        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
-        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
-        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+    	$dataSource = $this->listaVerPresu();
+    	$nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria]');
+    	if ($this->objParam->getParametro('tipo_reporte')=='xls'){//#ETr-2755
+    		$nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+            $this->objParam->addParametro('datos',$this->res->datos);
+
+            //Instancia la clase de excel
+            $this->objReporteFormato=new RVerificacionPresupuestariaXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($dataSource->getDatos());
+    	}else{
+    		$nombreArchivo.='.pdf';
+	        $orientacion = 'P';
+	        $tamano = 'LETTER';
+	        $titulo = 'Consolidado';
+	        $this->objParam->addParametro('orientacion',$orientacion);
+	        $this->objParam->addParametro('tamano',$tamano);
+	        $this->objParam->addParametro('titulo_archivo',$titulo);
+	        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+	        $reporte = new RVerificacionPresupuestaria($this->objParam);
+	        $reporte->datosHeader($dataSource->getDatos());
+	        $reporte->generarReporte();
+	        $reporte->output($reporte->url_archivo,'F');
+	        
+    	}
+			$this->mensajeExito=new Mensaje();
+	        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
+	        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+	        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		
+        
     }
 
     #78 listarPlanillaBk
