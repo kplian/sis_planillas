@@ -16,6 +16,7 @@
  #61    ETR      01-10-2019        RAC KPLIAN      Nueva interface de empleados por planilla, en interface de visto bueno conta y planillas 
  #132   ETR	  	 01/06/2020		   MZM KPLIAN	   Habilitacion de opcion para reseteo de valores de columnas variables
  #139   ETR      10/02/2020        MZM KPLIAN  	   Adicion de opcion para enviar boletas de pago a los funcionarios via correo electronico
+ #ETR-2755		 02.02.2021		   MZM KPLIAN	   Reporte de verificacion presupuestaria xls
  *  */
 
 header("content-type: text/javascript; charset=UTF-8"); 
@@ -94,6 +95,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     id: 'btnVerPre-' + this.idContenedor,
                     handler: this.onVerPre,
                     tooltip: 'Verificacion Presupuestaria' ,
+                    scope: this
+                },
+                {   
+                    text: 'Verificacion Presupuestaria Xls',
+                    id: 'btnVerPreXls-' + this.idContenedor,
+                    handler: this.onVerPreXls,
+                    tooltip: 'Verificacion Presupuestaria Xls' ,
                     scope: this
                 }]                              
             }
@@ -1176,7 +1184,9 @@ header("content-type: text/javascript; charset=UTF-8");
 				Ext.Ajax.request({
 					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
 					params:{
-						'id_planilla':rec.id_planilla
+						'id_planilla':rec.id_planilla,
+						'nro_planilla':rec.nro_planilla,
+						'tipo_reporte':'pdf'
 					},
 					success:this.successExport,
 					failure: this.conexionFailure,
@@ -1189,6 +1199,29 @@ header("content-type: text/javascript; charset=UTF-8");
 				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
 			}
 		},
+		onVerPreXls : function() {
+			var rec = this.getSelectedData();		
+			if(rec)
+			{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
+					params:{
+						'id_planilla':rec.id_planilla,
+						'tipo_reporte':'xls'
+					},
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});		
+			}
+			else
+			{
+				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+			}
+		},
+		
 		//#61
 		south:{
 		  url:'../../../sis_planillas/vista/funcionario_planilla/FuncionarioPlanilla.php',

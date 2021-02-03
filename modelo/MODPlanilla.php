@@ -714,7 +714,7 @@ class MODPlanilla extends MODbase{
         $this->captura('veripre_dispo','numeric');
         $this->captura('estado','varchar');
         //Ejecuta la instruccion
-        $this->armarConsulta();
+        $this->armarConsulta();//echo $this->getConsulta(); exit;
         $this->ejecutarConsulta();
 
         //Devuelve la respuesta
