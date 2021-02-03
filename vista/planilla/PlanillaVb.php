@@ -1208,6 +1208,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
 					params:{
 						'id_planilla':rec.id_planilla,
+						'nro_planilla':rec.nro_planilla,
 						'tipo_reporte':'xls'
 					},
 					success:this.successExport,
