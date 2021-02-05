@@ -294,8 +294,8 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
 					$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 					$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
-					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-					
+					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario'  &&
+					$this->datos_detalle[$i]['codigo_columna']!='num_documento' //#ETR-2862
 				 ){
 				 	if($this->datos_detalle[$i]['valor_columna']>0){
 				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
@@ -306,7 +306,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				 	
 				 }
 				else{
-					
+					if ($this->datos_detalle[$i]['codigo_columna']=='num_documento') {
+						
+					}
 						array_push($detalle_col_mod, $this->datos_detalle[$i]['valor_columna']);	
 					
 					
@@ -347,7 +349,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 							$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 							$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 							$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-						   
+						    && $this->datos_detalle[$i]['codigo_columna']!='num_documento' //#ETR-2862
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
@@ -384,7 +386,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 						$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 						$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-					    
+					    && $this->datos_detalle[$i]['codigo_columna']!='num_documento' //#ETR-2862
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
