@@ -259,8 +259,8 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 					$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
 					$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 					$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
-					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
-				
+					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' &&
+				    $this->datos_detalle[$i]['codigo_columna']!='num_documento'  //#ETR-2862
 				 ){
 				 	
 				 	if($this->datos_detalle[$i]['valor_columna']>0){//#50
