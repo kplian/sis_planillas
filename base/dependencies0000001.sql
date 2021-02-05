@@ -4507,8 +4507,96 @@ AS
                      nombre_col, valor_col);
                      
 /***********************************F-DEP-MZM-PLANI-ETR-2503-12/01/2021****************************************/                     
-                            
-       
+                 
+                 
+/***********************************I-DEP-MZM-PLANI-ETR-2862-05/02/2021****************************************/                 
+                 
+CREATE OR REPLACE VIEW plani.nvdatos_func_planilla(
+    id_funcionario,
+    id_funcionario_planilla,
+    nombre_col,
+    valor_col)
+AS
+  SELECT unpiv.id_funcionario,
+         unpiv.id_funcionario_planilla,
+         (unpiv.h) . key AS nombre_col,
+         (unpiv.h) . value AS valor_col
+  FROM (
+         SELECT foo.id_funcionario,
+                foo.id_funcionario_planilla,
+                each (hstore(foo.*) - 'id_funcionario' ::text) AS h
+         FROM (
+                SELECT fun.id_funcionario,
+                       fp.id_funcionario_planilla,
+                       fp.id_uo_funcionario,
+                       to_char(plani.f_get_fecha_primer_contrato_empleado(
+                       fp.id_uo_funcionario, fp.id_funcionario,
+                        uof.fecha_asignacion) ::timestamp without time zone,
+                         'dd/mm/YYYY' ::text) AS fecha_ingreso,
+                       to_char(per.fecha_nacimiento::timestamp with time zone,
+                        'dd/mm/YYYY' ::text) AS fecha_nacimiento,
+                       ofi.nombre AS oficina,
+                       car.nombre AS cargo,
+                       l.nombre AS regional,
+                       l.codigo AS codigo_regional,
+                       btrim(fun.codigo::text, 'FUNODTPR' ::text) AS
+                        codigo_funcionario,
+                       "substring"(fun.desc_funcionario2, 1, 58) AS
+                        nombre_funcionario,
+                       esc.codigo AS nivel,
+                       car.id_cargo,
+                       fp.id_planilla,
+                       plani.id_periodo,
+                       plani.id_gestion,
+                       (
+                         SELECT DISTINCT tfuncionario_afp.nro_afp
+                         FROM plani.tfuncionario_afp
+                         WHERE tfuncionario_afp.id_funcionario =
+                          fp.id_funcionario AND
+                               plani.fecha_planilla >=
+                                tfuncionario_afp.fecha_ini AND
+                               plani.fecha_planilla <= COALESCE(
+                               tfuncionario_afp.fecha_fin, plani.fecha_planilla)
+                         LIMIT 1
+                       ) AS codigo_rciva,
+                       per.tipo_documento,
+                       (per.ci::text || ' ' ::text) || per.expedicion::text AS
+                        num_documento,
+                       ofi.nombre AS distrito,
+                       (
+                         SELECT round(sum(tcolumna_valor.valor), 2) AS sum
+                         FROM plani.tcolumna_valor
+                         WHERE tcolumna_valor.id_funcionario_planilla =
+                          fp.id_funcionario_planilla AND
+                               (tcolumna_valor.codigo_columna::text = ANY (ARRAY
+                                [ 'TOTGAN' ::character varying::text, 'AFP_PAT'
+                                 ::character varying::text, 'PREAGUI'
+                                  ::character varying::text, 'PREPRI'
+                                   ::character varying::text, 'PREVBS'
+                                    ::character varying::text, 'CAJSAL'
+                                     ::character varying::text ]))
+                       ) AS total_gral,
+                       '_____________________________________'
+                                              ::text AS firma
+                FROM orga.vfuncionario fun
+                     JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+                      fun.id_funcionario
+                     JOIN plani.tplanilla plani ON plani.id_planilla =
+                      fp.id_planilla
+                     JOIN orga.tuo_funcionario uof ON uof.id_uo_funcionario =
+                      fp.id_uo_funcionario AND fp.id_funcionario =
+                       uof.id_funcionario
+                     JOIN orga.tcargo car ON car.id_cargo = uof.id_cargo
+                     JOIN param.tlugar l ON l.id_lugar = car.id_lugar
+                     JOIN orga.tescala_salarial esc ON esc.id_escala_salarial =
+                      car.id_escala_salarial
+                     JOIN orga.tfuncionario tf ON tf.id_funcionario =
+                      fp.id_funcionario
+                     JOIN segu.tpersona per ON per.id_persona = tf.id_persona
+                     JOIN orga.toficina ofi ON ofi.id_oficina = car.id_oficina
+              ) foo
+       ) unpiv;                            
+/***********************************F-DEP-MZM-PLANI-ETR-2862-05/02/2021****************************************/       
        
 
        
