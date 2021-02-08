@@ -65,10 +65,10 @@ class RPlanillaPersonal extends  ReportePDF {
 			  	$this->Cell(30,5,'Motivo','LBTR',0,'C');
 			  	$this->Cell(20,5,'Salario','LBTR',1,'C');
 			  }else{
-			  	$this->Cell(20,5,'Fecha Ing.','LBTR',0,'C');
-			  	$this->Cell(20,5,'Salario','LBTR',0,'C');
-			  	$this->Cell(18,5,'Tiem. Ctto','LBTR',0,'C');
-			  	$this->Cell(20,5,'Fech Conclus','LBTR',0,'C');
+			  	$this->Cell(25,5,'Fecha Ing.','LBTR',0,'C');
+			  	$this->Cell(25,5,'Salario','LBTR',0,'C');
+			  	$this->Cell(25,5,'Tiem. Ctto','LBTR',1,'L');
+			  	//$this->Cell(20,5,'Fech Conclus','LBTR',0,'C');
 			  }
 			  
 			  
@@ -116,6 +116,7 @@ class RPlanillaPersonal extends  ReportePDF {
 							  $array_datos[$cont][6]= $this->datos[$i]['valor'];
 							 
 							  $array_datos[$cont][7]=$this->datos[$i]['mes'];
+							  $array_datos[$cont][8]=$this->datos[$i]['tipo'];//#ETR-2804
 					
 					$cont++;
 				}
@@ -143,11 +144,11 @@ class RPlanillaPersonal extends  ReportePDF {
 						  $this->Cell(20,5,$array_datos[$i][4],'',0,'C');
 						  $this->Cell(30,5,$array_datos[$i][5],'',0,'L');
 						  $this->Cell(20,5,$array_datos[$i][6],'',1,'R');
-					  }else{
-					  	  $this->Cell(20,5,$array_datos[$i][4],'',0,'C');
-						  $this->Cell(20,5,$array_datos[$i][6],'',0,'R');
-						  $this->Cell(18,5,'','',0,'R');
-						  $this->Cell(20,5,'','',1,'R');
+					  }else{//#ETR-2804
+					  	  $this->Cell(25,5,$array_datos[$i][4],'',0,'C');
+						  $this->Cell(25,5,$array_datos[$i][6],'',0,'R');
+						  $this->Cell(25,5,$array_datos[$i][8],'',1,'L');
+						 // $this->Cell(20,5,'','',1,'R');
 					  }
 					  //---------
 					 			
@@ -160,11 +161,11 @@ class RPlanillaPersonal extends  ReportePDF {
 						  $this->Cell(20,5,$array_datos[$i][4],'',0,'C');
 						  $this->Cell(30,5,$array_datos[$i][5],'',0,'L');
 						  $this->Cell(20,5,$array_datos[$i][6],'',1,'R');
-					  }else{
-					  	  $this->Cell(20,5,$array_datos[$i][4],'',0,'C');
-						  $this->Cell(20,5,$array_datos[$i][6],'',0,'R');
-						  $this->Cell(18,5,'','',0,'R');
-						  $this->Cell(20,5,'','',1,'R');
+					  }else{//#ETR-2804
+					  	  $this->Cell(25,5,$array_datos[$i][4],'',0,'C');
+						  $this->Cell(25,5,$array_datos[$i][6],'',0,'R');
+						  $this->Cell(25,5,$array_datos[$i][8],'',1,'L');
+						  //$this->Cell(20,5,'','',1,'R');
 					  }				
 					
 					 
