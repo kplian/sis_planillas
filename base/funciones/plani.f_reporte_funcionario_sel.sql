@@ -71,6 +71,7 @@ AS $BODY$
  #ETR-2467				11.01.2021			MZM-KPLIAN			Adicion de condicion retirado para planilla de prevision en PRIMA_SEL
  #ETR-2476				14.01.2021			MZM-KPLIAN			Adicion de condicion incremento_Salarial en reporte de personal retirado
  #ETR-2780				02.02.2021			MZM-KPLIAN			Cambio de columna extra por extra_autorizada  en PLA_HORTRATOT_SEL
+ #ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de tipo a reporte de personal incorporado
  ***************************************************************************/
 
 DECLARE
@@ -1252,7 +1253,10 @@ BEGIN
            		v_consulta:='select fun.desc_funcionario1, uof.fecha_finalizacion,
       					uof.observaciones_finalizacion, fun.id_funcionario, c.nombre, uop.nombre_uo_centro,
                         esc.haber_basico ,split_part( param.f_get_periodo_literal((select id_periodo from param.tperiodo where uof.fecha_finalizacion between fecha_ini and fecha_fin) ),'' '',1)::varchar
-						,'||v_antiguedad||' as gestion, t.nombre
+						,'||v_antiguedad||' as gestion, t.nombre,
+                        (case when uof.fecha_finalizacion is not null then ''fijo''
+                        else ''indefinido''
+                        end) as tipo --#ETR-2804
                         from orga.tuo_funcionario uof
                         inner join orga.vfuncionario fun on fun.id_funcionario=uof.id_funcionario
                         and uof.estado_reg!=''inactivo'' and uof.tipo=''oficial'' --#137
@@ -1274,7 +1278,10 @@ BEGIN
       					 ''''::varchar as observaciones_finalizacion, fun.id_funcionario, c.nombre, uop.nombre_uo_centro,
                          esc.haber_basico ,
                          split_part( param.f_get_periodo_literal((select id_periodo from param.tperiodo where plani.f_get_fecha_primer_contrato_empleado(fun.id_funcionario, fun.id_funcionario, uof.fecha_asignacion) between fecha_ini and fecha_fin) ),'' '',1)::varchar
-						,'||v_antiguedad||' as gestion, t.nombre
+						,'||v_antiguedad||' as gestion, t.nombre,
+                        (case when uof.fecha_finalizacion is not null then ''fijo''
+                        else ''indefinido''
+                        end) as tipo --#ETr-2804
                         from orga.tuo_funcionario uof
                         inner join orga.vfuncionario fun on fun.id_funcionario=uof.id_funcionario
                         inner join orga.tcargo c on c.id_cargo=uof.id_cargo

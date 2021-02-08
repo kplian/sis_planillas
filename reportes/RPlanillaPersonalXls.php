@@ -5,6 +5,7 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
  #ETR-1992				30.11.2020			MZM-KPLIAN			Modificacion a formato de campo fecha
+ #ETR-2804				07.02.2021			MZM-KPLIAN			Reporte personal incorporado (adicion de tipo y quitar fecha fin ctto)
 */
 class RPlanillaPersonalXls
 {
@@ -182,8 +183,8 @@ class RPlanillaPersonalXls
                
 				
                if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){     
-	                $this->docexcel->getActiveSheet()->getStyle('A3:H3')->getAlignment()->setWrapText(true);
-	                $this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($styleTitulos3);
+	                $this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
+	                $this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos3);
                 }else{
                 	$this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
 	                $this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos3);
@@ -205,9 +206,9 @@ class RPlanillaPersonalXls
                 $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);//cargo
                 $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(15);//fecha
                 
-                if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
+                /*if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
                   $this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);//fecha	
-                }
+                }*/
                 
 				
                 $this->docexcel->getActiveSheet()->setCellValue('A3','N');//1
@@ -219,7 +220,7 @@ class RPlanillaPersonalXls
                 if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
                     $this->docexcel->getActiveSheet()->setCellValue('F3','Salario');//6
                 	$this->docexcel->getActiveSheet()->setCellValue('G3','Tiempo Ctto');//7
-                	$this->docexcel->getActiveSheet()->setCellValue('H3','Fech Concl.');//7	
+                	//$this->docexcel->getActiveSheet()->setCellValue('H3','Fech Concl.');//7	
                 }else{
                 	$this->docexcel->getActiveSheet()->setCellValue('F3','Motivo');//6
                 	$this->docexcel->getActiveSheet()->setCellValue('G3','Salario');//7
@@ -227,7 +228,7 @@ class RPlanillaPersonalXls
                
                
                 
-                $this->docexcel->getActiveSheet()->getStyle('F:S')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+                //$this->docexcel->getActiveSheet()->getStyle('F:S')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 	$tip='';			
  if($this->objParam->getParametro('id_tipo_contrato')>0){
  	$tip=$datos[0]['nombre'];
@@ -286,8 +287,8 @@ if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,number_format($value['valor'],2,',','.'));  
 					}else{
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,number_format($value['valor'],2,',','.')); 
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,'');
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,'');
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['tipo']);
+						//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,'');
 					}
 					
 					$mes =$value['mes'];
