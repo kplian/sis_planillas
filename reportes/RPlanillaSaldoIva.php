@@ -4,7 +4,8 @@
  #ISSUE                FECHA                AUTOR               DESCRIPCION
  #119    ETR            23/04/2020           MZM                 Creacion
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-2806				09.02.2021			MZM-KPLIAN			Render de observaciones-finalizacion en personal retirado  
  */
 class RPlanillaSaldoIva extends  ReportePDF {
 	var $datos;	
@@ -121,7 +122,31 @@ class RPlanillaSaldoIva extends  ReportePDF {
 			$this->Cell(70,5,mb_strcut($this->datos[$i]['desc_funcionario'],0,45, "UTF-8"),'',0,'L');	
 			$this->Cell(20,5,$this->datos[$i]['fecha_primer_contrato'],'',0,'C');
 			$this->Cell(20,5,$this->datos[$i]['fecha_finalizacion'],'',0,'C');
-			$this->Cell(20,5,$this->datos[$i]['observaciones_fin'],'',0,'L');
+			$obs_fin='';
+			
+			switch ($this->datos[$i]['observaciones_fin']){
+								    case 'fin contrato':$obs_fin= 'Conclusión contrato';
+								       break;
+								    case 'retiro':$obs_fin= 'Despido';
+								      break;
+								    case 'renuncia':$obs_fin= 'Renuncia';
+								      break;
+								    case 'promocion':$obs_fin= 'Promoción';
+								      break;
+								    case 'transferencia':$obs_fin= 'Transferencia';
+								      break;
+								    case 'rescision':$obs_fin= 'Rescisión contrato';				      
+								      break;
+								    case 'licencia':$obs_fin= 'Licencia';
+								      break;
+								    case 'incremento_salarial':$obs_fin= 'Incremento salarial';
+								      break;
+								    
+								    default:$obs_fin= '';
+								      // default statements
+								}
+			
+			$this->Cell(20,5,$obs_fin,'',0,'L');
 			$this->Cell(25,5,number_format($this->datos[$i]['sueldo_neto'],2),'',0,'R');
 			$this->Cell(20,5,number_format($this->datos[$i]['acumulado'],2),'',0,'R');
 			$this->Cell(20,5,number_format($this->datos[$i]['saldo_dep'],2),'',1,'R');

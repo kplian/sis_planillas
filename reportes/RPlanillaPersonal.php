@@ -9,6 +9,7 @@
  #158	ETR				20.08.2020			MZM-KPLIAN			Personal Retirado a una fecha especifica
 #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
  #ETR-1992				30.11.2020			MZM-KPLIAN			Modificacion a formato de campo fecha
+ #ETR-2806				09.02.2021			MZM-KPLIAN			Render de observaciones-finalizacion en personal retirado
 */
 class RPlanillaPersonal extends  ReportePDF {
 	var $datos;	
@@ -112,7 +113,28 @@ class RPlanillaPersonal extends  ReportePDF {
 							  $d=substr($this->datos[$i]['fecha'],8,2);
 							  
 							  $array_datos[$cont][4]=$d.'/'.$m.'/'.$a;
-							  $array_datos[$cont][5]= $this->datos[$i]['observaciones_finalizacion'];
+							  //#ETR-2806
+							  switch ($this->datos[$i]['observaciones_finalizacion']){
+								    case 'fin contrato':$array_datos[$cont][5]= 'Conclusión contrato';
+								       break;
+								    case 'retiro':$array_datos[$cont][5]= 'Despido';
+								      break;
+								    case 'renuncia':$array_datos[$cont][5]= 'Renuncia';
+								      break;
+								    case 'promocion':$array_datos[$cont][5]= 'Promoción';
+								      break;
+								    case 'transferencia':$array_datos[$cont][5]= 'Transferencia';
+								      break;
+								    case 'rescision':$array_datos[$cont][5]= 'Rescisión contrato';				      break;
+								    case 'licencia':$array_datos[$cont][5]= 'Licencia';
+								      break;
+								    case 'incremento_salarial':$array_datos[$cont][5]= 'Incremento salarial';
+								      break;
+								    
+								    default:$array_datos[$cont][5]= '';
+								      // default statements
+								}
+							  //$array_datos[$cont][5]= $this->datos[$i]['observaciones_finalizacion'];
 							  $array_datos[$cont][6]= $this->datos[$i]['valor'];
 							 
 							  $array_datos[$cont][7]=$this->datos[$i]['mes'];

@@ -6,6 +6,7 @@
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta 
  #ETR-1992				30.11.2020			MZM-KPLIAN			Modificacion a formato de campo fecha
  #ETR-2804				07.02.2021			MZM-KPLIAN			Reporte personal incorporado (adicion de tipo y quitar fecha fin ctto)
+ #ETR-2806				09.02.2021			MZM-KPLIAN			Render de observaciones-finalizacion en personal retirado
 */
 class RPlanillaPersonalXls
 {
@@ -283,7 +284,32 @@ if($this->objParam->getParametro('tipo_reporte')=='personal_inc'){
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$d.'/'.$m.'/'.$a); 
 					
 					if($this->objParam->getParametro('tipo_reporte')=='personal_ret'){
-						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$value['observaciones_finalizacion']); 
+						//#ETR-2806
+						$obs_fin='';
+								  switch ($value['observaciones_finalizacion']){
+								    case 'fin contrato':$obs_fin= 'Conclusión contrato';
+								       break;
+								    case 'retiro':$obs_fin= 'Despido';
+								      break;
+								    case 'renuncia':$obs_fin= 'Renuncia';
+								      break;
+								    case 'promocion':$obs_fin= 'Promoción';
+								      break;
+								    case 'transferencia':$obs_fin= 'Transferencia';
+								      break;
+								    case 'rescision':$obs_fin= 'Rescisión contrato';				      
+								      break;
+								    case 'licencia':$obs_fin= 'Licencia';
+								      break;
+								    case 'incremento_salarial':$obs_fin= 'Incremento salarial';
+								      break;
+								    
+								    default:$obs_fin= '';
+								      // default statements
+								}
+						
+						
+						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,$obs_fin); 
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,number_format($value['valor'],2,',','.'));  
 					}else{
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,number_format($value['valor'],2,',','.')); 
