@@ -8,6 +8,7 @@
  #104	ETR				11.03.2020			MZM					Correccion de variable par titulo de hoja de excel
  #98	ETR				27.02.2020			MZM					Titulo considerando estado de fucnionarios y tipo contrato
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-2806				09.02.2021			MZM-KPLIAN			Render de observaciones-finalizacion en personal retirado
  * *  
 */
 class RPlanillaCurvaXls
@@ -509,9 +510,30 @@ class RPlanillaCurvaXls
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila,$value['fecha_retiro'] );	
 					}
 					
-					
-										//
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila,$value['motivo_retiro'] );
+					//#ETR-2806
+					$obs_fin='';
+							  switch ($value['motivo_retiro'] ){
+								    case 'fin contrato':$obs_fin= 'Conclusión contrato';
+								       break;
+								    case 'retiro':$obs_fin= 'Despido';
+								      break;
+								    case 'renuncia':$obs_fin= 'Renuncia';
+								      break;
+								    case 'promocion':$obs_fin= 'Promoción';
+								      break;
+								    case 'transferencia':$obs_fin= 'Transferencia';
+								      break;
+								    case 'rescision':$obs_fin= 'Rescisión contrato';				      
+								      break;
+								    case 'licencia':$obs_fin= 'Licencia';
+								      break;
+								    case 'incremento_salarial':$obs_fin= 'Incremento salarial';
+								      break;
+								    
+								    default:$obs_fin= '';
+								      // default statements
+								}
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila,$obs_fin );
 					if(strlen($value['fecha_ingreso_ctto1'])>0){
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila,date_format(date_create($value['fecha_ingreso_ctto1']),'d/m/Y') );
 					}else{
