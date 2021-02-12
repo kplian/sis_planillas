@@ -54,3 +54,28 @@ update plani.tplanilla  set
        fecha_mod=now()
     where id_proceso_wf = 346865;
 /********************************************F-DAUP-MZM-PLANI-0-01/02/2021********************************************/
+
+
+
+
+/********************************************I-DAUP-MZM-PLANI-1-12/02/2021********************************************/
+--rollback
+--UPDATE plani.tcolumna_valor SET valor = 10818.55 WHERE id_columna_valor = 4653241;
+--UPDATE plani.tcolumna_valor SET valor = 12784.55 WHERE id_columna_valor = 4653237;
+--UPDATE plani.tcolumna_valor SET valor = 13336.27 WHERE id_columna_valor = 4653234;
+--UPDATE plani.tcolumna_valor SET valor = 106830.66 WHERE id_columna_valor = 4653229;
+--UPDATE plani.tcolumna_valor SET valor = 102586.66 WHERE id_columna_valor = 4653231;
+--UPDATE plani.tcolumna_valor SET valor = 72312.33 WHERE id_columna_valor = 4653200;
+--UPDATE plani.tcolumna_valor SET valor = 5375.71 WHERE id_columna_valor = 4653274;
+--UPDATE plani.tcolumna_valor SET valor = 5375.71 WHERE id_columna_valor = 4653249;
+
+--commit
+UPDATE plani.tcolumna_valor SET valor =25037.95  WHERE id_columna_valor = 4653241;
+UPDATE plani.tcolumna_valor SET valor =27003.95  WHERE id_columna_valor = 4653237;
+UPDATE plani.tcolumna_valor SET valor =27555.67  WHERE id_columna_valor = 4653234;
+UPDATE plani.tcolumna_valor SET valor =216210.66  WHERE id_columna_valor = 4653229;
+UPDATE plani.tcolumna_valor SET valor =211966.66  WHERE id_columna_valor = 4653231;
+UPDATE plani.tcolumna_valor SET valor =181692.33  WHERE id_columna_valor = 4653200;
+UPDATE plani.tcolumna_valor SET valor =19595.11  WHERE id_columna_valor = 4653274;
+UPDATE plani.tcolumna_valor SET valor =19595.11  WHERE id_columna_valor = 4653249;
+/********************************************F-DAUP-MZM-PLANI-1-12/02/2021********************************************/
