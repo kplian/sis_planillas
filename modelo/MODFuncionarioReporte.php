@@ -32,6 +32,7 @@
  *#ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
  *#ETR-2476				14.01.2021			MZM-KPLIAN			Reporte incremento_salarial
  *#ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de campo tipo en reporte de personal incorporado
+ *#ETR-3119				02.03.2021			MZM-KPLIAN			SPLAPREPRI, adicion de campo para incluir trabajadores con 90 dias en la gestion pero con mas de 90 en la empresa
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -797,6 +798,7 @@ class MODFuncionarioReporte extends MODbase{
 			$this->captura('gestion','integer');
 			$this->captura('obs_fin','varchar');
 			$this->captura('es_vigente','boolean');	//#135	
+			$this->captura('total_dias','integer');//#ETR-3119
 		 	$this->armarConsulta(); 		   
 		
         //Ejecuta la instruccion

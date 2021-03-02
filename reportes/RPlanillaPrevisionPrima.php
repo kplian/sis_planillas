@@ -5,6 +5,7 @@
   #135	ETR				04.06.2020			MZM-KPLIAN			Planilla de Prevision de Primas
   #ETR-2467				11.01.2021			MZM-KPLIAN			Omision de columna cotizable perteneciente a primer contrato, ajuste interno de columnas. Adicion de total general
   #ETR-2544				13.01.2021			MZM-KPLIAN			Adicion de condicion de que SPREDIAS1 + SPREDIAS2 deben sumar mas de 90 (Si bien ya se corrigio en la funcion de insercion, para planilla 2020 q ya se genero se adiciona para no reprocesar)
+ *#ETR-3119				02.03.2021			MZM-KPLIAN			Adicion de control para que en personal retirado se considere el tiempo total que lleva en la empresa 
  */
 class RPlanillaPrevisionPrima extends  ReportePDF {
 	var $datos;	
@@ -310,7 +311,8 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 				}
 				
 				$array_datos[$cont][18]= $this->datos[$i]['desc_oficina'];  
-				$array_datos[$cont][21]= $this->datos[$i]['obs_fin'];  
+				$array_datos[$cont][21]= $this->datos[$i]['obs_fin'];
+				$array_datos[$cont][24]= $this->datos[$i]['total_dias'];//#ETR-3119    
 			}else{
 				if ($this->datos[$i]['codigo_columna']=='PREDIAS1' || $this->datos[$i]['codigo_columna']=='SPREDIAS1'){//#145
 					$array_datos[$cont][8]= $this->datos[$i]['valor'];
@@ -383,7 +385,7 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$s_prima=0; $s_13=0; $s_iva=0; $s_des=0; $s_lq=0;
 					//----
 					
-					if ($array_datos[$i][8]+$array_datos[$i][9]!=90){//#ETR-2544
+					if (($array_datos[$i][8]+$array_datos[$i][9]!=90) ){//#ETR-2544
 					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
@@ -542,7 +544,7 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$s_cot1=0; $s_cot2=0; $s_cot3=0;
 					$s_prima=0; $s_13=0; $s_iva=0; $s_des=0; $s_lq=0;
 					//----
-					if ($array_datos[$i][8]+$array_datos[$i][9]!=90){//#ETR-2544
+					if (($array_datos[$i][8]+$array_datos[$i][9])>=90 && $array_datos[$i][24]>90 ){//#ETR-2544 //#ETR-3119
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
@@ -594,11 +596,11 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Cell(50,5,'','R',0,'C');
 					$this->Cell(68,5,'','R',0,'C');
 					$this->Cell(82,5,'','',1,'L');
-					}else{
+					}else{ 			
 						$sin_90=$sin_90+1;
 					}
 				}else{
-					if ($array_datos[$i][8]+$array_datos[$i][9]!=90){//#ETR-2544
+					if (($array_datos[$i][8]+$array_datos[$i][9])>=90 && $array_datos[$i][24]>90){//#ETR-2544  //#ETR-3119
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
 					
@@ -648,7 +650,7 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$this->Cell(50,5,'','R',0,'C');
 					$this->Cell(68,5,'','R',0,'C');
 					$this->Cell(82,5,'','',1,'L');
-					}else{
+					}else{ 
 						$sin_90=$sin_90+1;
 					}
 				}
