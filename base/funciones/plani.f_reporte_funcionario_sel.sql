@@ -72,6 +72,7 @@ AS $BODY$
  #ETR-2476				14.01.2021			MZM-KPLIAN			Adicion de condicion incremento_Salarial en reporte de personal retirado
  #ETR-2780				02.02.2021			MZM-KPLIAN			Cambio de columna extra por extra_autorizada  en PLA_HORTRATOT_SEL
  #ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de tipo a reporte de personal incorporado
+ #ETR-3119				02.03.2021			MZM-KPLIAN			Adicion de tiempo total de trabajo(en 30 dias) para personal retirado (SPLAPREPRI)
  ***************************************************************************/
 
 DECLARE
@@ -3282,6 +3283,7 @@ raise notice '***:%',v_consulta;
                         where id_uo_funcionario=
                          fp.id_uo_funcionario) as obs_fin,
                          (plani.f_es_funcionario_vigente (fp.id_funcionario,plani.fecha_planilla)) as es_vigente --#135
+                         ,pxp.f_get_dias_mes_30 ( plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario, fp.id_funcionario,uof.fecha_asignacion),coalesce(uof.fecha_finalizacion,plani.fecha_planilla) )::integer as total_dias --#ETR-3119
                       	from plani.vorden_planilla  nivel
                       	inner join plani.tfuncionario_planilla fp on
                   		fp.id_funcionario_planilla=nivel.id_funcionario_planilla
@@ -3291,6 +3293,7 @@ raise notice '***:%',v_consulta;
                         inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
                       	inner join plani.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                     	inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato and nivel.id_oficina=car.id_oficina
+                        inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
                       	'||v_filtro||'
                       	where ';
               	v_consulta:=v_consulta||v_parametros.filtro;
