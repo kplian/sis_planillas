@@ -544,7 +544,7 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 					$s_cot1=0; $s_cot2=0; $s_cot3=0;
 					$s_prima=0; $s_13=0; $s_iva=0; $s_des=0; $s_lq=0;
 					//----
-					if (($array_datos[$i][8]+$array_datos[$i][9])>=90 && $array_datos[$i][24]>90 ){//#ETR-2544 //#ETR-3119
+					if (/*($array_datos[$i][8]+$array_datos[$i][9])!=90  &&*/ $array_datos[$i][24]>90){//#ETR-2544 //#ETR-3119  
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
@@ -600,7 +600,7 @@ class RPlanillaPrevisionPrima extends  ReportePDF {
 						$sin_90=$sin_90+1;
 					}
 				}else{
-					if (($array_datos[$i][8]+$array_datos[$i][9])>=90 && $array_datos[$i][24]>90){//#ETR-2544  //#ETR-3119
+					if (/*($array_datos[$i][8]+$array_datos[$i][9])!=90 &&*/ $array_datos[$i][24]>90){//#ETR-2544  //#ETR-3119  && $array_datos[$i][24]>90
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
 					
