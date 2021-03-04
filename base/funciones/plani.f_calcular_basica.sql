@@ -61,6 +61,7 @@ AS $BODY$
  #ETR-1527		  28.10.2020		MZM KPLIAN			basica para SIETE_RG_ANT y modificacion a SALDOPERIANTDEP
  #ETR-2120		  10.12.2020		MZM KPLIAN			Modificacion a SALDOPERIANTDEP para que en los ingresos del mes, independientemente del tipo contrato, no recupere su saldo
  #ETR-2467		  08.01.2020		MZM-KPLIAN			Modificacion de SPREDIAS1, para considerar n contratos previos al actual que sumen mas de 90 dias. Adicion de basica LICENCIA, para considerar los funcionarios que son reincorporados por licencia aunq no lleguen a 90 dias.
+ #ETR-3119		  03.03.2020		MZM-KPLIAN			Adicion de motivo_fin=incremento_salarial a validacion de columnas de prima
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2589,7 +2590,7 @@ v_cons    varchar;
                          and uofun.id_funcionario=v_planilla.id_funcionario
                        --  and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
-                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
                       ;
@@ -2672,7 +2673,7 @@ v_cons    varchar;
                          and uofun.id_funcionario=v_planilla.id_funcionario
                         -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
-                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
                       ;
@@ -2749,7 +2750,7 @@ v_cons    varchar;
                          and uofun.id_funcionario=v_planilla.id_funcionario
                          --and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
-                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
                       ;
@@ -3099,7 +3100,7 @@ v_cons    varchar;
                          and uofun.id_funcionario=v_planilla.id_funcionario
                         -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
-                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
                          order by uofun.id_uo_funcionario limit 1 offset 0
                       ;
@@ -3233,7 +3234,7 @@ v_cons    varchar;
                          and uofun.id_funcionario=v_planilla.id_funcionario
                         -- and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario --#136
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
-                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
+                         and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
                          order by uofun.id_uo_funcionario 
                       ) loop
