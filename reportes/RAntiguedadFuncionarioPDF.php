@@ -9,7 +9,8 @@
  #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla
  #98	ETR				30.03.2020  		MZM					Adicion de opciones estado_funcionario (activo, retirado, todos)
  #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
- #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta		
+ #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+ #ETR-3248				12.03.2021			MZM-KPLIAN			Adicion de promedio y totales por genero en reporte por edades		
  */
 class RAntiguedadFuncionarioPDF extends  ReportePDF {
 	var $datos;	
@@ -148,6 +149,10 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 		$array_fem; $contf=1;
 		$array_mas; $contm=0; 
 		
+		//#ETR-3248
+		$prom_edad=0;
+		
+		
 		//#66
 		$totalf=0;
 		$totalm=0;
@@ -207,7 +212,8 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 								
 									$this->Cell(30,$this->interlineado,mb_strcut ($this->datos[$i]['cargo'],0,18, "UTF-8"),$borde,0,'L');
 									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
-									$this->Cell(10,$this->interlineado,$this->datos[$i]['edad'],$borde,1,'R');		
+									$this->Cell(10,$this->interlineado,$this->datos[$i]['edad'],$borde,1,'R');	
+									$prom_edad=$prom_edad+$this->datos[$i]['edad'];	//#ETR-3248
 								}	
 								
 								
@@ -254,7 +260,7 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 									$this->Cell(20,$this->interlineado,$dd.'/'.$mm.'/'.$aa,$borde,0,'C');
 									$this->Cell(10,$this->interlineado,$this->datos[$i]['edad'],$borde,1,'R');		
 									
-								
+									$prom_edad=$prom_edad+$this->datos[$i]['edad'];//#ETR-3248
 									
 									
 								}
@@ -294,6 +300,16 @@ class RAntiguedadFuncionarioPDF extends  ReportePDF {
 							$this->Ln(2);
 			
 			}
+				elseif($this->objParam->getParametro('tipo_reporte')=='empleado_edad'){//#ETR-3248
+					$this->Ln(2);
+					$this->SetFont('','B',8);
+					$this->Cell(50,$this->interlineado,'Edad Promedio: '.round($prom_edad/($totalm+$totalf),0),'',0,'L');
+					$this->Cell(50,$this->interlineado,'Total Hombres: '.$totalm,'',0,'L');
+					$this->Cell(50,$this->interlineado,'Total Mujeres: '.$totalf,'',0,'L');
+					
+					$this->Cell(50,$this->interlineado,'Total Personas: '.round(($totalm+$totalf),0),'',1,'L');
+					$this->Ln(2);
+				}
 			}//#123
 		} 
 
