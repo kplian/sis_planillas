@@ -24,6 +24,7 @@ AS $BODY$
  ISSUE            FECHA:              AUTOR                 DESCRIPCION
 
  #124           18-05-2020        RAC     KPLIAN             creacion
+ #ETR-3308      17-03-2021        MZM     KPLIAN             Adicion de filtro para omitir funcionarios q no estuvieron vigentes en la gestion de la prevision
  ********************************************************************************/
 DECLARE
   v_registros            record;
@@ -185,7 +186,8 @@ BEGIN
              fq.dias,
              fq.dias_real
            FROM filter_query  fq
-           JOIN planta_gestion pg ON pg.id_funcionario = fq.id_funcionario ';
+           JOIN planta_gestion pg ON pg.id_funcionario = fq.id_funcionario 
+           where (fq.fecha_fin_real>'''||v_fecha_ini_gestion||''')';  --#ETR-3308
                                     
 
     for v_registros in execute(v_main_query)loop
