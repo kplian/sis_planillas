@@ -5,7 +5,8 @@
  #128	ETR				28.05.2020			MZM-KPLIAN			Planilla de bono de produccion
  #149	ETR				09.07.2020			MZM-KPLIAN 			Omision de tipo contrato Planta
  #151	ETR				14.07.2020			MZM-KPLIAN			Reporte de primas nuevo formato vigente/no vigente
- #ETR-2461				07.01.2020			MZM-KPLIAN 			
+ #ETR-2461				07.01.2020			MZM-KPLIAN
+ #ETR-3309				16.03.2021			MZM-KPLIAN			Corregir impresion de valores columnas 10 y 11 en prevision prima retirados 			
 */
 class RPlanillaPrimaXls
 {
@@ -371,7 +372,7 @@ else{*/
 				
 				
 				
-				
+				//var_dump($datos); exit;
 				
 			//if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
 				$cont=0;
@@ -437,8 +438,13 @@ else{*/
 							//
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$value['valor']);
 						}
-
-
+						if($value['codigo_columna']=='PREPRIMA' && ( ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')!='activo'))){//#ETR-3309
+							//
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila ,$value['valor']);
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']*0.13);
+						}
+						
+						
 					}else{
 						
 						if ($value['codigo_columna']=='PREDIAS1' || $value['codigo_columna']=='SPREDIAS1'){
@@ -453,9 +459,9 @@ else{*/
 							
 							if (($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo')){
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
-							}/*else{
-							    	
-							}*/
+							}else{
+							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);	//#ETR-3309
+							}
 							if($value['ctto1']!='#@@@#')
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['valor']);
 							else 
