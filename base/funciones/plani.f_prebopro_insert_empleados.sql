@@ -187,7 +187,7 @@ BEGIN
              fq.dias_real
            FROM filter_query  fq
            JOIN planta_gestion pg ON pg.id_funcionario = fq.id_funcionario 
-           where (fq.fecha_fin_real>'''||v_fecha_ini_gestion||''')';  --#ETR-3308
+           where (fq.fecha_ini < fq.fecha_fin)';  --#ETR-3308
                                     
 
     for v_registros in execute(v_main_query)loop
