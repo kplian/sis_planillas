@@ -62,6 +62,7 @@ AS $BODY$
  #ETR-2120		  10.12.2020		MZM KPLIAN			Modificacion a SALDOPERIANTDEP para que en los ingresos del mes, independientemente del tipo contrato, no recupere su saldo
  #ETR-2467		  08.01.2020		MZM-KPLIAN			Modificacion de SPREDIAS1, para considerar n contratos previos al actual que sumen mas de 90 dias. Adicion de basica LICENCIA, para considerar los funcionarios que son reincorporados por licencia aunq no lleguen a 90 dias.
  #ETR-3119		  03.03.2020		MZM-KPLIAN			Adicion de motivo_fin=incremento_salarial a validacion de columnas de prima
+  #ETR-3349		  17.03.2021		MZM-KPLIAN		    Adicion de criterio de ordenacion en PREPRICOT21, 22, 23 para planilla PREBONO de fecha_planilla ya q al solo ordenar por periodo, aparecen en primer lugar diciembre de 2019
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2864,7 +2865,7 @@ v_cons    varchar;
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 0;
+                                order by p.fecha_planilla desc, per.periodo desc limit 1 offset 0; --#ETR-3349
                             else
                                 select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
@@ -2874,7 +2875,7 @@ v_cons    varchar;
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 0;
+                                order by p.fecha_planilla desc, per.periodo desc limit 1 offset 0;--#ETR-3349
                             end if;
 
                          else
@@ -2938,7 +2939,7 @@ v_cons    varchar;
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 1;
+                                order by p.fecha_planilla desc,per.periodo desc limit 1 offset 1;--#ETR-3349
                             else
                                 select cv.valor into v_resultado from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
@@ -2948,7 +2949,7 @@ v_cons    varchar;
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 1;
+                                order by p.fecha_planilla desc,per.periodo desc limit 1 offset 1;--#ETR-3349
                             end if;
 
                          end if;
@@ -3014,7 +3015,7 @@ v_cons    varchar;
                                     and cv.codigo_columna='COTIZABLE_ANT'
                                     and fp.id_funcionario=v_planilla.id_funcionario
                                     and p.id_periodo<= v_i
-                                    order by per.periodo desc limit 1 offset 1;
+                                    order by p.fecha_planilla desc,per.periodo desc limit 1 offset 1;--#ETR-3349
                                 else
                                     select cv.valor into v_resultado from plani.tplanilla p
                                     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
@@ -3024,7 +3025,7 @@ v_cons    varchar;
                                     and cv.codigo_columna='COTIZABLE_ANT'
                                     and fp.id_funcionario=v_planilla.id_funcionario
                                     and p.id_periodo<= v_i
-                                    order by per.periodo desc limit 1 offset 2;
+                                    order by p.fecha_planilla desc,per.periodo desc limit 1 offset 2;--#ETR-3349
 
 
                                 end if;
@@ -3039,7 +3040,7 @@ v_cons    varchar;
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 2;
+                                order by p.fecha_planilla desc,per.periodo desc limit 1 offset 2;--#ETR-3349
                             end if;
                         end if;
 
