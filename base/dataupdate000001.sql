@@ -83,18 +83,18 @@ UPDATE plani.tcolumna_valor SET valor =19595.11  WHERE id_columna_valor = 465324
 
 /********************************************I-DAUP-MZM-PLANI-1-18/03/2021********************************************/
 --rollback
---update plani.tcolumna_valor set valor=771 where id_columna_valor=4786669
---update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786688
---update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786697
---update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786686
---update plani.tcolumna_valor set valor=456.11 where id_columna_valor=4786671
---update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786677
+--update plani.tcolumna_valor set valor=771 where id_columna_valor=4786669;
+--update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786688;
+--update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786697;
+--update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786686;
+--update plani.tcolumna_valor set valor=456.11 where id_columna_valor=4786671;
+--update plani.tcolumna_valor set valor=2257.84 where id_columna_valor=4786677;
 
 --commit
-update plani.tcolumna_valor set valor=752 where id_columna_valor=4786669
-update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786688
-update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786697
-update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786686
-update plani.tcolumna_valor set valor=437.11 where id_columna_valor=4786671
-update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786677
+update plani.tcolumna_valor set valor=752 where id_columna_valor=4786669;
+update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786688;
+update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786697;
+update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786686;
+update plani.tcolumna_valor set valor=437.11 where id_columna_valor=4786671;
+update plani.tcolumna_valor set valor=2238.84 where id_columna_valor=4786677;
 /********************************************F-DAUP-MZM-PLANI-1-18/03/2021********************************************/
