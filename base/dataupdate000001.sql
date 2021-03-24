@@ -115,3 +115,14 @@ update plani.tcolumna_valor set valor=33867.84 where id_columna_valor=17627;
 update plani.tcolumna_valor set valor=8385.25 where id_columna_valor=44622;
 update plani.tcolumna_valor set valor=18838.6 where id_columna_valor=44483;
 /********************************************F-DAUP-MZM-PLANI-1-22/03/2021********************************************/
+
+
+/********************************************I-DAUP-MZM-PLANI-2-24/03/2021********************************************/
+---rollback
+--update plani.tplanilla set envios_boleta=0
+--where id_planilla=281;
+
+--commit  
+update plani.tplanilla set envios_boleta=1
+where id_planilla=281;
+/********************************************I-DAUP-MZM-PLANI-2-24/03/2021********************************************/
