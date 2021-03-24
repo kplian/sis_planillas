@@ -125,4 +125,4 @@ update plani.tcolumna_valor set valor=18838.6 where id_columna_valor=44483;
 --commit  
 update plani.tplanilla set envios_boleta=1
 where id_planilla=281;
-/********************************************I-DAUP-MZM-PLANI-2-24/03/2021********************************************/
+/********************************************F-DAUP-MZM-PLANI-2-24/03/2021********************************************/
