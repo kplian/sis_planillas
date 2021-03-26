@@ -126,3 +126,23 @@ update plani.tcolumna_valor set valor=18838.6 where id_columna_valor=44483;
 update plani.tplanilla set envios_boleta=1
 where id_planilla=281;
 /********************************************F-DAUP-MZM-PLANI-2-24/03/2021********************************************/
+
+/********************************************I-DAUP-MZM-PLANI-3-25/03/2021********************************************/
+--rollback
+--update plani.tcolumna_valor set valor=0.7333333333 where id_columna_valor=4765723;
+--update plani.tcolumna_valor set valor=176 where id_columna_valor=4765720;
+--update plani.tcolumna_valor set valor=8 where id_columna_valor=4765690;
+--update plani.tcolumna_valor set valor=1752.79 where id_columna_valor=4765747;
+--update plani.tcolumna_valor set valor=8.75 where id_columna_valor=4765736;
+--update plani.tcolumna_valor set valor=7002.4 where id_columna_valor=4765729;
+--update plani.tcolumna_valor set valor=7002.4 where id_columna_valor=4765725;
+
+--commit
+update plani.tcolumna_valor set valor=0.9 where id_columna_valor=4765723;
+update plani.tcolumna_valor set valor=216 where id_columna_valor=4765720;
+update plani.tcolumna_valor set valor=3 where id_columna_valor=4765690;
+update plani.tcolumna_valor set valor=657.3 where id_columna_valor=4765747;
+update plani.tcolumna_valor set valor=10.12 where id_columna_valor=4765736;
+update plani.tcolumna_valor set valor=8096.53 where id_columna_valor=4765729;
+update plani.tcolumna_valor set valor=8096.53 where id_columna_valor=4765725;
+/********************************************F-DAUP-MZM-PLANI-3-25/03/2021********************************************/
