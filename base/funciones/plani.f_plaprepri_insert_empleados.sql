@@ -49,7 +49,7 @@ DECLARE
   
   v_fecha_ini_gestion	date;
   v_fecha_fin_gestion	date;
-  
+  v_motivo				varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.f_plaprepri_insert_empleados';
@@ -161,45 +161,29 @@ BEGIN
                            tipo,
                            id_tipo_contrato,
                            plani.f_get_dias_aguinaldo(id_funcionario, fecha_ini, fecha_fin) dias,
-                           fecha_fin - fecha_ini as dias_real
-                    FROM base_query --ORDER  BY category, "date" DESC
-                    where  plani.f_get_dias_aguinaldo(id_funcionario, fecha_ini, fecha_fin)>= 90  --#136
+                           fecha_fin - fecha_ini as dias_real,
+                           plani.f_get_dias_efectivos_prima(id_funcionario, '''||v_fecha_ini_gestion||''','''||v_fecha_fin_gestion||''') as dias_efectivos
+                    FROM base_query
+                    where   fecha_fin between '''||v_fecha_ini_gestion||''' and '''||v_fecha_fin_gestion||'''  --#136
                     ';
 raise notice '****%',v_main_query;
     for v_registros in execute(v_main_query)loop
                 
+    
+    		v_motivo:=(select observaciones_finalizacion from orga.tuo_funcionario 
+            where id_funcionario=v_registros.id_funcionario and id_uo_funcionario<v_registros.id_uo_funcionario
+            and estado_reg='activo' and tipo='oficial'
+            order by fecha_finalizacion desc limit 1);
+    
         v_entra = 'si';
         v_bandera = 0;
         
-              
-        --cuenta cuantos dias de ultimo contrato vigente del funcionario la gestion pasada
-       -- v_dias = plani.f_get_dias_aguinaldo(v_registros.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin);
-			v_dias = v_registros.dias;
+        	v_dias = v_registros.dias;
         
-        -- cuenta cuantas veces el empelado aparece en alguna planilla  de prima para la misma gestion
-      /*  select 
-            count(tfp.id_funcionario_planilla)
-        into 
-           v_bandera
-        from plani.tfuncionario_planilla tfp
-        inner join plani.tplanilla tp on tp.id_planilla = tfp.id_planilla
-        inner join plani.ttipo_planilla ttp on ttp.id_tipo_planilla = tp.id_tipo_planilla
-        where 
-                    tfp.id_funcionario = v_registros.id_funcionario 
-                and tp.id_gestion = v_planilla.id_gestion 
-                and ttp.codigo = (select codigo from plani.ttipo_planilla where id_tipo_planilla=v_planilla.id_tipo_planilla); --#113
-               */  
-         
-      
-        
-              --v_id_funcionario = v_registros.id_funcionario;
               
-              -- si tiene mas de 90 en la gestion pasada
-              -- esta vigente y no fue registrado aun en planilla de primas
-              
-              if (v_dias >= 90  /*and v_entra = 'si' and v_bandera = 0*/) then
-                  
-                      -- recupera afp, cuenta bancaria y tipo de contrato
+              if (v_registros.dias_efectivos >= 90 or (v_registros.dias_efectivos <= 90 and v_motivo='licencia') ) then
+                   
+                     -- recupera afp, cuenta bancaria y tipo de contrato
                       
                      -- v_id_afp = plani.f_get_afp(v_registros.id_funcionario, v_planilla.fecha_planilla);  --recuperamos la AFP a la fecha de la palnilla (fecha de pago)
                       v_id_cuenta_bancaria = plani.f_get_cuenta_bancaria_empleado(v_registros.id_funcionario, v_planilla.fecha_planilla); --recuperamos la cuenta bancaria a la fecha de la planilla (fecha de pago)
