@@ -50,9 +50,10 @@ class RRelacionSaldos extends  ReportePDF {
 		$this->SetY(10);
 		$fecha_rep = date("d/m/Y");
 		$ampliar=0;//#127
-		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#ETR-2135
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#ETR-2135
 			$ampliar=60;
 		}
+		
 		$this->SetFont('','B',7);
 		$pagenumtxt = $this->getAliasNumPage();
 		$this->Cell(160+$ampliar, 3, '', '', 0, 'R');
@@ -142,7 +143,7 @@ class RRelacionSaldos extends  ReportePDF {
 				
 			}else{
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
 					$ampliar=25;//$ampliar/3*2;
 				}else{
 					$ampliar=0;
@@ -166,7 +167,7 @@ class RRelacionSaldos extends  ReportePDF {
 				$this->Cell(50+$ampliar,5,'Forma de Pago','B',0,'C');  //
 				
 				if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' or $this->objParam->getParametro('codigo_planilla')=='PLAPREPRI' or $this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' ){ //#125 #133
-					$this->Cell(50,5,'Prima (Bs)','B',1,'C');
+					$this->Cell(50+$ampliar,5,'Prima (Bs)','B',1,'C');
 				}elseif($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){ //#127
 					$this->Cell(30,5,'Produccion','B',0,'C');
 					$this->Cell(30,5,'pagar (Bs.)','B',0,'C');
@@ -205,7 +206,7 @@ class RRelacionSaldos extends  ReportePDF {
 		
 		$this->SetFont('','',7);
 	  
-	    if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){
+	    if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
 					$ampliar=25;//$ampliar/3*2;
 				}else{
 					$ampliar=0;
