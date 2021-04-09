@@ -1189,8 +1189,8 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
         $this->objFunc=$this->create('MODReporte');
         $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
 
-		//#127
-		if($this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#127 #ETR-2135
+		//#127  XXXXXXXX
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#127 #ETR-2135
             $this->objParam->addParametro('orientacion','L');}
         else{
             $this->objParam->addParametro('orientacion','P');
