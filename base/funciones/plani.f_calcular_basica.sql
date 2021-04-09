@@ -3164,7 +3164,8 @@ if (v_registros.id_funcionario>0  ) then
                       ;
 
                             v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
-                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
+                         if (v_aux>= 0 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
+                         --se cambia la condicion v_aux>=90 por v_aux>=0 para que salga la cantidad de dias que seran menor a 90 y que justifique q al ser menor no le corresponde, peticion de suray 09.04.2021
                            v_resultado:=v_aux;
                          else
                            v_resultado:=0;
