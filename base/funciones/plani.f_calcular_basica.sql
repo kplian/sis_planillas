@@ -63,6 +63,7 @@ AS $BODY$
  #ETR-2467		  08.01.2020		MZM-KPLIAN			Modificacion de SPREDIAS1, para considerar n contratos previos al actual que sumen mas de 90 dias. Adicion de basica LICENCIA, para considerar los funcionarios que son reincorporados por licencia aunq no lleguen a 90 dias.
  #ETR-3119		  03.03.2020		MZM-KPLIAN			Adicion de motivo_fin=incremento_salarial a validacion de columnas de prima
   #ETR-3349		  17.03.2021		MZM-KPLIAN		    Adicion de criterio de ordenacion en PREPRICOT21, 22, 23 para planilla PREBONO de fecha_planilla ya q al solo ordenar por periodo, aparecen en primer lugar diciembre de 2019
+  #ETR-3610		  08.04.2021		mzm-KPLIAN			Ajuste a funciones relacionadas a prevision de prima (no simple) con restriccion de 90 dias por contrato.
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -2560,7 +2561,7 @@ v_cons    varchar;
 
     --#122
     ELSIF(p_codigo = 'PREPRICOT11') THEN -- el primer cotizable del contrato mas antiguo
-
+		v_resultado:=0;
         select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
 
         into v_planilla
@@ -2570,7 +2571,7 @@ v_cons    varchar;
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
 
         --#113
-        SELECT uofun.id_funcionario,
+        for v_registros in (SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
@@ -2581,7 +2582,7 @@ v_cons    varchar;
                              WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
                              ELSE uofun.fecha_finalizacion
                            END) AS fecha_fin
-                   into v_registros
+                   
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
@@ -2593,8 +2594,8 @@ v_cons    varchar;
                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
-                         order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;
+                         order by uofun.id_uo_funcionario desc
+                     )loop
 
 
 
@@ -2602,7 +2603,7 @@ v_cons    varchar;
                             if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
                             ) then
-                                v_resultado:=0;
+                                v_resultado:=v_resultado+0;
                             else
                                v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
 
@@ -2613,39 +2614,41 @@ v_cons    varchar;
                          if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
 
 
-                             select id_periodo, fecha_fin into v_i , v_fecha_ini_actual
+                            select id_periodo, fecha_fin into v_i , v_fecha_ini_actual
                             from param.tperiodo where v_registros.fecha_fin between fecha_ini and fecha_fin;
 
                             if (v_registros.fecha_fin!=v_fecha_ini_actual) then
-                                  select cv.valor into v_resultado from plani.tplanilla p
+                                  v_resultado:=v_resultado + ( select cv.valor  from plani.tplanilla p
                                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                   inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                   inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                   inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                  and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                   and cv.codigo_columna='COTIZABLE_ANT'
                                   and fp.id_funcionario=v_planilla.id_funcionario
                                   and p.id_periodo<= v_i
-                                  order by per.periodo desc limit 1 offset 0;
+                                  order by per.periodo desc limit 1 offset 0);
                              else
-                                  select cv.valor into v_resultado from plani.tplanilla p
+                                  v_resultado:=v_resultado+ ( select cv.valor from plani.tplanilla p
                                   inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                   inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                   inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                   inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                  and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                   and cv.codigo_columna='COTIZABLE'
                                   and fp.id_funcionario=v_planilla.id_funcionario
                                   and p.id_periodo<= v_i
-                                  order by per.periodo desc limit 1 offset 0;
+                                  order by per.periodo desc limit 1 offset 0);
                             end if;
                          else
 
-                             v_resultado:=0;
+                             v_resultado:=v_resultado+0;
                          end if;
-
+					end loop;
 
 
     ELSIF(p_codigo = 'PREPRICOT12') THEN -- el segundo cotizable
-
+		v_resultado:=0;
         select p.fecha_planilla, fp.id_funcionario, fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
         into v_planilla
         from plani.tfuncionario_planilla fp
@@ -2653,7 +2656,7 @@ v_cons    varchar;
         inner join param.tgestion g on g.id_gestion=p.id_gestion
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
         --#113
-        SELECT uofun.id_funcionario,
+        for v_registros in (SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
@@ -2664,7 +2667,7 @@ v_cons    varchar;
                              WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
                              ELSE uofun.fecha_finalizacion
                            END) AS fecha_fin
-                   into v_registros
+                   
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
@@ -2676,12 +2679,12 @@ v_cons    varchar;
                          and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
-                         order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;
+                         order by uofun.id_uo_funcionario desc) loop 
+                      
                           if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
                             ) then
-                                v_resultado:=0;
+                                v_resultado:=v_resultado+0;
                             else
                                     v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
                              end if;
@@ -2692,35 +2695,37 @@ v_cons    varchar;
 
                                     if (v_registros.fecha_fin!=v_fecha_ini_actual) then
 
-                                        select cv.valor into v_resultado from plani.tplanilla p
+                                        v_resultado:=v_resultado + ( select cv.valor  from plani.tplanilla p
                                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                         inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                         inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                        and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                         and cv.codigo_columna='COTIZABLE_ANT'
                                         and fp.id_funcionario=v_planilla.id_funcionario
                                         and p.id_periodo<= v_i
-                                        order by per.periodo desc limit 1 offset 1;
+                                        order by per.periodo desc limit 1 offset 1);
                                     else
-                                        select cv.valor into v_resultado from plani.tplanilla p
+                                        v_resultado:=v_resultado + (select cv.valor from plani.tplanilla p
                                         inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                         inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                         inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                        and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                         and cv.codigo_columna='COTIZABLE'
                                         and fp.id_funcionario=v_planilla.id_funcionario
                                         and p.id_periodo<= v_i
-                                        order by per.periodo desc limit 1 offset 1;
+                                        order by per.periodo desc limit 1 offset 1);
                                     end if;
                                  else
-                                    v_resultado:=0;
+                                    v_resultado:=v_resultado+0;
                                 end if;
-
+							end loop;
 
 
 
     ELSIF(p_codigo = 'PREPRICOT13') THEN -- el tercer cotizable
-
+        v_resultado:=0;
         select p.fecha_planilla, fp.id_funcionario,fp.id_uo_funcionario, g.fecha_ini, g.fecha_fin , p.nro_planilla
         into v_planilla
         from plani.tfuncionario_planilla fp
@@ -2729,7 +2734,7 @@ v_cons    varchar;
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
 
         --#113
-        SELECT uofun.id_funcionario,
+        for v_registros in (SELECT uofun.id_funcionario,
                           uofun.id_uo_funcionario,
                           (CASE
                              WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
@@ -2741,7 +2746,7 @@ v_cons    varchar;
                              ELSE uofun.fecha_finalizacion
                            END) AS fecha_fin
 
-                   into v_registros
+                   
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
@@ -2753,12 +2758,12 @@ v_cons    varchar;
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
-                         order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;
+                         order by uofun.id_uo_funcionario desc )loop
+                      
                  if  not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
                             ) then
-                    v_resultado:=0;
+                    v_resultado:=v_resultado+0;
                  else
                        v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
                  end if;
@@ -2775,45 +2780,48 @@ v_cons    varchar;
                                      inner join param.tperiodo per on per.id_periodo=p.id_periodo
                                      where per.id_periodo<=v_i-1 order by per.fecha_ini desc limit 1 offset 2)) then
 
-                                select cv.valor into v_resultado from plani.tplanilla p
+                                v_resultado:=v_resultado + (select cv.valor  from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                 inner join param.tperiodo per on per.id_periodo=p.id_periodo
+								and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 1;
+                                order by per.periodo desc limit 1 offset 1);
                             else
-                                 select cv.valor into v_resultado from plani.tplanilla p
+                                v_resultado:= v_resultado + ( select cv.valor  from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                 inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                 and cv.codigo_columna='COTIZABLE_ANT'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2);
 
                             end if;
 
 
                         else
-                                select cv.valor into v_resultado from plani.tplanilla p
+                                v_resultado:=v_resultado +( select cv.valor from plani.tplanilla p
                                 inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla and tp.codigo='PLASUE'
                                 inner join plani.tfuncionario_planilla fp on fp.id_planilla=p.id_planilla
                                 inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
                                 inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                                and p.fecha_planilla between v_planilla.fecha_ini and v_planilla.fecha_fin
                                 and cv.codigo_columna='COTIZABLE'
                                 and fp.id_funcionario=v_planilla.id_funcionario
                                 and p.id_periodo<= v_i
-                                order by per.periodo desc limit 1 offset 2;
+                                order by per.periodo desc limit 1 offset 2);
                         end if;
 
                    else
-                       v_resultado:=0;
+                       v_resultado:=v_resultado+0;
                    end if;
-
+				end loop;
    --los del ultimo contrato, que siempre tendran valor
     ELSIF(p_codigo = 'PREPRICOT21') THEN -- el primer cotizable del contrato mas actual
 
@@ -3052,32 +3060,9 @@ v_cons    varchar;
         inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
         inner join param.tgestion g on g.id_gestion=p.id_gestion
         where fp.id_funcionario_planilla=p_id_funcionario_planilla;
+		v_aux:=0; --XXXXX
 
-
-        /*SELECT uofun.id_funcionario,
-                          uofun.id_uo_funcionario,
-                          (CASE
-                             WHEN plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion) < v_planilla.fecha_ini THEN v_planilla.fecha_ini
-                             ELSE plani.f_get_fecha_primer_contrato_empleado(NULL,uofun.id_funcionario, uofun.fecha_asignacion)
-                           END) AS fecha_ini,
-
-                          (CASE
-                             WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
-                             ELSE uofun.fecha_finalizacion
-                           END) AS fecha_fin
-                   into v_registros
-                   FROM orga.tuo_funcionario uofun
-                        INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
-                          uofun.id_funcionario
-
-                     WHERE uofun.estado_reg != 'inactivo'
-                         AND uofun.tipo = 'oficial'
-                         and uofun.id_funcionario=v_planilla.id_funcionario
-                         and uofun.fecha_asignacion  <= v_planilla.fecha_planilla
-                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','')
-                          and uofun.id_uo_funcionario!=v_planilla.id_uo_funcionario
-                          --order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;*/
+       for v_registros in (  
 
 
                     SELECT uofun.id_funcionario,
@@ -3091,11 +3076,13 @@ v_cons    varchar;
                              WHEN (uofun.fecha_finalizacion IS NULL OR  uofun.fecha_finalizacion > v_planilla.fecha_fin) THEN v_planilla.fecha_fin
                              ELSE uofun.fecha_finalizacion
                            END) AS fecha_fin
-                   into v_registros
+                  
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
-
+				    inner join orga.tcargo c on c.id_cargo=uofun.id_cargo
+                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato
+                    and tc.codigo in ('PLA','EVE') --#ETR-3610
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
@@ -3103,24 +3090,36 @@ v_cons    varchar;
                           and uofun.fecha_finalizacion between v_planilla.fecha_ini and v_planilla.fecha_fin
                          and uofun.observaciones_finalizacion not in ('transferencia','promocion','','incremento_salarial') --#ETR-3119
 
-                         order by uofun.id_uo_funcionario limit 1 offset 0
-                      ;
-
+                         order by uofun.id_uo_funcionario ) loop
+                         
+                     
+if (v_registros.id_funcionario>0  ) then
 
 
                             --no es vigente == preguntar si tiene un contrato q inicie en 2019 == nos quedamos con el valor, sino es 0
-                            if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_registros.id_funcionario
+                            if not exists (select 1 from orga.tuo_funcionario  where id_funcionario=v_planilla.id_funcionario
                             and fecha_asignacion>=v_registros.fecha_fin and estado_reg='activo' and tipo='oficial'
-                            ) then
-                                v_resultado:=0;
-                            else
-                               v_aux:= (plani.f_get_dias_aguinaldo(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
+                            and fecha_asignacion between v_planilla.fecha_ini and v_planilla.fecha_fin
+                            ) then 
+                            
+                            
+                                v_aux:=v_aux+0;
+                            else 
+                               	if ((plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) )>= 90 ) then
+                                
+                                   v_aux:= v_aux + (plani.f_get_dias_efectivos_prima(v_planilla.id_funcionario, v_registros.fecha_ini, v_registros.fecha_fin) );
 
+								else
+                                  v_aux:=v_aux+0;
+                                end if;
                             end if;
+                    else
+                       v_aux:=0;
+                    end if;
 
-
-
-                         if (v_aux>= 90 and v_registros.fecha_ini < v_planilla.fecha_fin  and (v_registros.fecha_fin between v_planilla.fecha_ini and v_planilla.fecha_fin) ) then
+				  end loop;
+                         
+                         if (v_aux>= 90) then
                            v_resultado:=v_aux;
                          else
                            v_resultado:=0;
@@ -3152,7 +3151,9 @@ v_cons    varchar;
                    FROM orga.tuo_funcionario uofun
                         INNER JOIN orga.tfuncionario fun ON fun.id_funcionario =
                           uofun.id_funcionario
-
+					inner join orga.tcargo c on c.id_cargo=uofun.id_cargo
+                    inner join orga.ttipo_contrato tc on tc.id_tipo_contrato=c.id_tipo_contrato
+                    and tc.codigo in ('PLA','EVE')--#ETR-3610
                      WHERE uofun.estado_reg != 'inactivo'
                          AND uofun.tipo = 'oficial'
                          and uofun.id_funcionario=v_planilla.id_funcionario
