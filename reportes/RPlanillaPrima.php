@@ -8,6 +8,7 @@
   #151	ETR				13.07.2020			MZM-KPLIAN			Ajsute reporte de primas
   #157	ETR				11.08.2020			MZM-KPLIAN			Bug de nombre regional/banco
   #169- #ETR-1312		08.10.2020			MZM-KPLIAN			Modificacion a reporte bono produccion no vigente, omision de motivo_ret y adicion de cert. rc.iva y otros desc
+  #ETR-3592				07.04.2021			MZM-KPLIAN			Adicion de control para que en personal retirado se considere el tiempo total que lleva en la empresa
  */
 class RPlanillaPrima extends  ReportePDF {
 	var $datos;	
@@ -333,10 +334,11 @@ class RPlanillaPrima extends  ReportePDF {
 		$t_cot1=0; $t_cot2=0; $t_cot3=0;
 		$t_prima=0; $t_13=0; $t_iva=0; $t_des=0; $t_lq=0;
 		$t_impofact=0; $t_otdesc=0; //#169 #ETR-1312
-			
+		$sin_90=0; //ETR-3592
 		$this->SetX(10);
 		$array_datos=array();
 		for ($i=0; $i<count($this->datos);$i++){
+			
 			if ($id_funcionario!=$this->datos[$i]['id_funcionario']){
 				$cont++;
 				$array_datos[$cont][0]= $this->datos[$i]['codigo'];
@@ -373,6 +375,7 @@ class RPlanillaPrima extends  ReportePDF {
 				}
 				$array_datos[$cont][18]= $this->datos[$i]['desc_oficina'];  
 				$array_datos[$cont][21]= $this->datos[$i]['obs_fin'];  
+				$array_datos[$cont][25]= $this->datos[$i]['total_dias'];//#ETR-3592
 			}else{
 				if ($this->datos[$i]['codigo_columna']=='PREDIAS1' || $this->datos[$i]['codigo_columna']=='SPREDIAS1'  ){
 					$array_datos[$cont][8]= $this->datos[$i]['valor'];
@@ -458,6 +461,10 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
+					
+			if ($array_datos[$i][25]>90){//#ETR-3592
+					
+					
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' ){//#151
 						$this->Cell(70,5,mb_strcut ( $array_datos[$i][1], 0, 38, "UTF-8"),'R',0,'L');	
@@ -523,10 +530,14 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->Cell(107,5,'','R',0,'C');
 					$this->Cell(20,5,'','',1,'L');
-					
 				}else{
+					$sin_90=$sin_90+1; //ETR-3592
+				}	
+			}else{
+						
+				if ($array_datos[$i][8]+$array_datos[$i][9]!=90){	//#ETR-3592
+						
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
-					
 					if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' ){//#151
 						$this->Cell(70,5,mb_strcut ( $array_datos[$i][1], 0, 38, "UTF-8"),'R',0,'L');	
 					}else{
@@ -598,7 +609,9 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->Cell(107,5,'','R',0,'C');
 					$this->Cell(20,5,'','',1,'L');
-				
+					}else{
+						$sin_90=$sin_90+1;//ETR-3592
+					}
 				}
 				$this->gerencia=$array_datos[$i][18];
 			}
@@ -684,6 +697,11 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->AddPage();  //echo $this->gerencia.'---'. $array_datos[$i][18].'***'.$array_datos[$i][1]; exit;
 					$this->SetX(10);
+					
+					
+					
+				if($array_datos[$i][25]>90){
+					
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					if($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#151
 						$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
@@ -750,8 +768,12 @@ class RPlanillaPrima extends  ReportePDF {
 					}
 					$this->Cell(60,5,'','R',0,'C');
 					$this->Cell(80,5,'','',1,'L');
-					
+					}else{
+						$sin_90=$sin_90+1;//ETR-3592
+					}
 				}else{
+					
+					if(($array_datos[$i][8]+$array_datos[$i][9]) !=90){
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					if($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#151
 						$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
@@ -820,6 +842,9 @@ class RPlanillaPrima extends  ReportePDF {
 					
 					$this->Cell(60,5,'','R',0,'C');
 					$this->Cell(80,5,'','',1,'L');
+					}else{
+						$sin_90=$sin_90+1;//ETR-3592
+					}
 				
 				}
 				$this->gerencia=$array_datos[$i][18];
@@ -871,6 +896,11 @@ class RPlanillaPrima extends  ReportePDF {
 				$this->Cell(16,5,number_format($t_des,2,'.',','),'TB',0,'R');
 				$this->Cell(16,5,number_format($t_lq,2,'.',','),'TB',1,'R');
 		}
+
+	//#ETR-3592
+	$this->Ln(5);
+	$this->Cell(16,5,'# Empleados:','',0,'L');
+	$this->Cell(10,5,$cont-$sin_90,'',1,'R');
 
 	}else{//bono de produccion
 		  if($this->objParam->getParametro('codigo_planilla')=='BONOVIG'){	
