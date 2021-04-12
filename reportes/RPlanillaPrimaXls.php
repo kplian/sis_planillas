@@ -395,7 +395,7 @@ else{*/
 						}
 						
 						
-					    if($id_fun!=0) 	$fila++;
+					    if($id_fun!=0 && $value['total_dias']>90) 	$fila++;
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$value['codigo']); 
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,$value['desc_funcionario']);
 						$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,$value['cargo']);
