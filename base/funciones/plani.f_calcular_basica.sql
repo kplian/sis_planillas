@@ -64,6 +64,7 @@ AS $BODY$
  #ETR-3119		  03.03.2020		MZM-KPLIAN			Adicion de motivo_fin=incremento_salarial a validacion de columnas de prima
   #ETR-3349		  17.03.2021		MZM-KPLIAN		    Adicion de criterio de ordenacion en PREPRICOT21, 22, 23 para planilla PREBONO de fecha_planilla ya q al solo ordenar por periodo, aparecen en primer lugar diciembre de 2019
   #ETR-3610		  08.04.2021		mzm-KPLIAN			Ajuste a funciones relacionadas a prevision de prima (no simple) con restriccion de 90 dias por contrato.
+  #ETR-3648		  13.04.2021		MZM-KPLIAN			Modificacion de columna basica SALDOPERIANTDEP para que considere el certificado RcIva si existe en el mes
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -768,8 +769,13 @@ v_cons    varchar;
           )
         and plani.f_get_tipo_contrato(uof.id_uo_funcionario)=( select plani.f_get_tipo_contrato(v_planilla.id_uo_funcionario))
         order by fecha_plani desc limit 1;
+             
 	end if;
+		--añadimos el valor de CERTSALD que estuviera registrado en la misma planilla
+        --#ETR-3648
 
+        v_resultado:=v_resultado + coalesce((select valor from plani.tcolumna_valor where codigo_columna='CERTSALD'
+        and id_funcionario_planilla=p_id_funcionario_planilla),0);
    -- #2 recuperara cotizable planilla anterior
     ELSIF (p_codigo = 'COTIZABLE_ANT') THEN
 
