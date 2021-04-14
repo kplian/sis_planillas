@@ -161,3 +161,41 @@ update plani.tcolumna_valor set valor=33867.84 where id_columna_valor=1747075;
 update plani.tcolumna_valor set valor=8385.25 where id_columna_valor=3861812;
 update plani.tcolumna_valor set valor=18838.6 where id_columna_valor=3842908;
 /********************************************F-DAUP-MZM-PLANI-4-31/03/2021********************************************/
+
+
+/********************************************I-DAUP-MZM-PLANI-5-14/04/2021********************************************/
+--rollback
+--update plani.tcolumna_valor set valor=0 where id_columna_valor=	4874185;
+--update plani.tcolumna_valor set valor=3410.3 where id_columna_valor=4874197;
+--update plani.tcolumna_valor set valor=3410.3 where id_columna_valor=4874206;
+--update plani.tcolumna_valor set valor=3410.3 where id_columna_valor=4874195;
+--update plani.tcolumna_valor set valor=3352 where id_columna_valor=4874184;
+--update plani.tcolumna_valor set valor=0	where id_columna_valor=4874182;
+--update plani.tcolumna_valor set valor=3410.3 where id_columna_valor=4874186;
+--update plani.tcolumna_valor set valor=0	where id_columna_valor=4875200;
+--update plani.tcolumna_valor set valor=13092 where id_columna_valor=4875211;
+--update plani.tcolumna_valor set valor=13092 where id_columna_valor=4875221;
+--update plani.tcolumna_valor set valor=13092 where id_columna_valor=4875210;
+--update plani.tcolumna_valor set valor=13092 where id_columna_valor=4875199;
+--update plani.tcolumna_valor set valor=0	where id_columna_valor=4875197;
+--update plani.tcolumna_valor set valor=13092	where id_columna_valor=4875201;
+
+
+
+--commit
+update plani.tcolumna_valor set valor= 3.9 where id_columna_valor=	4874185;
+update plani.tcolumna_valor set valor=3414.2 where id_columna_valor=4874197;
+update plani.tcolumna_valor set valor=3414.2	where id_columna_valor=4874206;
+update plani.tcolumna_valor set valor=3414.2	where id_columna_valor=4874195;
+update plani.tcolumna_valor set valor=3355.9	where id_columna_valor=4874184;
+update plani.tcolumna_valor set valor=3352	where id_columna_valor=4874182;
+update plani.tcolumna_valor set valor=3414.2	where id_columna_valor=4874186;
+update plani.tcolumna_valor set valor=15.25	where id_columna_valor=4875200;
+update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875211;
+update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875221;
+update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875210;
+update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875199;
+update plani.tcolumna_valor set valor=13092	where id_columna_valor=4875197;
+update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875201;
+/********************************************F-DAUP-MZM-PLANI-5-14/04/2021********************************************/
+
