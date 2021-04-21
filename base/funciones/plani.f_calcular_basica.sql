@@ -65,6 +65,7 @@ AS $BODY$
   #ETR-3349		  17.03.2021		MZM-KPLIAN		    Adicion de criterio de ordenacion en PREPRICOT21, 22, 23 para planilla PREBONO de fecha_planilla ya q al solo ordenar por periodo, aparecen en primer lugar diciembre de 2019
   #ETR-3610		  08.04.2021		mzm-KPLIAN			Ajuste a funciones relacionadas a prevision de prima (no simple) con restriccion de 90 dias por contrato.
   #ETR-3648		  13.04.2021		MZM-KPLIAN			Modificacion de columna basica SALDOPERIANTDEP para que considere el certificado RcIva si existe en el mes
+  #ETR-3678		  21.04.2021		MZM-KPLIAN			Adicion de columna PRI-PAGADA
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -3535,7 +3536,43 @@ if (v_registros.id_funcionario>0  ) then
                   order by fecha_finalizacion desc limit 1) ='licencia') then
                   v_resultado:=1;
 		end if;
-    
+    ELSIF (p_codigo = 'PRI-PAGADA') THEN  --#ETR-3678
+
+         IF  v_planilla.calcular_prima_rciva = 'si'  THEN  -- si la planilla esta configurada  hace el calculo del RC-IVA acumulado en planilla de primas
+
+          -- NOTA, la gestion de la prima es la gestion pasada
+          -- ejemplo abril 2019 se paga la prima 2018
+          -- en la planlla mensual de abrils 2019 cobraremos el RCV-IVA correpndiente a la ultima prima pagada
+
+          --recupera la columna IMPDET , impuesto determinado de la planilla de prima de empleados vigentes PLAPRI
+          --para la gestion anterior a nuestra planilla
+
+          select
+           ges.fecha_ini,
+           ges.fecha_fin
+          into v_gestion_de_pago
+          from  param.tgestion ges
+          where ges.id_gestion  = v_planilla.id_gestion;
+
+
+
+            select
+                 (cval.valor)
+            into
+                v_resultado
+            from plani.tplanilla p
+              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
+              inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
+              inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRIMA'
+            where fp.id_funcionario = v_planilla.id_funcionario
+             and  tp.codigo in ('PLAPRIVIG')    
+             and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado')
+             and p.fecha_planilla BETWEEN v_gestion_de_pago.fecha_ini and v_gestion_de_pago.fecha_fin; --buscamos la planilla de prima paga en la gestion donde haremos el descuento
+
+             v_resultado := COALESCE(v_resultado,0);
+        ELSE
+          v_resultado := 0;
+        END IF;
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;
     END IF;
