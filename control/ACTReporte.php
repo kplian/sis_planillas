@@ -33,6 +33,7 @@
  * #ETR-1712	  MZM-KPLIAN	 12.11.2020					Independizacion de reporte total horas trabajadas
  * #ETR-2135	  MZM-KPLIAN	 11.12.2020					orientacion de resumen relacion saldos en planilla de aguinaldo
  * #ETR-2476	  MZM-KPLIAN	 14.01.2021					Reporte incremento salarial
+ * #ETR-3862	  MZM-KPLIAN	 05.05.2021					adicion de periodo gestion en reporte Frecuencia de Cargos
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -775,7 +776,7 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
                                             $this->reporteBancosDet($titulo,$fecha);
                                         }else{
                                             if($this->objParam->getParametro('control_reporte')=='asignacion_cargos' ||  $this->objParam->getParametro('control_reporte')=='movimiento_personal' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_cargos' ||  $this->objParam->getParametro('control_reporte')=='lista_cargos' ||  $this->objParam->getParametro('control_reporte')=='profesiones' ||  $this->objParam->getParametro('control_reporte')=='directorio_empleados' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_ano' ||  $this->objParam->getParametro('control_reporte')=='nacimiento_mes' ||  $this->objParam->getParametro('control_reporte')=='frecuencia_profesiones' ||  $this->objParam->getParametro('control_reporte')=='listado_centros' ||  $this->objParam->getParametro('control_reporte')=='incremento_salarial'){//#67  #ETR-2476
-
+									
                                                 $this->reporteAsignacionCargos($titulo,$id_gestion,$id_tipo_contrato);
                                             }else{
                                                 if($this->objParam->getParametro('control_reporte')=='detalle_bono_desc'){

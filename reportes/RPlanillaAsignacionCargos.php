@@ -12,7 +12,8 @@
  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
  #161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
  #ETR-1993				01.12.2020			MZM-KPLIAN			Reporte de movimientos, cambio en obtencion de fecha a la de la asignacion del sgte cargo
- #ETR-2476				14.01.2021			MZM-KPLIAN			Reporte de incremento salarial  
+ #ETR-2476				14.01.2021			MZM-KPLIAN			Reporte de incremento salarial
+ #ETR-3862				05.05.2021			MZM-KPLIAN			adicion de periodo gestion en reporte Frecuencia de Cargos   
 **/
 class RPlanillaAsignacionCargos extends  ReportePDF {
 	var $datos;	var $datos_titulo;//#83
@@ -130,6 +131,10 @@ class RPlanillaAsignacionCargos extends  ReportePDF {
 				$this->Cell(0,5,'Gestión : '.$this->datos[0]['gestion'],0,1,'C');	
 			}
 			
+		}else{
+			if($this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos'){#ETR-3862
+				$this->Cell(0,5,'A '.$this->datos[0]['periodo'],0,1,'C');
+			}
 		}	
 			
 			$this->Ln(4);			
