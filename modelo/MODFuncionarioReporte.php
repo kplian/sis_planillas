@@ -33,6 +33,7 @@
  *#ETR-2476				14.01.2021			MZM-KPLIAN			Reporte incremento_salarial
  *#ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de campo tipo en reporte de personal incorporado
  *#ETR-3119				02.03.2021			MZM-KPLIAN			SPLAPREPRI, adicion de campo para incluir trabajadores con 90 dias en la gestion pero con mas de 90 en la empresa
+ *#ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de campo periodo/gestion para reporte Frecuencia de cargos 
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -495,13 +496,13 @@ class MODFuncionarioReporte extends MODbase{
 		$this->captura('nombre','varchar');
 		$this->captura('total_femenino','integer');	
 		$this->captura('total_masculino','integer');
+		$this->captura('periodo','varchar');//#ETR-3862
 						
 		//Ejecuta la instruccion
 		$this->armarConsulta(); //echo "8****".$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
-		
-		//Devuelve la respuesta
+				//Devuelve la respuesta
 		return $this->respuesta;
 	}
 

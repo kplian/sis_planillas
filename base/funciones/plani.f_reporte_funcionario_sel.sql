@@ -73,6 +73,7 @@ AS $BODY$
  #ETR-2780				02.02.2021			MZM-KPLIAN			Cambio de columna extra por extra_autorizada  en PLA_HORTRATOT_SEL
  #ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de tipo a reporte de personal incorporado
  #ETR-3119				02.03.2021			MZM-KPLIAN			Adicion de tiempo total de trabajo(en 30 dias) para personal retirado (SPLAPREPRI)
+ #ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de periodo/gestion en reporte de frecuencia de cargos
  ***************************************************************************/
 
 DECLARE
@@ -2332,6 +2333,7 @@ BEGIN
               and ffp.id_planilla=plani.id_planilla
                where carr.id_tipo_cargo=tc.id_tipo_cargo
               and genero!=''femenino'' '||v_filtro_estado1||')::integer as masculino
+              ,param.f_get_periodo_literal(plani.id_periodo) as periodo --#ETR-3862
               from orga.ttipo_cargo tc
               inner join orga.tcargo c on c.id_tipo_cargo=tc.id_tipo_cargo
               inner join orga.tuo_funcionario uofun on uofun.id_cargo=c.id_cargo

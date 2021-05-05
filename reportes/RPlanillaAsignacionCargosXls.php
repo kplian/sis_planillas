@@ -11,6 +11,7 @@
  #ETR-2476				11.01.2021			MZM-KPLIAN			Ajuste para considerar cuando tb hay cambio de cargo
  #ETR-2552				13.01.2021			MZM-KPLIAN			Correccion de condicion $datos[$i] por $value['campo'] ya que en value ya se tiene el registro q se consulta
  #ETR-2476				14.01.2021			MZM-KPLIAN			Reporte de incremento_salarial
+ #ETR-3862				05.05.2021			MZM-KPLIAN			adicion de periodo gestion en reporte Frecuencia de Cargos 
 */
 class RPlanillaAsignacionCargosXls
 {
@@ -448,7 +449,12 @@ class RPlanillaAsignacionCargosXls
 							$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
 							$this->docexcel->getActiveSheet()->mergeCells("A2:E2");
 							$this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-							$this->docexcel->getActiveSheet()->setCellValue('A2', '');
+							if ($this->objParam->getParametro('tipo_reporte')=='frecuencia_cargos'){
+								$this->docexcel->getActiveSheet()->setCellValue('A2', 'A '.$datos[0]['periodo']);
+							}else{
+								$this->docexcel->getActiveSheet()->setCellValue('A2', '');	
+							}
+							
 					 	}
 						 
 					 
