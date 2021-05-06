@@ -21,6 +21,7 @@
 #103ETR             06.04.2020          MZM                 Adicion de campo habilitar_impresion_boleta
 #124ETR             13/05/2020          RAC KPLIAN          Registrar calcular_bono_rciva
 #131 ETR            01.06.2020          RAC KPLIAN          Metodo para Marcar planillas donde ya fueron despachados los correos de boletas de pago
+#ETR-3825			06.05.2021		 	MZM			 		Adicion de reporte Verificacion Presupuestaria Xls por CC
  * ***/
 
 class MODPlanilla extends MODbase{
@@ -829,6 +830,30 @@ class MODPlanilla extends MODbase{
         //Devuelve la respuesta
         return $this->respuesta;
     }
+	//#ETR-3825
+	function listaVerPresuCC(){
+        //Definicion de variables para ejecucion del procedimiento
+        $this->procedimiento='plani.ft_planilla_sel';
+        $this->transaccion='PLA_VERPRECC_SEL';
+        $this->tipo_procedimiento='SEL';
+        $this->setCount(false);
+        $this->setParametro('id_planilla','id_planilla','int4');
+        //Define los parametros para la funcion
+        $this->captura('id_planilla','int4');
+        $this->captura('tipo_consolidado','varchar');
+        $this->captura('codigo_techo','varchar');
+        $this->captura('descripcion_techo','varchar');
+		$this->captura('codigo_cc','varchar');
+        $this->captura('nro_planilla','varchar');
+        $this->captura('suma','numeric');
+        $this->captura('codigo_tcc_2','varchar');
+        $this->captura('estado','varchar');
+        //Ejecuta la instruccion
+        $this->armarConsulta();//echo $this->getConsulta(); exit;
+        $this->ejecutarConsulta();
 
+        //Devuelve la respuesta
+        return $this->respuesta;
+    }
 }
 ?>

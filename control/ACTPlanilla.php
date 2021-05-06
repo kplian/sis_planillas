@@ -14,6 +14,7 @@
 #78    ETR      18/11/2019       MZM             Adicionar listado de backups de planilla
 #83    ETR      11.12.2019       MZM             Adicion de filtro a listado de backup de planilla para reportes
 #107   ETR      16.03.2020       MZM             Adicion de filtro id_tipo_planilla para obtener gestion/periodo de la ultima planilla del tipo consultado
+ #ETR-3825		06.05.2021		 MZM			 Adicion de reporte Verificacion Presupuestaria Xls por CC 
  * */
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RMinisterioTrabajoUpdateXLS.php');
@@ -23,6 +24,7 @@ require_once(dirname(__FILE__).'/../reportes/RSegAguinaldoXLS.php');
 require_once(dirname(__FILE__).'/../reportes/RCertificacionPresupuestaria.php');
 require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestaria.php');
 require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestariaXls.php');//#ETR-2755
+require_once(dirname(__FILE__).'/../reportes/RVerificacionPresupuestariaCCXls.php');//#ETR-3825
 
 
 class ACTPlanilla extends ACTbase{
@@ -346,6 +348,46 @@ class ACTPlanilla extends ACTbase{
             $this->res=$this->objFunc->listarPlanillaUltima($this->objParam);
         }
         $this->res->imprimirRespuesta($this->res->generarJson());
+    }
+	
+	
+	//#ETR-3825
+	function reporteVerifPresuCC(){
+    	$dataSource = $this->listaVerPresuCC();
+    	$nombreArchivo = uniqid(md5(session_id()).'[Planilla - Verificacion Presupuestaria CC]');
+    	
+    		$nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+            $this->objParam->addParametro('datos',$this->res->datos);
+
+            //Instancia la clase de excel
+            $this->objReporteFormato=new RVerificacionPresupuestariaCCXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($dataSource->getDatos());
+    	
+			$this->mensajeExito=new Mensaje();
+	        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado','Se genera con exito el reporte: '.$nombreArchivo,'control');
+	        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+	        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+		
+        
+    }
+	
+	
+	function listaVerPresuCC(){
+        if($this->objParam->getParametro('id_planilla')!=''){
+            $this->objParam->addFiltro("conpre.id_planilla =".$this->objParam->getParametro('id_planilla'));
+        }
+        $this->objFunc=$this->create('MODPlanilla');
+        $cbteHeader = $this->objFunc->listaVerPresuCC($this->objParam);
+        if($cbteHeader->getTipo() == 'EXITO'){
+            return $cbteHeader;
+        }
+        else{
+            $cbteHeader->imprimirRespuesta($cbteHeader->generarJson());
+            exit;
+        }
     }
 
 }
