@@ -39,7 +39,7 @@ AS $BODY$
    #124   ETR             13/05/2020            RAC KPLIAN           Registrar calcular_bono_rciva
    #130   ETR             27/05/2020            MZM KPLIAN           Modificacion glosa para envio de boletas por correo
    #131   ETR             05/06/2020            RAC KPLIAN           Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
-
+   #ETR-3825			  06.05.2021		    MZM KPLIAN			 REporte de Verificacion presupuestaria por CC
  ***************************************************************************/
 
 
@@ -1518,6 +1518,84 @@ AS $BODY$
         return v_consulta;
 
       end;
+      
+    /*********************************
+     #TRANSACCION:  'PLA_VERPRECC_SEL'
+     #DESCRIPCION:    Reporte Verificacion Presupuestaria Planillas por CC
+     #AUTOR:        MZM
+     #FECHA:        06-05-2021 07:10
+    ***********************************/
+
+    elsif(p_transaccion='PLA_VERPRECC_SEL')then
+
+        begin
+        v_consulta = '
+                      WITH det_partida as
+                      (
+                        SELECT
+                        conpre.id_planilla,
+                        conpre.id_consolidado,
+                        max(conc.id_partida) as id_partida_max
+                        FROM plani.tconsolidado_columna   conc
+                        INNER JOIN plani.tconsolidado conpre on conpre.id_consolidado = conc.id_consolidado
+                        WHERE';
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||'group by
+                        conpre.id_planilla,
+                        conpre.id_consolidado
+                      ),
+                      base_query as
+                      (
+                        select
+                        conpre.id_planilla,
+                        conpre.tipo_consolidado,
+                        cct.codigo_techo,
+                        cct.descripcion_techo,
+                        cc.codigo_cc,
+                        sum(concol.valor) as suma,
+                        sum(concol.valor_ejecutado) as suma_ejecutado ,
+                        (conpre.id_presupuesto ) as id_presupuesto,
+                        max(dp.id_partida_max) as id_partida_max,
+                        pla.nro_planilla, cc.id_tipo_cc
+                        from plani.tconsolidado conpre
+                        inner join plani.tplanilla pla on pla.id_planilla = conpre.id_planilla
+                        inner join param.vcentro_costo cc  on cc.id_centro_costo = conpre.id_presupuesto
+                        inner join param.vtipo_cc_techo cct on cct.id_tipo_cc = cc.id_tipo_cc
+                        inner join plani.tconsolidado_columna concol  on concol.id_consolidado = conpre.id_consolidado
+                        inner join det_partida dp on dp.id_consolidado = conpre.id_consolidado
+                        WHERE';
+        v_consulta:=v_consulta||v_parametros.filtro;
+        v_consulta:=v_consulta||'group by cc.codigo_cc,
+                        conpre.id_planilla,
+                        conpre.tipo_consolidado,
+                        cct.codigo_techo,
+                        cct.descripcion_techo,
+                        pla.nro_planilla, conpre.id_presupuesto, cc.id_tipo_cc
+                      )
+                      select 
+                      id_planilla,
+                      tipo_consolidado,
+                      codigo_techo,
+                      descripcion_techo,codigo_cc::varchar,
+                      nro_planilla,
+                      suma::numeric, param.f_get_tcc_nivel(id_tipo_cc,2),
+                      (select veripre[1]
+                      from pre.f_verificar_presupuesto_individual(
+                          nro_planilla,
+                          NULL,
+                          bq.id_presupuesto,
+                          bq.id_partida_max,
+                          bq.suma,
+                          bq.suma,
+                          ''comprometido'',
+                          false) as veripre )::varchar as estado,
+                          id_presupuesto
+                       from base_query bq
+                     
+                      ';
+        --Devuelve la respuesta
+        return v_consulta;
+        end;      
     else
 
       raise exception 'Transaccion inexistente';
