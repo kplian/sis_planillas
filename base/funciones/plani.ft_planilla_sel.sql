@@ -1588,7 +1588,8 @@ AS $BODY$
                           bq.suma,
                           bq.suma,
                           ''comprometido'',
-                          false) as veripre )::varchar as estado
+                          false) as veripre )::varchar as estado,
+                          id_presupuesto
                        from base_query bq
                      
                       ';

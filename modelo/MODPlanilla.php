@@ -848,6 +848,7 @@ class MODPlanilla extends MODbase{
         $this->captura('suma','numeric');
         $this->captura('codigo_tcc_2','varchar');
         $this->captura('estado','varchar');
+		$this->captura('id_presupuesto','integer');
         //Ejecuta la instruccion
         $this->armarConsulta();//echo $this->getConsulta(); exit;
         $this->ejecutarConsulta();
