@@ -180,8 +180,8 @@ class RVerificacionPresupuestariaCCXls
                
 				
                
-                	$this->docexcel->getActiveSheet()->getStyle('A3:G3')->getAlignment()->setWrapText(true);
-	                $this->docexcel->getActiveSheet()->getStyle('A3:G3')->applyFromArray($styleTitulos3);
+                	$this->docexcel->getActiveSheet()->getStyle('A3:H3')->getAlignment()->setWrapText(true);
+	                $this->docexcel->getActiveSheet()->getStyle('A3:H3')->applyFromArray($styleTitulos3);
 					
                
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
@@ -197,18 +197,20 @@ class RVerificacionPresupuestariaCCXls
                 $this->docexcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);//categori
                 $this->docexcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);//pres
                 $this->docexcel->getActiveSheet()->getColumnDimension('D')->setWidth(25);//ci
-                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);//funcionario
-                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(25);//cargo
-                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(15);
+                $this->docexcel->getActiveSheet()->getColumnDimension('E')->setWidth(11);//funcionario
+                $this->docexcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);//cargo
+                $this->docexcel->getActiveSheet()->getColumnDimension('G')->setWidth(25);
+				$this->docexcel->getActiveSheet()->getColumnDimension('H')->setWidth(15);
                 
                 
                 $this->docexcel->getActiveSheet()->setCellValue('A3','Nº');//1
                 $this->docexcel->getActiveSheet()->setCellValue('B3','Codigo TCC');//2
                 $this->docexcel->getActiveSheet()->setCellValue('C3','Descripcion TCC');//3
                 $this->docexcel->getActiveSheet()->setCellValue('D3','CeCo');//3
-                $this->docexcel->getActiveSheet()->setCellValue('E3','Requerido');//4
-                $this->docexcel->getActiveSheet()->setCellValue('F3','TCC Nivel2');//5
-                $this->docexcel->getActiveSheet()->setCellValue('G3','Estado');//6
+                $this->docexcel->getActiveSheet()->setCellValue('E3','ID Presupuesto');//3
+                $this->docexcel->getActiveSheet()->setCellValue('F3','Requerido');//4
+                $this->docexcel->getActiveSheet()->setCellValue('G3','TCC Nivel2');//5
+                $this->docexcel->getActiveSheet()->setCellValue('H3','Estado');//6
                 
                 
                
@@ -237,10 +239,10 @@ class RVerificacionPresupuestariaCCXls
 
 
 
-                $this->docexcel->getActiveSheet()->mergeCells("A1:G1"); 
+                $this->docexcel->getActiveSheet()->mergeCells("A1:H1"); 
 				$this->docexcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				$this->docexcel->getActiveSheet()->setCellValue('A1', $tit_rep);
-				 $this->docexcel->getActiveSheet()->mergeCells("A2:G2");
+				 $this->docexcel->getActiveSheet()->mergeCells("A2:H2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				$this->docexcel->getActiveSheet()->setCellValue('A2', 'Expresado en Bolivianos');
 				
@@ -261,15 +263,16 @@ class RVerificacionPresupuestariaCCXls
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(0, $fila ,$cont); 
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(1, $fila ,trim($value['codigo_techo'])); 
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(2, $fila ,trim($value['descripcion_techo']));
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,trim($value['codigo_cc']));  
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,number_format((float)$value['suma'], 2, '.', ''));
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,trim($value['codigo_tcc_2']));
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$estado);
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(3, $fila ,trim($value['codigo_cc']));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,$value['id_presupuesto']);    
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,number_format((float)$value['suma'], 2, '.', ''));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,trim($value['codigo_tcc_2']));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(7, $fila ,$estado);
 					$total_1=$total_1+$value['suma'];
 					
 					$fila++;
 				}
-					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(4, $fila ,number_format($total_1, 2, '.', ''));
+					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(5, $fila ,number_format($total_1, 2, '.', ''));
 					
 					
             
