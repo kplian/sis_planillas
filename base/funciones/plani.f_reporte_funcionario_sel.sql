@@ -1,18 +1,7 @@
--- FUNCTION: plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
-
--- DROP FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying);
-
-CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(
-	p_administrador integer,
-	p_id_usuario integer,
-	p_tabla character varying,
-	p_transaccion character varying)
-    RETURNS character varying
-    LANGUAGE 'plpgsql'
-
-    COST 100
-    VOLATILE 
-AS $BODY$
+CREATE OR REPLACE FUNCTION plani.f_reporte_funcionario_sel(p_administrador integer, p_id_usuario integer, p_tabla character varying, p_transaccion character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
 /**************************************************************************
  SISTEMA:      Sistema de Planillas
  FUNCION:      plani.f_reporte_funcionario_sel
@@ -74,6 +63,7 @@ AS $BODY$
  #ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de tipo a reporte de personal incorporado
  #ETR-3119				02.03.2021			MZM-KPLIAN			Adicion de tiempo total de trabajo(en 30 dias) para personal retirado (SPLAPREPRI)
  #ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de periodo/gestion en reporte de frecuencia de cargos
+ #ETR-3892				06.05.2021			MZM-KPLIAN			Habilitacion de reporte DETAGUIN para planilla de Prima vigente
  ***************************************************************************/
 
 DECLARE
@@ -162,6 +152,8 @@ DECLARE
    v_filtro_estado	varchar;
    v_filtro_estado1	varchar;
    v_fecha_control	date;--#120
+   
+   v_col2 varchar; --ETR-3892
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -2717,15 +2709,15 @@ raise notice '***:%',v_consulta;
                 from param.tperiodo p where periodo in (11)
 				and id_gestion=v_parametros.id_gestion;
 			--#155 
-			v_col:='DIASAGUI'; v_cols:='';
+			v_col:='DIASAGUI'; v_col2:='DIASAGUI';  v_cols:='';
             v_cons:='select distinct 1 from plani.tplanilla plani
                   		inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                   		inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
-                  		where  tp.codigo in (''SPLAPRIVIG'') and '|| v_parametros.filtro;
+                  		where  tp.codigo in (''SPLAPRIVIG'',''PLAPRIVIG'') and '|| v_parametros.filtro;
 
 			                       
            for v_registros in execute (v_cons) loop
-           		v_col:='SPREDIAS2';
+           		v_col:='SPREDIAS2'; v_col2:='PREDIAS2'; --#ETR-3892
                 v_cols:= (select nombre ||'@@@'||nit||'@@@'||coalesce(identificador_min_trabajo,'-')||'@@@'||coalesce(identificador_caja_salud,'-') 
 	          	 		  from param.tentidad limit 1 );
                           
@@ -2841,7 +2833,7 @@ raise notice '***:%',v_consulta;
                 ''0'' else
                 ''1'' end) as discapacidad,
                   
-                  (case when '''||v_col||'''=''SPREDIAS2'' then
+                  (case when '''||v_col||'''=''SPREDIAS2''    or    '''||v_col2||'''=''PREDIAS2'' then  --#ETR-3892
                   	'''||v_cols||'''
                   else   ''0''
                   end)::varchar as discapacidad_tutor,
@@ -2879,7 +2871,7 @@ raise notice '***:%',v_consulta;
                   inner join orga.tcargo car on car.id_cargo=uofun.id_cargo
                   inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
                   inner join orga.ttipo_contrato tcon on tcon.id_tipo_contrato=car.id_tipo_contrato
-                  inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla and cv.codigo_columna='''||v_col||'''
+                  inner join '||v_esquema||'.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla and (cv.codigo_columna='''||v_col||'''  or  cv.codigo_columna='''||v_col2||''' )  --#ETR-3892
                   inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                   where '||v_parametros.filtro ||v_condicion|| '
                   order by per.apellido_paterno, per.apellido_materno, per.nombre';
@@ -3478,7 +3470,5 @@ EXCEPTION
             v_resp = pxp.f_agrega_clave(v_resp,'procedimientos',v_nombre_funcion);
             raise exception '%',v_resp;
 END;
-$BODY$;
-
-ALTER FUNCTION plani.f_reporte_funcionario_sel(integer, integer, character varying, character varying)
-    OWNER TO postgres;
+$function$
+;
