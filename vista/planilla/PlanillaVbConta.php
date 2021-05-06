@@ -13,7 +13,8 @@
  #74             04-11-2019        Rensi Arteaga        esconde opciones para contadores
  #79    ETR      27/11/2019        RAC KPLIAN           nueva columnas para habilitar o des-habilitar el botón de cbte de devengados
  #ETR-2755		 02.02.2021		   MZM KPLIAN	   		Reporte de verificacion presupuestaria xls
- */
+ #ETR-3825		 06.05.2021		   MZM KPLIAN	   		Reporte de verificacion presupuestaria disgregada por CeCo
+ */	
 
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -82,6 +83,13 @@ header("content-type: text/javascript; charset=UTF-8");
                     id: 'btnVerPreXls-' + this.idContenedor,
                     handler: this.onVerPreXls,
                     tooltip: 'Verificacion Presupuestaria Xls' ,
+                    scope: this
+                },//#TR-3825
+                {   
+                    text: 'Verificacion Presupuestaria x CeCo Xls',
+                    id: 'btnVerPreCCXls-' + this.idContenedor,
+                    handler: this.onVerPreCCXls,
+                    tooltip: 'Verificacion Presupuestaria x CeCo Xls' ,
                     scope: this
                 }
                 ]                              
@@ -1062,6 +1070,29 @@ header("content-type: text/javascript; charset=UTF-8");
 				Phx.CP.loadingShow();
 				Ext.Ajax.request({
 					url:'../../sis_planillas/control/Planilla/reporteVerifPresu',
+					params:{
+						'id_planilla':rec.id_planilla,
+						'nro_planilla':rec.nro_planilla,
+						'tipo_reporte':'xls'
+					},
+					success:this.successExport,
+					failure: this.conexionFailure,
+					timeout:this.timeout,
+					scope:this
+				});		
+			}
+			else
+			{
+				Ext.MessageBox.alert('Alerta', 'Antes debe seleccionar un item.');
+			}
+		},//#ETR-3825
+		onVerPreCCXls : function() {
+			var rec = this.getSelectedData();		
+			if(rec)
+			{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+					url:'../../sis_planillas/control/Planilla/reporteVerifPresuCC',
 					params:{
 						'id_planilla':rec.id_planilla,
 						'nro_planilla':rec.nro_planilla,
