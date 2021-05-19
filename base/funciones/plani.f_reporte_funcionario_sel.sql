@@ -3203,7 +3203,7 @@ raise notice '***:%',v_consulta;
                                                     inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
                                                     and plani.id_periodo  between v_id_periodo_min and v_id_periodo
                                                      and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
-                                                    )/360*meses))
+                                                    )/360*meses)) / meses*360
                                                 
                                                     
                                                     ,2)
