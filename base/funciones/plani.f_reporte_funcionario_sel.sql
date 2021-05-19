@@ -154,6 +154,10 @@ DECLARE
    v_fecha_control	date;--#120
    
    v_col2 varchar; --ETR-3892
+   v_fechas_cont	varchar; --ETR-3892
+   v_i 	integer;
+   v_fecha_actual	date;
+   v_meses	integer;
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -2710,14 +2714,18 @@ raise notice '***:%',v_consulta;
 				and id_gestion=v_parametros.id_gestion;
 			--#155 
 			v_col:='DIASAGUI'; v_col2:='DIASAGUI';  v_cols:='';
-            v_cons:='select distinct 1 from plani.tplanilla plani
+            v_cons:='select distinct tp.codigo from plani.tplanilla plani
                   		inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                   		inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
                   		where  tp.codigo in (''SPLAPRIVIG'',''PLAPRIVIG'') and '|| v_parametros.filtro;
 
 			                       
            for v_registros in execute (v_cons) loop
-           		v_col:='SPREDIAS2'; v_col2:='PREDIAS2'; --#ETR-3892
+                if (v_registros.codigo='SPLAPRIVIG') then
+           			v_col:='SPREDIAS2'; v_col2:='SPREDIAS2';
+                else
+                	v_col2:='PREDIAS2'; v_col:='PREDIAS2'; --#ETR-3892
+                end if;
                 v_cols:= (select nombre ||'@@@'||nit||'@@@'||coalesce(identificador_min_trabajo,'-')||'@@@'||coalesce(identificador_caja_salud,'-') 
 	          	 		  from param.tentidad limit 1 );
                           
@@ -2728,13 +2736,13 @@ raise notice '***:%',v_consulta;
                                  inner join segu.tpersona per on per.id_persona=f.id_persona
                                  where f.id_funcionario= v_columnas[1]::integer );
                           
-                select p.id_periodo into v_id_periodo_min
+               select p.id_periodo into v_id_periodo_min
                 from param.tperiodo p where periodo in (10)
 				and id_gestion=v_parametros.id_gestion;
 
 				select p.id_periodo into v_id_periodo
                 from param.tperiodo p where periodo in (12)
-				and id_gestion=v_parametros.id_gestion;
+				and id_gestion=v_parametros.id_gestion; 
            end loop;
 
 			--#158 para planilla de sueldos
@@ -2918,21 +2926,157 @@ raise notice '***:%',v_consulta;
                         tipo_contrato='1'
                         where id_funcionario=v_registros.id_funcionario;
                       end if;
+                      
+                      --#ETR-3892
+                      select p.id_periodo into v_id_periodo_min
+                      from param.tperiodo p where periodo in (10)
+                      and id_gestion=v_parametros.id_gestion;
+
+                      select p.id_periodo into v_id_periodo
+                      from param.tperiodo p where periodo in (12)
+                      and id_gestion=v_parametros.id_gestion;
+                      
+                      
                       	
                       --#155
                       v_cols:='HABBAS';
-                      if (v_col='SPREDIAS2') then
+                      if (v_col='SPREDIAS2' ) then
                       	v_tc:=(select c.valor from plani.tcolumna_valor c where c.id_funcionario_planilla=v_registros.id_funcionario_planilla
-                        and c.codigo_columna='SPREDIAS1');
+                        and c.codigo_columna in ('SPREDIAS1'));
                         update tt_detalle_aguin
                         set meses=meses + v_tc
                         where id_funcionario=v_registros.id_funcionario;
                         v_cols:='SUELDOMES';
-                        
+                      
                       end if;
                       
-                      if (v_col in ('SPREDIAS2','DIASAGUI')) then -- se divide entre 3 
-                       v_consulta_det:='select round((sum(cv.valor)/3),2) as valor,
+                      --#ETR-3892: cuando es planilla PLAPRIVIG, existen 2 contratos por separado que se promedian. 
+                      --Si el tiempo del segundo contrato es menor a 90 dias, solo se considera el primero, obtenemos los dias del primer contrato.
+                      --Si el tiempo es mayor, puede que el primer contrato haya sido con un basico mayor, por lo que en el promedio para la prima, se ha pagado mas de lo q el promedio de su ultimo contrato establece.
+                      --Siendo que se paga en base a un promedio, el de su cotizable no puede ser menor a la prima pagada. Adriana Bautista (18.05.2021) dijo haber consultado con el Ministerio de Trabajo para ajustar la diferencia y llevarlo a otros bonos
+                      --Por lo que en la obtencion del promedio de cotizables se lo hara en funcion al contrato con menor sueldo_basico (primer contrato)
+                      v_meses:=3;                      
+                      if (v_col2='PREDIAS2' ) then
+                      	v_tc:=(select c.valor from plani.tcolumna_valor c where c.id_funcionario_planilla=v_registros.id_funcionario_planilla
+                        	and c.codigo_columna in ('PREDIAS1'));
+
+	                    if (v_registros.valor >= 90) then  --su segundo contrato es mas de 90 dias
+                       		update tt_detalle_aguin
+                            set meses=v_registros.valor + v_tc
+                            where id_funcionario=v_registros.id_funcionario;
+                            
+                            select p.id_periodo into v_id_periodo_min
+                            from param.tperiodo p where periodo in (10)
+                            and id_gestion=v_parametros.id_gestion;
+
+                            select p.id_periodo into v_id_periodo
+                            from param.tperiodo p where periodo in (12)
+                            and id_gestion=v_parametros.id_gestion;
+                            --validamos si el promedio de cotizable es menor a su prima pagada == debe tener un contrato previo y obtener los cotizables de su primer contrato
+                            
+                            if  (round(((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
+                                      on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                                      inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                      inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
+                                      and plani.id_periodo  between v_id_periodo_min and v_id_periodo
+                                       and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
+                                      )/360*(v_registros.valor + v_tc)),2)
+                                      >
+                                      (select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
+                                      ) then
+									
+                            		 v_fechas_cont:=(select plani.f_obtener_fechas_prima (v_registros.id_funcionario_planilla,'CTTO1'));
+
+    							    
+                                		select id_periodo, fecha_fin, fecha_ini, periodo into v_id_periodo , v_fecha_fin, v_fecha_ini, v_i
+                                		from param.tperiodo where split_part(v_fechas_cont,'#@@@#',2)::date between fecha_ini and fecha_fin;
+
+                                        if (v_fecha_fin!=split_part(v_fechas_cont,'#@@@#',2)::date) then
+                                            select id_periodo, periodo 
+                                            into v_id_periodo,v_i from param.tperiodo where fecha_fin=v_fecha_ini-1;
+                                           
+                                           v_id_periodo_min:=(select id_periodo from param.tperiodo where periodo=v_i-2
+                                                            and id_gestion =(select id_gestion from param.tperiodo where id_periodo=v_id_periodo)); 
+                                            
+                                                
+                                        else
+                                           
+                                           v_id_periodo_min:=(select id_periodo from param.tperiodo where periodo=v_i-2
+                                                            and id_gestion =(select id_gestion from param.tperiodo where id_periodo=v_id_periodo)); 
+                                          
+                                                
+                                            
+                                        end if;
+                        	end if;
+                           
+                          else --su segundo contrato no supera los 90 dias
+                            
+                            if (v_tc >0) then --su primer contrato tiene mas de 90 dias: obtenemos los cotizables completos
+                                update tt_detalle_aguin
+                                set meses= v_tc
+                                where id_funcionario=v_registros.id_funcionario;
+                                
+                                
+                                v_fechas_cont:=(select plani.f_obtener_fechas_prima (v_registros.id_funcionario_planilla,'CTTO1'));
+
+    							
+                                select id_periodo, fecha_fin, fecha_ini, periodo into v_id_periodo , v_fecha_fin, v_fecha_ini, v_i
+                                from param.tperiodo where split_part(v_fechas_cont,'#@@@#',2)::date between fecha_ini and fecha_fin;
+
+                                if (v_fecha_fin!=split_part(v_fechas_cont,'#@@@#',2)::date) then
+                                    select id_periodo, periodo 
+                                    into v_id_periodo,v_i from param.tperiodo where fecha_fin=v_fecha_ini-1;
+                                   
+                                   v_id_periodo_min:=(select id_periodo from param.tperiodo where periodo=v_i-2
+                                  					and id_gestion =(select id_gestion from param.tperiodo where id_periodo=v_id_periodo)); 
+                                    
+                                        
+                                else
+                                   
+                                   v_id_periodo_min:=(select id_periodo from param.tperiodo where periodo=v_i-2
+                                  					and id_gestion =(select id_gestion from param.tperiodo where id_periodo=v_id_periodo)); 
+                                  
+                                        
+                                    
+                                end if;
+                                --el dato de su fecha de ingreso la tomamos del primer contrato
+                                update tt_detalle_aguin
+                                set fecha_ingreso= split_part(v_fechas_cont,'#@@@#',1)::date
+                                where id_funcionario=v_registros.id_funcionario;
+                                 
+                            else -- no tiene mas de 90 dias o no tiene primer contrato. En 2020 caso Wilder Ureña con 60 dias, q recibe prima porq estuvo ausente con "licencia"
+                                update tt_detalle_aguin
+                                set meses=v_registros.valor + v_tc
+                                where id_funcionario=v_registros.id_funcionario;
+                                
+                                select p.id_periodo into v_id_periodo_min
+                                from param.tperiodo p where periodo in (10)
+                                and id_gestion=v_parametros.id_gestion;
+
+                                select p.id_periodo into v_id_periodo
+                                from param.tperiodo p where periodo in (12)
+                                and id_gestion=v_parametros.id_gestion;
+                                
+                            end if;
+                            
+                            select count(*) into v_meses
+                                        from plani.tfuncionario_planilla fp
+                                        inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                        and cv.codigo_columna in ('SUELDOMES')
+                                        where fp.id_funcionario =v_registros.id_funcionario
+										and plani.id_periodo between v_id_periodo_min and v_id_periodo;
+                            
+                        end if;
+                        
+                        v_cols:='SUELDOMES';
+                      
+                      end if;
+                      
+                      if (v_col in ('SPREDIAS2','DIASAGUI') or v_col2='PREDIAS2') then -- se divide entre 3 
+                       v_consulta_det:='select round((sum(cv.valor)/'||v_meses||'),2) as valor,
 							 			 cv.codigo_columna
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -2944,8 +3088,9 @@ raise notice '***:%',v_consulta;
 										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
                                         group by cv.codigo_columna
                                         ';
+                                        
 					else -- plasue #158
-                    v_cols:='SUELDOMES';
+                        v_cols:='SUELDOMES';
                     	v_consulta_det:='select round((sum(cv.valor)),2) as valor,
 							 			 cv.codigo_columna
                                         from plani.tfuncionario_planilla fp
@@ -2969,7 +3114,7 @@ raise notice '***:%',v_consulta;
                             	update tt_detalle_aguin
                             	set haber_basico=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col in ('SPREDIAS2','HORDIA') and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
+                            elsif ((v_col in ('SPREDIAS2','HORDIA') or (v_col2='PREDIAS2')) and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
                             	update tt_detalle_aguin
                             	set haber_basico=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
@@ -2981,8 +3126,8 @@ raise notice '***:%',v_consulta;
                                 update tt_detalle_aguin
                             	set bono_frontera=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_registros_det.codigo_columna='EXTRA' and v_col in ('DIASAGUI','SPREDIAS2')) then
-                                v_tc:=(select sum(cv.valor)/3 as valor
+                            elsif (v_registros_det.codigo_columna='EXTRA' and (v_col in ('DIASAGUI','SPREDIAS2') or v_col2='PREDIAS2')) then
+                                v_tc:=(select sum(cv.valor)/v_meses as valor
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                         inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3018,9 +3163,9 @@ raise notice '***:%',v_consulta;
                                           update tt_detalle_aguin
                                           set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
                                           where id_funcionario=v_registros.id_funcionario;
-                                  elsif (v_col='SPREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
+                                  elsif (v_col='SPREDIAS2' or v_col2='PREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
                                   
-                                  			v_tc:=(select sum(cv.valor)/3 as valor
+                                          v_tc:=(select sum(cv.valor)/v_meses as valor
                                           from plani.tfuncionario_planilla fp
                                           inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                           inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3035,6 +3180,43 @@ raise notice '***:%',v_consulta;
                                           update tt_detalle_aguin
                                           set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
                                           where id_funcionario=v_registros.id_funcionario;
+                                          
+                                          if (v_col2='PREDIAS2') then --#ETR-3892: Si la prima entregada es mayor al promedio que se reporta, llevamos la diferencia a "otros", segun lo indicado por Adriana Bautista que consulto con el Ministerio de Trabajo (18.05.2021)
+                                              if ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
+                                               > round(((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
+                                                  on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                                                  inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
+                                                  and plani.id_periodo  between v_id_periodo_min and v_id_periodo
+                                                   and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
+                                                  )/360*(select meses from tt_detalle_aguin  where id_funcionario=v_registros.id_funcionario)),2)
+                                                
+                                                  
+                                                  ) then
+                                                  
+                                                    update tt_detalle_aguin
+                                                    set otros=otros + round(
+                                                    ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
+                                               		- ((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
+                                                    on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                                                    inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
+                                                    and plani.id_periodo  between v_id_periodo_min and v_id_periodo
+                                                     and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
+                                                    )/360*meses))
+                                                
+                                                    
+                                                    ,2)
+                                                    where id_funcionario=v_registros.id_funcionario;
+                                                  
+                                                  
+                                              end if;
+                                          
+                                          end if;
+                                         
+                                          
+                                          
+                                          
                                   else -- para sueldos HORDIA --#158
                                           v_tc:=(select sum(cv.valor) as valor
                                           from plani.tfuncionario_planilla fp
@@ -3051,6 +3233,7 @@ raise notice '***:%',v_consulta;
                                           update tt_detalle_aguin
                                           set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
                                           where id_funcionario=v_registros.id_funcionario;
+                                          
                                   end if;
                             elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HORNORM') then
                              	update tt_detalle_aguin
