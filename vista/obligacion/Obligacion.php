@@ -28,8 +28,13 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Obligacion.superclass.constructor.call(this,config);
 		this.init();
-		this.store.baseParams.id_planilla = this.maestro.id_planilla;
-		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
+		if (this.maestro.origen!='' && this.maestro.origen!= undefined) {// se esta generando desde el reporte
+			alert('existe el origen');
+		}else{//viene de planilla
+			this.store.baseParams.id_planilla = this.maestro.id_planilla;
+			this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
+		}
+		
 		this.addButton('btnDetalle',
             {
                 text: 'Detalle de Transferencias',

@@ -18,7 +18,8 @@
   #156	ETR			EGS				03/08/2020	Se agrega codigo_afp
    #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte
  *#ETR-1378			MZM-KPLIAN		18.10.2020	Adicion de filtro por empleado_planilla
- *#ETR-2476			MZM-KPLIAN		14.01.2021	Adicion de tipo incremento_salarial para ocultar periodo 
+ *#ETR-2476			MZM-KPLIAN		14.01.2021	Adicion de tipo incremento_salarial para ocultar periodo
+ *#ETR-3997			MZM-KPLIAN		19.05.2021	Adicion de reporte Abono en Cuenta para generar un solo archivo de abono en cuenta 
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -621,10 +622,12 @@ header("content-type: text/javascript; charset=UTF-8");
 		ActSave : '../../sis_planillas/control/Reporte/generarReporteDesdeForm',
 		topBar : true,
 		botones : false,
-		labelSubmit : 'Imprimir',
+		labelSubmit : 'Generar',
 		tooltipSubmit : '<b>Generar Reporte</b>',
+		
 		constructor : function(config) {
 			Phx.vista.GenerarReporte.superclass.constructor.call(this, config);
+			
 			this.init();
 			
 			this.ocultarComponente(this.Cmp.totales);
@@ -733,11 +736,15 @@ header("content-type: text/javascript; charset=UTF-8");
 				if(r.data.codigo=='PLANRE' ){
 					//this.mostrarComponente(this.Cmp.personal_activo);
 					this.mostrarComponente(this.Cmp.consolidar);//#98
+					this.Cmp.personal_activo.setValue('activo');
+					this.Cmp.personal_activo.getStore().loadData(['activo', 'retirado']);
+					
+					
 				}else{
 					//this.ocultarComponente(this.Cmp.personal_activo);	
 					this.ocultarComponente(this.Cmp.consolidar);//#98	
 					this.Cmp.consolidar.setValue('no');//#98
-					
+					this.Cmp.personal_activo.getStore().loadData(['activo', 'retirado','todos']);
 				}
 				this.Cmp.id_planillabk.reset();//#83
 				this.Cmp.consultar_backup.setValue('no');//#83
@@ -1099,6 +1106,52 @@ header("content-type: text/javascript; charset=UTF-8");
 			           }
      				,
 		tipo : 'reporte',
-		clsSubmit : 'bprint'
+		clsSubmit : 'bprint',
+		onSubmit: function(){
+		if(this.form.getForm().isValid()){
+			
+			if(this.Cmp.control_reporte.getValue()=='abono_cuenta'){
+				
+				var rec = {maestro: {
+					'id_planilla':331,
+					 'id_periodo':this.Cmp.id_periodo.getValue(),
+					 'id_gestion':this.Cmp.id_gestion.getValue(),
+					 'consolidar':this.Cmp.consolidar.getValue(),
+					 'id_tipo_planilla': this.Cmp.id_tipo_planilla.getValue(),
+					 'id_reporte': this.Cmp.id_reporte.getValue(),
+					 'id_tipo_contrato': this.Cmp.id_tipo_contrato.getValue(),
+					 'origen':'reporte'
+				 	}
+				 };
+				 	
+            	Phx.CP.loadWindows('../../../sis_planillas/vista/obligacion/Obligacion.php',
+                    'Obligaciones',
+                    {
+                        width:800,
+                        height:'90%'
+                    },
+                    rec,
+                    this.idContenedor,
+                    'Obligacion');
+                   
+            	
+			}else{
+				Phx.CP.loadingShow();
+				Ext.Ajax.request({
+			                url:'../../sis_planillas/control/Reporte/generarReporteDesdeForm',
+			                params: this.getValForm ,
+			                success: this.successSave,
+			                failure: this.conexionFailure,
+			                timeout: this.timeout,
+			                scope:this
+			            });
+			}
+			
+			
+		  
+
+			
+		}
+	},
 })
 </script>

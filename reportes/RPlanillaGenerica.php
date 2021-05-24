@@ -13,6 +13,7 @@
 //#123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
 //#141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
 //#161	ETR				07.09.2020			MZM-KPLIAN			Ajuste en encabezado, quitando tipo contrato planta
+//#ETR-3997				24.05.2021			MZM-KPLIAN			Se modifica el orden de impresion de datos respecto al contador de registros
 
 class RPlanillaGenerica extends  ReportePDF { 
 	var $datos_titulo;
@@ -296,7 +297,7 @@ class RPlanillaGenerica extends  ReportePDF {
 			
 		
 			if ($id_funcionario != $value['id_funcionario']  ) {
-				
+			
 				if($this->cant_columnas_totalizan==1){//#80
 					
 					if($array_show[((count($array_show))-1)]!=0){ 
@@ -356,11 +357,20 @@ class RPlanillaGenerica extends  ReportePDF {
 						$id_funcionario = $value['id_funcionario'];
 					
 				}else{ 
+						
 						$this->SetFont('','',8);
 						$this->UniRow($array_show,false, $this->bordes, $this->interlineado);
 						$columnas = 0;
+						//#ETR-3997
+						$this->numeracion++;
+						$empleados_gerencia++;
+						//echo $empleados_gerencia."--".$value['nombre_empleado']; exit;
+						//var_dump($value); exit;
+						$array_show = $this->iniciarArrayShow($value);
+						$id_funcionario = $value['id_funcionario'];
 						//Si cambia la gerencia
-						if ($this->gerencia != $value['gerencia']) {
+						
+						if ($this->gerencia != $value['gerencia']) { 
 							//generar subtotales
 							$this->SetFont('','B',8); 
 							
@@ -400,10 +410,8 @@ class RPlanillaGenerica extends  ReportePDF {
 								$this->Cell(30,3,''.$this->gerencia . '' ,'',1,'L');
 							}
 						} 
-						$this->numeracion++;
-						$empleados_gerencia++;
-						$array_show = $this->iniciarArrayShow($value);
-						$id_funcionario = $value['id_funcionario'];
+
+						
 				}
 				
 			//si no es un nuevo funcionario hacer push al arreglo con el dato recibido

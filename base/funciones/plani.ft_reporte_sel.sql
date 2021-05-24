@@ -52,6 +52,7 @@ AS $BODY$
    #168		ETR			07.10.2020			MZM-KPLIAN					Adicion de centro en reporte multilinea por distrito
    #ETR-2046			10.12.2020			MZM-KPLIAN					Adicion de control para generar planilla de aguinaldo con informacion de bancos o no (cuando existen obligaciones)
    #ETR-2135			14.12.2020			MZM-KPLIAN					Adicion de excepcion para planilla de aguinaldo 2020
+   #ETR-3997			24.05.2021			MZM-KPLIAN					Adicion de condicion en REPODET_SEL (planilla de reintegro) que el filtro de activo/retirado contemple la posibilidad de reincorporacion a la fecha del proceso (se añade validacion por funcionario vigente)
   ***************************************************************************/
 
   DECLARE
@@ -1322,12 +1323,15 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
         		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
+                
+                or plani.f_es_funcionario_vigente (fun.id_funcionario, '''||v_fecha_backup||''') --#ETR-3997
         		) ';
                  
             elsif (v_parametros.estado_funcionario='retirado') then
                    v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
                           -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
                           and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          and not plani.f_es_funcionario_vigente (fun.id_funcionario, '''||v_fecha_backup||''') --#ETR-3997
                       ';
             else -- todos
                    -- solo para los activos adicionar la condicion del periodo
