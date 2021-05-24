@@ -42,6 +42,7 @@ AS $BODY$
  #158	ETR		  19.08.2020		MZM						Modificacion SIN BANCO a CHEQUE para reporte resumen saldos (Prima)
  #169	ETR		  09.10.2020		MZM-KPLIAN				Adecuacion de restriccion de pago_empleados a %empleado% para que funcione reporte relacion_saldos en bono de prod no vigente
  #ETR-2137		  11.12.2020		MZM-KPLIAN				Adicion de coalesce para no evitar valor null en id_periodo (planilla de aguinaldos) en REPOBANCDET
+ #ETR-3997		  20.05.2021		MZM-KPLIAN				Adicion de inner con planilla en OBLI_SEL
 */
 
 DECLARE
@@ -63,6 +64,12 @@ DECLARE
     v_oficina_dato		varchar; --#98
     v_oficina_group		varchar;
     v_oficina_orden		varchar;
+    
+    --#ETR-3397
+    v_registros		record;
+    v_cont	integer;
+    v_sum	numeric;
+    v_consulta_abono   varchar;
 BEGIN
 
     v_nombre_funcion = 'plani.ft_obligacion_sel';
@@ -120,6 +127,8 @@ BEGIN
                         from '||v_esquema||'.tobligacion obli
                         inner join plani.ttipo_obligacion tipobli  on tipobli.id_tipo_obligacion = obli.id_tipo_obligacion
                         inner join segu.tusuario usu1 on usu1.id_usuario = obli.id_usuario_reg
+                        --#ETR-3997
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=obli.id_planilla
                         left join '||v_esquema||'.tobligacion_agrupador oa on oa.id_obligacion_agrupador = obli.id_obligacion_agrupador
                         left join segu.tusuario usu2 on usu2.id_usuario = obli.id_usuario_mod                        
                         where  ';
@@ -162,6 +171,8 @@ BEGIN
                         from '||v_esquema||'.tobligacion obli
                         inner join plani.ttipo_obligacion tipobli  on tipobli.id_tipo_obligacion = obli.id_tipo_obligacion
                         inner join segu.tusuario usu1 on usu1.id_usuario = obli.id_usuario_reg
+                        --#ETR-3997
+                        inner join '||v_esquema||'.tplanilla plani on plani.id_planilla=obli.id_planilla
                         left  join '||v_esquema||'.tobligacion_agrupador oa on oa.id_obligacion_agrupador = obli.id_obligacion_agrupador
                         left join segu.tusuario usu2 on usu2.id_usuario = obli.id_usuario_mod                        
                         where ';
@@ -175,7 +186,7 @@ BEGIN
         end;
     elsif (p_transaccion='PLA_ABOCUE_SEL') THEN
         BEGIN  --#88
-            v_consulta:='select
+            /*v_consulta:='select
                          emp.codigo_bnb||substr(now()::date::varchar,1,4)||substr(now()::date::varchar,6,2)||substr(now()::date::varchar,9,2)||(select pxp.f_llenar_ceros((select count(*) from plani.tdetalle_transferencia where id_obligacion=detran.id_obligacion),6))
                          ||(select pxp.f_llenar_ceros(cast(replace(sum(monto_transferencia)||'''',''.'','''') as integer),13) from plani.tdetalle_transferencia where id_obligacion=detran.id_obligacion)
                          ||(select pxp.f_llenar_ceros(0,13)) as total,
@@ -210,8 +221,81 @@ BEGIN
                         
                         v_consulta:=v_consulta||v_parametros.filtro;
                         v_consulta:=v_consulta||' order by ofi.orden,fun.desc_funcionario2';
-            return v_consulta;
-        
+            return v_consulta;*/
+            --#ETR-3997: Se comenta la consulta previa y se la reformula para q funcione consultando a multiples obligaciones
+            create temp table tt_abonocuenta(
+              total text,
+              detalle text,
+              periodo text,
+              orden numeric, desc_funcionario2 text
+			)on commit drop;
+            
+            v_cont:=0; v_sum:=0;
+            
+            v_consulta_abono:='select
+                         emp.codigo_bnb||substr(now()::date::varchar,1,4)||substr(now()::date::varchar,6,2)||substr(now()::date::varchar,9,2) as total,
+                         
+                         (select pxp.f_llenar_espacio_blanco(fun.ci, 13))||
+                        (select pxp.f_llenar_espacio_blanco(substr(fun.desc_funcionario2,1,30),30))||
+                        ges.gestion||''''||
+                        (select pxp.f_llenar_ceros ( (select EXTRACT(MONTH FROM plani.fecha_planilla))::integer  ,2))
+                        ||''1''||
+                        
+						(select pxp.f_llenar_ceros(cast(replace(sum(detran.monto_transferencia)||'''',''.'','''') as integer),13))||
+                         (select pxp.f_llenar_espacio_blanco(regexp_replace(detran.nro_cuenta,''-'',''''),10))||(select tipo_abono from plani.ttipo_obligacion where id_tipo_obligacion=obli.id_tipo_obligacion) as detalle
+                        , (select TO_CHAR(now(),''MMDD'')) as periodo
+                        
+                       , sum(obli.monto_obligacion) as total_obli, ofi.orden as orden, fun.desc_funcionario2
+                        from plani.tdetalle_transferencia detran
+                        inner join orga.vfuncionario fun
+                            on fun.id_funcionario = detran.id_funcionario
+                        inner join param.tinstitucion ins
+                            on ins.id_institucion = detran.id_institucion
+                        inner join segu.tusuario usu1 on usu1.id_usuario = detran.id_usuario_reg
+                        left join segu.tusuario usu2 on usu2.id_usuario = detran.id_usuario_mod
+                        inner join plani.tobligacion obli on obli.id_obligacion=detran.id_obligacion
+                        inner join plani.tplanilla plani on plani.id_planilla=obli.id_planilla
+                        inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
+                        inner join param.tempresa emp on emp.id_empresa=ges.id_empresa
+                      
+                        inner join plani.ttipo_obligacion tipobli on tipobli.id_tipo_obligacion=obli.id_tipo_obligacion
+                        inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_planilla=plani.id_planilla
+                        inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                        inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                        inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
+                        where '||v_parametros.filtro|| '
+						group by emp.codigo_bnb||substr(now()::date::varchar,1,4)||substr(now()::date::varchar,6,2)||substr(now()::date::varchar,9,2),
+                        (select pxp.f_llenar_espacio_blanco(fun.ci, 13))||
+                        (select pxp.f_llenar_espacio_blanco(substr(fun.desc_funcionario2,1,30),30))||
+                        ges.gestion||''''||
+                        (select pxp.f_llenar_ceros ( (select EXTRACT(MONTH FROM plani.fecha_planilla))::integer  ,2))
+                        ||''1'',
+                        (select pxp.f_llenar_espacio_blanco(regexp_replace(detran.nro_cuenta,''-'',''''),10)),(select tipo_abono from plani.ttipo_obligacion where id_tipo_obligacion=obli.id_tipo_obligacion)
+                        , (select TO_CHAR(now(),''MMDD'')), ofi.orden, fun.desc_funcionario2
+                        order by ofi.orden,fun.desc_funcionario2';
+            raise notice 'sss%', v_consulta_abono;
+            for v_registros in execute(   v_consulta_abono             
+						) loop
+            
+            			insert into tt_abonocuenta values (v_registros.total, v_registros.detalle, v_registros.periodo, v_registros.orden, v_registros.desc_funcionario2);
+                        if (v_cont=0) then
+                           v_sum:=v_registros.total_obli;
+                        end if;
+                        v_cont:=v_cont+1;
+            
+            end loop;
+            
+            update tt_abonocuenta
+            set total=total||((select pxp.f_llenar_ceros(v_cont,6))
+                         ||(select pxp.f_llenar_ceros(cast(replace(v_sum||'','.','') as integer),13) )
+                         ||(select pxp.f_llenar_ceros(0,13)) );
+                         
+                         
+          v_consulta:='select total ,
+              detalle,
+              periodo from tt_abonocuenta order by orden, desc_funcionario2';
+          return v_consulta;
+                         
         END;
     elsif (p_transaccion='PLA_ABOCUE_CONT') THEN
         BEGIN
@@ -573,7 +657,7 @@ BEGIN
         END;    
     elsif (p_transaccion='PLA_ABONOXLS_SEL') THEN --#142
     	BEGIN
-            v_consulta:='select  emp.nombre,
+          /*  v_consulta:='select  emp.nombre,
                          emp.codigo_bnb, 
                          (select TO_CHAR(now(),''DD''||''/''||''MM''||''/''||''YYYY'')),
                          (select count(*) from plani.tdetalle_transferencia where id_obligacion=detran.id_obligacion) as num_abonos,
@@ -603,7 +687,81 @@ BEGIN
                          
                          v_consulta:=v_consulta || ' and obli.id_obligacion='||v_parametros.id_obligacion;
                          
-                         v_consulta:=v_consulta||' order by ofi.orden,fun.desc_funcionario2';
+                         v_consulta:=v_consulta||' order by ofi.orden,fun.desc_funcionario2';*/
+            --#ETR-3997: Se comenta la consulta previa y se la reformula para q funcione consultando a multiples obligaciones
+            create temp table tt_abonocuentaxls(
+              nombre varchar,
+              codigo_bnb varchar,
+              fecha text,
+              num_abonos bigint,
+              total numeric,
+              ci varchar,
+			  desc_funcionario2 text,
+		      gestion int4,
+		      monto_transferencia numeric,
+		      numero_cuenta varchar,
+		      periodo text, ofi numeric
+              
+			)on commit drop;
+           
+            v_cont:=0; v_sum:=0;
+            
+            v_consulta_abono:= 'select  emp.nombre,
+                         emp.codigo_bnb, 
+                         (select TO_CHAR(now(),''DD''||''/''||''MM''||''/''||''YYYY'')) as fecha,
+                          sum(obli.monto_obligacion) as total,
+                         fun.ci, 
+                         fun.desc_funcionario2,
+                         ges.gestion,
+                         sum(detran.monto_transferencia) as total_funcionario,
+                         detran.nro_cuenta, 
+                         (select TO_CHAR(plani.fecha_planilla,''MM'')) as periodo, ofi.orden as orden
+                         from plani.tdetalle_transferencia detran
+                         inner join orga.vfuncionario fun on fun.id_funcionario = detran.id_funcionario
+                         inner join param.tinstitucion ins on ins.id_institucion = detran.id_institucion
+                         inner join segu.tusuario usu1 on usu1.id_usuario = detran.id_usuario_reg
+                         left join segu.tusuario usu2 on usu2.id_usuario = detran.id_usuario_mod
+                         inner join plani.tobligacion obli on obli.id_obligacion=detran.id_obligacion
+                         inner join plani.tplanilla plani on plani.id_planilla=obli.id_planilla
+                         inner join param.tgestion ges on ges.id_gestion=plani.id_gestion
+                         inner join param.tempresa emp on emp.id_empresa=ges.id_empresa
+                         inner join plani.ttipo_obligacion tipobli on tipobli.id_tipo_obligacion=obli.id_tipo_obligacion
+                         inner join plani.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario and fp.id_planilla=plani.id_planilla
+                         inner join orga.tuo_funcionario uofun on uofun.id_uo_funcionario=fp.id_uo_funcionario
+                         inner join orga.tcargo car on car.id_cargo = uofun.id_cargo
+                         inner join orga.toficina ofi on ofi.id_oficina=car.id_oficina
+                         where'||v_parametros.filtro|| '
+                         group by emp.nombre,
+                         emp.codigo_bnb, 
+                         (select TO_CHAR(now(),''DD''||''/''||''MM''||''/''||''YYYY'')),
+                         fun.ci, 
+                         fun.desc_funcionario2,
+                         ges.gestion,detran.nro_cuenta, 
+                         (select TO_CHAR(plani.fecha_planilla,''MM'')), ofi.orden
+                         order by ofi.orden,fun.desc_funcionario2';
+                      for v_registros in execute(   v_consulta_abono             
+						) loop
+            
+            			insert into tt_abonocuentaxls values (v_registros.nombre, v_registros.codigo_bnb, v_registros.fecha, 0, v_registros.total, v_registros.ci, v_registros.desc_funcionario2, v_registros.gestion, v_registros.total_funcionario, v_registros.nro_cuenta, v_registros.periodo, v_registros.orden);
+                        
+                        v_cont:=v_cont+1;
+            
+            end loop;   
+            update tt_abonocuentaxls set num_abonos=v_cont;
+            
+            
+            v_consulta:='select nombre ,
+              codigo_bnb ,
+              fecha ,
+              num_abonos ,
+              total ,
+              ci ,
+			  desc_funcionario2 ,
+		      gestion ,
+		      monto_transferencia ,
+		      numero_cuenta ,
+		      periodo from tt_abonocuentaxls order by ofi, desc_funcionario2';             
+                         
             return v_consulta;
         
         END;
