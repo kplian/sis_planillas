@@ -61,7 +61,7 @@ class RRelacionSaldosDet extends  ReportePDF {
 			
 			
 			if ($this->objParam->getParametro('consolidar')=='si'){//#98
-				$this->Cell(0,5,'Acumulado a: ' . $this->detalle[0]['det_periodo'],0,1,'C');
+				$this->Cell(0,5,'Acumulado de ENERO a ' .str_replace ('DE ','',$this->detalle[0]['det_periodo']) ,0,1,'C');
 			}else{
 				$this->Cell(0,5,'Correspondiente a: '.$this->detalle[0]['det_periodo'],0,1,'C');
 			}

@@ -572,7 +572,7 @@ raise notice 'aaa%',v_consulta;
             	
          	end if;
         end if;                
-                     
+                
         if (v_agrupar_por='no') then
            
 		v_consulta:='select vf.id_funcionario, vf.desc_funcionario2,  trim(both ''FUNODTPR'' from vf.codigo) as codigo, esc.codigo as nivel,
@@ -601,7 +601,7 @@ raise notice 'aaa%',v_consulta;
           vf.desc_funcionario2,rc.orden asc';
 		else
            v_consulta_abono:='select vf.id_funcionario, vf.desc_funcionario2,  trim(both ''FUNODTPR'' from vf.codigo) as codigo, esc.codigo as nivel,
-					 c.nombre as cargo 
+					 orga.f_get_cargo_x_funcionario_str(fp.id_funcionario,'''||v_fecha_backup||''',''oficial'')  as cargo  
                      , to_char(plani.f_get_fecha_primer_contrato_empleado(
                 	 fp.id_uo_funcionario, fp.id_funcionario, uof.fecha_asignacion)::timestamp without time zone, ''dd/mm/YYYY'' ::text) as fecha_ingreso
                      ,
@@ -655,6 +655,7 @@ raise notice 'aaa%',v_consulta;
            ';
         end if;
         --Devuelve la respuesta
+        raise notice '***%',v_consulta;
         return v_consulta;
 
       end;
