@@ -10,7 +10,8 @@
  * #130		ETR			MZM		27.05.2020	Cambio en subtitulo de boleta mensual
  * #149		ETR			MZM		09.07.2020	Gestion en otra linea (titulo)
  * #169, ETR-1317		MZM		08.10.2020	Ajuste de campo para boletas anuales (prima/produccion)
- * #ETR-1827			MZM		17.11.2020	Adecuacion de espacio por inclusion de columnas, incrementando 2 filas 
+ * #ETR-1827			MZM		17.11.2020	Adecuacion de espacio por inclusion de columnas, incrementando 2 filas
+ * #ETR-3997			MZM		25.05.2021	Adecuacion de espacio para boleta consolidada de reintegros mensuales 
  * */
 
 class RBoletaGenerica extends  ReportePDF { 
@@ -47,6 +48,8 @@ class RBoletaGenerica extends  ReportePDF {
 		
 				$x=($this->datos_titulo['cantidad_columnas']/$this->datos_titulo['num_columna_multilinea']*2*4)+15;
 				
+				
+				
 				$id_fun=$this->datos_detalle[0]['id_funcionario'];
 				$logo=0;
 				$espacio=0;
@@ -66,6 +69,8 @@ class RBoletaGenerica extends  ReportePDF {
 				$control_espacios_extra=($this->datos_titulo['num_columna_multilinea']/2)-1;
 				$contador_espacios=0;
 				 //echo sizeof($this->datos_detalle); exit;
+				// echo $this->GetY()+$x+$dimensions['bm']."----".$this->GetY()+$x; exit;
+				 
 				for ($i=0; $i< sizeof($this->datos_detalle); $i++ ){
 					
 					$dimensions=$this->getPageDimensions();
@@ -137,8 +142,12 @@ class RBoletaGenerica extends  ReportePDF {
 					    $detalle_col_mod=array();
 						$control_fila=0;	
 					   
-					   	$this->Ln(45);//ETR-1827
 					   
+					    if ( $this->objParam->getParametro('codigo_planilla')=='PLANRE'){//#ETR-3997
+							$this->Ln(35);
+						}else{
+							$this->Ln(45);//ETR-1827
+						}
 						
 						$contador=1;
 						

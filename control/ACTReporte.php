@@ -253,6 +253,10 @@ class ACTReporte extends ACTbase{
             if ($this->objParam->getParametro('id_periodo') != '') {
                 $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
             }
+        }else{//#ETR-3997
+        
+        	$this->objParam->addParametro('consolidar','si');
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('personal_activo'));
         }
 
         //10.06.2019
@@ -1154,6 +1158,9 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
 	        if ($this->objParam->getParametro('id_periodo') != '') {
 	            $this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));
 	        }
+		}else{//consolidar=si
+		
+			$this->objParam->addParametro('consolidar','si');
 		}
 
 

@@ -1120,6 +1120,7 @@ header("content-type: text/javascript; charset=UTF-8");
 					 'id_tipo_planilla': this.Cmp.id_tipo_planilla.getValue(),
 					 'id_reporte': this.Cmp.id_reporte.getValue(),
 					 'id_tipo_contrato': this.Cmp.id_tipo_contrato.getValue(),
+					 'estado':this.Cmp.personal_activo.getValue(),
 					 'origen':'reporte'
 				 	}
 				 };

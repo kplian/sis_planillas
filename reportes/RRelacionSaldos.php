@@ -19,6 +19,7 @@
  #158	ETR				19.08.2020			MZM-KPLIAN			control de tipo pago: banco/cheque
  #169	ETR				09.10.2020			MZM-KPLIAN			Control de registros del tipo banco, si no existe ninguno no dibujar subtotales
  #ETR-2135				14.12.2020			MZM-KPLIAN			cambios en formato para planilla de aguinaldo (orientacion y pie de firmas solo con cargos )
+ #ETR-3997				25.05.2021			MZM-KPLIAN			Habiltiacion para reporte de reintegros mensuales
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -90,10 +91,27 @@ class RRelacionSaldos extends  ReportePDF {
 		    
 		   	$this->Cell(0,7,strtoupper($this->detalle[0]['titulo_reporte']),'',1,'C');
 			
-		  
+		
 			$this->SetFont('','B',10);
-			if($this->detalle[0]['periodo']>0){
-				$this->Cell(0,5,'Correspondiente a '.$this->datos[0]['periodo'],0,1,'C');
+			if($this->detalle[0]['periodo']>0){ 
+				if ($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $this->objParam->getParametro('consolidar')=='si'){//#ETR-3997
+					if ($this->objParam->getParametro('personal_activo')=='activo'){
+						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo']. ' (Personal Activo)',0,1,'C');
+						
+					}elseif($this->objParam->getParametro('personal_activo')=='retirado'){
+						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo']. ' (Personal Retirado)',0,1,'C');
+					}else{
+						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo'],0,1,'C');	
+					}
+					
+					
+					
+				}else{
+					
+					$this->Cell(0,5,'Correspondiente a '.$this->datos[0]['periodo'],0,1,'C');
+				}
+				
+				
 			}else{
 				$this->Cell(0,5,'GESTION '.$this->detalle[0]['gestion'],0,1,'C');
 			}
