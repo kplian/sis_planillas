@@ -17,7 +17,8 @@ HISTORIAL DE MODIFICACIONES:
 #83	ETR				10.12.2019			MZM					Habilitacion de opcion historico de planilla 
 #84	ETR				26.12.2019			MZM					Habilitacion de opcion en REPOBANCDET de ci de funcionario
 #98	ETR				04.03.2020			MZM					Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
-#128ETR				25.05.2020			MZM					Adicion de columna para reporte por bancos (bono de produccion) 
+#128ETR				25.05.2020			MZM					Adicion de columna para reporte por bancos (bono de produccion
+ #ETR-3997			25.05.2021			MZM					Adicion de parametro consolidar  
  * 
  * */
 class MODObligacion extends MODbase{
@@ -160,7 +161,7 @@ class MODObligacion extends MODbase{
 		$this->transaccion='PLA_ABOCUE_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
-						
+		$this->setParametro('estado','estado','varchar');//#ETR-3997				
 		//Definicion de la lista del resultado del query
 		$this->captura('total','text');		
 		$this->captura('detalle','text');//#46
@@ -192,7 +193,8 @@ class MODObligacion extends MODbase{
 		$this->setParametro('esquema','esquema','varchar');//#83
 		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
 		$this->setParametro('id_periodo','id_periodo','integer');//#98
-		$this->setParametro('id_gestion','id_gestion','integer');//#98	
+		$this->setParametro('id_gestion','id_gestion','integer');//#98
+		$this->setParametro('consolidar','consolidar','varchar');//#ETR-3997		
 		//Datos de la planilla
 		$this->captura('nombre','varchar');
 		$this->captura('importe','numeric');
@@ -208,7 +210,7 @@ class MODObligacion extends MODbase{
 		$this->captura('caja_oficina','numeric');//#128
 		//Ejecuta la instruccion
 		$this->armarConsulta();		
-	//echo "****".$this->getConsulta(); exit;
+	
 		$this->ejecutarConsulta();
 		
 		//Devuelve la respuesta
@@ -262,7 +264,8 @@ class MODObligacion extends MODbase{
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		
 		$this->setParametro('id_obligacion','id_obligacion','int4');
-		$this->setParametro('tipo_contrato','tipo_contrato','varchar');			
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
+		$this->setParametro('estado','estado','varchar');//#ETR-3997
 		//Definicion de la lista del resultadoel query
 		$this->captura('nombre','varchar');		
 		$this->captura('codigo_bnb','varchar');
@@ -281,7 +284,7 @@ class MODObligacion extends MODbase{
 		//Ejecuta la instruccion
 		$this->armarConsulta();
 		$this->ejecutarConsulta();
-		//echo $this->getConsulta(); exit;
+		
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}

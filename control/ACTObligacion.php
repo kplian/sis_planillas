@@ -104,6 +104,10 @@ class ACTObligacion extends ACTbase{
 			}
 			
 			$this->objParam->addFiltro("detran.id_obligacion in (". $ids.")");
+			
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('estado'));
+			
+			
 		}
 		
 		$this->objFunc=$this->create('MODObligacion');
@@ -219,6 +223,7 @@ function reporteAbonoXls()    {//#77 #83
 			}
 			
 			$this->objParam->addFiltro("detran.id_obligacion in (". $ids.")");
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('estado'));
 		}else{
 			
 		
