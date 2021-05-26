@@ -96,12 +96,12 @@ class RRelacionSaldos extends  ReportePDF {
 			if($this->detalle[0]['periodo']>0){ 
 				if ($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $this->objParam->getParametro('consolidar')=='si'){//#ETR-3997
 					if ($this->objParam->getParametro('personal_activo')=='activo'){
-						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo']. ' (Personal Activo)',0,1,'C');
+						$this->Cell(0,5,'Acumulado de ENERO a '.$this->datos[0]['periodo']. ' (Personal Activo)',0,1,'C');
 						
 					}elseif($this->objParam->getParametro('personal_activo')=='retirado'){
-						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo']. ' (Personal Retirado)',0,1,'C');
+						$this->Cell(0,5,'Acumulado de ENERO a '.$this->datos[0]['periodo']. ' (Personal Retirado)',0,1,'C');
 					}else{
-						$this->Cell(0,5,'Acumulado a '.$this->datos[0]['periodo'],0,1,'C');	
+						$this->Cell(0,5,'Acumulado de ENERO a '.$this->datos[0]['periodo'],0,1,'C');	
 					}
 					
 					

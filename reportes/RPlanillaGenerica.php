@@ -95,7 +95,7 @@ class RPlanillaGenerica extends  ReportePDF {
 		if($this->datos_titulo['periodo']!=''){
 			if ($this->objParam->getParametro('consolidar')=='si'){//#98
 							
-							$this->Cell(0,5,'Acumulado a: ' . str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
+							$this->Cell(0,5,'Acumulado de ENERO a ' . str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
 						}else{
 							$this->Cell(0,5,'Correspondiente a: ' . str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C'); //#141
 						}
