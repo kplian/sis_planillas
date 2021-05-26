@@ -15,7 +15,8 @@
  * #98    ETR            MZM        03.03.2020    Adicion de opciones estado_funcionario (activo, retirado, todos)
  * #103   ETR            RAC        02/04/2020    Listado de funcionario toda sin contador para envo de boletas de pago
    #165   ETR            MZM        30/09/2020    Reformulacion a procedimiento REPODETBOL
- * #168	  ETR			 MZM		07/10/2020	  Adicion de uo (centro) en planilla multilinea por distrito	
+ * #168	  ETR			 MZM		07/10/2020	  Adicion de uo (centro) en planilla multilinea por distrito
+ *  #ETR-3997			 MZM		25.05.2021		REPODETVBOL adicion de parametro de consolidar	
  **/
 
 class MODReporte extends MODbase{
@@ -379,7 +380,9 @@ class MODReporte extends MODbase{
 		$this->transaccion='PLA_REPODETBOL_SEL';
 		$this->tipo_procedimiento='SEL';//tipo de transaccion
 		$this->setCount(false);
-		$this->setParametro('tipo_contrato','tipo_contrato','varchar');	
+		$this->setParametro('tipo_contrato','tipo_contrato','varchar');
+		$this->setParametro('consolidar','consolidar','varchar');	//#ETR-3997
+		$this->setParametro('estado','estado','varchar');	//#ETR-3997		
 		/*$this->setParametro('id_funcionario','id_funcionario','int4');	
 		$this->captura('titulo_reporte_superior','varchar');	
 		$this->captura('titulo_reporte_inferior','varchar');	

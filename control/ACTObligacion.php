@@ -13,20 +13,38 @@ HISTORIAL DE MODIFICACIONES:
  * 															omision de extension txt
 #56 ETR				30.09.2019			MZM					Listado de resumen de saldos
 #56 ETR				10.10.2019			MZM					Inclusion de filtro en cabecera de reporte
-#117ETR				22.04.2020			MZM					Ajuste por actualizacion de php7  
+#117ETR				22.04.2020			MZM					Ajuste por actualizacion de php7
+#ETR-3997			20.05.2021			MZM					Adicion de opcion para listado de obligaciones desde form de reporte  
 */
 require_once(dirname(__FILE__).'/../reportes/RRelacionSaldos.php'); //#56
 require_once(dirname(__FILE__).'/../reportes/RAbonoCuentaXls.php'); //#142
 class ACTObligacion extends ACTbase{    
 			
 	function listarObligacion(){
-		$this->objParam->defecto('ordenacion','id_obligacion');
+		
 
 		$this->objParam->defecto('dir_ordenacion','asc');
 		
 		if ($this->objParam->getParametro('id_planilla') != '') {
 			$this->objParam->addFiltro("obli.id_planilla = ". $this->objParam->getParametro('id_planilla'));
+			$this->objParam->defecto('ordenacion','id_obligacion');
 		}
+		//#ETR-3997
+		
+		if ($this->objParam->getParametro('origen')!='' && $this->objParam->getParametro('origen')=='reporte'){
+			//tiene q llevar id_periodo, id_gestion, tipo_planilla, tipo_obligacion 
+			$this->objParam->addFiltro("tipobli.codigo = ''RETLIQ''");
+			$this->objParam->addFiltro("plani.id_gestion= ". $this->objParam->getParametro('id_gestion'));
+			$this->objParam->addFiltro("plani.id_tipo_contrato= ". $this->objParam->getParametro('id_tipo_contrato'));
+			if ($this->objParam->getParametro('consolidar')=='si'){
+				$this->objParam->addFiltro("plani.id_periodo <= ". $this->objParam->getParametro('id_periodo'));
+			}else{
+				$this->objParam->addFiltro("plani.id_periodo = ". $this->objParam->getParametro('id_periodo'));	
+			}
+			$this->objParam->defecto('ordenacion','descripcion');
+								
+		}  //origen;
+		
 		if($this->objParam->getParametro('tipoReporte')=='excel_grid' || $this->objParam->getParametro('tipoReporte')=='pdf_grid'){
 			$this->objReporte = new Reporte($this->objParam,$this);
 			$this->res = $this->objReporte->generarReporteListado('MODObligacion','listarObligacion');
@@ -68,6 +86,28 @@ class ACTObligacion extends ACTbase{
 		
 		if ($this->objParam->getParametro('id_obligacion') != '') {
 			$this->objParam->addFiltro("detran.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
+		}
+		
+		//#ETR-3997
+		if ($this->objParam->getParametro('consolidar') == 'si') {
+			//echo $this->objParam->getParametro('id_obligaciones'); exit;
+			$ids='';
+			
+			
+			foreach($this->objParam->getParametro('id_obligaciones') as $key=>$value) {
+			  
+				if ($ids==''){
+					$ids=$value;
+				}else{
+					$ids=$ids.",".$value;	
+				}
+			}
+			
+			$this->objParam->addFiltro("detran.id_obligacion in (". $ids.")");
+			
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('estado'));
+			
+			
 		}
 		
 		$this->objFunc=$this->create('MODObligacion');
@@ -167,8 +207,31 @@ function reporteAbonoXls()    {//#77 #83
             $this->objParam->addParametro('datos',$this->res->datos);
             $this->objParam->addParametro('fecha',$fecha);
             $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+			
+			//#ETR-3997
+		if ($this->objParam->getParametro('consolidar') == 'si') {
+			//echo $this->objParam->getParametro('id_obligaciones'); exit;
+			$ids='';
+			foreach($this->objParam->getParametro('id_obligaciones') as $key=>$value) {
+			   
+				if ($ids==''){
+					$ids=$value;
+				}else{
+					$ids=$ids.",".$value;	
+				}
+				
+			}
+			
+			$this->objParam->addFiltro("detran.id_obligacion in (". $ids.")");
+			$this->objParam->addParametro('estado',$this->objParam->getParametro('estado'));
+		}else{
+			
+		
+			
             $this->objParam->addParametro('tipo_contrato',$this->objParam->getParametro('tipo_contrato'));
-            $this->objParam->addParametro('id_obligacion',$this->objParam->getParametro('id_obligacion')); 
+            $this->objParam->addParametro('id_obligacion',$this->objParam->getParametro('id_obligacion'));
+			$this->objParam->addFiltro("detran.id_obligacion = ". $this->objParam->getParametro('id_obligacion'));
+            } 
             $this->objParam->addParametro('esquema',$esquema); //#83
             //Instancia la clase de excel
             $this->objFunc=$this->create('MODObligacion');
@@ -187,7 +250,6 @@ function reporteAbonoXls()    {//#77 #83
             $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
 
     }
-
 
 			
 }

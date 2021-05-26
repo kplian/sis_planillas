@@ -52,6 +52,7 @@ AS $BODY$
    #168		ETR			07.10.2020			MZM-KPLIAN					Adicion de centro en reporte multilinea por distrito
    #ETR-2046			10.12.2020			MZM-KPLIAN					Adicion de control para generar planilla de aguinaldo con informacion de bancos o no (cuando existen obligaciones)
    #ETR-2135			14.12.2020			MZM-KPLIAN					Adicion de excepcion para planilla de aguinaldo 2020
+   #ETR-3997			24.05.2021			MZM-KPLIAN					Adicion de condicion en REPODET_SEL (planilla de reintegro) que el filtro de activo/retirado contemple la posibilidad de reincorporacion a la fecha del proceso (se añade validacion por funcionario vigente)
   ***************************************************************************/
 
   DECLARE
@@ -104,6 +105,9 @@ AS $BODY$
     
     --#ETR-2046
     v_id_planilla	integer;
+    
+    --#ETR-3997
+    v_consulta_abono   varchar;
   BEGIN
 
     v_nombre_funcion = 'plani.ft_reporte_sel';
@@ -536,8 +540,41 @@ raise notice 'aaa%',v_consulta;
                         											repcol.codigo_columna = colval.codigo_columna
 
 				        where repo.tipo_reporte = ''boleta'' and repcol.estado_reg = ''activo'' and colval.estado_reg = ''activo'' and ';*/
+                        v_agrupar_por:='no';
+                        v_filtro:='';
+         if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+          	if (v_parametros.consolidar='si') then
+            	v_agrupar_por:='si';
+                  if pxp.f_existe_parametro(p_tabla , 'estado')then 
+                   execute 'select distinct max(plani.fecha_planilla) from plani.tplanilla plani
+							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                             inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
+                             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                             and tp.periodicidad=''mensual''
+							 where '||v_parametros.filtro|| ' limit 1' into v_fecha_backup;  --#125
+
+                  		if (v_parametros.estado='activo') then
                         
                         
+                          v_filtro:=' and uof.fecha_asignacion <= '''||v_fecha_backup||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  
+                and (uof.fecha_finalizacion is null or (uof.fecha_finalizacion<='''||v_fecha_backup||''' and uof.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
+        		or (uof.fecha_finalizacion>'''||v_fecha_backup||''' )
+                
+                or plani.f_es_funcionario_vigente (fp.id_funcionario, '''||v_fecha_backup||''') --#ETR-3997
+        		) ';
+                        elsif (v_parametros.estado='retirado') then
+                           v_filtro:='and uof.fecha_asignacion <= '''||v_fecha_backup||''' and uof.estado_reg = ''activo'' and uof.tipo = ''oficial''  and uof.fecha_finalizacion <= '''||v_fecha_backup||'''
+                          -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
+                          and uof.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          and not plani.f_es_funcionario_vigente (fp.id_funcionario, '''||v_fecha_backup||''')';
+                   		end if;
+                  end if;
+            	
+         	end if;
+        end if;                
+                     
+        if (v_agrupar_por='no') then
+           
 		v_consulta:='select vf.id_funcionario, vf.desc_funcionario2,  trim(both ''FUNODTPR'' from vf.codigo) as codigo, esc.codigo as nivel,
 					 c.nombre as cargo 
                      , to_char(plani.f_get_fecha_primer_contrato_empleado(
@@ -562,7 +599,61 @@ raise notice 'aaa%',v_consulta;
         v_consulta:=v_consulta||v_parametros.filtro;
         v_consulta:=v_consulta||' order by ofi.orden, 
           vf.desc_funcionario2,rc.orden asc';
+		else
+           v_consulta_abono:='select vf.id_funcionario, vf.desc_funcionario2,  trim(both ''FUNODTPR'' from vf.codigo) as codigo, esc.codigo as nivel,
+					 c.nombre as cargo 
+                     , to_char(plani.f_get_fecha_primer_contrato_empleado(
+                	 fp.id_uo_funcionario, fp.id_funcionario, uof.fecha_asignacion)::timestamp without time zone, ''dd/mm/YYYY'' ::text) as fecha_ingreso
+                     ,
+                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, sum( cv.valor) as valor, rc.espacio_previo, rc.orden
+                 	 
+                     from plani.tfuncionario_planilla fp
+                    inner join orga.vfuncionario vf on vf.id_funcionario=fp.id_funcionario
+                    inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                    inner join orga.tuo_funcionario uof on uof.id_uo_funcionario=fp.id_uo_funcionario
+                    inner join orga.tcargo c on c.id_cargo=uof.id_cargo
+                    inner join orga.tescala_salarial esc on esc.id_escala_salarial=c.id_escala_salarial
+                    inner join orga.toficina ofi on ofi.id_oficina=c.id_oficina
+                    inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla and repo.tipo_reporte=''boleta''
+                    inner join plani.treporte_columna rc on rc.id_reporte=repo.id_reporte
+                    inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla and rc.estado_reg = ''activo'' and cv.estado_reg = ''activo''
+                    and cv.codigo_columna=rc.codigo_columna
+					where ';                        
 
+                  --Definicion de la respuesta
+                  v_consulta_abono:=v_consulta_abono||v_parametros.filtro||v_filtro;
+                  v_consulta_abono:=v_consulta_abono||' group by vf.id_funcionario, vf.desc_funcionario2,vf.codigo,esc.codigo,c.nombre, fp.id_funcionario,
+          rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna,rc.espacio_previo, rc.orden, ofi.orden,fp.id_uo_funcionario,uof.fecha_asignacion
+           order by ofi.orden, 
+          vf.desc_funcionario2,rc.orden asc';
+          create temp table tt_repboleta(
+             id_funcionario integer,
+			desc_funcionario2 text,			
+            codigo text,
+            nivel varchar,
+            cargo varchar,
+            fecha_ingreso text,
+            titulo_reporte_superior varchar,
+            titulo_reporte_inferior varchar,
+            codigo_columna varchar,
+            valor numeric,
+            espacio_previo integer,
+            orden integer
+			)on commit drop;
+          for v_funcionario in execute (v_consulta_abono) loop
+              insert into tt_repboleta values (v_funcionario.id_funcionario, v_funcionario.desc_funcionario2,v_funcionario.codigo,
+              v_funcionario.nivel, v_funcionario.cargo,v_funcionario.fecha_ingreso,v_funcionario.titulo_reporte_superior,v_funcionario.titulo_reporte_inferior,
+              v_funcionario.codigo_columna,v_funcionario.valor,v_funcionario.espacio_previo, v_funcionario.orden);
+          end loop;
+          
+          
+          v_consulta:='select id_funcionario, desc_funcionario2, codigo, nivel, cargo, fecha_ingreso,titulo_reporte_superior, titulo_reporte_inferior,
+          codigo_columna, sum(valor) as valor, espacio_previo, orden  from tt_repboleta 
+          group by id_funcionario, desc_funcionario2, codigo, nivel, cargo, fecha_ingreso,titulo_reporte_superior, titulo_reporte_inferior,
+          codigo_columna,espacio_previo, orden 
+          order by desc_funcionario2,orden  
+           ';
+        end if;
         --Devuelve la respuesta
         return v_consulta;
 
@@ -1303,13 +1394,15 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 			if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
               if(v_parametros.consolidar='si') then
                   v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo;
+                 
+                  
               end if;
             end if;
         end if;
     
     end if;
         
-    	execute 'select distinct plani.fecha_planilla from plani.tplanilla plani
+    	 execute 'select distinct max(plani.fecha_planilla) from plani.tplanilla plani
 							 inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                              inner join plani.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
                              inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
@@ -1322,12 +1415,15 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 				v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                 and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
         		or (uofun.fecha_finalizacion>'''||v_fecha_backup||''' )
+                
+                or plani.f_es_funcionario_vigente (fun.id_funcionario, '''||v_fecha_backup||''') --#ETR-3997
         		) ';
                  
             elsif (v_parametros.estado_funcionario='retirado') then
                    v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
                           -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
                           and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
+                          and not plani.f_es_funcionario_vigente (fun.id_funcionario, '''||v_fecha_backup||''') --#ETR-3997
                       ';
             else -- todos
                    -- solo para los activos adicionar la condicion del periodo

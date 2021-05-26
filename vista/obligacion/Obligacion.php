@@ -15,6 +15,8 @@
  #46			  23.09.2019		MZM					Adicion de opcion para abono en cuenta
  #56			  30.09.2019		MZM					Listado resumen de saldos 
  #56			  31.10.2019		MZM					Cambio en llamado de Obligacion a Reporte
+ *#ETR-3997		  19.05.2021    	MZM-KPLIAN			Adicion de reporte Abono en Cuenta para generar un solo archivo de abono en cuenta 
+ 
  * * */
 
 header("content-type: text/javascript; charset=UTF-8");
@@ -28,8 +30,23 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
     	//llama al constructor de la clase padre
 		Phx.vista.Obligacion.superclass.constructor.call(this,config);
 		this.init();
-		this.store.baseParams.id_planilla = this.maestro.id_planilla;
-		this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
+		if (this.maestro.origen!='' && this.maestro.origen!= undefined && this.maestro.origen== 'reporte') {// se esta generando desde el reporte
+			
+			this.store.baseParams={
+				'origen':'reporte',
+				'codigo':'SUEL',
+				id_periodo:this.maestro.id_periodo,
+				id_gestion:this.maestro.id_gestion,
+				id_tipo_contrato:this.maestro.id_tipo_contrato ,
+				consolidar:this.maestro.consolidar
+				};
+			this.load({params:{start:0, limit:this.tam_pag, 'codigo':'SUEL'}});
+		}else{//viene de planilla
+			this.store.baseParams.id_planilla = this.maestro.id_planilla;
+			this.load({params:{start:0, limit:this.tam_pag, id_planilla: this.maestro.id_planilla}});
+		}
+		
+		
 		this.addButton('btnDetalle',
             {
                 text: 'Detalle de Transferencias',
@@ -39,7 +56,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                 tooltip: 'Detalle de transferencias en transferencias a empleados'
             }
         );
-        
+       
        //#38
        
        this.addButton('btnRepAbono',
@@ -511,7 +528,9 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 	
 	onBtnDetalle: function(){
 			var rec = {maestro: this.sm.getSelected().data};
-						      
+			if (this.sm.getCount()!=1){
+				alert("Solo se debe seleccionar un registro");
+			}else{			      
             Phx.CP.loadWindows('../../../sis_planillas/vista/detalle_transferencia/DetalleTransferencia.php',
                     'Detalle de Transferencias',
                     {
@@ -521,13 +540,58 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                     rec,
                     this.idContenedor,
                     'DetalleTransferencia');
+               }
 	},
 	onBtnRepAbono: function(){//#46
 			var rec=this.sm.getSelected();
+			var numRows=this.sm.getCount();
+			if (this.maestro.origen=='reporte' && numRows!=1){
+				
+				var m;
+				var mm=this.sm.getSelections();
+				var acree=''; var control_acree='si';
+				mi_array=new Array();
+				for(m=0;m<numRows;m++){
+					mi_array[m]=mm[m].data['id_obligacion'];
+					if (acree==''){
+						acree=mm[m].data['acreedor'];
+					}else{
+						if (acree!=mm[m].data['acreedor']){
+							control_acree='no';
+						}
+					}
+				}
+				if (control_acree=='no'){
+					alert("Se està agrupando obligaciones de diferente acreedor");
+				}
+				
+				Ext.Ajax.request({
+				url:'../../sis_planillas/control/Obligacion/listarAbonoCuenta',
+				params:{'id_obligaciones':mi_array,
+				'consolidar':'si',
+				'estado':this.maestro.estado,
+				'start':0,'limit':100000},
+				success: this.successGeneracion_txt,
 			
-					
-				   
-          Ext.Ajax.request({
+				failure: this.conexionFailure,
+				timeout:this.timeout,
+				scope:this
+			});
+				
+				
+				Ext.Ajax.request({
+                url:'../../sis_planillas/control/Obligacion/reporteAbonoXls', //#56
+                params:{'id_obligaciones':mi_array,
+				'consolidar':'si',
+				'estado':this.maestro.estado,
+				'start':0,'limit':100000},
+                success:this.successExport,
+                failure: this.conexionFailure,
+                timeout:this.timeout,
+                scope:this
+            });  
+			}else{ 
+				Ext.Ajax.request({
 				url:'../../sis_planillas/control/Obligacion/listarAbonoCuenta',
 				params:{'id_obligacion':rec.data.id_obligacion,
 				'tipo_contrato':this.maestro.tipo_contrato,
@@ -538,9 +602,7 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
 				timeout:this.timeout,
 				scope:this
 			});
-				
-				
-		//el reporte en excel
+			
 			Ext.Ajax.request({
                 url:'../../sis_planillas/control/Obligacion/reporteAbonoXls', //#56
                 params:{'id_obligacion':rec.data.id_obligacion,
@@ -550,7 +612,17 @@ Phx.vista.Obligacion=Ext.extend(Phx.gridInterfaz,{
                 failure: this.conexionFailure,
                 timeout:this.timeout,
                 scope:this
-            });  
+            }); 
+			
+			}
+			
+				
+				   
+              
+				
+				
+		//el reporte en excel
+			
             		
 				
 	},
