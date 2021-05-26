@@ -53,7 +53,11 @@ class RRelacionSaldosDet extends  ReportePDF {
 		
 		$this->SetFont('','B',15);
 		
-		   
+		   if( $this->objParam->getParametro('codigo_planilla')=='PLANRE'){
+		   	if( $this->objParam->getParametro('personal_activo')!='todos'){
+				$this->Cell(0,7, strtoupper($this->datos[0]['titulo_reporte'].'- PERSONAL'.strtoupper($this->objParam->getParametro('personal_activo'))),'',1,'C');
+			}
+		   }
 		    $this->Cell(0,7, strtoupper($this->datos[0]['titulo_reporte']),'',1,'C');//#56
 		    
 			

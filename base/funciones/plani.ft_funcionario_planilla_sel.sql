@@ -36,7 +36,7 @@ AS $BODY$
  #78 ETR        18/11/2019        RAC       considerar esquema origen de datos para listado de backups, PLA_FUNPLAN_SEL
  #103 ETR       02/04/2020        RAC       Listado de funcionarios  sin contador para envio de boletas de pago
  #131 ETR       03/06/2020        RAC       Agregar columnas en listado basico para mostrar si fue enviada la boleta de pago
-
+ #ETR-3997		26.05.2021		  MZM		Adicion de condicion en FUNPLANALL para planilla de reintegros, para aislar las boletas con liquido en 0
 ***************************************************************************/
 
 DECLARE
@@ -212,9 +212,17 @@ BEGIN
                                 funcio.email_empresa
                           from plani.tfuncionario_planilla funplan
                           inner join orga.vfuncionario_persona funcio on funcio.id_funcionario = funplan.id_funcionario
+                          inner join plani.tplanilla plani on plani.id_planilla=funplan.id_planilla
+                          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
                           where  funplan.id_planilla = '||v_parametros.id_planilla ||'
                             and  funplan.estado_reg = ''activo''
-                            and  funplan.sw_boleta = ''no''; -- #131 solo lista los funcionario a los que no se les mando boleta de pago';
+                            and  funplan.sw_boleta = ''no'' 
+                            and (case when tp.codigo=''PLANRE'' then 
+   funplan.id_funcionario_planilla in (select id_funcionario_planilla from plani.tcolumna_valor where codigo_columna=''PRMLIQPAG'' and valor !=0)
+else 0=0
+end)
+                            
+                            '; -- #131 solo lista los funcionario a los que no se les mando boleta de pago';
 
             return v_consulta;
 
