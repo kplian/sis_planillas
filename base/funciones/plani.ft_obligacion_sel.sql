@@ -112,7 +112,10 @@ BEGIN
                           obli.acreedor,
                           obli.estado_reg,
                           obli.tipo_pago,
-                          obli.descripcion,
+                          (case when tipobli.codigo=''RETLIQ'' then
+                          ''(''|| param.f_get_periodo_literal(plani.id_periodo)||'') ''||obli.descripcion
+                          else obli.descripcion
+                          end)::varchar as descripcion,
                           obli.id_usuario_reg,
                           obli.usuario_ai,
                           obli.fecha_reg,
@@ -293,13 +296,13 @@ BEGIN
             raise notice 'sss%', v_consulta_abono;
             for v_registros in execute(   v_consulta_abono             
 						) loop
-            
+            			if (v_registros.total_obli!=0) then
             			insert into tt_abonocuenta values (v_registros.total, v_registros.detalle, v_registros.periodo, v_registros.orden, v_registros.desc_funcionario2);
                         
                         v_sum:=v_sum+v_registros.total_obli;
                         
                         v_cont:=v_cont+1;
-            
+            			end if;
             end loop;
             
             update tt_abonocuenta
@@ -806,11 +809,11 @@ BEGIN
                          order by ofi.orden,fun.desc_funcionario2';
                       for v_registros in execute(   v_consulta_abono             
 						) loop
-            
+            			if (v_registros.total_funcionario!=0) then
             			insert into tt_abonocuentaxls values (v_registros.nombre, v_registros.codigo_bnb, v_registros.fecha, 0, v_registros.total, v_registros.ci, v_registros.desc_funcionario2, v_registros.gestion, v_registros.total_funcionario, v_registros.nro_cuenta, v_registros.periodo, v_registros.orden);
                         v_sum:=v_sum+v_registros.total_funcionario;
                         v_cont:=v_cont+1;
-            
+            			end if;
             end loop;   
             update tt_abonocuentaxls set num_abonos=v_cont,
             total=v_sum;

@@ -649,6 +649,7 @@ raise notice 'aaa%',v_consulta;
           
           v_consulta:='select id_funcionario, desc_funcionario2, codigo, nivel, cargo, fecha_ingreso,titulo_reporte_superior, titulo_reporte_inferior,
           codigo_columna, sum(valor) as valor, espacio_previo, orden  from tt_repboleta 
+          where id_funcionario in (select id_funcionario from tt_repboleta where codigo_columna=''PRMLIQPAG'' and valor>0 )
           group by id_funcionario, desc_funcionario2, codigo, nivel, cargo, fecha_ingreso,titulo_reporte_superior, titulo_reporte_inferior,
           codigo_columna,espacio_previo, orden 
           order by desc_funcionario2,orden  
