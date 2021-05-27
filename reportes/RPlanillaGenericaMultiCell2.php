@@ -298,6 +298,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
 					$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
 					$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+					$this->datos_detalle[$i]['codigo_columna']!='cargo_planilla' &&
 					$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 					$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 					$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario'  &&
@@ -322,7 +323,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				array_push($detalle_col_mod,'');
 				array_push($detalle_col_mod,'0');
-				if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' ) {
+				if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']!='cargo_planilla'  ) {
 				
 					array_push($detalle_col_mod,'L');
 				}else{
@@ -352,6 +353,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
 							$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
 							$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+							$this->datos_detalle[$i]['codigo_columna']!='cargo_planilla' &&
 							$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 							$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 							$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
@@ -374,7 +376,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'1');
 					
-					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' ) {
+					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']=='cargo_planilla' ) {
 						array_push($detalle_col_mod,'L');
 					}else{
 						array_push($detalle_col_mod,'R');
@@ -389,6 +391,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						if ($this->datos_detalle[$i]['codigo_columna']!='fecha_ingreso' &&
 						$this->datos_detalle[$i]['codigo_columna']!='codigo_funcionario' &&
 						$this->datos_detalle[$i]['codigo_columna']!='cargo' &&
+						$this->datos_detalle[$i]['codigo_columna']!='cargo_planilla' &&
 						$this->datos_detalle[$i]['codigo_columna']!='nivel' &&
 						$this->datos_detalle[$i]['codigo_columna']!='fecha_nacimiento' &&
 						$this->datos_detalle[$i]['codigo_columna']!='nombre_funcionario' 
@@ -409,7 +412,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						}
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'0');
-					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' ) {
+					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']=='cargo_planilla') {
 					array_push($detalle_col_mod,'L');}
 					else{
 						array_push($detalle_col_mod,'R');
