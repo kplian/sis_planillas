@@ -1198,7 +1198,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 					inner join plani.treporte repo on  repo.id_tipo_planilla = plani.id_tipo_planilla
                     inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_agrupar_por;  
-                                     
+                                 
         v_tipo_contrato:='0=0 and ' ;    
         if pxp.f_existe_parametro(p_tabla , 'tipo_contrato')then 
           if(length(v_parametros.tipo_contrato)>0) then
@@ -1241,7 +1241,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         elsif(v_agrupar_por='distrito') then
         	v_consulta_orden:='nivel.id_oficina, nivel.oficina, ';
             v_ordenar_por ='nivel.orden_oficina,nivel.oficina,'||v_ordenar_por; -- 12.09.2019
-            
+           
             
             
          --28.06.2019
@@ -1288,7 +1288,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                     inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_planilla=plani.id_planilla
            			where '||v_parametros.filtro into v_datos_externos;
                     
-                  
+                v_nombre_uo:='''''';  
          --#98
                 v_filtro_tc:='';
                 v_group:='';
@@ -1296,12 +1296,37 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                 if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
                    if (v_parametros.consolidar='si') then
                      v_filtro_tc:='sum';
-                     v_group:='group by fun.id_funcionario, fun.desc_funcionario2, fun.codigo, fun.ci, nivel.id_oficina, nivel.oficina
+                     v_group:='group by fun.id_funcionario, fun.desc_funcionario2, fun.codigo, fun.ci--, nivel.id_oficina, nivel.oficina
                                ,repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_inferior, repcol.titulo_reporte_superior
                                , repcol.origen, repcol.codigo_columna, vista.nombre_col, vista.valor_col, repo.tipo_reporte, repcol.espacio_previo,
-                               tcon.nombre, repcol.orden, nivel.orden_oficina, nivel.id_uo_centro, nivel.nombre_uo_centro, nivel.ruta, nivel.prioridad, nivel.desc_funcionario2
-                               
+                               tcon.nombre, repcol.orden, --nivel.orden_oficina, 
+                              -- nivel.id_uo_centro, nivel.nombre_uo_centro, nivel.ruta, nivel.prioridad, 
+                               nivel.desc_funcionario2
                                ';
+                              
+                               
+                     if (v_agrupar_por='distrito') then --#ETR-4096
+                    	 v_consulta_orden:='nivel.id_oficina_planilla as id_oficina, (select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla) as oficina, ';
+            			 v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_oficina_planilla),(select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla), fun.desc_funcionario2 ,repcol.orden asc'; -- 12.09.2019
+                         v_group:=v_group||', nivel.id_oficina_planilla';
+                         
+                         if (v_datos_externos.multilinea='si') then
+                              v_group:=v_group||' , nivel.id_oficina_planilla';
+                         end if;
+                     else
+                         v_group:=v_group||', nivel.id_oficina, nivel.oficina, nivel.orden_oficina'   ;
+                     end if;
+                     
+                     
+                      if (v_datos_externos.adicionar_centro='si' and v_parametros.totales='no') then
+                        v_group:=v_group||',nivel.id_centro_planilla,nivel.ruta, nivel.prioridad';
+                        
+                        
+                  	   v_consulta_orden:='nivel.id_centro_planilla, (select nombre_uo_centro from orga.vuo_centro where id_uo=nivel.id_centro_planilla ) as nombre_uo_centro,'; 
+--	            		v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
+v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_oficina_planilla),(select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla),nivel.ruta, nivel.prioridad, fun.desc_funcionario2'; -- 12.09.2019
+                		v_nombre_uo:=' (select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla) ';
+                      end if;
                    end if;
                   
                    
@@ -1318,8 +1343,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 	                        '||v_filtro_tc||'(round(colval.valor,2))::varchar 
                       
                        else  
-                       (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'' and vista.nombre_col=''cargo'' ) then
+                       (case when ( length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''planilla'' and vista.nombre_col=''cargo'' ) then
                          substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo+2)+5)  )
+                         
                        else
                          (case when (length(vista.valor_col) > '||v_datos_externos.ancho_col||' and repo.tipo_reporte=''boleta'' and vista.nombre_col=''cargo'') then
                             substring( vista.valor_col from 1 for ('||v_datos_externos.ancho_col||'*(repcol.espacio_previo)+5)  )
@@ -1449,14 +1475,28 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
         end if;
 
             --#168
-            v_nombre_uo:='''''';
+            
             if( v_datos_externos.adicionar_centro='si' and v_parametros.totales='no') then --#168
             --solo si totales es no == 
-            
-           		v_consulta_orden:='nivel.id_uo_centro, nivel.nombre_uo_centro,'; 
-            	v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
-                v_nombre_uo:=' nivel.oficina';
+                if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+                   if (v_parametros.consolidar='no') then
+                        	v_consulta_orden:='nivel.id_uo_centro, nivel.nombre_uo_centro,'; 
+            				v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
+                			v_nombre_uo:=' nivel.oficina';
+                   end if;
+                else
+                
+                  	v_consulta_orden:='nivel.id_uo_centro, nivel.nombre_uo_centro,'; 
+	            	v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
+                	v_nombre_uo:=' nivel.oficina';
+                end if;
+           	
+                
+                
+                
+                
 			end if;
+--            raise exception 'aaaa: %',v_consulta_orden;
            
             --Sentencia de la consulta
             v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, ''''::varchar, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,
