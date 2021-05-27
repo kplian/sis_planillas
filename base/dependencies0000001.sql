@@ -4597,6 +4597,234 @@ AS
               ) foo
        ) unpiv;                            
 /***********************************F-DEP-MZM-PLANI-ETR-2862-05/02/2021****************************************/       
-       
+/***********************************I-DEP-MZM-PLANI-ETR-4096-27/05/2021****************************************/       
+DROP VIEW plani.nvdatos_func_planilla;
+DROP VIEW plani.vorden_planilla;
 
+CREATE OR REPLACE VIEW plani.nvdatos_func_planilla(
+    id_funcionario,
+    id_funcionario_planilla,
+    nombre_col,
+    valor_col)
+AS
+  SELECT unpiv.id_funcionario,
+         unpiv.id_funcionario_planilla,
+         (unpiv.h) . key AS nombre_col,
+         (unpiv.h) . value AS valor_col
+  FROM (
+         SELECT foo.id_funcionario,
+                foo.id_funcionario_planilla,
+                each (hstore(foo.*) - 'id_funcionario' ::text) AS h
+         FROM (
+                SELECT fun.id_funcionario,
+                       fp.id_funcionario_planilla,
+                       fp.id_uo_funcionario,
+                       to_char(plani.f_get_fecha_primer_contrato_empleado(
+                       fp.id_uo_funcionario, fp.id_funcionario,
+                        uof.fecha_asignacion) ::timestamp without time zone,
+                         'dd/mm/YYYY' ::text) AS fecha_ingreso,
+                       to_char(per.fecha_nacimiento::timestamp with time zone,
+                        'dd/mm/YYYY' ::text) AS fecha_nacimiento,
+                       ofi.nombre AS oficina,
+                       car.nombre AS cargo,
+                       l.nombre AS regional,
+                       l.codigo AS codigo_regional,
+                       btrim(fun.codigo::text, 'FUNODTPR' ::text) AS
+                        codigo_funcionario,
+                       "substring"(fun.desc_funcionario2, 1, 58) AS
+                        nombre_funcionario,
+                       esc.codigo AS nivel,
+                       car.id_cargo,
+                       fp.id_planilla,
+                       plani.id_periodo,
+                       plani.id_gestion,
+                       (
+                         SELECT DISTINCT tfuncionario_afp.nro_afp
+                         FROM plani.tfuncionario_afp
+                         WHERE tfuncionario_afp.id_funcionario =
+                          fp.id_funcionario AND
+                               plani.fecha_planilla >=
+                                tfuncionario_afp.fecha_ini AND
+                               plani.fecha_planilla <= COALESCE(
+                               tfuncionario_afp.fecha_fin, plani.fecha_planilla)
+                         LIMIT 1
+                       ) AS codigo_rciva,
+                       per.tipo_documento,
+                       (per.ci::text || ' ' ::text) || per.expedicion::text AS
+                        num_documento,
+                       ofi.nombre AS distrito,
+                       (
+                         SELECT round(sum(tcolumna_valor.valor), 2) AS sum
+                         FROM plani.tcolumna_valor
+                         WHERE tcolumna_valor.id_funcionario_planilla =
+                          fp.id_funcionario_planilla AND
+                               (tcolumna_valor.codigo_columna::text = ANY (ARRAY
+                                [ 'TOTGAN' ::character varying::text, 'AFP_PAT'
+                                 ::character varying::text, 'PREAGUI'
+                                  ::character varying::text, 'PREPRI'
+                                   ::character varying::text, 'PREVBS'
+                                    ::character varying::text, 'CAJSAL'
+                                     ::character varying::text ]))
+                       ) AS total_gral,
+                       '_____________________________________'
+                                              ::text AS firma,
+                       (
+                         SELECT orga.f_get_cargo_x_funcionario_str(
+                         fp.id_funcionario, plani.fecha_planilla, 'oficial'
+                          ::character varying) AS f_get_cargo_x_funcionario_str
+                       ) AS cargo_planilla
+                FROM orga.vfuncionario fun
+                     JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+                      fun.id_funcionario
+                     JOIN plani.tplanilla plani ON plani.id_planilla =
+                      fp.id_planilla
+                     JOIN orga.tuo_funcionario uof ON uof.id_uo_funcionario =
+                      fp.id_uo_funcionario AND fp.id_funcionario =
+                       uof.id_funcionario
+                     JOIN orga.tcargo car ON car.id_cargo = uof.id_cargo
+                     JOIN param.tlugar l ON l.id_lugar = car.id_lugar
+                     JOIN orga.tescala_salarial esc ON esc.id_escala_salarial =
+                      car.id_escala_salarial
+                     JOIN orga.tfuncionario tf ON tf.id_funcionario =
+                      fp.id_funcionario
+                     JOIN segu.tpersona per ON per.id_persona = tf.id_persona
+                     JOIN orga.toficina ofi ON ofi.id_oficina = car.id_oficina
+              ) foo
+       ) unpiv;
        
+       
+CREATE OR REPLACE VIEW plani.vorden_planilla(
+    ruta,
+    id_uo,
+    id_uo_padre,
+    codigo,
+    nombre_unidad,
+    nivel,
+    orden_centro,
+    uo_centro_orden,
+    desc_funcionario2,
+    valor_col,
+    id_funcionario_planilla,
+    id_periodo,
+    id_tipo_contrato,
+    id_funcionario,
+    id_cargo,
+    id_uo_centro,
+    nombre_uo_centro,
+    oficina,
+    orden_oficina,
+    id_oficina,
+    prioridad,
+    id_oficina_planilla,
+    id_centro_planilla,
+    cargo_planilla)
+AS
+WITH RECURSIVE orden_plani AS(
+  SELECT (((1 || '.0' ::text) || c1.orden_centro) || '.0' ::text) ||
+   c1.orden_centro AS ruta,
+         c1.id_uo,
+         c11.id_uo_padre,
+         c1.codigo,
+         c1.nombre_unidad,
+         1 AS nivel,
+         c1.orden_centro,
+         c1.centro,
+         c1.orden_centro AS uo_orden_centro
+  FROM orga.tuo c1
+       JOIN orga.testructura_uo c11 ON c11.id_uo_hijo = c1.id_uo
+       JOIN orga.tnivel_organizacional c111 ON c111.id_nivel_organizacional =
+        c1.id_nivel_organizacional
+  WHERE c1.estado_reg::text = 'activo' ::text AND
+        c11.id_uo_padre = 0
+  UNION
+  SELECT (((((c1.ruta || '->' ::text) || c1.nivel) || '.' ::text) || pxp.f_iif(
+  cen2.uo_centro_orden < 100::numeric, ('0' ::text || cen2.uo_centro_orden)
+   ::character varying, (cen2.uo_centro_orden || '' ::text) ::character varying)
+    ::text) || '.' ::text) || pxp.f_iif(c2.orden_centro < 100::numeric, ('0'
+     ::text || c2.orden_centro) ::character varying, (c2.orden_centro || ''
+      ::text) ::character varying) ::text AS ruta,
+         c2.id_uo,
+         c21.id_uo_padre,
+         c2.codigo,
+         c2.nombre_unidad,
+         c1.nivel + 1 AS nivel,
+         c2.orden_centro,
+         c2.centro,
+         cen2.uo_centro_orden AS uo_orden_centro
+  FROM orga.tuo c2,
+       orga.testructura_uo c21,
+       orga.tnivel_organizacional c211,
+       orga.vuo_centro cen2,
+       orden_plani c1
+  WHERE c2.estado_reg::text = 'activo' ::text AND
+        c21.id_uo_hijo = c2.id_uo AND
+        c21.id_uo_padre = c1.id_uo AND
+        c21.id_uo_padre <> 0 AND
+        c211.id_nivel_organizacional = c2.id_nivel_organizacional AND
+        cen2.uo_centro_orden = c1.uo_orden_centro)
+      SELECT orden_plani.ruta,
+             orden_plani.id_uo,
+             orden_plani.id_uo_padre,
+             orden_plani.codigo,
+             orden_plani.nombre_unidad,
+             orden_plani.nivel,
+             orden_plani.orden_centro,
+             cen.uo_centro_orden,
+             fun.desc_funcionario2,
+             plani.f_get_fecha_primer_contrato_empleado(uofun.id_uo_funcionario,
+              fp.id_funcionario, uofun.fecha_asignacion) ::text AS valor_col,
+             fp.id_funcionario_planilla,
+             plani.id_periodo,
+             plani.id_tipo_contrato,
+             fun.id_funcionario,
+             uofun.id_cargo,
+             cen.id_uo_centro,
+             cen.nombre_uo_centro,
+             ofi.nombre AS oficina,
+             ofi.orden AS orden_oficina,
+             ofi.id_oficina,
+             uofun.prioridad,
+             (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = 'activo' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ) AS id_oficina_planilla,
+             (
+               SELECT uoc.id_uo_centro
+               FROM orga.tuo_funcionario funuo
+                    JOIN orga.vuo_centro uoc ON uoc.id_uo = funuo.id_uo
+               WHERE funuo.estado_reg::text = 'activo' ::text AND
+                     funuo.id_funcionario = fun.id_funcionario AND
+                     funuo.fecha_asignacion <= plani.fecha_planilla AND
+                     (funuo.fecha_finalizacion IS NULL OR
+                     funuo.fecha_finalizacion >= plani.fecha_planilla)
+               LIMIT 1
+             ) AS id_centro_planilla,
+             (
+               SELECT orga.f_get_cargo_x_funcionario_str(fp.id_funcionario,
+                plani.fecha_planilla, 'oficial' ::character varying) AS
+                 f_get_cargo_x_funcionario_str
+             ) AS cargo_planilla
+      FROM orden_plani
+           JOIN orga.tuo_funcionario uofun ON uofun.id_uo = orden_plani.id_uo
+           JOIN orga.vuo_centro cen ON cen.id_uo = uofun.id_uo
+           JOIN orga.vfuncionario fun ON fun.id_funcionario =
+            uofun.id_funcionario
+           JOIN plani.tfuncionario_planilla fp ON fp.id_funcionario =
+            fun.id_funcionario AND fp.id_uo_funcionario =
+             uofun.id_uo_funcionario
+           JOIN plani.tplanilla plani ON plani.id_planilla = fp.id_planilla
+           JOIN orga.tcargo car ON car.id_cargo = uofun.id_cargo
+           JOIN orga.toficina ofi ON ofi.id_oficina = car.id_oficina
+      ORDER BY orden_plani.ruta,
+               uofun.prioridad,
+               fun.desc_funcionario2;
+/***********************************F-DEP-MZM-PLANI-ETR-4096-27/05/2021****************************************/
