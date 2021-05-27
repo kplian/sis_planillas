@@ -53,6 +53,7 @@ AS $BODY$
    #ETR-2046			10.12.2020			MZM-KPLIAN					Adicion de control para generar planilla de aguinaldo con informacion de bancos o no (cuando existen obligaciones)
    #ETR-2135			14.12.2020			MZM-KPLIAN					Adicion de excepcion para planilla de aguinaldo 2020
    #ETR-3997			24.05.2021			MZM-KPLIAN					Adicion de condicion en REPODET_SEL (planilla de reintegro) que el filtro de activo/retirado contemple la posibilidad de reincorporacion a la fecha del proceso (se añade validacion por funcionario vigente)
+   #ETR-4096			27.05.2021			MZM-KPLIAN					Adicion de condicion para reportes multilinea
   ***************************************************************************/
 
   DECLARE
@@ -1298,7 +1299,9 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                      v_group:='group by fun.id_funcionario, fun.desc_funcionario2, fun.codigo, fun.ci, nivel.id_oficina, nivel.oficina
                                ,repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_inferior, repcol.titulo_reporte_superior
                                , repcol.origen, repcol.codigo_columna, vista.nombre_col, vista.valor_col, repo.tipo_reporte, repcol.espacio_previo,
-                               tcon.nombre, repcol.orden, nivel.orden_oficina';
+                               tcon.nombre, repcol.orden, nivel.orden_oficina, nivel.id_uo_centro, nivel.nombre_uo_centro, nivel.ruta, nivel.prioridad, nivel.desc_funcionario2
+                               
+                               ';
                    end if;
                   
                    
@@ -1396,8 +1399,7 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
 			if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
               if(v_parametros.consolidar='si') then
                   v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo;
-                 
-                  
+                   
               end if;
             end if;
         end if;
@@ -1468,11 +1470,18 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                       inner join '||v_esquema||'.tfuncionario_planilla fp on 
                       --fp.id_funcionario=nivel.id_funcionario
                       fp.id_funcionario_planilla=nivel.id_funcionario_planilla
+                     
                       inner join orga.vfuncionario fun on fun.id_funcionario = nivel.id_funcionario
+                      
                       inner join orga.tcargo car on car.id_cargo=nivel.id_cargo
                       inner join '||v_esquema||'.tplanilla plani on /* plani.id_periodo=nivel.id_periodo and*/ plani.id_planilla=fp.id_planilla
                       '||v_periodo_fin||'
                       inner join plani.treporte repo on repo.id_tipo_planilla = plani.id_tipo_planilla
+                       and 
+                       (case when repo.titulo_reporte ilike ''%multilinea%'' then
+                       		fp.id_funcionario_planilla  in (select id_funcionario_planilla from plani.tcolumna_valor where id_funcionario_planilla=fp.id_funcionario_planilla and codigo_columna like ''%LIQPAG'' and valor> 0) --#ETR-4096
+                            else 0=0
+                       end)
                       inner join plani.treporte_columna repcol  on repcol.id_reporte = repo.id_reporte
                       left join '||v_esquema||'.tcolumna_valor colval on  colval.id_funcionario_planilla = fp.id_funcionario_planilla
                       and repcol.codigo_columna = colval.codigo_columna

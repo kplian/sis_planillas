@@ -2249,3 +2249,67 @@ select plani.f_import_treporte('insert','PLANILLA DE PRIMA','SPRINOVIG','no','ca
 ************F-DAT-RAC-PLANI-145-03/07/2020*************/
 
 
+
+************I-DAT-MZM-PLANI-4096-27/05/2021*************/
+
+select plani.f_import_treporte('insert','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no','carta_horizontal','no','no','no','no','distrito','organigrama','activo',0,249,'Multilinea por Distrito: Planilla de Reintegros','','planilla','si','plani.nvdatos_func_planilla',11,'no','no','BS',0,5.00);
+select plani.f_import_treporte_columna('insert','TOTGAN','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,83,'activo','Tot.','Ganado','otro',0,'total_ganado','columna_planilla');
+select plani.f_import_treporte_columna('insert','ASIGNACIONES','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,71,'activo','Asignaciones',NULL,'otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','INGVAR','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,70,'activo','Ingr.','Varios','otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,2,'activo','Fech.','Ingreso','otro',0,'fecha_ingreso','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,4,'activo','Nombre','Empleado','otro',0,'nombre_funcionario','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMIMPRCIVA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,7,'activo','Imp.','RCIVA','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMAFP_SSO','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,9,'activo','Cuota','Indiv','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMAFP_RIEPRO','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,12,'activo','Riesgo','Prof.','otro',1,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,13,'activo','Cd','Empleado','otro',0,'codigo_funcionario','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMAFP_APPAT','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,1,'activo','Solidario','Pat','otro',10,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','SUBPRE','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,6,'activo','Prenatal','','otro',2,'SUBPRE','vista_externa');
+select plani.f_import_treporte_columna('insert','cac','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,8,'activo','Fond.','CACSEL','otro',0,'CACSELVAR','vista_externa');
+select plani.f_import_treporte_columna('insert','sib','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,10,'activo','S.I.B.','','otro',0,'ASIB','vista_externa');
+select plani.f_import_treporte_columna('insert','PRESPER','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,52,'activo','Préstamo',NULL,'otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','ASIB','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,10,'activo','S.I.B.',NULL,'otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','HORNOC','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,37,'activo','Hrs.','Nocturnas','otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','OTRO_DESC','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,44,'activo','Desc.','Varios','otro',3,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','REINTEGRO1','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,48,'activo','Reintegro','1','otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','REINTEGRO2','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,59,'activo','Reintegro','2','otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','LICENCIA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,65,'activo','Licencias',NULL,'otro',0,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','MUL_ATRA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,74,'activo','Multas',NULL,'otro',2,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','COTIZABLE_ANT','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,78,'activo','Cotiz.','Ant.','otro',3,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','HORNORM','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,81,'activo','Hrs.','Normales','otro',2,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','RETJUD','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,51,'activo','Ret','Judicial','otro',2,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','SUBNAT','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,40,'activo','Natalidad',NULL,'otro',1,NULL,'columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMNATSEP','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,28,'activo','Natalidad','/Sepelio','otro',0,'subsep','columna_planilla');
+select plani.f_import_treporte_columna('insert','CACSELPRES','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,30,'activo','Ptm','CACSEL','otro',0,'CACSELPRES','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMAFP_CADM','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,31,'activo','Cuota','Adm.','otro',0,'cad','columna_planilla');
+select plani.f_import_treporte_columna('insert','APSIND','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,32,'activo','Ap.','Sindicato','otro',0,'APSIND','vista_externa');
+select plani.f_import_treporte_columna('insert','DESCANTC','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,33,'activo','Anticipos','','otro',0,'DESCANTC','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMPREAGUI','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,34,'activo','Reserva','BS','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMSUELDOBA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,36,'activo','Sueldo','Mes','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMNOCTURNO','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,38,'activo','Recargo','Noct.','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMPREPRI','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,45,'activo','Prima','','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMAFP_APNALSOL','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,53,'activo','Nac.','Solidario','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMTOT_DESC','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,55,'activo','Tot.','Desc.','otro',1,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMPREAGUI','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,56,'activo','P.','Aguinaldo','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMDISPONIBILIDAD','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,58,'activo','Disponibilidad','','otro',1,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMAFP_APSOL','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,64,'activo','Solidario','Aseg.','otro',4,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMAFP_VIVIE','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,67,'activo','PROVI','Pat','otro',1,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMBONOANTG','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,69,'activo','B.','Antiguedad','otro',1,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMCOTIZABLE','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,82,'activo','Cotizable','','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMLIQPAG','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,88,'activo','Lq.','Pagable','otro',4,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,15,'activo','Cargo','','otro',0,'cargo','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,16,'activo','Incap','Temp','otro',1,'INCAP_TEMPORAL','vista_externa');
+select plani.f_import_treporte_columna('insert','sub','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,17,'activo','Lactancia','','otro',0,'SUBLAC','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,18,'activo','Prdt.','Lact.','otro',0,'sublac','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,19,'activo','Cuot.','CACSEL','otro',0,'CACSELFIJO','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMAFP_RCOM','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,20,'activo','Riesgo','Común','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','PRMCAJSAL','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,23,'activo','CPS','','otro',2,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,24,'activo','Fech.','Nac.','otro',0,'fecha_nacimiento','vista_externa');
+select plani.f_import_treporte_columna('insert','HAB','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,25,'activo','Sueldo','Base','otro',0,'HABBAS','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMEXTRA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,26,'activo','Hrs.','Extras','otro',0,'HOREXT','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,27,'activo','Sobretiempo','','otro',0,'EXTRA','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,35,'activo','Carnet','Ident','otro',0,'num_documento','vista_externa');
+select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no',0,46,'activo','Nivel','- CS','otro',0,'nivel','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMCOSTO_TOTAL','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,89,'activo','Total','General','otro',0,'','columna_planilla');
+select plani.f_import_treporte_columna('insert','SUBPRE','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,29,'activo','Prenatal','','otro',0,'subpre','vista_externa');
+select plani.f_import_treporte_columna('insert','PRMBONFRONTERA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,47,'activo','Sub.','Frontera','otro',0,'','columna_planilla');
+************F-DAT-MZM-PLANI-4096-27/05/2021*************/

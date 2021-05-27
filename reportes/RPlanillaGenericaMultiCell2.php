@@ -13,6 +13,7 @@
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
 //#168-ETR-1252	MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
 //#ETR-2046		MZM-KPLIAN	04.12.2020				Omision de separador de lineas para planilla de aguinaldos
+//#ETR-4096		MZM-KPLIAN	27.05.2021				Para planilla de reintegro, cambio en titulo cuando es consolidado
 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
@@ -55,17 +56,17 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	    if(  $this->objParam->getParametro('tipo_contrato')!='' &&  $this->objParam->getParametro('tipo_contrato')!=null  &&  $this->objParam->getParametro('tipo_contrato')!='PLA'  ){//#148
 	    	
 		 if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - '.$this->objParam->getParametro('personal_activo').')';
+		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].' - Personal '.$this->objParam->getParametro('personal_activo').')';
 		 }else{
 		 	$tipo_con=' ('.$this->datos_detalle[0]['nombre'].')';
 		 }
 			
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
 	    }
-		else{
+		else{ 
 			
 			if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-		 		$tipo_con='('.$this->objParam->getParametro('personal_activo').')';
+		 		$tipo_con=' ( Personal '.$this->objParam->getParametro('personal_activo').')';
 			 }
 		}
 		$this->Ln(1);
@@ -97,7 +98,12 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 
 		if($this->datos_titulo['periodo']>0){//#97
-			$this->Cell(0,5,'Correspondiente al mes de '.str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
+		   if ($this->objParam->getParametro('consolidar')=='si'){
+		   	$this->Cell(0,5,'Acumulado de ENERO a '.str_replace ('DE ','',strtoupper($this->datos_titulo['periodo_lite'])),0,1,'C');//#ETR-4096
+		   }else{
+		   	$this->Cell(0,5,'Correspondiente al mes de '.str_replace ('de ','',$this->datos_titulo['periodo_lite']),0,1,'C');//#141
+		   }
+			
 		}else{
 			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
 		}
