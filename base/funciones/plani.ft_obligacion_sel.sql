@@ -265,7 +265,19 @@ BEGIN
                          (select pxp.f_llenar_espacio_blanco(regexp_replace(detran.nro_cuenta,''-'',''''),10))||(select tipo_abono from plani.ttipo_obligacion where id_tipo_obligacion=obli.id_tipo_obligacion) as detalle
                         , (select TO_CHAR(now(),''MMDD'')) as periodo
                         
-                       , sum(detran.monto_transferencia) as total_obli, ofi.orden as orden, fun.desc_funcionario2
+                       , sum(detran.monto_transferencia) as total_obli, (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ) as orden, fun.desc_funcionario2
                         from plani.tdetalle_transferencia detran
                         inner join orga.vfuncionario fun
                             on fun.id_funcionario = detran.id_funcionario
@@ -291,8 +303,32 @@ BEGIN
                         (select pxp.f_llenar_ceros ( (select EXTRACT(MONTH FROM plani.fecha_planilla))::integer  ,2))
                         ||''1'',
                         (select pxp.f_llenar_espacio_blanco(regexp_replace(detran.nro_cuenta,''-'',''''),10)),(select tipo_abono from plani.ttipo_obligacion where id_tipo_obligacion=obli.id_tipo_obligacion)
-                        , (select TO_CHAR(now(),''MMDD'')), ofi.orden, fun.desc_funcionario2
-                        order by ofi.orden,fun.desc_funcionario2';
+                        , (select TO_CHAR(now(),''MMDD'')), (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ), fun.desc_funcionario2
+                        order by (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ),fun.desc_funcionario2';
             raise notice 'sss%', v_consulta_abono;
             for v_registros in execute(   v_consulta_abono             
 						) loop
@@ -813,7 +849,19 @@ BEGIN
                          ges.gestion,
                          sum(detran.monto_transferencia) as total_funcionario,
                          detran.nro_cuenta, 
-                         (select TO_CHAR(plani.fecha_planilla,''MM'')) as periodo, ofi.orden as orden
+                         (select TO_CHAR(plani.fecha_planilla,''MM'')) as periodo, (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ) as orden
                          from plani.tdetalle_transferencia detran
                          inner join orga.vfuncionario fun on fun.id_funcionario = detran.id_funcionario
                          inner join param.tinstitucion ins on ins.id_institucion = detran.id_institucion
@@ -835,8 +883,32 @@ BEGIN
                          fun.ci, 
                          fun.desc_funcionario2,
                          ges.gestion,detran.nro_cuenta, 
-                         (select TO_CHAR(plani.fecha_planilla,''MM'')), ofi.orden
-                         order by ofi.orden,fun.desc_funcionario2';
+                         (select TO_CHAR(plani.fecha_planilla,''MM'')), (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             )
+                         order by (
+               SELECT ofic.id_oficina
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             ),fun.desc_funcionario2';
                       for v_registros in execute(   v_consulta_abono             
 						) loop
             			if (v_registros.total_funcionario!=0) then
