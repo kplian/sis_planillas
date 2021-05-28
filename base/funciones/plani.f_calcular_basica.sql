@@ -66,6 +66,7 @@ AS $BODY$
   #ETR-3610		  08.04.2021		mzm-KPLIAN			Ajuste a funciones relacionadas a prevision de prima (no simple) con restriccion de 90 dias por contrato.
   #ETR-3648		  13.04.2021		MZM-KPLIAN			Modificacion de columna basica SALDOPERIANTDEP para que considere el certificado RcIva si existe en el mes
   #ETR-3678		  21.04.2021		MZM-KPLIAN			Adicion de columna PRI-PAGADA
+  #ETR-4096		  28.05.2021		MZM-KPLIAN			Adicion de columna FUNVIGENTE para separar la funcionalidad de desceunto RCIVA en planilla de reintegros
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -3573,6 +3574,13 @@ if (v_registros.id_funcionario>0  ) then
         ELSE
           v_resultado := 0;
         END IF;
+    ELSIF (p_codigo = 'FUNVIGENTE') THEN  --#ETR-4096
+    	if (plani.f_es_funcionario_vigente (v_planilla.id_funcionario, v_planilla.fecha_planilla)) then
+           v_resultado:=0;
+        else
+           v_resultado:=1;
+        end if;
+    
     ELSE
       raise exception 'No hay una definición para la columna básica %',p_codigo;
     END IF;
