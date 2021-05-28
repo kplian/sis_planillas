@@ -1319,12 +1319,12 @@ elsif(p_transaccion='PLA_REPODET_SEL')then
                      
                      
                       if (v_datos_externos.adicionar_centro='si' and v_parametros.totales='no') then
-                        v_group:=v_group||',nivel.id_centro_planilla,nivel.ruta, nivel.prioridad';
+                        v_group:=v_group||',nivel.id_centro_planilla';
                         
                         
                   	   v_consulta_orden:='nivel.id_centro_planilla, (select nombre_uo_centro from orga.vuo_centro where id_uo=nivel.id_centro_planilla ) as nombre_uo_centro,'; 
 --	            		v_ordenar_por ='nivel.orden_oficina,nivel.oficina,nivel.ruta, nivel.prioridad, nivel.desc_funcionario2';
-v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_oficina_planilla),(select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla),nivel.ruta, nivel.prioridad, fun.desc_funcionario2'; -- 12.09.2019
+						v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_oficina_planilla),(select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla), fun.desc_funcionario2'; -- 12.09.2019
                 		v_nombre_uo:=' (select nombre from orga.toficina where id_oficina=nivel.id_oficina_planilla) ';
                       end if;
                    end if;
@@ -1499,7 +1499,7 @@ v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_ofici
 --            raise exception 'aaaa: %',v_consulta_orden;
            
             --Sentencia de la consulta
-            v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, ''''::varchar, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,
+            v_consulta:=v_consulta||' select  fun.id_funcionario, substring(fun.desc_funcionario2 from 1 for 38) as desc_funcionario2, '''' ::varchar as descripcion, trim(both ''FUNODTPR'' from fun.codigo)::varchar as codigo, fun.ci,
                       '||v_consulta_orden||'
                       repcol.sumar_total, repcol.ancho_columna, repcol.titulo_reporte_superior, repcol.titulo_reporte_inferior,
                       '||v_columnas_externas||'
@@ -1592,7 +1592,105 @@ v_ordenar_por ='(select orden from orga.toficina where id_oficina=nivel.id_ofici
                       order by desc_funcionario2, orden';
                 end if;       
             end if;    
-         raise notice '**%',v_consulta;
+         raise notice '******: %',v_consulta;
+        if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
+          	if (v_parametros.consolidar='si' and (v_datos_externos.adicionar_centro='si' and v_parametros.totales='no')) then
+            
+            create temp table tt_multilinea(
+		id_funcionario integer,
+		nombre_empleado text,
+		codigo_empleado varchar,
+		codigo_cargo varchar,
+		doc_id varchar,
+		
+		id_gerencia integer,
+		gerencia varchar,
+				
+		
+		sumar_total varchar,
+		ancho_columna integer,
+		titulo_reporte_superior varchar,
+		titulo_reporte_inferior varchar,
+		codigo_columna varchar,
+		valor_columna varchar,
+		nombre varchar,
+		espacio_previo integer,
+		orden integer,
+		regional varchar,
+        orden_gerencia numeric
+        
+        )on commit drop;
+            
+         create temp table tt_prio(
+         id_funcionario integer,
+         prioridad numeric,
+         ruta text) on commit drop;
+         
+         v_consulta_abono:='select distinct id_funcionario, prioridad, ruta, id_periodo from plani.vorden_planilla where id_periodo<='||v_parametros.id_periodo||' order by id_funcionario,id_periodo desc';
+        for v_asignacion in execute (v_consulta_abono) loop
+        	if v_asignacion.id_funcionario not in (select id_funcionario from tt_prio) then
+			 insert into tt_prio values(v_asignacion.id_funcionario, v_asignacion.prioridad, v_asignacion.ruta);
+            end if;
+        end loop;
+         
+            
+				for v_asignacion in execute (v_consulta) loop
+                	insert into tt_multilinea values 
+                    (v_asignacion.id_funcionario,
+                    v_asignacion.desc_funcionario2::text,
+                    v_asignacion.descripcion::varchar,
+                    v_asignacion.codigo::varchar,
+                    v_asignacion.ci::varchar,
+                    v_asignacion.id_centro_planilla::integer,
+                    v_asignacion.nombre_uo_centro::varchar,
+                    v_asignacion.sumar_total::varchar,
+                    v_asignacion.ancho_columna::integer,
+                    v_asignacion.titulo_reporte_superior::varchar,
+                    v_asignacion.titulo_reporte_inferior::varchar,
+                    v_asignacion.codigo_columna::varchar, v_asignacion.valor::varchar,
+                    v_asignacion.nombre::varchar,
+                    v_asignacion.espacio_previo::integer,
+                    v_asignacion.orden::integer,
+                    v_asignacion.regional::varchar,
+                    coalesce((select orden from orga.toficina where nombre=v_asignacion.regional),100)
+                     );
+                
+           
+                
+                end loop;
+            
+        
+        	v_consulta:='select m.id_funcionario ,
+		nombre_empleado ,
+		codigo_empleado ,
+		codigo_cargo ,
+		doc_id ,
+		
+		id_gerencia ,
+		gerencia ,
+				
+		
+		sumar_total ,
+		ancho_columna, 
+		titulo_reporte_superior ,
+		titulo_reporte_inferior ,
+		codigo_columna ,
+		valor_columna ,
+		nombre ,
+		espacio_previo ,
+		orden ,
+		regional from tt_multilinea m inner join tt_prio prio
+        on m.id_funcionario=prio.id_funcionario
+         order by m.orden_gerencia, regional, prio.ruta, prio.prioridad,
+         nombre_empleado , orden asc
+         ';
+        	
+				      
+            
+            end if;
+        end if;
+        
+        
         
          return v_consulta;
 	

@@ -559,6 +559,7 @@ BEGIN
                                -- and plani.id_periodo='||v_parametros.id_periodo||'
                                 ) or  plani.f_es_funcionario_vigente (fp.id_funcionario, '''||v_fecha_backup||''')
                                 ) ';
+                                
                           
                 	  elsif (v_parametros.estado_funcionario='retirado') then  
                             v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  and uofun.fecha_finalizacion <= '''||v_fecha_backup||'''
@@ -567,7 +568,7 @@ BEGIN
                                       and not  plani.f_es_funcionario_vigente (fp.id_funcionario, '''||v_fecha_backup||''')
                                 ';
                       else  
-                     		v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
+                     		/*v_filtro:=v_filtro||'  and uofun.fecha_asignacion <= '''||v_fecha_backup||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''  
                                     and 
                                      (
                                     (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_backup||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
@@ -581,7 +582,7 @@ BEGIN
                                               -- and fun.id_funcionario not in (select id_funcionario from orga.tuo_funcionario where fecha_asignacion>uofun.fecha_asignacion and tipo=''oficial'')
                                               and uofun.observaciones_finalizacion not in (''transferencia'',''promocion'', '''')
                                     )
-                                    )';
+                                    )';*/
                       end if;
                       
                   end if;
@@ -599,11 +600,40 @@ BEGIN
           
           v_periodo_fin:='';
           v_oficina_inner:='';
-          v_oficina_dato:='ofi.nombre';
+          v_oficina_dato:='ofi.nombre         ';
           v_oficina_group:=v_oficina_dato;
-          v_oficina_orden:='ofi.orden';
+          v_oficina_orden:=' ofi.orden ';
           if pxp.f_existe_parametro(p_tabla , 'consolidar')then 
               if(v_parametros.consolidar='si') then
+              v_oficina_orden:='(
+               SELECT ofic.orden
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             )';
+              v_oficina_dato:='
+          (
+               SELECT ofic.nombre
+               FROM orga.tuo_funcionario asig
+                    JOIN orga.tcargo car_1 ON car_1.id_cargo = asig.id_cargo
+                    JOIN orga.toficina ofic ON ofic.id_oficina =
+                     car_1.id_oficina
+               WHERE asig.fecha_asignacion <= plani.fecha_planilla AND
+                     COALESCE(asig.fecha_finalizacion, plani.fecha_planilla) >=
+                      plani.fecha_planilla AND
+                     asig.estado_reg::text = ''activo'' ::text AND
+                     asig.id_funcionario = fun.id_funcionario
+               LIMIT 1
+             )
+          ';
+              v_oficina_group:=v_oficina_dato;
                   v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo;
                   v_sum_group:='select oficina, sum(monto_pagar),periodo_lite, banco, tipo_pago, tipo_contrato, desc_funcionario2, nro_cuenta
                   ,orden, codigo, ci
