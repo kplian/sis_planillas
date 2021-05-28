@@ -97,6 +97,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10); 
+		
 		if($this->datos_titulo['periodo']>0){//#97
 		   if ($this->objParam->getParametro('consolidar')=='si'){
 		   	$this->Cell(0,5,'Acumulado de ENERO a '.str_replace ('DE ','',strtoupper($this->datos_titulo['periodo_lite'])),0,1,'C');//#ETR-4096
@@ -323,7 +324,7 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				array_push($detalle_col_mod,'');
 				array_push($detalle_col_mod,'0');
-				if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']!='cargo_planilla'  ) {
+				if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']=='cargo_planilla'  ) {
 				
 					array_push($detalle_col_mod,'L');
 				}else{
@@ -377,8 +378,9 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					array_push($detalle_col_mod,'1');
 					
 					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']=='cargo_planilla' ) {
+						
 						array_push($detalle_col_mod,'L');
-					}else{
+					}else{ 
 						array_push($detalle_col_mod,'R');
 					}
 					$id_funcionario=$this->datos_detalle[$i+1]['id_funcionario'];
@@ -413,7 +415,10 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					array_push($detalle_col_mod,'');
 					array_push($detalle_col_mod,'0');
 					if($this->datos_detalle[$i]['codigo_columna']=='nombre_funcionario' || $this->datos_detalle[$i]['codigo_columna']=='cargo' || $this->datos_detalle[$i]['codigo_columna']=='cargo_planilla') {
-					array_push($detalle_col_mod,'L');}
+						
+					    array_push($detalle_col_mod,'L');
+					
+					}
 					else{
 						array_push($detalle_col_mod,'R');
 					}
