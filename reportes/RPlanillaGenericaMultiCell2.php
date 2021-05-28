@@ -13,7 +13,7 @@
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
 //#168-ETR-1252	MZM-KPLIAN	07.10.2020				Adicion de centro en reporte multilinea por distrito
 //#ETR-2046		MZM-KPLIAN	04.12.2020				Omision de separador de lineas para planilla de aguinaldos
-//#ETR-4096		MZM-KPLIAN	27.05.2021				Para planilla de reintegro, cambio en titulo cuando es consolidado
+//#ETR-4096		MZM-KPLIAN	27.05.2021				Para planilla de reintegro, cambio en titulo cuando es consolidado. Adicion de exception para q cuando el reporte sea de personal retirado si muestre el descuento de RCIVA en planilla de reintegros mensual
 
 class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 	var $datos_titulo;
@@ -306,7 +306,15 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 					$this->datos_detalle[$i]['codigo_columna']!='num_documento' //#ETR-2862
 				 ){
 				 	if($this->datos_detalle[$i]['valor_columna']>0){
-				 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
+				 		//
+				 		if ($this->objParam->getParametro('personal_activo')=='activo' && $this->datos_detalle[$i]['codigo_columna']=='PRMIMPRCIVA'){
+							array_push($detalle_col_mod, '');				 			
+						}else{
+				 			array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80	
+				 		}
+				 		
+				 		
+				 		
 				 	}else{
 				 		array_push($detalle_col_mod, '');
 				 	}
@@ -332,9 +340,18 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				}
 				if($this->datos_detalle[$i]['sumar_total']=='si') {
 				    //$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
-					$sum_subtotal[$columnas]=($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
-					$sum_total[$columnas]=($sum_total[$columnas]+$this->datos_detalle[$i]['valor_columna']);
-					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+				    
+				    if ($this->objParam->getParametro('personal_activo')=='activo' && $this->datos_detalle[$i]['codigo_columna']=='PRMIMPRCIVA'){
+				    	$sum_subtotal[$columnas]=($sum_subtotal[$columnas]+0);
+						$sum_total[$columnas]=($sum_total[$columnas]+0);
+						$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+0);
+					}else{
+						$sum_subtotal[$columnas]=($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+						$sum_total[$columnas]=($sum_total[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+						$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+					}
+				    
+					
 				}
 				
 				
@@ -362,7 +379,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
-				 				array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80
+						 		if ($this->objParam->getParametro('personal_activo')=='activo' && $this->datos_detalle[$i]['codigo_columna']=='PRMIMPRCIVA'){
+									array_push($detalle_col_mod, '');
+								}else{
+									array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));	//#80	
+								}
+								
+				 				
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -401,7 +424,13 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 						 ){
 						 	
 						 	if($this->datos_detalle[$i]['valor_columna']>0){
-						 		array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+						 		if ($this->objParam->getParametro('personal_activo')=='activo' && $this->datos_detalle[$i]['codigo_columna']=='PRMIMPRCIVA'){
+						 			array_push($detalle_col_mod, '');
+								}else{
+									array_push($detalle_col_mod, number_format($this->datos_detalle[$i]['valor_columna'],2,'.',','));//#80	
+								}
+								
+						 			
 						 	}else{
 						 		array_push($detalle_col_mod, '');
 						 	}
@@ -433,11 +462,23 @@ class RPlanillaGenericaMultiCell2 extends  ReportePDF {
 				
 				
 				if($this->datos_detalle[$i]['sumar_total']=='si') {
-//					$sum_subtotal[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
-					$sum_subtotal[$columnas] =($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
 					
-					$sum_total[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
-					$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);	
+					if ($this->objParam->getParametro('personal_activo')=='activo' && $this->datos_detalle[$i]['codigo_columna']=='PRMIMPRCIVA'){
+						$sum_subtotal[$columnas] =($sum_subtotal[$columnas]+0);
+						$sum_total[$columnas] +=0;
+						$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+0);	
+						
+						
+					}else{
+						$sum_subtotal[$columnas] =($sum_subtotal[$columnas]+$this->datos_detalle[$i]['valor_columna']);
+						
+						$sum_total[$columnas] +=$this->datos_detalle[$i]['valor_columna'];
+						$sum_subtotal_regional[$columnas]=($sum_subtotal_regional[$columnas]+$this->datos_detalle[$i]['valor_columna']);	
+						
+						
+					}
+					
+
 				}
 
 				
