@@ -67,6 +67,7 @@ AS $BODY$
   #ETR-3648		  13.04.2021		MZM-KPLIAN			Modificacion de columna basica SALDOPERIANTDEP para que considere el certificado RcIva si existe en el mes
   #ETR-3678		  21.04.2021		MZM-KPLIAN			Adicion de columna PRI-PAGADA
   #ETR-4096		  28.05.2021		MZM-KPLIAN			Adicion de columna FUNVIGENTE para separar la funcionalidad de desceunto RCIVA en planilla de reintegros
+  				  30.05.2021		MZM-KPLIAN			Se cambia para REI-PLT que obtenga el acumulado del sueldoneto de las planillas de reintegro mensual
  ********************************************************************************/
   DECLARE
     v_resp                    varchar;
@@ -967,18 +968,19 @@ v_cons    varchar;
 
 
       --#35 calcular la suma de total de reintegro pagado, en las planillas de reintegro mensual previas
+      --30.05.2021: Suray indica q lo q se debe recuperar es el SUELDONETO
       ELSIF (p_codigo = 'REI-PLT') THEN
 
          IF  v_planilla.calcular_reintegro_rciva = 'si'  THEN  -- si la planilla esta configurada para hace el calculo del RC-IVA acumulado
 
           select
-               (cval.valor)
+               sum(cval.valor)
           into
               v_resultado
           from plani.tplanilla p
             inner join plani.ttipo_planilla tp on tp.id_tipo_planilla = p.id_tipo_planilla
             inner join plani.tfuncionario_planilla fp on fp.id_planilla = p.id_planilla
-            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMCOTIZABLE'
+            inner join plani.tcolumna_valor cval ON  cval.id_funcionario_planilla = fp.id_funcionario_planilla and cval.codigo_columna = 'PRMSUELNETO' --30.05.2021: Se cambia PRMCOTIZABLE POR PRMSUELNETO a pedido de Suray
           where fp.id_funcionario = v_planilla.id_funcionario
            and  tp.codigo = 'PLANRE'
            and p.estado not in ('registros_horas', 'registro_funcionarios','calculo_columnas','anulado') --#68 anhade vaidacion del estado de planillas
