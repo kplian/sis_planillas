@@ -199,3 +199,10 @@ update plani.tcolumna_valor set valor=13092	where id_columna_valor=4875197;
 update plani.tcolumna_valor set valor=13107.25	where id_columna_valor=4875201;
 /********************************************F-DAUP-MZM-PLANI-5-14/04/2021********************************************/
 
+
+
+/********************************************I-DAUP-MZM-PLANI-6-31/05/2021********************************************/
+update plani.tcolumna_valor  set formula='(({IMPSUJIMP})*0.13*{FAC_ZONAFRAN} ) + {BP-RCIVA}'
+where id_funcionario_planilla in (select id_funcionario_planilla from plani.tfuncionario_planilla where id_planilla in (347, 348))
+and codigo_columna='IMPDET'
+/********************************************F-DAUP-MZM-PLANI-6-31/05/2021********************************************/
