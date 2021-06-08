@@ -211,3 +211,16 @@ update plani.tcolumna_valor  set formula='(({IMPSUJIMP})*0.13*{FAC_ZONAFRAN} ) +
 where id_funcionario_planilla in (select id_funcionario_planilla from plani.tfuncionario_planilla where id_planilla in (347, 348))
 and codigo_columna='IMPDET';
 /********************************************F-DAUP-MZM-PLANI-6-31/05/2021********************************************/
+
+
+/********************************************I-DAUP-MZM-PLANI-7-02/06/2021********************************************/
+--rollback
+update plani.tplanilla set envios_boleta=0
+where id_planilla in (339,340,341,342,343,344,345,346);
+update plani.tfuncionario_planilla set sw_boleta='no' where id_planilla in (339,340,341,342,343,344,345,346);
+
+--commit
+update plani.tplanilla set envios_boleta=1
+where id_planilla in (339,340,341,342,343,344,345,346);
+update plani.tfuncionario_planilla set sw_boleta='si' where id_planilla in (339,340,341,342,343,344,345,346);
+/********************************************F-DAUP-MZM-PLANI-7-02/06/2021********************************************/
