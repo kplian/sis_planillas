@@ -12,7 +12,8 @@
   #83 	ETR				03.01.2020			MZM					Adicion de fecha backup
   #123	ETR				06.05.2020			MZM-KPLIAN			Leyenda para planillas que no tienen informacion a exponer (caso planillas regularizadas enero-sep/2019)
   
-  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte 
+  #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
+ *#ETR-4190				08.06.2021			MZM-KPLIAN			Ajuste a titulo para afps en planilla de reintegros 
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -58,8 +59,13 @@ class RPlanillaAportes extends  ReportePDF {
 			}
 		}else{//reintegros
 			if($this->objParam->getParametro('tipo_reporte')!='aporte_afp'){
-			  $this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO ',0,1,'C');
-			  $this->Cell(0,5,'DE SUELDOS',0,1,'C');
+			  if ($this->objParam->getParametro('estado_funcionario')=='activo'){
+			  	$this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SALARIOS - PERSONAL ACTIVO',0,1,'C');
+			  }elseif($this->objParam->getParametro('estado_funcionario')=='retirado'){
+			  	$this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SALARIOS - PERSONAL RETIRADO ',0,1,'C');
+			  }else{
+			  	$this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SALARIOS ',0,1,'C');
+			  } 
 			}
 		}
 		
@@ -68,7 +74,7 @@ class RPlanillaAportes extends  ReportePDF {
 		
 		if ($this->objParam->getParametro('consolidar')=='si'){//#98
 							
-				$this->Cell(0,5,'Acumulado a: ' . str_replace ('de ','',$this->datos[0]['periodo']),0,1,'C'); //#141
+				$this->Cell(0,5,'Acumulado de Enero a ' . str_replace ('de ','',$this->datos[0]['periodo']),0,1,'C'); //#141
 		}else{
 				$this->Cell(0,5,'Correspondiente al Periodo : '. str_replace ('de ','',$this->datos[0]['periodo']),0,1,'C');//#141
 		}
