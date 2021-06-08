@@ -64,6 +64,8 @@ AS $function$
  #ETR-3119				02.03.2021			MZM-KPLIAN			Adicion de tiempo total de trabajo(en 30 dias) para personal retirado (SPLAPREPRI)
  #ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de periodo/gestion en reporte de frecuencia de cargos
  #ETR-3892				06.05.2021			MZM-KPLIAN			Habilitacion de reporte DETAGUIN para planilla de Prima vigente
+ #ETR-4150				04.06.2021			MZM-KPLIAN			Reporte CPS de planilla de reintegro 
+ #ETr-4190				08.06.2021			MZM-KPLIAN			Ajustes en reporte de AFPs para separar por estado (en acumulado) para planilla de reintegros
  ***************************************************************************/
 
 DECLARE
@@ -1013,6 +1015,8 @@ BEGIN
                                     from (';
                       		v_group:=') as foo
                   				group by 1,2,3';
+                                
+                                
                      else
                           v_filtro:=v_filtro ||' and plani.id_periodo = '||v_parametros.id_periodo;
                      end if;
@@ -1037,7 +1041,8 @@ BEGIN
               ,nro_afp varchar,
               id_afp integer,
               nombre_afp	varchar,
-              id_tipo_contrato	integer
+              id_tipo_contrato	integer,
+              fecha_planilla date
 
             )on commit drop;
 			v_cons:=v_sum_group||'select fp.id_funcionario,
@@ -1086,7 +1091,7 @@ BEGIN
                   and cv.codigo_columna in (''HOREFEC'')
                   --and f.id_uo_funcionario=fp.id_uo_funcionario
                   where '||v_parametros.filtro||v_filtro||v_group;
-                raise notice 'consulta: %',v_cons;
+                --raise notice 'consulta: %',v_cons;
             for v_registros in execute( v_cons
                   ) loop
 
@@ -1109,7 +1114,7 @@ BEGIN
                   end if;*/
 
               		insert into tt_func
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_registros_det.tipo_jubilado, 0, 0, 0, 0 ,v_registros.fecha_finalizacion, v_registros_det.nro_afp, v_registros_det.id_afp, v_registros_det.nombre_afp, v_registros.id_tipo_contrato ); --ETR-2416
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_registros_det.tipo_jubilado, 0, 0, 0, 0 ,v_registros.fecha_finalizacion, v_registros_det.nro_afp, v_registros_det.id_afp, v_registros_det.nombre_afp, v_parametros.id_tipo_contrato, v_fecha ); --ETR-2416
 
           			--#84: si la planilla para la cual se consulta no es sueldo == añadir mas columnas porq es de reintegro (7 columnas)
                    if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
@@ -1139,7 +1144,9 @@ BEGIN
                             set ncotiz=v_registros_det.valor,
                             nvar1=v_registros_det.var1,
                             nvar2=v_registros_det.var2,
-                            nvar3=v_registros_det.var3 where id_funcionario=v_registros.id_funcionario;
+                            nvar3=v_registros_det.var3,
+                            fecha_planilla=v_fecha where id_funcionario=v_registros.id_funcionario;
+
 
                          end if;
                    end if;
@@ -1150,6 +1157,15 @@ BEGIN
 
            if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
                   if(v_parametros.id_tipo_planilla>0 and v_parametros.id_tipo_planilla in (select id_tipo_planilla from plani.ttipo_planilla where codigo='PLANRE' )) then
+                  --#ETR-4190
+                       execute ' select distinct plani.fecha_planilla
+                           from '||v_esquema||'.tplanilla plani inner join plani.ttipo_planilla tp
+                           on tp.id_tipo_planilla=plani.id_tipo_planilla
+                           where tp.codigo=''PLANRE'' and
+                           plani.id_periodo='||v_parametros.id_periodo into v_registros_det;
+                 			v_fecha:=v_registros_det.fecha_planilla;
+                            update tt_func
+                            set fecha_planilla=v_fecha;
                   else
                   		--v_condicion:=v_condicion ||' and repo.id_reporte='||v_parametros.id_reporte;--#108
                   end if;
@@ -1163,6 +1179,15 @@ BEGIN
                      else
                        v_filtro:=' and plani.id_periodo = '||v_parametros.id_periodo;
            			end if;
+           end if;
+           
+           --estados #ETR-4190
+           if pxp.f_existe_parametro(p_tabla , 'estado_funcionario')then
+              if(v_parametros.estado_funcionario='activo') then
+                  v_filtro := v_filtro||' and plani.f_es_funcionario_vigente(fp.id_funcionario, tt.fecha_planilla) is true';
+              elsif (v_parametros.estado_funcionario='retirado') then
+                  v_filtro := v_filtro||' and plani.f_es_funcionario_vigente(fp.id_funcionario, tt.fecha_planilla) is false';
+              end if;
            end if;
         	v_consulta:='select distinct fp.id_funcionario,per.apellido_paterno, per.apellido_materno,split_part(per.nombre,'' '',1)::varchar as primer_nombre,
 						(split_part(per.nombre,'' '',2)||'' ''||split_part(per.nombre,'' '',3))::varchar as segundo_nombre,per.ci,
@@ -1216,7 +1241,7 @@ BEGIN
 
 					v_consulta:=v_consulta|| ' order by  ffun.desc_funcionario2';
 
-                         raise notice '**%',v_consulta;
+                        -- raise notice '****************%',v_consulta;
 
 
                          return v_consulta;
@@ -3637,6 +3662,197 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
 
 
          	return v_consulta;
+        END;
+    elsif (p_transaccion='PLA_PLANRECPS_SEL') THEN --#ETR-4150
+        BEGIN
+        	create temp table tt_reicps(
+              id_funcionario integer,
+              ci varchar,
+              desc_funcionario2 text,
+              cargo varchar,
+              vigente	varchar,
+              fecha_ingreso	date,
+              genero	varchar,
+              gestion integer,
+              haber_basico numeric,
+              haber_basico_inc	numeric,
+              bant_ene numeric,
+              bant_feb	numeric,
+              bant_mar	numeric,
+              bant_abr	numeric,
+              total_retroactivo	numeric,
+              afp numeric,
+              rc_iva numeric,
+              otros numeric,
+              total_desc numeric,
+              liqpag numeric) on commit drop;
+        
+           v_filtro:=' ';
+            
+           if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                if(v_parametros.estado_funcionario='activo') then
+                	v_filtro:=v_filtro||' and plani.f_es_funcionario_vigente(fp.id_funcionario, plani.fecha_planilla) is true';
+                elsif (v_parametros.estado_funcionario='retirado') then
+                	v_filtro:=v_filtro||' and plani.f_es_funcionario_vigente(fp.id_funcionario, plani.fecha_planilla) is false';                
+                end if;
+           end if;
+           
+           if pxp.f_existe_parametro(p_tabla , 'consolidar')then
+                if (v_parametros.consolidar='si') then
+                	v_filtro:=v_filtro||' and plani.id_periodo<='||v_parametros.id_periodo; 
+                else
+                	v_filtro:=v_filtro||' and plani.id_periodo='||v_parametros.id_periodo; 
+                end if;
+           end if;
+           
+           
+           if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then
+              if(v_parametros.id_tipo_contrato>0) then
+                v_filtro = v_filtro|| ' and plani.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+              end if;
+           end if;
+           
+           
+           v_consulta:='select distinct fp.id_funcionario,f.ci, f.desc_funcionario2,  f.genero, orga.f_get_cargo_x_funcionario_str(fp.id_funcionario, plani.fecha_planilla,''oficial'') as cargo,
+								plani.f_es_funcionario_vigente(fp.id_funcionario, plani.fecha_planilla) as vigente,
+								plani.f_get_fecha_primer_contrato_empleado(fp.id_uo_funcionario,fp.id_funcionario,
+              					(select fecha_asignacion from orga.tuo_funcionario where id_uo_funcionario=fp.id_uo_funcionario)) as fecha_ingreso,
+              					 (select gestion from param.tgestion where id_gestion=plani.id_gestion) as gestion
+                                from plani.tfuncionario_planilla fp
+                                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                inner join plani.vrep_funcionario f on f.id_funcionario=fp.id_funcionario
+                                inner join param.tperiodo per on per.id_periodo=plani.id_periodo
+
+								where ' || v_parametros.filtro || v_filtro; 
+
+           for v_registros in execute(v_consulta
+                                 ) loop
+                                
+                insert into tt_reicps values (v_registros.id_funcionario, v_registros.ci, v_registros.desc_funcionario2,
+                v_registros.cargo, v_registros.vigente, v_registros.fecha_ingreso,  v_registros.genero, v_registros.gestion,
+                0,0,0,0,0,0,0,0,0,0,0,0);
+                               
+                v_afp_sso:=0;
+                v_afp_rcom:=0;
+				v_afp_cadm:=0;
+				v_afp_apnal:=0; --iva
+				v_afp_apsol:=0;
+	            v_totdesc:=0;
+                v_liquido:=0;
+                
+                v_estado:='select cv.valor 
+                from plani.tcolumna_valor cv
+				inner join plani.tfuncionario_planilla fp on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+				inner join plani.tplanilla p on p.id_planilla=fp.id_planilla
+				inner join param.tperiodo per on per.id_periodo=p.id_periodo
+                inner join param.tgestion ges on ges.id_gestion=p.id_gestion
+				inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=p.id_tipo_planilla
+				where fp.id_funcionario='||v_registros.id_funcionario||' and  
+                ges.gestion=(select gestion-1 from param.tgestion where id_gestion='||v_parametros.id_gestion||') 
+                and per.periodo=12 and tp.codigo=''PLASUE'' and p.id_tipo_contrato='||v_parametros.id_tipo_contrato||'
+				and cv.codigo_columna=''HABBAS'' ';
+               
+              
+                for v_registros_det in execute (v_estado) loop
+                   update tt_reicps set haber_basico=v_registros_det.valor,
+                   haber_basico_inc=v_registros_det.valor
+                   where id_funcionario=v_registros.id_funcionario;
+                end loop;
+
+                v_estado:='select per.periodo, cv.codigo_columna, cv.valor, fp.id_funcionario from plani.tfuncionario_planilla fp
+                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                          inner join param.tperiodo per on per.id_periodo=plani.id_periodo
+                          where '||v_parametros.filtro||v_filtro||' 
+
+                          and cv.codigo_columna in (''PRMBONOANTG'',''PRMAFP_LAB'',''PRMAFP_PAT'',''PRMIMPRCIVA'',''PRMTOT_DESC'',''PRMLIQPAG'')
+                    	  and fp.id_funcionario='||v_registros.id_funcionario||'
+                          order by fp.id_funcionario,cv.codigo_columna, per.periodo';
+
+				for v_registros_det in execute ( v_estado
+                          
+                ) loop
+                 	 if (v_registros_det.codigo_columna='PRMBONOANTG') then
+                         if (v_registros_det.periodo=1 ) then
+                            update tt_reicps set bant_ene=v_registros_det.valor
+                            where id_funcionario=v_registros.id_funcionario;
+                         elsif (v_registros_det.periodo=2) then
+                            update tt_reicps set bant_feb=v_registros_det.valor
+                            where id_funcionario=v_registros.id_funcionario;
+                         elsif (v_registros_det.periodo=3) then
+                            update tt_reicps set bant_mar=v_registros_det.valor
+                            where id_funcionario=v_registros.id_funcionario;
+                         elsif (v_registros_det.periodo=4) then                 
+                            update tt_reicps set bant_abr=v_registros_det.valor
+                            where id_funcionario=v_registros.id_funcionario;  
+                            
+                            update tt_reicps set total_retroactivo= (v_afp_sso+ v_registros_det.valor)
+                            where id_funcionario=v_registros.id_funcionario;  
+                         end if;    
+                         v_afp_sso:=v_afp_sso+ v_registros_det.valor;  --total_bono_ant
+                     else
+                        if (v_registros_det.codigo_columna='PRMAFP_LAB') then
+                           v_afp_rcom:=coalesce(v_registros_det.valor,0);  --AFP_LAB
+                        elsif (v_registros_det.codigo_columna='PRMAFP_PAT') then
+                        	v_afp_cadm:= coalesce(v_registros_det.valor,0); --AFP_PAT
+                        elsif (v_registros_det.codigo_columna='PRMIMPRCIVA') then
+                        	v_afp_apnal:= coalesce(v_registros_det.valor,0); --iva
+                        elsif (v_registros_det.codigo_columna='PRMTOT_DESC') then
+                        	v_totdesc:=coalesce(v_registros_det.valor,0);
+                        elsif (v_registros_det.codigo_columna='PRMLIQPAG') then
+	                        v_liquido:=coalesce(v_registros_det.valor,0);
+                        end if;
+                        
+                     end if;                  
+                     
+                     --if (v_registros_det.periodo=4) then
+                        if (v_registros_det.codigo_columna='PRMAFP_LAB') then
+                          	update tt_reicps set afp=(afp+ (coalesce(v_afp_rcom,0)+ coalesce(v_afp_cadm,0)))
+                          	where id_funcionario=v_registros.id_funcionario;  
+                      
+                        elsif (v_registros_det.codigo_columna='PRMIMPRCIVA') then
+                        	update tt_reicps set rc_iva=rc_iva+ coalesce(v_afp_apnal,0)
+                            where id_funcionario=v_registros.id_funcionario;  
+                        elsif (v_registros_det.codigo_columna='PRMTOT_DESC') then
+                        	update tt_reicps set total_desc=total_desc+coalesce(v_totdesc,0)
+                            where id_funcionario=v_registros.id_funcionario;  
+                        elsif (v_registros_det.codigo_columna='PRMLIQPAG') then
+	                        update tt_reicps set liqpag=liqpag+coalesce(v_liquido,0)
+                            where id_funcionario=v_registros.id_funcionario;  
+                        end if;
+                       
+                     
+                     
+                   --  end if;
+                
+				
+                    
+                end loop;
+                
+           
+           end loop;
+           
+           
+           v_consulta:='select id_funcionario ,
+              ci ,
+              desc_funcionario2 ,
+              cargo ,
+              fecha_ingreso	,
+              genero	,
+              gestion ,
+              haber_basico ,
+              haber_basico_inc	,
+              bant_ene ,
+              bant_feb	,
+              bant_mar	,
+              bant_abr	,
+              total_retroactivo	,
+              afp ,
+              rc_iva ,
+              otros ,
+              total_desc ,
+              liqpag from tt_reicps order by desc_funcionario2 ';
+        return v_consulta;
         END;
     else
 

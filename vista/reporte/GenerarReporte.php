@@ -19,7 +19,9 @@
    #158	ETR			MZM-KPLIAN		19.08.2020	Para Personal retirado adicionar periodo con el cual generar el reporte
  *#ETR-1378			MZM-KPLIAN		18.10.2020	Adicion de filtro por empleado_planilla
  *#ETR-2476			MZM-KPLIAN		14.01.2021	Adicion de tipo incremento_salarial para ocultar periodo
- *#ETR-3997			MZM-KPLIAN		19.05.2021	Adicion de reporte Abono en Cuenta para generar un solo archivo de abono en cuenta 
+ *#ETR-3997			MZM-KPLIAN		19.05.2021	Adicion de reporte Abono en Cuenta para generar un solo archivo de abono en cuenta
+ *#ETR-4150			MZM-KPLIAN		04.06.2021	Adicion de reporte CPS para planilla de reintegro
+ *#ETR-4190			MZM-KPLIAN		07.06.2021	Adicion de condicion para AFP por estado (activo/retirado) en planilla de reintegros mensual  
  */
 header("content-type: text/javascript; charset=UTF-8");
 ?>
@@ -915,8 +917,18 @@ header("content-type: text/javascript; charset=UTF-8");
 								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
 									this.mostrarComponente(this.Cmp.id_afp);
 									this.Cmp.id_afp.allowBlank=false;
-									this.ocultarComponente(this.Cmp.personal_activo);
-									this.Cmp.personal_activo.setValue('todos');
+									
+									if(this.Cmp.codigo_planilla.getValue()=='PLANRE' ){//#ETR-4190
+										this.mostrarComponente(this.Cmp.personal_activo);
+										this.Cmp.personal_activo.setValue('activo');
+										this.Cmp.personal_activo.getStore().loadData(['activo', 'retirado']);
+										
+									}else{
+										this.ocultarComponente(this.Cmp.personal_activo);
+										this.Cmp.personal_activo.setValue('todos');	
+										this.Cmp.personal_activo.getStore().loadData(['activo', 'retirado','todos']);
+									}
+									
 								}else{
 									if(r.data.control_reporte=='reserva_beneficios' || r.data.control_reporte=='reserva_beneficios2' || r.data.control_reporte=='reserva_beneficios3'){
 										this.mostrarComponente(this.Cmp.fecha);
@@ -968,8 +980,8 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 							}
 							
-						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes'  || r.data.control_reporte=='detalle_aguinaldo'
-){//#87 #160: se quita || r.data.control_reporte=='dependientes_edad' porq quieren en pdf y excel
+						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes'  || r.data.control_reporte=='detalle_aguinaldo' || r.data.control_reporte=='retroactivo_cps'
+){//#87 #160: se quita || r.data.control_reporte=='dependientes_edad' porq quieren en pdf y excel  //#ETR-4150
 							this.ocultarComponente(this.Cmp.formato_reporte);
 						}
 
