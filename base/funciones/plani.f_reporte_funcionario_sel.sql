@@ -66,6 +66,7 @@ AS $function$
  #ETR-3892				06.05.2021			MZM-KPLIAN			Habilitacion de reporte DETAGUIN para planilla de Prima vigente
  #ETR-4150				04.06.2021			MZM-KPLIAN			Reporte CPS de planilla de reintegro 
  #ETr-4190				08.06.2021			MZM-KPLIAN			Ajustes en reporte de AFPs para separar por estado (en acumulado) para planilla de reintegros
+ #ETR-4224				09.06.2021			MZM-KPLIAN			Ajuste en procedimiento DATPLAEM para que personal con cambio de tipo_contrato siga saliendo en el periodo en el que tenia el otro tpo_contrato
  ***************************************************************************/
 
 DECLARE
@@ -640,6 +641,7 @@ BEGIN
                         and tcol.codigo in (''COTIZABLE'')
                         inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
                         where '||v_parametros.filtro||' and plani.id_periodo='||v_id_periodo;
+                        
                     for v_registros in execute (v_cons) loop
                       insert into tt_totplan values (v_registros.id_funcionario, v_registros.valor,v_registros.codigo);
                     end loop;
@@ -768,12 +770,9 @@ BEGIN
             v_filtro_estado:='';
 
             if(v_parametros.tipo_reporte='reserva_beneficios' or v_parametros.tipo_reporte='reserva_beneficios2' or v_parametros.tipo_reporte='reserva_beneficios3') then
-            	v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial''
-                       /* and (uofun.fecha_finalizacion is null or (uofun.fecha_finalizacion<='''||v_fecha_estado||''' and uofun.observaciones_finalizacion in (''transferencia'',''promocion'','''') )
-                        or (uofun.fecha_finalizacion>'''||v_fecha_estado||''' )
-                        )*/ ';--#146
+            	v_filtro_estado:='  and uofun.fecha_asignacion <= '''||v_fecha_estado||''' and uofun.estado_reg = ''activo'' and uofun.tipo = ''oficial'' ';--#146
 
-
+				--v_filtro_estado:=' and plani.f_es_funcionario_vigente(fp.id_funcionario, '''||v_fecha_estado||''') is true';
             else
 
                 if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
@@ -801,6 +800,8 @@ BEGIN
                    end if;
                 end if;
           end if;
+          
+
                  v_consulta:='select
                             fun.id_funcionario,
                             substring(fun.desc_funcionario2 from 1 for 36),
@@ -919,8 +920,8 @@ BEGIN
                         inner join plani.treporte repo on repo.id_tipo_planilla=tp.id_tipo_planilla
                         '||v_estado||' --#77
                         where '||v_parametros.filtro||' and
-
-                         (plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))  <= '''||v_fecha||''' and
+						--#ETR-4224: comentado esta parte
+                       --(plani.f_get_fecha_primer_contrato_empleado(uofun.id_funcionario, uofun.id_funcionario,(select max(fecha_asignacion) from orga.tuo_funcionario where id_funcionario=uofun.id_funcionario and estado_reg=''activo'' and tipo=''oficial'')))  <= '''||v_fecha||''' and
 
                         '||v_condicion||v_filtro_estado||'
 
@@ -1891,7 +1892,7 @@ BEGIN
                                 tippla.codigo=''PLASUE''  '||v_filtro_estado||'
                                 order by '||v_ordenar;
 
-            raise notice '----%', v_filtro;
+            
     		for v_registros in execute( v_filtro
 				) loop
                 v_consulta_det:='select tc.codigo, cv.valor
