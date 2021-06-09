@@ -34,6 +34,7 @@
  * #ETR-2135	  MZM-KPLIAN	 11.12.2020					orientacion de resumen relacion saldos en planilla de aguinaldo
  * #ETR-2476	  MZM-KPLIAN	 14.01.2021					Reporte incremento salarial
  * #ETR-3862	  MZM-KPLIAN	 05.05.2021					adicion de periodo gestion en reporte Frecuencia de Cargos
+ * #ETR-4150	  MZM-KPLIAN	 04.06.2021					Adicion de reporte declaracion cps por planilla de reintegro
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -83,6 +84,8 @@ require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrab.php');//#159
 
 require_once(dirname(__FILE__).'/../reportes/REmpleadoDepXls.php');//#160
 require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrabXls.php');//#158
+require_once(dirname(__FILE__).'/../reportes/RPlanillaRetroactivoXls.php');//#ETR-4150
+require_once(dirname(__FILE__).'/../reportes/RPlanillaRetroactivoPDF.php');//#ETR-4150
 
 class ACTReporte extends ACTbase{
 
@@ -801,6 +804,8 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 															$this->reporteHorasTrab($id_tipo_contrato,$id_periodo); //ingreso-egreso
 														elseif ($this->objParam->getParametro('control_reporte')=='total_horas_trabajadas')//#ETR-1712
 															$this->reporteTotalHorasTrab($id_tipo_contrato,$id_periodo); //ingreso-egreso
+														elseif ($this->objParam->getParametro('control_reporte')=='retroactivo_cps')//#ETR-4150
+															$this->reporteRetroactivoCps($id_tipo_contrato,$id_periodo); //ingreso-egreso
 														
 														else
                                                          	$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
@@ -2054,6 +2059,71 @@ function reporteTotalHorasTrab()    {
 
 
     }
+
+ function reporteRetroactivoCps($tipo_reporte,$id_tipo_contrato)    {//#ETR-4150
+
+		$this->objParam->parametros_consulta['filtro']=' 0=0 ';//reset filter
+        $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+        $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
+        
+        //$this->objParam->addFiltro("plani.id_tipo_contrato=",$this->objParam->getParametro('id_tipo_contrato'));
+        
+        if ($this->objParam->getParametro('consolidar')=='no' || $this->objParam->getParametro('consolidar')==''){
+			$this->objParam->addParametro("consolidar","no");
+		}else{//consolidar=si
+			$this->objParam->addParametro("consolidar","si");
+		}
+		
+		
+		
+		
+            $titulo ='Retroactivo al SMN';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            
+
+            $this->objParam->addParametro('titulo_archivo',$titulo);
+            //$this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
+           // $this->objParam->addParametro('id_periodo',$id_periodo);
+			$this->objParam->addParametro('id_gestion',$this->objParam->getParametro('id_gestion')); 
+            $this->objParam->addParametro('estado_funcionario',$this->objParam->getParametro('personal_activo'));
+			//$this->objParam->addParametro('id_periodo',$id_periodo);
+			
+            
+            //Instancia la clase de excel
+            $this->objFunc=$this->create('MODFuncionarioReporte');
+
+            $this->res=$this->objFunc->listarRetroactivoCps($this->objParam);
+			
+			/*if($this->objParam->getParametro('formato_reporte')=='pdf'){
+				$nombreArchivo.='.pdf';
+				$this->objParam->addParametro('orientacion','L');
+            	$this->objParam->addParametro('tamano','LEGAL');
+            	$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+              	$this->objReporteFormato=new RPlanillaRetroactivoPDF($this->objParam);
+	            $this->objReporteFormato->setDatos($this->res->datos);
+	            $this->objReporteFormato->generarReporte();
+	            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+			
+			}else{*/
+				$nombreArchivo.='.xls';
+				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+				 $this->objReporteFormato=new RPlanillaRetroactivoXls($this->objParam);
+           		// $this->objReporteFormato->imprimeDatos();
+            	 $this->objReporteFormato->generarReporte($this->res->datos);
+				
+			//}
+			
+           
+
+            $this->mensajeExito=new Mensaje();
+            $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+                'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+            $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+            $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
+
 
 
 }
