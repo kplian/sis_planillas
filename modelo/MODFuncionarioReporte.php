@@ -33,7 +33,8 @@
  *#ETR-2476				14.01.2021			MZM-KPLIAN			Reporte incremento_salarial
  *#ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de campo tipo en reporte de personal incorporado
  *#ETR-3119				02.03.2021			MZM-KPLIAN			SPLAPREPRI, adicion de campo para incluir trabajadores con 90 dias en la gestion pero con mas de 90 en la empresa
- *#ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de campo periodo/gestion para reporte Frecuencia de cargos 
+ *#ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de campo periodo/gestion para reporte Frecuencia de cargos
+ *#ETR-4150				09.06.2021			MZM-KPLIAN			Adicion de reporte CPS para planilla de reintegros  
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -946,5 +947,54 @@ function listarTotalHorasTrab(){ //#ETR-1712
 		//Devuelve la respuesta
 		return $this->respuesta;
 	}
+
+
+	function listarRetroactivoCps(){
+		$this->procedimiento='plani.f_reporte_funcionario_sel';
+		$this->transaccion='PLA_PLANRECPS_SEL';
+		$this->tipo_procedimiento='SEL';//tipo de transaccion
+		$this->setCount(false);
+			
+		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
+		$this->setParametro('id_periodo','id_periodo','integer');
+		$this->setParametro('id_gestion','id_gestion','integer');
+		$this->setParametro('consolidar','consolidar','varchar');
+		$this->setParametro('esquema','esquema','varchar');
+		
+		//#98
+		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
+		
+		//Datos del empleado
+		 $this->captura('id_funcionario','integer');
+		 $this->captura('ci','varchar');
+		 $this->captura('desc_funcionario2','text');
+		 $this->captura('cargo','varchar');
+		 $this->captura('fecha_ingreso','date');
+		 $this->captura('genero','varchar');
+		 $this->captura('gestion','integer');
+		 $this->captura('haber_basico','numeric');
+		 $this->captura('haber_basico_inc','numeric');
+		 $this->captura('bant_ene','numeric');
+		 $this->captura('bant_feb','numeric');
+		 $this->captura('bant_mar','numeric');
+		 $this->captura('bant_abr','numeric');
+		 $this->captura('total_retroactivo','numeric');
+		 $this->captura('afp','numeric');
+		 $this->captura('rc_iva','numeric');
+		 $this->captura('otros','numeric');
+		 $this->captura('total_desc','numeric');
+		 $this->captura('liqpag','numeric');
+		 
+		 $this->armarConsulta(); 		   
+        //Ejecuta la instruccion
+        //echo '----'.$this->getConsulta(); exit;
+		//var_dump($this->aParam->getParametrosConsulta()); exit;
+		$this->ejecutarConsulta();
+		
+		//Devuelve la respuesta
+		return $this->respuesta;
+		
+	}
+
 }
 ?>
