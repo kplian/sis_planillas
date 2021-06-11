@@ -35,6 +35,7 @@
  * #ETR-2476	  MZM-KPLIAN	 14.01.2021					Reporte incremento salarial
  * #ETR-3862	  MZM-KPLIAN	 05.05.2021					adicion de periodo gestion en reporte Frecuencia de Cargos
  * #ETR-4150	  MZM-KPLIAN	 04.06.2021					Adicion de reporte declaracion cps por planilla de reintegro
+ * #ETR-4240	  MZM-KPLIAN	 10.06.2021					Habilitacion de reporte AFP vogente (jubilados, mayor 65) por tipo de afp
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -362,10 +363,14 @@ $i=0;
         "); //plani.estado = ''planilla_finalizada''  //#123
 
         //#83
-        if($this->objParam->getParametro('tipo_reporte') == 'formato_especifico' && $this->objParam->getParametro('control_reporte')=='fondo_solidario'){
+        if(($this->objParam->getParametro('tipo_reporte') == 'formato_especifico' && $this->objParam->getParametro('control_reporte')=='fondo_solidario') || ($this->objParam->getParametro('tipo_reporte') == 'formato_especifico' && $this->objParam->getParametro('control_reporte')=='aporte_afp' && $this->objParam->getParametro('codigo_planilla')=='PLANRE')){//#ETR-4240
         }else{
+        	
+			
+			
             if ($this->objParam->getParametro('id_tipo_planilla') != '') {
-                $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
+            		$this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));	
+            	
             }
         }
 
@@ -678,6 +683,9 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
         $orientacion = 'P';
         if($this->objParam->getParametro('control_reporte')=='aporte_afp'){
                $orientacion = 'L';
+			   if($this->objParam->getParametro('codigo_planilla')=='PLANRE'){//#ETR-4240
+			   	 $tamano = 'LETTER';
+			   }
            }
 
         $this->objParam->addParametro('orientacion',$orientacion);
