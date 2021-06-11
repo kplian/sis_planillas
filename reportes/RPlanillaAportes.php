@@ -67,6 +67,14 @@ class RPlanillaAportes extends  ReportePDF {
 			  }else{
 			  	$this->Cell(0,5,'APORTES AL FONDO SOLIDARIO POR PAGO RETROACTIVO DE SALARIOS ',0,1,'C');
 			  } 
+			}else{
+				if ($this->objParam->getParametro('personal_activo')=='activo'){
+					$this->Cell(0,5,'APORTES AL SISTEMA INTEGRAL DE PENSIONES POR PAGO RETROACTIVO DE SALARIOS - PERSONAL ACTIVO',0,1,'C');
+				}elseif($this->objParam->getParametro('personal_activo')=='retirado'){
+					$this->Cell(0,5,'APORTES AL SISTEMA INTEGRAL DE PENSIONES POR PAGO RETROACTIVO DE SALARIOS - PERSONAL RETIRADO',0,1,'C');
+				}else{
+					$this->Cell(0,5,'APORTES AL SISTEMA INTEGRAL DE PENSIONES POR PAGO RETROACTIVO DE SALARIOS',0,1,'C');
+				}
 			}
 		}
 		
