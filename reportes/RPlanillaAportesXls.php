@@ -208,7 +208,19 @@ class RPlanillaAportesXls
                    }
                 }
              }else{
-             	$this->docexcel->getActiveSheet()->getStyle('A3:Z3')->getAlignment()->setWrapText(true);
+             	
+				if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+                   if($this->objParam->getParametro('codigo_afp')=='PREV'){//#156
+                       $this->docexcel->getActiveSheet()->getStyle('A3:V3')->getAlignment()->setWrapText(true);
+                       $this->docexcel->getActiveSheet()->getStyle('A3:V3')->applyFromArray($styleTitulos3);
+                   }else{
+                       $this->docexcel->getActiveSheet()->getStyle('A3:W3')->getAlignment()->setWrapText(true);
+                       $this->docexcel->getActiveSheet()->getStyle('A3:W3')->applyFromArray($styleTitulos3);
+                   }
+
+                }else{
+				
+             	    $this->docexcel->getActiveSheet()->getStyle('A3:Z3')->getAlignment()->setWrapText(true);
 	                $this->docexcel->getActiveSheet()->getStyle('A3:Z3')->applyFromArray($styleTitulos3);
 					$this->docexcel->getActiveSheet()->getColumnDimension('T3')->setWidth(15);
 					$this->docexcel->getActiveSheet()->getColumnDimension('U3')->setWidth(15);
@@ -217,6 +229,7 @@ class RPlanillaAportesXls
 					$this->docexcel->getActiveSheet()->getColumnDimension('X3')->setWidth(15);
 					$this->docexcel->getActiveSheet()->getColumnDimension('Y3')->setWidth(15);
 					$this->docexcel->getActiveSheet()->getColumnDimension('Z3')->setWidth(15);//ETR-4240
+					}
              }
                 $this->docexcel->getActiveSheet()->freezePaneByColumnAndRow(0,4);
                 $fila=4;
@@ -274,13 +287,25 @@ class RPlanillaAportesXls
 					
 					
 					if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-                       
+                      
                         $this->docexcel->getActiveSheet()->setCellValue('P3','Tot Gan - Dep<65');
                         $this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Gan - Dep>65');
                         $this->docexcel->getActiveSheet()->setCellValue('R3','Tot Jub<65');
                         $this->docexcel->getActiveSheet()->setCellValue('S3','Tot Jub>65');
                         $this->docexcel->getActiveSheet()->setCellValue('T3','Cotizacion Adicional');//#
-                    }else{
+					 
+                    	if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+                        $this->docexcel->getActiveSheet()->setCellValue('U3','Tot FV');
+                        $this->docexcel->getActiveSheet()->setCellValue('V3','Tot FS');
+                        $this->docexcel->getActiveSheet()->setCellValue('W3','Tot FS Minero');
+						}else{
+							$this->docexcel->getActiveSheet()->setCellValue('U3','Tot FV');
+                        	$this->docexcel->getActiveSheet()->setCellValue('V3','Tot FS');
+						}
+                    
+					  
+					  
+                    }else{//fondo solidario
                         if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
                             $this->docexcel->getActiveSheet()->setCellValue('O3','Tot Ganado Solidario');
                             $this->docexcel->getActiveSheet()->setCellValue('P3','Tot Gan Sol - 13000 Bs');
@@ -319,12 +344,14 @@ class RPlanillaAportesXls
                     $this->docexcel->getActiveSheet()->setCellValue('M3','FECHA NOVEDAD');
                     $this->docexcel->getActiveSheet()->setCellValue('N3','DIAS');
                     if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+                    	
                         $this->docexcel->getActiveSheet()->setCellValue('O3','Tipo Asegurado');//#
                         $this->docexcel->getActiveSheet()->setCellValue('P3','Tot Gan - Dep<65');
                         $this->docexcel->getActiveSheet()->setCellValue('Q3','Tot Gan - Dep>65');
                         $this->docexcel->getActiveSheet()->setCellValue('R3','Tot Jub<65');
                         $this->docexcel->getActiveSheet()->setCellValue('S3','Tot Jub>65');
                         $this->docexcel->getActiveSheet()->setCellValue('T3','Cotizacion Adicional');//#
+						 
                     }else{
                         if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
                             $this->docexcel->getActiveSheet()->setCellValue('O3','Tot Ganado Solidario');
@@ -347,9 +374,14 @@ class RPlanillaAportesXls
                         }
                     }
                     if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+                    	if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
                         $this->docexcel->getActiveSheet()->setCellValue('U3','Tot FV');
                         $this->docexcel->getActiveSheet()->setCellValue('V3','Tot FS');
                         $this->docexcel->getActiveSheet()->setCellValue('W3','Tot FS Minero');
+						}else{
+							$this->docexcel->getActiveSheet()->setCellValue('U3','Tot FV');
+                        	$this->docexcel->getActiveSheet()->setCellValue('V3','Tot FS');
+						}
                     }
 				}//fin codigo_afp
 
@@ -361,7 +393,11 @@ class RPlanillaAportesXls
              
 				                
 				if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
-					$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];
+					if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
+						$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES -'.$datos[0]['nombre_afp'];}
+					else{
+						$tit_rep='APORTES AL SISTEMA INTEGRAL DE PENSIONES POR PAGO RETROACTIVO DE SUELDOS -'.$datos[0]['nombre_afp'];}
+					
 				}else{
 					if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
 					$tit_rep='PAGO DE CONTRIBUCIONES FONDO SOLIDARIO - '.$datos[0]['nombre_afp'];}
@@ -385,7 +421,7 @@ class RPlanillaAportesXls
 				 $this->docexcel->getActiveSheet()->mergeCells("A2:S2");
 				 $this->docexcel->getActiveSheet()->getStyle('A2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 				if ($this->objParam->getParametro('consolidar')=='si'){//#98
-					$this->docexcel->getActiveSheet()->setCellValue('A2', 'Acumulado a : '.str_replace ('de ','',$datos[0]['periodo']));
+					$this->docexcel->getActiveSheet()->setCellValue('A2', 'Acumulado de Enero a : '.str_replace ('de ','',$datos[0]['periodo']));
 				}else{
 					$this->docexcel->getActiveSheet()->setCellValue('A2', 'A: '.str_replace ('de ','',$datos[0]['periodo']));
 				}
@@ -483,11 +519,11 @@ class RPlanillaAportesXls
                         if ($this->objParam->getParametro('codigo_afp') == 'PREV') {
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, $value['valor']);
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila, $tipo_cotizante);
-							
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, $tipo_cotizante); //tipo asegurado
                         } else {
 
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, ''); //tipo asegurado
-                            if ($value['tipo_jubilado'] == 'no') {
+						}    if ($value['tipo_jubilado'] == 'no') {
                                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['valor']);
                             } else {
                                 $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, '');
@@ -516,9 +552,9 @@ class RPlanillaAportesXls
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21, $fila, number_format($value['valor'], 2, '.', ','));//#80
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(22, $fila, ''); //total ganado  minero
 
-                        }
+                        //}
 
-                    }else {
+                    }else {//fondo solidario
                         if($this->objParam->getParametro('codigo_afp')=='PREV'){
                             $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
 							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$tipo_cotizante);
@@ -554,7 +590,7 @@ class RPlanillaAportesXls
                         }
                     }
 
-					if($this->objParam->getParametro('codigo_planilla') == 'PLANRE') {//#86
+					if($this->objParam->getParametro('codigo_planilla') == 'PLANRE' && $this->objParam->getParametro('tipo_reporte') != 'aporte_afp') {//#86
                     //***
                     
                     $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14, $fila, number_format($value['valor'], 2, '.', ','));//#80
@@ -620,6 +656,38 @@ class RPlanillaAportesXls
                         //FIN PLANRE
                     }
 
+					if($this->objParam->getParametro('codigo_planilla') == 'PLANRE' && $this->objParam->getParametro('tipo_reporte') == 'aporte_afp') {//#86
+							if ($value['tipo_jubilado'] == 'no') {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, $value['ncotiz']);
+                            } else {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15, $fila, '');
+                            }
+
+
+                            if ($value['tipo_jubilado'] == 'mayor_65') {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila, number_format($value['ncotiz'], 2, '.', ','));//#80
+                            } else {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16, $fila, '');
+                            }
+
+                            if ($value['tipo_jubilado'] == 'jubilado_55') {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila, number_format($value['ncotiz'], 2, '.', ','));//#80
+                            } else {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17, $fila, '');
+                            }
+
+                            if ($value['tipo_jubilado'] == 'jubilado_65') {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila, number_format($value['ncotiz'], 2, '.', ','));//#80
+                            } else {
+                                $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18, $fila, '');
+                            }
+							
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila, '');//#80
+							$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(19, $fila, ''); //cotizacion Adicional
+                            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(20, $fila, number_format($value['ncotiz'], 2, '.', ','));//#80
+                            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(21, $fila, number_format($value['ncotiz'], 2, '.', ','));//#80
+                            $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(22, $fila, ''); //total ganado  minero
+					}
 
 					$fila++;
 				}
