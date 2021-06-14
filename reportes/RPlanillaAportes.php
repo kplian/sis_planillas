@@ -452,13 +452,13 @@ class RPlanillaAportes extends  ReportePDF {
 					if(($this->objParam->getParametro('codigo_planilla')=='PLASUE' )){
 						$cont++;
 					}else{
-						//if($this->objParam->getParametro('tipo_reporte')!='aporte_afp'){
-						//if(($this->datos[$i]['nvar1']+$this->datos[$i]['nvar2']+$this->datos[$i]['nvar3']) >0){
+						if($this->objParam->getParametro('tipo_reporte')!='aporte_afp'){
+						if(($this->datos[$i]['nvar1']+$this->datos[$i]['nvar2']+$this->datos[$i]['nvar3']) >0){
 							$cont++;
-						//}
-						//}else{
-							//$cont++;
-						//}
+						}
+						}else{
+							$cont++;
+						}
 					}
 					
 					//$cont++;
@@ -493,8 +493,8 @@ class RPlanillaAportes extends  ReportePDF {
 			for ($i=0; $i<$cont;$i++){
 				
 				if($this->objParam->getParametro('tipo_reporte')!='aporte_afp' && $this->objParam->getParametro('codigo_planilla')=='PLANRE'){
-					//$var_planre=$array_datos[$i][19]+$array_datos[$i][20]+$array_datos[$i][21];
-					$var_planre=1;
+					$var_planre=$array_datos[$i][19]+$array_datos[$i][20]+$array_datos[$i][21];
+					//$var_planre=1;
 				}else{
 					$var_planre=1;
 				}

@@ -1092,7 +1092,7 @@ BEGIN
                   and cv.codigo_columna in (''HOREFEC'')
                   --and f.id_uo_funcionario=fp.id_uo_funcionario
                   where '||v_parametros.filtro||v_filtro||v_group;
-                --raise notice 'consulta: %',v_cons;
+                raise notice 'consulta: %',v_cons;
             for v_registros in execute( v_cons
                   ) loop
 
@@ -1115,7 +1115,7 @@ BEGIN
                   end if;*/
 
               		insert into tt_func
-              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_registros_det.tipo_jubilado, 0, 0, 0, 0 ,v_registros.fecha_finalizacion, v_registros_det.nro_afp, v_registros_det.id_afp, v_registros_det.nombre_afp, v_parametros.id_tipo_contrato, v_fecha ); --ETR-2416
+              		values (v_registros.id_funcionario,v_registros.fecha_ingreso,v_antiguedad, v_registros.incap , v_registros.var1, v_registros.var2, v_registros.var3, v_registros_det.tipo_jubilado, 0, 0, 0, 0 ,v_registros.fecha_finalizacion, v_registros_det.nro_afp, v_registros_det.id_afp, v_registros_det.nombre_afp, v_registros.id_tipo_contrato, v_fecha ); --ETR-2416
 
           			--#84: si la planilla para la cual se consulta no es sueldo == añadir mas columnas porq es de reintegro (7 columnas)
                    if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
