@@ -103,11 +103,18 @@ class RPlanillaAportes extends  ReportePDF {
 			  }else{
 			  	$this->Cell(100,5,'Nombre del Empleado','LTR',0,'C');
 			  }
-			$this->Cell(21,5,'Departamento','LTR',0,'C');//#ETR-4240
+			
 			if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
-			  
+			  $this->Cell(21,5,'Departamento','LTR',0,'C');//#ETR-4240
 				$subtit='Tot. Ganado';
 		    }else{
+		    	
+			  	if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+					 $this->Cell(21,5,'Departamento','LTR',0,'C');//#ETR-4240
+				}
+			  
+				
+				
 		    	$subtit='Tot. Solidario';
 		    }
 		    
@@ -163,8 +170,13 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(24,5,'Segundo Nombre','LTR',0,'C');
 			  }
 			  //---------
-			  //if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
-			  $this->Cell(21,5,'','LTR',0,'C');//}
+			  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
+			  $this->Cell(21,5,'','LTR',0,'C');}
+			  else{
+			  	if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+							$this->Cell(21,5,'','LTR',0,'C');
+				}
+			  }
 			  //----
 			  $this->Cell(11,5,'Novedad','LTR',0,'C');
 			  $this->Cell(10,5,'Fecha','LTR',0,'C');
@@ -225,8 +237,13 @@ class RPlanillaAportes extends  ReportePDF {
 				  $this->Cell(24,5,'','LBR',0,'C');
 			  }
 			  //---------
-			  //if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
-			  $this->Cell(21,5,'','LBR',0,'C');//}
+			  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
+			  $this->Cell(21,5,'','LBR',0,'C');}
+			  else{
+			  	if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+							$this->Cell(21,5,'','LBR',0,'C');
+				}
+			  }
 			  //----
 			  $this->Cell(11,5,'I/R/L/S','LBR',0,'C');
 			  $this->Cell(10,5,'Novedad','LBR',0,'C');
@@ -425,7 +442,7 @@ class RPlanillaAportes extends  ReportePDF {
 							  	$array_datos[$cont][21]=$this->datos[$i]['ncotiz'];
 							  }
 							  
-						}else{
+						}else{ //echo '---'.$this->datos[$i]['ncotiz'].'----'.$this->datos[$i]['nvar1']; exit;
 							 $array_datos[$cont][18]=$this->datos[$i]['ncotiz'];
 							 $array_datos[$cont][19]=$this->datos[$i]['nvar1'];
 							 $array_datos[$cont][20]=$this->datos[$i]['nvar2'];
@@ -472,10 +489,12 @@ class RPlanillaAportes extends  ReportePDF {
 		
 		   $var_planre=0; 
 		   $code=$array_datos[0][14]; 
+		   
 			for ($i=0; $i<$cont;$i++){
 				
 				if($this->objParam->getParametro('tipo_reporte')!='aporte_afp' && $this->objParam->getParametro('codigo_planilla')=='PLANRE'){
 					$var_planre=$array_datos[$i][19]+$array_datos[$i][20]+$array_datos[$i][21];
+					//$var_planre=1;
 				}else{
 					$var_planre=1;
 				}
@@ -503,9 +522,14 @@ class RPlanillaAportes extends  ReportePDF {
 						  }
 					  }
 					  //---------
-					//  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
+					  if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4240
 					  	$this->Cell(21,5,$array_datos[$i][9],'',0,'L');
-					  //}
+					  }else{
+					  	if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
+							$this->Cell(21,5,$array_datos[$i][9],'',0,'L');
+						}
+
+					  }
 					  //----
 					if(($this->objParam->getParametro('codigo_planilla')=='PLANRE' && $var_planre>0 ) || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){
 						
