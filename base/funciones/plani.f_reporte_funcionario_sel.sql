@@ -67,7 +67,7 @@ AS $function$
  #ETR-4150				04.06.2021			MZM-KPLIAN			Reporte CPS de planilla de reintegro 
  #ETr-4190				08.06.2021			MZM-KPLIAN			Ajustes en reporte de AFPs para separar por estado (en acumulado) para planilla de reintegros
  #ETR-4224				09.06.2021			MZM-KPLIAN			Ajuste en procedimiento DATPLAEM para que personal con cambio de tipo_contrato siga saliendo en el periodo en el que tenia el otro tpo_contrato
- #ETR-4272				15.06.2021			MZM-KPLIAN			Correccion de reporte DETAGUIN para planilla de sueldos afectada por habilitacion para planilla de Primas PLAPREPRI
+ #ETR-4272				15.06.2021			MZM-KPLIAN			Correccion de reporte DETAGUIN para planilla de sueldos afectada por habilitacion para planilla de Primas PLAPREPRI, en DATAPORTE adicion de condicion para que en caso de planilla RENPLA no salgan los q no reciben reintego
  ***************************************************************************/
 
 DECLARE
@@ -1247,7 +1247,15 @@ BEGIN
                    if(v_parametros.tipo_reporte='fondo_solidario') then	--#137
                         v_consulta:=v_consulta||' having  sum(cv.valor)>13000';
             	   end if;
-
+                --#ETR-4272   
+                if pxp.f_existe_parametro(p_tabla , 'id_tipo_planilla')then
+                  if(v_parametros.id_tipo_planilla>0 and v_parametros.id_tipo_planilla in (select id_tipo_planilla from plani.ttipo_planilla where codigo='PLANRE' )) then
+                      if(v_parametros.tipo_reporte='aporte_afp') then	
+                          v_consulta:=v_consulta||' having  sum(ncotiz)>0';
+                      end if;
+                  end if;
+                end if;
+					
 					v_consulta:=v_consulta|| ' order by  ffun.desc_funcionario2';
 
                         -- raise notice '****************%',v_consulta;
