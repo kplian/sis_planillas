@@ -67,6 +67,7 @@ AS $function$
  #ETR-4150				04.06.2021			MZM-KPLIAN			Reporte CPS de planilla de reintegro 
  #ETr-4190				08.06.2021			MZM-KPLIAN			Ajustes en reporte de AFPs para separar por estado (en acumulado) para planilla de reintegros
  #ETR-4224				09.06.2021			MZM-KPLIAN			Ajuste en procedimiento DATPLAEM para que personal con cambio de tipo_contrato siga saliendo en el periodo en el que tenia el otro tpo_contrato
+ #ETR-4272				15.06.2021			MZM-KPLIAN			Correccion de reporte DETAGUIN para planilla de sueldos afectada por habilitacion para planilla de Primas PLAPREPRI
  ***************************************************************************/
 
 DECLARE
@@ -2960,7 +2961,8 @@ raise notice '***:%',v_consulta;
                         where id_funcionario=v_registros.id_funcionario;
                       end if;
                       
-                      --#ETR-3892
+                      if (v_col='SPREDIAS2' or v_col='PREDIAS2' ) then --#ETR-4272
+                       --#ETR-3892
                       select p.id_periodo into v_id_periodo_min
                       from param.tperiodo p where periodo in (10)
                       and id_gestion=v_parametros.id_gestion;
@@ -2968,8 +2970,7 @@ raise notice '***:%',v_consulta;
                       select p.id_periodo into v_id_periodo
                       from param.tperiodo p where periodo in (12)
                       and id_gestion=v_parametros.id_gestion;
-                      
-                      
+                      end if;
                       	
                       --#155
                       v_cols:='HABBAS';
