@@ -15,6 +15,7 @@
   #141	ETR				18.06.2020			MZM-KPLIAN			Ajuste a titulo de reporte
   *#ETR-4190				08.06.2021			MZM-KPLIAN			Ajuste a titulo para afps en planilla de reintegros 
   *#ETR-4240				10.06.2021			mzm					Adecuacion a reporte fondo solidario formato xls para planilla de reintegros
+ * #ETR-4272			15.06.2021				MZM				Control de totales por habilitacion de reporte para planilla de reintegros mensual, y no afecte a sueldos en aporte_afp y fondo_solidario
  */
 class RPlanillaAportes extends  ReportePDF {
 	var $datos;	
@@ -538,11 +539,13 @@ class RPlanillaAportes extends  ReportePDF {
 					  //-------
 					  $this->Cell(8,5,$array_datos[$i][12],'',0,'R');
 					  //-----
+					  if ($this->objParam->getParametro('tipo_reporte')!='aporte_afp' || $this->objParam->getParametro('codigo_planilla')=='PLASUE'){//#ETR-4272: Para no afectar a los totales de aporte_afp en planilla de reintegros
+					  	  $tot13=$tot13+$array_datos[$i][13];
+						  $tot15=$tot15+$array_datos[$i][15];
+						  $tot16=$tot16+$array_datos[$i][16];
+						  $tot17=$tot17+$array_datos[$i][17];
+					  }
 					  
-					  $tot13=$tot13+$array_datos[$i][13];
-					  $tot15=$tot15+$array_datos[$i][15];
-					  $tot16=$tot16+$array_datos[$i][16];
-					  $tot17=$tot17+$array_datos[$i][17];
 					}
 					  //----
 					  
@@ -633,14 +636,25 @@ class RPlanillaAportes extends  ReportePDF {
 	 	 	$this->SetDrawColor(0,0,0);
 			$this->Cell(0,0,'','B',1);
  			if($this->objParam->getParametro('tipo_reporte')=='aporte_afp'){
- 				$this->Cell(176,5,'TOTALES','',0,'R');
-				$this->Cell(3,5,'','',0,'R');
-				$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
-				$this->Cell(15,5,number_format($tot15,2,'.',','),'',0,'R');//#80
-				$this->Cell(15,5,number_format($tot16,2,'.',','),'',0,'R');//#80
-				$this->Cell(15,5,number_format($tot17,2,'.',','),'',0,'R');//#80
-				$this->Cell(16,5,number_format($tot18,2,'.',','),'',0,'R');//#80
-				$this->Cell(16,5,number_format($tot19,2,'.',','),'',1,'R');//#80
+ 				if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){ 
+	 				$this->Cell(176,5,'TOTALES','',0,'R');
+					$this->Cell(3,5,'','',0,'R');
+					$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot15,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot16,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot17,2,'.',','),'',0,'R');//#80
+					$this->Cell(16,5,number_format($tot18,2,'.',','),'',0,'R');//#80
+					$this->Cell(16,5,number_format($tot19,2,'.',','),'',1,'R');//#80
+				}else{
+					$this->Cell(176,5,'TOTALES','',0,'R');
+					$this->Cell(3,5,'','',0,'R');
+					$this->Cell(15,5,number_format($tot13,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot15,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot16,2,'.',','),'',0,'R');//#80
+					$this->Cell(15,5,number_format($tot17,2,'.',','),'',0,'R');//#80
+					$this->Cell(16,5,number_format($tot18,2,'.',','),'',0,'R');//#80
+					$this->Cell(16,5,number_format($tot19,2,'.',','),'',1,'R');//#80
+				}
 				
 			}else{
 				if($this->objParam->getParametro('codigo_planilla')=='PLASUE'){
