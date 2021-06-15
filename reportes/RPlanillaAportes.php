@@ -436,10 +436,10 @@ class RPlanillaAportes extends  ReportePDF {
 							  	$array_datos[$cont][19]=$this->datos[$i]['ncotiz'];
 							  }
 							  
-							  if($this->datos[$i]['tipo_jubilado']=='jubilado_65'){
+							  if($this->datos[$i]['tipo_jubilado']=='jubilado_55'){
 							  	$array_datos[$cont][20]=$this->datos[$i]['ncotiz'];
 							  }
-							  if($this->datos[$i]['tipo_jubilado']=='jubilado_55'){
+							  if($this->datos[$i]['tipo_jubilado']=='jubilado_65'){
 							  	$array_datos[$cont][21]=$this->datos[$i]['ncotiz'];
 							  }
 							  
