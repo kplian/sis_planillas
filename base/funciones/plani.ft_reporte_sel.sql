@@ -54,6 +54,7 @@ AS $BODY$
    #ETR-2135			14.12.2020			MZM-KPLIAN					Adicion de excepcion para planilla de aguinaldo 2020
    #ETR-3997			24.05.2021			MZM-KPLIAN					Adicion de condicion en REPODET_SEL (planilla de reintegro) que el filtro de activo/retirado contemple la posibilidad de reincorporacion a la fecha del proceso (se añade validacion por funcionario vigente)
    #ETR-4096			27.05.2021			MZM-KPLIAN					Adicion de condicion para reportes multilinea
+   #ETR-4302			17.06.2021			MZM-KPLIAN					Adicion de excepcion en REPODETBOL para adicionar columnas que no existen en la definicion de columnas de planilla
   ***************************************************************************/
 
   DECLARE
@@ -581,7 +582,11 @@ raise notice 'aaa%',v_consulta;
                      , to_char(plani.f_get_fecha_primer_contrato_empleado(
                 	 fp.id_uo_funcionario, fp.id_funcionario, uof.fecha_asignacion)::timestamp without time zone, ''dd/mm/YYYY'' ::text) as fecha_ingreso
                      ,
-                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, cv.valor, rc.espacio_previo, rc.orden
+                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, 
+                     (case when rc.origen=''vista_externa'' then 0.0
+						else cv.valor 
+					  end )as valor,--#ETR-4302
+                      rc.espacio_previo, rc.orden
                  	 
                      from plani.tfuncionario_planilla fp
                     inner join orga.vfuncionario vf on vf.id_funcionario=fp.id_funcionario
@@ -606,7 +611,11 @@ raise notice 'aaa%',v_consulta;
                      , to_char(plani.f_get_fecha_primer_contrato_empleado(
                 	 fp.id_uo_funcionario, fp.id_funcionario, uof.fecha_asignacion)::timestamp without time zone, ''dd/mm/YYYY'' ::text) as fecha_ingreso
                      ,
-                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, sum( cv.valor) as valor, rc.espacio_previo, rc.orden
+                 	 rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna, 
+                     (case when rc.origen=''vista_externa'' then 0.0
+					  else sum( cv.valor)
+					 end )as valor, --#ETR-4302
+                     rc.espacio_previo, rc.orden
                  	 
                      from plani.tfuncionario_planilla fp
                     inner join orga.vfuncionario vf on vf.id_funcionario=fp.id_funcionario
@@ -624,7 +633,8 @@ raise notice 'aaa%',v_consulta;
                   --Definicion de la respuesta
                   v_consulta_abono:=v_consulta_abono||v_parametros.filtro||v_filtro;
                   v_consulta_abono:=v_consulta_abono||' group by vf.id_funcionario, vf.desc_funcionario2,vf.codigo,esc.codigo,c.nombre, fp.id_funcionario,
-          rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna,rc.espacio_previo, rc.orden, ofi.orden,fp.id_uo_funcionario,uof.fecha_asignacion
+          rc.titulo_reporte_superior, rc.titulo_reporte_inferior, rc.codigo_columna,rc.espacio_previo, rc.orden, ofi.orden,fp.id_uo_funcionario,uof.fecha_asignacion,
+          rc.origen
            order by ofi.orden, 
           vf.desc_funcionario2,rc.orden asc';
           create temp table tt_repboleta(
