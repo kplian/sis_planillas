@@ -3087,6 +3087,7 @@ raise notice '***:%',v_consulta;
                                 where id_funcionario=v_registros.id_funcionario;
                                  
                             else -- no tiene mas de 90 dias o no tiene primer contrato. En 2020 caso Wilder Ureña con 60 dias, q recibe prima porq estuvo ausente con "licencia"
+
                                 update tt_detalle_aguin
                                 set meses=v_registros.valor + v_tc
                                 where id_funcionario=v_registros.id_funcionario;
@@ -3100,7 +3101,7 @@ raise notice '***:%',v_consulta;
                                 and id_gestion=v_parametros.id_gestion;
                                 
                             end if;
-                            
+
                             select count(*) into v_meses
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -3118,7 +3119,8 @@ raise notice '***:%',v_consulta;
                       end if;
                       
                       if (v_col in ('SPREDIAS2','DIASAGUI') or v_col2='PREDIAS2') then -- se divide entre 3 
-                       v_consulta_det:='select round((sum(cv.valor)/'||v_meses||'),2) as valor,
+                      
+                       	v_consulta_det:='select round((avg(cv.valor)),2) as valor,
 							 			 cv.codigo_columna
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -3130,6 +3132,18 @@ raise notice '***:%',v_consulta;
 										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
                                         group by cv.codigo_columna
                                         ';
+                                        
+/*v_consulta_det:='select round((sum(cv.valor)/'||v_meses||'),2) as valor,
+							 			 cv.codigo_columna
+                                        from plani.tfuncionario_planilla fp
+                                        inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
+                                        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                        and cv.codigo_columna in ('''||v_cols||''',''BONANT'',''BONFRONTERA'',''EXTRA'',''DISPONIBILIDAD'')
+                                        where fp.id_funcionario ='||v_registros.id_funcionario||'
+										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
+                                        group by cv.codigo_columna';*/
                                         
 					else -- plasue #158
                         v_cols:='SUELDOMES';
@@ -3150,9 +3164,12 @@ raise notice '***:%',v_consulta;
                                     
                                         
                     end if;
+--raise notice 'sss%',v_consulta_det;
+
+                    
 						for v_registros_det in execute (v_consulta_det) loop
 
-                             if (v_col in ('DIASAGUI') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
+                           if (v_col in ('DIASAGUI') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
                             	update tt_detalle_aguin
                             	set haber_basico=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
@@ -3169,7 +3186,7 @@ raise notice '***:%',v_consulta;
                             	set bono_frontera=v_registros_det.valor
                             	where id_funcionario=v_registros.id_funcionario;
                             elsif (v_registros_det.codigo_columna='EXTRA' and (v_col in ('DIASAGUI','SPREDIAS2') or v_col2='PREDIAS2')) then
-                                v_tc:=(select sum(cv.valor)/v_meses as valor
+                                v_tc:=(select avg(cv.valor) as valor
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                         inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3191,7 +3208,7 @@ raise notice '***:%',v_consulta;
                             
                             elsif (v_registros_det.codigo_columna='DISPONIBILIDAD') then
                                   if (v_col='DIASAGUI') then
-                                		  v_tc:=(select sum(cv.valor)/3 as valor
+                                		  v_tc:=(select avg(cv.valor) as valor
                                           from plani.tfuncionario_planilla fp
                                           inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                           inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3207,7 +3224,7 @@ raise notice '***:%',v_consulta;
                                           where id_funcionario=v_registros.id_funcionario;
                                   elsif (v_col='SPREDIAS2' or v_col2='PREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
                                   
-                                          v_tc:=(select sum(cv.valor)/v_meses as valor
+                                          v_tc:=(select avg(cv.valor) as valor
                                           from plani.tfuncionario_planilla fp
                                           inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                           inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3260,6 +3277,7 @@ raise notice '***:%',v_consulta;
                                           
                                           
                                   else -- para sueldos HORDIA --#158
+
                                           v_tc:=(select sum(cv.valor) as valor
                                           from plani.tfuncionario_planilla fp
                                           inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -3782,7 +3800,7 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
                           inner join param.tperiodo per on per.id_periodo=plani.id_periodo
                           where '||v_parametros.filtro||v_filtro||' 
 
-                          and cv.codigo_columna in (''PRMBONOANTG'',''PRMAFP_LAB'',''PRMAFP_PAT'',''PRMIMPRCIVA'',''PRMTOT_DESC'',''PRMLIQPAG'')
+                          and cv.codigo_columna in (''PRMBONOANTG'',''PRMAFP_LAB'',''PRMAFP_APNALSOL'',''PRMAFP_APSOL'',''PRMIMPRCIVA'',''PRMTOT_DESC'',''PRMLIQPAG'')
                     	  and fp.id_funcionario='||v_registros.id_funcionario||'
                           order by fp.id_funcionario,cv.codigo_columna, per.periodo';
 
@@ -3810,10 +3828,29 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
                      else
                         if (v_registros_det.codigo_columna='PRMAFP_LAB') then
                            v_afp_rcom:=coalesce(v_registros_det.valor,0);  --AFP_LAB
-                        elsif (v_registros_det.codigo_columna='PRMAFP_PAT') then
-                        	v_afp_cadm:= coalesce(v_registros_det.valor,0); --AFP_PAT
+                           update tt_reicps set afp=(afp+ coalesce(v_afp_rcom,0))
+                           where id_funcionario=v_registros.id_funcionario;  
+                           
+                        elsif (v_registros_det.codigo_columna='PRMAFP_APNALSOL') then
+                        
+                            update tt_reicps set afp=(afp+ coalesce(v_registros_det.valor,0))
+                          	where id_funcionario=v_registros.id_funcionario; 
+                        elsif (v_registros_det.codigo_columna='PRMAFP_APSOL') then
+                        
+                            update tt_reicps set afp=(afp+ coalesce(v_registros_det.valor,0))
+                          	where id_funcionario=v_registros.id_funcionario;     
+                             
                         elsif (v_registros_det.codigo_columna='PRMIMPRCIVA') then
+                        if (pxp.f_existe_parametro(p_tabla, 'estado_funcionario')) then
+                			if(v_parametros.estado_funcionario='activo') then
+                        		v_afp_apnal:=0;
+                        	else
+                        		v_afp_apnal:= coalesce(v_registros_det.valor,0); --iva
+                            end if;
+                        else
                         	v_afp_apnal:= coalesce(v_registros_det.valor,0); --iva
+                        end if;
+                            
                         elsif (v_registros_det.codigo_columna='PRMTOT_DESC') then
                         	v_totdesc:=coalesce(v_registros_det.valor,0);
                         elsif (v_registros_det.codigo_columna='PRMLIQPAG') then
@@ -3823,9 +3860,9 @@ elsif (p_transaccion='PLA_HORTRATOT_SEL') THEN --#ETR-1712
                      end if;                  
                      
                      --if (v_registros_det.periodo=4) then
-                        if (v_registros_det.codigo_columna='PRMAFP_LAB') then
-                          	update tt_reicps set afp=(afp+ (coalesce(v_afp_rcom,0)+ coalesce(v_afp_cadm,0)))
-                          	where id_funcionario=v_registros.id_funcionario;  
+                        if (v_registros_det.codigo_columna='PRMAFP_PAT') then
+                          --	update tt_reicps set afp=(afp+ (coalesce(v_afp_rcom,0)+ coalesce(v_afp_cadm,0)))
+                         -- 	where id_funcionario=v_registros.id_funcionario;  
                       
                         elsif (v_registros_det.codigo_columna='PRMIMPRCIVA') then
                         	update tt_reicps set rc_iva=rc_iva+ coalesce(v_afp_apnal,0)
