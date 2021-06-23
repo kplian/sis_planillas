@@ -846,7 +846,7 @@ class RDetalleAguinaldo
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(14,$fila, $value['extra_noct'] );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(15,$fila, 0 );
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(16,$fila, $value['otros'] );
-					$tot=($value['otros'] + $value['haber_basico']+$value['bono_ant']+$value['extra_noct']);
+					$tot=($value['otros'] + $value['haber_basico']+$value['bono_ant']+$value['extra_noct']+$value['bono_frontera']+$value['bono_prod']);//23.06 Se añade frontera y prod a la suma 
 					$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(17,$fila, $tot);
 					//$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(18,$fila, $value['meses'] );
 					$tot_duo=round(($tot*$value['meses']/360),2);
