@@ -457,10 +457,13 @@ else{*/
 							
 						elseif ($value['codigo_columna']=='PREPROME1'){
 							
-							if (($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo')){
+							if (($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo') ){
+								
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
 							}else{
-							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);	//#ETR-3309
+								
+								
+							   // $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);	//#ETR-3309
 							}
 							if($value['ctto1']!='#@@@#')
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(6, $fila ,$value['valor']);
@@ -477,8 +480,11 @@ else{*/
 							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo'))
 							{
 								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(12, $fila ,$value['valor']);
-							}else 
-								$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
+							}else {
+								
+									$this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
+							}
+							
 						}elseif ($value['codigo_columna']=='PRIMA'){
 							if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo') )
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(13, $fila ,$value['valor']);
@@ -497,6 +503,7 @@ else{*/
 						}elseif (($value['codigo_columna']=='PREPRICOT23' || $value['codigo_columna']=='SPREPRICOT3') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo')  )){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(9, $fila ,$value['valor']);
 						}elseif (($value['codigo_columna']=='PREPRICOT22' || $value['codigo_columna']=='SPREPRICOT2') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo') )){
+							
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(10, $fila ,$value['valor']);
 						}elseif (($value['codigo_columna']=='PREPRICOT21' || $value['codigo_columna']=='SPREPRICOT1') && ($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='SPLAPRIVIG' || ($this->objParam->getParametro('codigo_planilla')=='SPLAPREPRI' && $this->objParam->getParametro('personal_activo')=='activo') )){
 							    $this->docexcel->getActiveSheet()->setCellValueByColumnAndRow(11, $fila ,$value['valor']);
@@ -505,6 +512,7 @@ else{*/
 					}
 				$id_distrito=$value['desc_oficina'];	 
 				$id_fun=$value['id_funcionario'];
+				
 				}
 					
 			}else{// bono de produccion
