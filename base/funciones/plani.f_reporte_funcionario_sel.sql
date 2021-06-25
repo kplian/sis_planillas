@@ -68,6 +68,7 @@ AS $function$
  #ETr-4190				08.06.2021			MZM-KPLIAN			Ajustes en reporte de AFPs para separar por estado (en acumulado) para planilla de reintegros
  #ETR-4224				09.06.2021			MZM-KPLIAN			Ajuste en procedimiento DATPLAEM para que personal con cambio de tipo_contrato siga saliendo en el periodo en el que tenia el otro tpo_contrato
  #ETR-4272				15.06.2021			MZM-KPLIAN			Correccion de reporte DETAGUIN para planilla de sueldos afectada por habilitacion para planilla de Primas PLAPREPRI, en DATAPORTE adicion de condicion para que en caso de planilla RENPLA no salgan los q no reciben reintego
+ *#ETr-4369	       	    25.06.2021			MZM-KPLIAN   		Reporte para ministerio de trabajo planilla de reintegros
  ***************************************************************************/
 
 DECLARE
@@ -162,6 +163,7 @@ DECLARE
    v_i 	integer;
    v_fecha_actual	date;
    v_meses	integer;
+   v_regdet record; 
 BEGIN
 
     v_nombre_funcion = 'plani.f_reporte_funcionario_sel';
@@ -2864,11 +2866,51 @@ raise notice '***:%',v_consulta;
                   end if;
                 end if;
 
-				
-
-
-                select gestion into v_antiguedad
+ 				select gestion into v_antiguedad
                 from param.tgestion where id_gestion= v_parametros.id_gestion;
+                
+                
+                --25.06
+                v_cons:='select distinct min(plani.id_periodo) as id_periodo, plani.fecha_planilla from plani.tplanilla plani
+                  		inner join plani.treporte repo on repo.id_tipo_planilla=plani.id_tipo_planilla
+                  		inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla
+                  		where  tp.codigo in (''PLANRE'') and '|| v_parametros.filtro;
+                    v_filtro:='';    
+                    if pxp.f_existe_parametro(p_tabla , 'consolidar')then
+                       if (v_parametros.consolidar='si') then
+                          v_filtro:=v_filtro ||' and plani.id_periodo <= '||v_parametros.id_periodo_reintegro || '
+                          and plani.id_gestion='||v_parametros.id_gestion; 
+                       end if;
+                    end if;
+                    v_cons:=v_cons|| v_filtro;
+                    
+                    v_cons:=v_cons
+                    || '
+                        group by plani.fecha_planilla
+                        ';
+                   
+                  for v_registros in execute (v_cons) loop
+                      v_col:='PRMSUELDOBA'; v_col2:='PRMSUELDOBA';
+                      v_id_periodo_min:=v_registros.id_periodo;
+                      v_id_periodo:=v_parametros.id_periodo_reintegro;
+                      select fecha_fin, fecha_ini into v_fecha_fin , v_fecha_ini
+                      from param.tperiodo where v_registros.fecha_planilla between fecha_ini and fecha_fin;
+  					  v_condicion:=v_condicion || ' and plani.id_periodo='||v_parametros.id_periodo_reintegro;
+                      
+                      if pxp.f_existe_parametro(p_tabla , 'id_tipo_contrato')then
+                        if(v_parametros.id_tipo_contrato>0) then
+                          v_condicion = v_condicion || ' and tcon.id_tipo_contrato = '||v_parametros.id_tipo_contrato;
+                        end if;
+               		  end if;
+                       if pxp.f_existe_parametro(p_tabla , 'estado_funcionario')then
+                          if(v_parametros.estado_funcionario='activo') then
+                              v_condicion := v_condicion||' and plani.f_es_funcionario_vigente(fp.id_funcionario, plani.fecha_planilla) is true';
+                          elsif (v_parametros.estado_funcionario='retirado') then
+                              v_filtro := v_filtro||' and plani.f_es_funcionario_vigente(fp.id_funcionario, plani.fecha_planilla) is false';
+                          end if;
+                       end if;
+                      
+                  end loop;       
 
          v_cons:='select fun.id_funcionario,fp.id_funcionario_planilla,  (case when per.tipo_documento = ''documento_identidad'' then ''CI''
                       else ''PASAPORTE''
@@ -2908,7 +2950,7 @@ raise notice '***:%',v_consulta;
                   ''2'' as caja_salud,  (case when afp.codigo = ''PREV'' then ''1'' else ''2'' end) as nombre_afp, funafp.nro_afp, ofi.nombre as sucursal,'''' as clasificacion_laboral,car.nombre as cargo,
                    pxp.f_iif(tcon.codigo=''PLA'' ,''1'',''4'') as tipo_contrato,
                    plani.id_periodo, cv.valor
-                  
+                  ,fp.id_uo_funcionario
                   from segu.tpersona per
                   inner join orga.tfuncionario fun on fun.id_persona=per.id_persona
                   inner join '||v_esquema||'.tfuncionario_planilla fp on fp.id_funcionario=fun.id_funcionario
@@ -2962,7 +3004,7 @@ raise notice '***:%',v_consulta;
                       );
 					
                   	  --#158 -- para setear el valor de horas dia
-                      if (v_col='HORDIA') then
+                      if (v_col='HORDIA' OR v_col='PRMSUELDOBA') then
                       	update  tt_detalle_aguin
                         set horas_pagadas=v_registros.valor,
                         tipo_contrato='1'
@@ -2970,14 +3012,14 @@ raise notice '***:%',v_consulta;
                       end if;
                       
                       if (v_col='SPREDIAS2' or v_col='PREDIAS2' ) then --#ETR-4272
-                       --#ETR-3892
-                      select p.id_periodo into v_id_periodo_min
-                      from param.tperiodo p where periodo in (10)
-                      and id_gestion=v_parametros.id_gestion;
+                         --#ETR-3892
+                        select p.id_periodo into v_id_periodo_min
+                        from param.tperiodo p where periodo in (10)
+                        and id_gestion=v_parametros.id_gestion;
 
-                      select p.id_periodo into v_id_periodo
-                      from param.tperiodo p where periodo in (12)
-                      and id_gestion=v_parametros.id_gestion;
+                        select p.id_periodo into v_id_periodo
+                        from param.tperiodo p where periodo in (12)
+                        and id_gestion=v_parametros.id_gestion;
                       end if;
                       	
                       --#155
@@ -3133,18 +3175,77 @@ raise notice '***:%',v_consulta;
                                         group by cv.codigo_columna
                                         ';
                                         
-/*v_consulta_det:='select round((sum(cv.valor)/'||v_meses||'),2) as valor,
+					elseif (v_col='PRMSUELDOBA') then -- planilla de reintegro		
+                      v_cols:='PRMCOTIZABLE';	
+                         --obtener el haber basico
+                           update tt_detalle_aguin
+                           set haber_basico=(orga.f_get_haber_basico_a_fecha(( select es.id_escala_salarial
+                                                      from orga.tuo_funcionario uofun
+                                                        inner join orga.tcargo car on uofun.id_cargo = car.id_cargo
+                                                        inner join orga.tescala_salarial es on es.id_escala_salarial = car.id_escala_salarial
+                                                      where uofun.id_uo_funcionario = v_registros.id_uo_funcionario),v_fecha_ini))
+                           where id_funcionario=v_registros.id_funcionario;  
+     
+                         --el salario min nacional con incremento
+                           update tt_detalle_aguin
+                           set bono_ant=(select plani.f_get_valor_parametro_valor('SALMIN', v_fecha_fin)),
+                           otros_desc=0
+                           where id_funcionario=v_registros.id_funcionario; 
+                           
+                           
+                        for v_regdet in ( select round(((cv.valor)),2) as valor,
+							 			 per.periodo
+                                        from plani.tfuncionario_planilla fp
+                                        inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLANRE'
+                                        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                        inner join param.tperiodo per on per.id_periodo=plani.id_periodo
+                                        and cv.codigo_columna in ('PRMCOTIZABLE')
+                                        where fp.id_funcionario =v_registros.id_funcionario
+										and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                        order by per.periodo) loop
+                                        /* horas_extra numeric,
+                					monto_extra	numeric,
+                                    horas_noct numeric,
+                                    monto_noct numeric,*/
+                                        if v_regdet.periodo=1 then 
+                                           update tt_detalle_aguin
+                                           set horas_extra=v_regdet.valor
+                                           where id_funcionario=v_registros.id_funcionario;
+                                        elsif v_regdet.periodo=2 then
+                                           update tt_detalle_aguin
+                                           set monto_extra=v_regdet.valor
+                                           where id_funcionario=v_registros.id_funcionario;
+                                        elsif v_regdet.periodo=3 then 
+                                           update tt_detalle_aguin
+                                           set horas_noct=v_regdet.valor
+                                           where id_funcionario=v_registros.id_funcionario;
+                                        else
+                                           update tt_detalle_aguin
+                                           set monto_noct=v_regdet.valor
+                                           where id_funcionario=v_registros.id_funcionario;
+                                        end if;
+                                        
+                                        
+                                        
+                        end loop;
+                      
+                      
+                     
+                      	
+                      v_consulta_det:='select round((sum(cv.valor)),2) as valor,
 							 			 cv.codigo_columna
                                         from plani.tfuncionario_planilla fp
                                         inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                         inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLASUE''
+                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo=''PLANRE''
                                         inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                                        and cv.codigo_columna in ('''||v_cols||''',''BONANT'',''BONFRONTERA'',''EXTRA'',''DISPONIBILIDAD'')
+                                        and cv.codigo_columna in (''PRMAFP_LAB'',''PRMAFP_APSOL'',''PRMAFP_APNALSOL'',''PRMBONOANTG'',''PRMIMPRCIVA'')
                                         where fp.id_funcionario ='||v_registros.id_funcionario||'
 										and plani.id_periodo between '||v_id_periodo_min||' and '||v_id_periodo||'
-                                        group by cv.codigo_columna';*/
-                                        
+                                        group by cv.codigo_columna
+                                        ';             
 					else -- plasue #158
                         v_cols:='SUELDOMES';
                     	v_consulta_det:='select round((sum(cv.valor)),2) as valor,
@@ -3169,179 +3270,224 @@ raise notice '***:%',v_consulta;
                     
 						for v_registros_det in execute (v_consulta_det) loop
 
-                           if (v_col in ('DIASAGUI') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
-                            	update tt_detalle_aguin
-                            	set haber_basico=v_registros_det.valor
-                            	where id_funcionario=v_registros.id_funcionario;
-                            elsif ((v_col in ('SPREDIAS2','HORDIA') or (v_col2='PREDIAS2')) and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
-                            	update tt_detalle_aguin
-                            	set haber_basico=v_registros_det.valor
-                            	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_registros_det.codigo_columna='BONANT' and v_registros_det.valor> 0) then
-                                update tt_detalle_aguin
-                            	set bono_ant=v_registros_det.valor
-                            	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_registros_det.codigo_columna='BONFRONTERA' and v_registros_det.valor> 0) then
-                                update tt_detalle_aguin
-                            	set bono_frontera=v_registros_det.valor
-                            	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_registros_det.codigo_columna='EXTRA' and (v_col in ('DIASAGUI','SPREDIAS2') or v_col2='PREDIAS2')) then
-                                v_tc:=(select avg(cv.valor) as valor
-                                        from plani.tfuncionario_planilla fp
-                                        inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
-                                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                        inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
-                                        inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                                        and cv.codigo_columna in ('NOCTURNO')
-                                        where fp.id_funcionario =v_registros.id_funcionario
-										and plani.id_periodo between v_id_periodo_min and v_id_periodo
-                                        );
-                                update tt_detalle_aguin
-                            	set extra_noct=round((v_registros_det.valor+coalesce(v_tc,0)),2)
-                            	where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_registros_det.codigo_columna='EXTRA' and v_col in ('HORDIA')) then --#158
-                            	update tt_detalle_aguin
-                                set monto_extra=v_registros_det.valor
-                                where id_funcionario=v_registros.id_funcionario;
-                            
-                            
-                            
-                            elsif (v_registros_det.codigo_columna='DISPONIBILIDAD') then
-                                  if (v_col='DIASAGUI') then
-                                		  v_tc:=(select avg(cv.valor) as valor
-                                          from plani.tfuncionario_planilla fp
-                                          inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
-                                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                          inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
-                                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-                                          and cv.codigo_columna in ('ASIGTRA','ASIGCAJA')
-                                          where fp.id_funcionario =v_registros.id_funcionario
-                                          and plani.id_periodo between v_id_periodo_min and v_id_periodo
-                                          );
 
+							if (v_col='PRMSUELDOBA') then -- palnilla de reintegros
+                            		/*
+                                    
+                                    rc_iva	numeric,
+                                    cps	numeric, -- bonoantg
+                                    afp numeric,
+                                    otros_desc	numeric
+                                    */	
+                                    --
+                                    
+                                    --haber basico
+                                    --minimo nacional con incremento
+                                    -- el cotizable por mes
+                                    if (v_registros_det.codigo_columna='PRMAFP_LAB' or v_registros_det.codigo_columna='PRMAFP_APSOL' or v_registros_det.codigo_columna='PRMAFP_APNALSOL'  ) then
+                                      update tt_detalle_aguin
+                                      set afp=coalesce(afp,0)+v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                            		end if;
+                                   if (v_registros_det.codigo_columna='PRMBONOANTG' ) then
+                                      update tt_detalle_aguin
+                                      set cps=coalesce(cps,0)+v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                            		end if;
+                                    
+                                    if (v_registros_det.codigo_columna='PRMIMPRCIVA' ) then
+                                    if pxp.f_existe_parametro(p_tabla , 'estado_funcionario')then
+                          				if(v_parametros.estado_funcionario='activo') then
                                           update tt_detalle_aguin
-                                          set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
-                                          where id_funcionario=v_registros.id_funcionario;
-                                  elsif (v_col='SPREDIAS2' or v_col2='PREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
+                                     	  set rc_iva=0 where id_funcionario=v_registros.id_funcionario;
+                                      	 
+                                        else
+                                          update tt_detalle_aguin
+                                     	  set rc_iva=coalesce(rc_iva,0)+v_registros_det.valor
+                                      	  where id_funcionario=v_registros.id_funcionario;
+                                        end if;
+                                     end if;
+                                     end if;
                                   
-                                          v_tc:=(select avg(cv.valor) as valor
-                                          from plani.tfuncionario_planilla fp
-                                          inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
-                                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                          inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
-                                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-
-                                          and cv.codigo_columna in ('ASIGNACIONES','INCAP_TEMPORAL','REINTEGRO1')
-                                          where fp.id_funcionario =v_registros.id_funcionario
-                                          and plani.id_periodo between v_id_periodo_min and v_id_periodo
-                                          );
-
-                                          update tt_detalle_aguin
-                                          set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
-                                          where id_funcionario=v_registros.id_funcionario;
-                                          
-                                          if (v_col2='PREDIAS2') then --#ETR-3892: Si la prima entregada es mayor al promedio que se reporta, llevamos la diferencia a "otros", segun lo indicado por Adriana Bautista que consulto con el Ministerio de Trabajo (18.05.2021)
-                                              if ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
-                                               > round(((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
-                                                  on fp.id_funcionario_planilla=cv.id_funcionario_planilla
-                                                  inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                                  inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
-                                                  and plani.id_periodo  between v_id_periodo_min and v_id_periodo
-                                                   and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
-                                                  )/360*(select meses from tt_detalle_aguin  where id_funcionario=v_registros.id_funcionario)),2)
-                                                
-                                                  
-                                                  ) then
-                                                  
-                                                    update tt_detalle_aguin
-                                                    set otros=otros + round(
-                                                    ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
-                                               		- ((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
-                                                    on fp.id_funcionario_planilla=cv.id_funcionario_planilla
-                                                    inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                                    inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
-                                                    and plani.id_periodo  between v_id_periodo_min and v_id_periodo
-                                                     and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
-                                                    )/360*meses)) / meses*360
-                                                
-                                                    
-                                                    ,2)
-                                                    where id_funcionario=v_registros.id_funcionario;
-                                                  
-                                                  
-                                              end if;
-                                          
-                                          end if;
-                                         
-                                          
-                                          
-                                          
-                                  else -- para sueldos HORDIA --#158
-
-                                          v_tc:=(select sum(cv.valor) as valor
-                                          from plani.tfuncionario_planilla fp
-                                          inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
-                                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                          inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
-                                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-
-                                          and cv.codigo_columna in ('ASIGNACIONES','INCAP_TEMPORAL','REINTEGRO1')
-                                          where fp.id_funcionario =v_registros.id_funcionario
-                                          and plani.id_periodo between v_id_periodo_min and v_id_periodo
-                                          );
-
-                                          update tt_detalle_aguin
-                                          set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
-                                          where id_funcionario=v_registros.id_funcionario;
-                                          
-                                  end if;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HORNORM') then
-                             	update tt_detalle_aguin
-                                set dias_pagados=round((v_registros_det.valor)/(v_registros.valor),2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HOREXT') then
-                            	update tt_detalle_aguin
-                                set horas_extra=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HORNOC') then
-                            	update tt_detalle_aguin
-                                set horas_noct=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='NOCTURNO') then
-                            	update tt_detalle_aguin
-                                set monto_noct=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='IMPURET') then
-                            	update tt_detalle_aguin
-                                set rc_iva=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='CAJSAL') then
-                            	update tt_detalle_aguin
-                                set cps=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='AFP_LAB') then
-                            	update tt_detalle_aguin
-                                set afp=round(v_registros_det.valor,2)
-                                where id_funcionario=v_registros.id_funcionario;
-                            elsif (v_col='HORDIA' and v_registros_det.codigo_columna='OTRO_DESC') then
+                                     
                             
-                            	v_tc:=(select sum(cv.valor) as valor
-                                          from plani.tfuncionario_planilla fp
-                                          inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
-                                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
-                                          inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
-                                          inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
-										  and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES','ASIB',
-                                          'RETJUD','PRESPER','LICENCIA','DESCANTC'
-                                          )
-                                          where fp.id_funcionario =v_registros.id_funcionario
-                                          and plani.id_periodo between v_id_periodo_min and v_id_periodo
-                                          );
-				
-                                          update tt_detalle_aguin
-                                          set otros_desc=round((v_registros_det.valor+coalesce(v_tc,0)),2)
-                                          where id_funcionario=v_registros.id_funcionario;
-                            end if;
+                            else
+                            
+
+                                 if (v_col in ('DIASAGUI') and v_registros_det.codigo_columna='HABBAS' and v_registros_det.valor> 0 ) then
+                                      update tt_detalle_aguin
+                                      set haber_basico=v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                                 elsif ((v_col in ('SPREDIAS2','HORDIA') or (v_col2='PREDIAS2')) and v_registros_det.codigo_columna='SUELDOMES' and v_registros_det.valor> 0 ) then
+                                      update tt_detalle_aguin
+                                      set haber_basico=v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                                 elsif (v_registros_det.codigo_columna='BONANT' and v_registros_det.valor> 0) then
+                                      update tt_detalle_aguin
+                                      set bono_ant=v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                                 elsif (v_registros_det.codigo_columna='BONFRONTERA' and v_registros_det.valor> 0) then
+                                      update tt_detalle_aguin
+                                      set bono_frontera=v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                                 elsif (v_registros_det.codigo_columna='EXTRA' and (v_col in ('DIASAGUI','SPREDIAS2') or v_col2='PREDIAS2')) then
+                                      v_tc:=(select avg(cv.valor) as valor
+                                              from plani.tfuncionario_planilla fp
+                                              inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                              inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                              inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                              inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                              and cv.codigo_columna in ('NOCTURNO')
+                                              where fp.id_funcionario =v_registros.id_funcionario
+                                              and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                              );
+                                      update tt_detalle_aguin
+                                      set extra_noct=round((v_registros_det.valor+coalesce(v_tc,0)),2)
+                                      where id_funcionario=v_registros.id_funcionario;
+                                  elsif (v_registros_det.codigo_columna='EXTRA' and v_col in ('HORDIA')) then --#158
+                                      update tt_detalle_aguin
+                                      set monto_extra=v_registros_det.valor
+                                      where id_funcionario=v_registros.id_funcionario;
+                                  
+                                  
+                            
+                                  elsif (v_registros_det.codigo_columna='DISPONIBILIDAD') then
+                                        if (v_col='DIASAGUI') then
+                                                v_tc:=(select avg(cv.valor) as valor
+                                                from plani.tfuncionario_planilla fp
+                                                inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                                and cv.codigo_columna in ('ASIGTRA','ASIGCAJA')
+                                                where fp.id_funcionario =v_registros.id_funcionario
+                                                and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                                );
+
+                                                update tt_detalle_aguin
+                                                set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
+                                                where id_funcionario=v_registros.id_funcionario;
+                                          elsif (v_col='SPREDIAS2' or v_col2='PREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
+                                        
+                                                v_tc:=(select avg(cv.valor) as valor
+                                                from plani.tfuncionario_planilla fp
+                                                inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+
+                                                and cv.codigo_columna in ('ASIGNACIONES','INCAP_TEMPORAL','REINTEGRO1')
+                                                where fp.id_funcionario =v_registros.id_funcionario
+                                                and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                                );
+
+                                                update tt_detalle_aguin
+                                                set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
+                                                where id_funcionario=v_registros.id_funcionario;
+                                                
+                                                if (v_col2='PREDIAS2') then --#ETR-3892: Si la prima entregada es mayor al promedio que se reporta, llevamos la diferencia a "otros", segun lo indicado por Adriana Bautista que consulto con el Ministerio de Trabajo (18.05.2021)
+                                                    if ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
+                                                     > round(((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
+                                                        on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                                                        inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                        inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
+                                                        and plani.id_periodo  between v_id_periodo_min and v_id_periodo
+                                                         and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
+                                                        )/360*(select meses from tt_detalle_aguin  where id_funcionario=v_registros.id_funcionario)),2)
+                                                      
+                                                        
+                                                        ) then
+                                                        
+                                                          update tt_detalle_aguin
+                                                          set otros=otros + round(
+                                                          ((select valor from plani.tcolumna_valor where id_funcionario_planilla=v_registros.id_funcionario_planilla and codigo_columna='PRIMA')
+                                                          - ((select avg(cv.valor) from plani.tcolumna_valor cv inner join plani.tfuncionario_planilla fp
+                                                          on fp.id_funcionario_planilla=cv.id_funcionario_planilla
+                                                          inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                          inner join plani.ttipo_planilla tp on tp.id_tipo_planilla=plani.id_tipo_planilla and tp.codigo='PLASUE'
+                                                          and plani.id_periodo  between v_id_periodo_min and v_id_periodo
+                                                           and cv.codigo_columna='COTIZABLE' and fp.id_funcionario=v_registros.id_funcionario
+                                                          )/360*meses)) / meses*360
+                                                      
+                                                          
+                                                          ,2)
+                                                          where id_funcionario=v_registros.id_funcionario;
+                                                        
+                                                        
+                                                    end if;
+                                                
+                                                end if;
+                                               
+                                                
+                                                
+                                                
+                                          else -- para sueldos HORDIA --#158
+
+                                                v_tc:=(select sum(cv.valor) as valor
+                                                from plani.tfuncionario_planilla fp
+                                                inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                                inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                                inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                                inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+
+                                                and cv.codigo_columna in ('ASIGNACIONES','INCAP_TEMPORAL','REINTEGRO1')
+                                                where fp.id_funcionario =v_registros.id_funcionario
+                                                and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                                );
+
+                                                update tt_detalle_aguin
+                                                set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
+                                                where id_funcionario=v_registros.id_funcionario;
+                                                
+                                          end if;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HORNORM') then
+                                    update tt_detalle_aguin
+                                    set dias_pagados=round((v_registros_det.valor)/(v_registros.valor),2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HOREXT') then
+                                    update tt_detalle_aguin
+                                    set horas_extra=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='HORNOC') then
+                                    update tt_detalle_aguin
+                                    set horas_noct=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='NOCTURNO') then
+                                    update tt_detalle_aguin
+                                    set monto_noct=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='IMPURET') then
+                                    update tt_detalle_aguin
+                                    set rc_iva=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='CAJSAL') then
+                                    update tt_detalle_aguin
+                                    set cps=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='AFP_LAB') then
+                                    update tt_detalle_aguin
+                                    set afp=round(v_registros_det.valor,2)
+                                    where id_funcionario=v_registros.id_funcionario;
+                                elsif (v_col='HORDIA' and v_registros_det.codigo_columna='OTRO_DESC') then
+                                
+                                    v_tc:=(select sum(cv.valor) as valor
+                                              from plani.tfuncionario_planilla fp
+                                              inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
+                                              inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
+                                              inner join plani.ttipo_planilla tippla on tippla.id_tipo_planilla=plani.id_tipo_planilla and tippla.codigo='PLASUE'
+                                              inner join plani.tcolumna_valor cv on cv.id_funcionario_planilla=fp.id_funcionario_planilla
+                                              and cv.codigo_columna in ('APSIND', 'CACSELFIJO','CACSELVAR','CACSELPRES','ASIB',
+                                              'RETJUD','PRESPER','LICENCIA','DESCANTC'
+                                              )
+                                              where fp.id_funcionario =v_registros.id_funcionario
+                                              and plani.id_periodo between v_id_periodo_min and v_id_periodo
+                                              );
+    				
+                                              update tt_detalle_aguin
+                                              set otros_desc=round((v_registros_det.valor+coalesce(v_tc,0)),2)
+                                              where id_funcionario=v_registros.id_funcionario;
+                            	end if;
+                           end if;
                         end loop;
 
                   end loop;
