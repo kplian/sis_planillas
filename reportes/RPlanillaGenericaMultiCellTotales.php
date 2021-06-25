@@ -8,7 +8,8 @@
 //#97	ETR		MZM			27.02.2020				Ajuste a nombre de variable para subtitulo de planillas por mes (planilla de sueldos)
 //#98	ETR		MZM			26.03.2020				Adecuacion para generacion de reporte consolidado (caso planilla reintegros)
 //#148	ETR		MZM-KPLIAN	06.07.2020				Omision de tipo_contrato "Planta" en titulo de reporte
-//#ETR-1361		MZM-KPLIAN	14.10.2020				Adicion de regional en reporte multilinea por distrito 
+//#ETR-1361		MZM-KPLIAN	14.10.2020				Adicion de regional en reporte multilinea por distrito
+//#ETR-4355		MZM-KPLIAN	25.06.2021				Adicion de condicion para planillas consolidadas (tipo reintegros mensual) 
 class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 	var $datos_titulo;
 	var $datos_detalle;
@@ -61,7 +62,7 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 			$nro_pla='No ' .$this->datos_titulo['nro_planilla'];
 	    }else{
 	    	if( $this->objParam->getParametro('personal_activo')!='todos'){//#98
-		 		$tipo_con='('.$this->objParam->getParametro('personal_activo').')';
+		 		$tipo_con=' (Personal '.$this->objParam->getParametro('personal_activo').')';
 			 }
 	    }
 		$this->Ln(1);
@@ -91,7 +92,12 @@ class RPlanillaGenericaMultiCellTotales extends  ReportePDF {
 		$this->Cell(0,5,str_replace ( 'Multilinea' ,'', $this->datos_titulo['titulo_reporte']).$tipo_con,0,1,'C');
 		$this->SetFont('','B',10);
 		if($this->datos_titulo['periodo']>0){//#97
-			$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		   if ($this->objParam->getParametro('consolidar')=='si'){//#ETR-4355
+		   	$this->Cell(0,5,'Acumulado de ENERO a '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		   }else{
+		   	$this->Cell(0,5,'Correspondiente al mes de '.$this->datos_titulo['periodo_lite'],0,1,'C');
+		   }
+			
 		}else{
 			$this->Cell(0,5,'GESTION '.$this->datos_titulo['gestion'],0,1,'C');
 		}
