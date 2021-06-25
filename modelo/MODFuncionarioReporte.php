@@ -34,7 +34,8 @@
  *#ETR-2804				07.02.2021			MZM-KPLIAN			Adicion de campo tipo en reporte de personal incorporado
  *#ETR-3119				02.03.2021			MZM-KPLIAN			SPLAPREPRI, adicion de campo para incluir trabajadores con 90 dias en la gestion pero con mas de 90 en la empresa
  *#ETR-3862				05.05.2021			MZM-KPLIAN			Adicion de campo periodo/gestion para reporte Frecuencia de cargos
- *#ETR-4150				09.06.2021			MZM-KPLIAN			Adicion de reporte CPS para planilla de reintegros  
+ *#ETR-4150				09.06.2021			MZM-KPLIAN			Adicion de reporte CPS para planilla de reintegros
+ *#ETr-4369	       	    25.06.2021			MZM-KPLIAN   		Reporte para ministerio de trabajo planilla de reintegros  
  */
 class MODFuncionarioReporte extends MODbase{
 	
@@ -674,6 +675,9 @@ class MODFuncionarioReporte extends MODbase{
 		$this->setParametro('id_tipo_contrato','id_tipo_contrato','integer');
 		$this->setParametro('id_gestion','id_gestion','integer');
 		$this->setParametro('esquema','esquema','varchar');//#83
+		$this->setParametro('consolidar','consolidar','varchar');//#ETr-4369
+		$this->setParametro('id_periodo_reintegro','id_periodo_reintegro','integer');////#ETr-4369
+		$this->setParametro('estado_funcionario','estado_funcionario','varchar');////#ETr-4369
 		//Datos del empleado
 		
 		$this->captura('id_funcionario','integer');
@@ -724,7 +728,7 @@ class MODFuncionarioReporte extends MODbase{
 		
 		 $this->armarConsulta(); 		   
         //Ejecuta la instruccion
-        //echo $this->getConsulta(); exit;
+      //  echo $this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		
