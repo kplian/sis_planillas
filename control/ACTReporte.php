@@ -36,6 +36,7 @@
  * #ETR-3862	  MZM-KPLIAN	 05.05.2021					adicion de periodo gestion en reporte Frecuencia de Cargos
  * #ETR-4150	  MZM-KPLIAN	 04.06.2021					Adicion de reporte declaracion cps por planilla de reintegro
  * #ETR-4240	  MZM-KPLIAN	 10.06.2021					Habilitacion de reporte AFP vogente (jubilados, mayor 65) por tipo de afp
+ * #ETr-4369	  MZM-KPLIAN	 25.06.2021					Reporte para ministerio de trabajo planilla de reintegros	
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -1574,11 +1575,20 @@ function reporteDetalleAguinaldo($tipo_reporte,$fecha,$id_tipo_contrato,$id_gest
 
             $this->objParam->addParametro('titulo_archivo',$titulo);
             $this->objParam->addParametro('datos',$this->res->datos);
-            $this->objParam->addParametro('fecha',$fecha);
+			
+				
+				$this->objParam->addParametro('fecha',$fecha);	
+			
+            
             $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
             $this->objParam->addParametro('id_tipo_contrato',$id_tipo_contrato);
             $this->objParam->addParametro('id_gestion',$id_gestion);
             $this->objParam->addParametro('esquema',$esquema);
+			$this->objParam->addParametro('consolidar',$this->objParam->getParametro('consolidar')); //#ETr-4369
+			$id_periodo_reintegro=$this->objParam->getParametro('id_periodo');
+			$this->objParam->addParametro('id_periodo_reintegro',$id_periodo_reintegro); //#ETr-4369
+			$this->objParam->addParametro('estado_funcionario',$this->objParam->getParametro('personal_activo'));//#ETr-4369
+			
             //Instancia la clase de excel
             $this->objFunc=$this->create('MODFuncionarioReporte');
 
