@@ -773,7 +773,7 @@ class RPlanillaPrima extends  ReportePDF {
 					}
 				}else{
 					
-					if(($array_datos[$i][8]+$array_datos[$i][9]) !=90){
+					if($array_datos[$i][25]>90){//ETR-3592
 					$this->Cell(15,5,$array_datos[$i][0],'',0,'C');
 					if($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#151
 						$this->Cell(65,5,mb_strcut ( $array_datos[$i][1], 0, 35, "UTF-8"),'R',0,'L');
