@@ -551,16 +551,7 @@ class RRelacionSaldos extends  ReportePDF {
 				
 				if(count($this->firmas)>0){
 					
-					if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'  || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#127 #ETR-2135  #ETR-4415
-					   if ($this->GetY()>=148){
-					   	   $this->ln(27);
-					   }else{
-					   	  $this->ln(40);
-					   }
-					}else{
-						$this->ln(40);
-					}
-					
+					$this->Cell(20,40,'','',1,'C');
 					$ancho_firma= (($this->ancho_hoja-25) / count($this->firmas));
 					
 					$this->Cell($ancho_firma,2,'____________________________________________','',0,'C');
