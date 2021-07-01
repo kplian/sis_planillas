@@ -36,7 +36,8 @@
  * #ETR-3862	  MZM-KPLIAN	 05.05.2021					adicion de periodo gestion en reporte Frecuencia de Cargos
  * #ETR-4150	  MZM-KPLIAN	 04.06.2021					Adicion de reporte declaracion cps por planilla de reintegro
  * #ETR-4240	  MZM-KPLIAN	 10.06.2021					Habilitacion de reporte AFP vogente (jubilados, mayor 65) por tipo de afp
- * #ETr-4369	  MZM-KPLIAN	 25.06.2021					Reporte para ministerio de trabajo planilla de reintegros	
+ * #ETr-4369	  MZM-KPLIAN	 25.06.2021					Reporte para ministerio de trabajo planilla de reintegros
+ * #ETR-4415	  MZM-KPLIAN	 30.06.2021					Reporte por bancos para planilla de prima personal no vigente (cambio de orientacion y de disgregacion por tipo cheque)		
  * */
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenerica.php');
 require_once(dirname(__FILE__).'/../reportes/RPlanillaGenericaXls.php');
@@ -1212,7 +1213,7 @@ function reportePlanillaDep($tipo_reporte,$fecha,$id_tipo_contrato)    {
         $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);
 
 		//#127  XXXXXXXX
-		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#127 #ETR-2135
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'  || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#127 #ETR-2135  #ETR-4415
             $this->objParam->addParametro('orientacion','L');}
         else{
             $this->objParam->addParametro('orientacion','P');

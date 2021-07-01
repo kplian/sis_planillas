@@ -20,6 +20,7 @@
  #169	ETR				09.10.2020			MZM-KPLIAN			Control de registros del tipo banco, si no existe ninguno no dibujar subtotales
  #ETR-2135				14.12.2020			MZM-KPLIAN			cambios en formato para planilla de aguinaldo (orientacion y pie de firmas solo con cargos )
  #ETR-3997				25.05.2021			MZM-KPLIAN			Habiltiacion para reporte de reintegros mensuales
+ #ETR-4415	    	    30.06.2021	        MZM-KPLIAN			Reporte por bancos para planilla de prima personal no vigente (cambio de orientacion y de disgregacion por tipo cheque)
 */
 class RRelacionSaldos extends  ReportePDF {
 	var $datos;	
@@ -51,7 +52,7 @@ class RRelacionSaldos extends  ReportePDF {
 		$this->SetY(10);
 		$fecha_rep = date("d/m/Y");
 		$ampliar=0;//#127
-		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'){//#ETR-2135
+		if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){//#ETR-2135  #ETR-4415
 			$ampliar=60;
 		}
 		
@@ -161,7 +162,7 @@ class RRelacionSaldos extends  ReportePDF {
 				
 			}else{
 				
-				if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+				if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){//#ETR-4415
 					$ampliar=25;//$ampliar/3*2;
 				}else{
 					$ampliar=0;
@@ -224,7 +225,7 @@ class RRelacionSaldos extends  ReportePDF {
 		
 		$this->SetFont('','',7);
 	  
-	    if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG'){
+	    if($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG'){//#ETR-4415
 					$ampliar=25;//$ampliar/3*2;
 				}else{
 					$ampliar=0;
@@ -260,6 +261,9 @@ class RRelacionSaldos extends  ReportePDF {
 					
 						if ($this->datos[$i]['tipo_pago']!=$this->tipo_pagoP){
 							$bandera_salto_cheque=1;
+							
+							
+							
 						}else{
 							$bandera_salto_cheque=0;
 						}
@@ -284,8 +288,11 @@ class RRelacionSaldos extends  ReportePDF {
 								$this->SetFont('','B',8);
 								$this->Cell(105+($ampliar*3),5,'Subtotal:','',0,'R');
 								$this->SetFont('','',8);
+								
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
+								    
 									$this->Cell(50,5,number_format($subtotal,2,'.',','),'',1,'R');
+									
 								}else{
 									$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($subtotal,2,'.',','),'',0,'R');
@@ -293,28 +300,50 @@ class RRelacionSaldos extends  ReportePDF {
 									$this->Cell(30,5,number_format($subtotal+$caja,2,'.',','),'',1,'R');
 								}
 								
-								$this->Cell(105,5,'Total para '.$this->tipo_pagoP.':','',0,'R');
-								
+								if ($this->datos[$i]['tipo_pago']!=$this->tipo_pagoP){
+									
+								$this->Cell(105+($ampliar*3),5,'Total para '.$this->tipo_pagoP.':','',0,'R');
+									
+								}
 								$this->SetFont('','',8);
 								if($this->objParam->getParametro('codigo_planilla')!='BONOVIG'){//#127
-									$this->Cell(50+$ampliar,5,number_format($total,2,'.',','),'',0,'R');
+								   //if($this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#ETR-4415
+								      if ($this->datos[$i]['tipo_pago']!=$this->tipo_pagoP){
+									  	$this->Cell(50,5,number_format($total,2,'.',','),'',0,'R');
+									  }
+								   //}else{
+								   	//$this->Cell(50+$ampliar,5,number_format($total,2,'.',','),'',0,'R');
+								   //}
+								
+									
 								}else{
 									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($total,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($cajat,2,'.',','),'',0,'R');
 									$this->Cell(30,5,number_format($total+($cajat),2,'.',','),'',1,'R');
 								}}
+
+
 							}
-						$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
 						
-						$total=0;
+						if ($this->datos[$i]['tipo_pago']!=$this->tipo_pagoP){//#ETR-4415
+								$total=0;
+								$this->AddPage();
+						}
+						$this->tipo_pagoP= $this->datos[$i]['tipo_pago'];
+						//$total=0;
 						$subtotal=0;
-						$this->AddPage();
+						
+						//if($this->objParam->getParametro('codigo_planilla')!='PRINOVIG'){//#ETR-4415 si es prima no vigente q salga en uno los cheques
+							//$this->AddPage();	
+						//}
+						
 						$this->setX($this->getX()-5);
 					}
 					
 					
 					if($tipo_contrato!='' && $tipo_contrato!=$this->tipo_contratoP){
+						
 						$this->AddPage();
 						$this->setX($this->getX()-5);
 					}
@@ -522,7 +551,16 @@ class RRelacionSaldos extends  ReportePDF {
 				
 				if(count($this->firmas)>0){
 					
-					$this->ln(40);
+					if($this->objParam->getParametro('codigo_planilla')=='PLAPRIVIG' || $this->objParam->getParametro('codigo_planilla')=='BONOVIG' || $this->objParam->getParametro('codigo_planilla')=='PLAGUIN'  || $this->objParam->getParametro('codigo_planilla')=='PRINOVIG' ){//#127 #ETR-2135  #ETR-4415
+					   if ($this->GetY()>=148){
+					   	   $this->ln(27);
+					   }else{
+					   	  $this->ln(40);
+					   }
+					}else{
+						$this->ln(40);
+					}
+					
 					$ancho_firma= (($this->ancho_hoja-25) / count($this->firmas));
 					
 					$this->Cell($ancho_firma,2,'____________________________________________','',0,'C');
