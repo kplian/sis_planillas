@@ -3025,6 +3025,7 @@ raise notice '***:%',v_consulta;
                       --#155
                       v_cols:='HABBAS';
                       if (v_col='SPREDIAS2' ) then
+                        v_tc:=0;
                       	v_tc:=(select c.valor from plani.tcolumna_valor c where c.id_funcionario_planilla=v_registros.id_funcionario_planilla
                         and c.codigo_columna in ('SPREDIAS1'));
                         update tt_detalle_aguin
@@ -3041,6 +3042,7 @@ raise notice '***:%',v_consulta;
                       --Por lo que en la obtencion del promedio de cotizables se lo hara en funcion al contrato con menor sueldo_basico (primer contrato)
                       v_meses:=3;                      
                       if (v_col2='PREDIAS2' ) then
+                        v_tc:=0;
                       	v_tc:=(select c.valor from plani.tcolumna_valor c where c.id_funcionario_planilla=v_registros.id_funcionario_planilla
                         	and c.codigo_columna in ('PREDIAS1'));
 
@@ -3331,6 +3333,7 @@ raise notice '***:%',v_consulta;
                                       set bono_frontera=v_registros_det.valor
                                       where id_funcionario=v_registros.id_funcionario;
                                  elsif (v_registros_det.codigo_columna='EXTRA' and (v_col in ('DIASAGUI','SPREDIAS2') or v_col2='PREDIAS2')) then
+                                      v_tc:=0;
                                       v_tc:=(select avg(cv.valor) as valor
                                               from plani.tfuncionario_planilla fp
                                               inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -3353,7 +3356,8 @@ raise notice '***:%',v_consulta;
                             
                                   elsif (v_registros_det.codigo_columna='DISPONIBILIDAD') then
                                         if (v_col='DIASAGUI') then
-                                                v_tc:=(select avg(cv.valor) as valor
+                                         		v_tc:=0;
+                                                v_tc:=(select sum(cv.valor)/v_meses as valor
                                                 from plani.tfuncionario_planilla fp
                                                 inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                                 inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3368,8 +3372,8 @@ raise notice '***:%',v_consulta;
                                                 set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
                                                 where id_funcionario=v_registros.id_funcionario;
                                           elsif (v_col='SPREDIAS2' or v_col2='PREDIAS2') then -- planilla de primas, se quiere obtener el complemento para el cotizable
-                                        
-                                                v_tc:=(select avg(cv.valor) as valor
+                                        		v_tc:=0;
+                                                v_tc:=(select sum(cv.valor)/v_meses as valor
                                                 from plani.tfuncionario_planilla fp
                                                 inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
                                                 inner join plani.tplanilla plani on plani.id_planilla=fp.id_planilla
@@ -3380,7 +3384,7 @@ raise notice '***:%',v_consulta;
                                                 where fp.id_funcionario =v_registros.id_funcionario
                                                 and plani.id_periodo between v_id_periodo_min and v_id_periodo
                                                 );
-
+												
                                                 update tt_detalle_aguin
                                                 set otros=round((v_registros_det.valor+coalesce(v_tc,0)),2)
                                                 where id_funcionario=v_registros.id_funcionario;
@@ -3422,7 +3426,7 @@ raise notice '***:%',v_consulta;
                                                 
                                                 
                                           else -- para sueldos HORDIA --#158
-
+												v_tc:=0;
                                                 v_tc:=(select sum(cv.valor) as valor
                                                 from plani.tfuncionario_planilla fp
                                                 inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
@@ -3469,7 +3473,7 @@ raise notice '***:%',v_consulta;
                                     set afp=round(v_registros_det.valor,2)
                                     where id_funcionario=v_registros.id_funcionario;
                                 elsif (v_col='HORDIA' and v_registros_det.codigo_columna='OTRO_DESC') then
-                                
+                                	v_tc:=0; 
                                     v_tc:=(select sum(cv.valor) as valor
                                               from plani.tfuncionario_planilla fp
                                               inner join orga.vfuncionario fun on fun.id_funcionario=fp.id_funcionario
