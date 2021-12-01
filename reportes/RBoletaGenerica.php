@@ -724,7 +724,7 @@ class RBoletaGenerica extends  ReportePDF {
 					$total_ingresos = 0;
 					$total_descuentos = 0;
 					$this->SetFont('','',9);
-					var_dump($this->datos_detalle ); exit;
+				//	var_dump($this->datos_detalle ); exit;
 					foreach($this->datos_detalle as $data) {
 						if ($data['tipo_columna'] == 'ingreso') {
 							$ingresos .= '<tr><td style="height:30px;width:220px;text-align: left;">' . $data['titulo_reporte_superior'] . '</td>
