@@ -967,8 +967,9 @@ function listarTotalHorasTrab(){ //#ETR-1712
 		
 		//#98
 		$this->setParametro('estado_funcionario','personal_activo','varchar');//#98
-		
+		$this->setParametro('reporte','reporte','varchar');
 		//Datos del empleado
+		$this->captura('gerencia','varchar');
 		 $this->captura('id_funcionario','integer');
 		 $this->captura('ci','varchar');
 		 $this->captura('desc_funcionario2','text');
@@ -988,10 +989,15 @@ function listarTotalHorasTrab(){ //#ETR-1712
 		 $this->captura('otros','numeric');
 		 $this->captura('total_desc','numeric');
 		 $this->captura('liqpag','numeric');
+
+		 $this->captura('rei_ene','numeric');
+		 $this->captura('rei_feb','numeric');
+		 $this->captura('rei_mar','numeric');
+		 $this->captura('rei_abr','numeric');
 		 
 		 $this->armarConsulta(); 		   
         //Ejecuta la instruccion
-        //echo '----'.$this->getConsulta(); exit;
+      //  echo '----'.$this->getConsulta(); exit;
 		//var_dump($this->aParam->getParametrosConsulta()); exit;
 		$this->ejecutarConsulta();
 		

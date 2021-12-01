@@ -89,10 +89,14 @@ require_once(dirname(__FILE__).'/../reportes/REmpleadoDepXls.php');//#160
 require_once(dirname(__FILE__).'/../reportes/RPlanillaHorasTrabXls.php');//#158
 require_once(dirname(__FILE__).'/../reportes/RPlanillaRetroactivoXls.php');//#ETR-4150
 require_once(dirname(__FILE__).'/../reportes/RPlanillaRetroactivoPDF.php');//#ETR-4150
+require_once(dirname(__FILE__).'/../reportes/RPlanillaAportesPrevXls.php');
 
+
+require_once(dirname(__FILE__).'/../reportes/RPlanillaSueldosMin.php');
+require_once(dirname(__FILE__).'/../reportes/RPlanillaSueldosMinXls.php');
 class ACTReporte extends ACTbase{
 
-    function listarReporte(){
+    function listarReporte(){ 
         $this->objParam->defecto('ordenacion','id_reporte');
 
         $this->objParam->defecto('dir_ordenacion','asc');
@@ -127,7 +131,8 @@ class ACTReporte extends ACTbase{
     }
 
     function reportePlanilla($id_reporte,$tipo_reporte,$esquema)    {//#83
-
+       
+      
         if ($this->objParam->getParametro('id_proceso_wf') != '') {
             $this->objParam->addFiltro("plani.id_proceso_wf = ". $this->objParam->getParametro('id_proceso_wf'));
         }
@@ -320,6 +325,7 @@ class ACTReporte extends ACTbase{
 
         $filtro_previo=$this->objParam->parametros_consulta['filtro'];
         $this->objFunc=$this->create('MODReporte');
+       
         /*if($this->res->datos[0]['multilinea']=='si' || $this->res->datos[0]['id_periodo']==''){
             $i=0;
              $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
@@ -351,7 +357,6 @@ $i=0;
 
     }
     function generarReporteDesdeForm(){
-
 
 
 
@@ -814,9 +819,12 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
 															$this->reporteHorasTrab($id_tipo_contrato,$id_periodo); //ingreso-egreso
 														elseif ($this->objParam->getParametro('control_reporte')=='total_horas_trabajadas')//#ETR-1712
 															$this->reporteTotalHorasTrab($id_tipo_contrato,$id_periodo); //ingreso-egreso
-														elseif ($this->objParam->getParametro('control_reporte')=='retroactivo_cps')//#ETR-4150
+														elseif ($this->objParam->getParametro('control_reporte')=='retroactivo_cps' || $this->objParam->getParametro('control_reporte')=='retroactivo_cps_ind')//#ETR-4150
 															$this->reporteRetroactivoCps($id_tipo_contrato,$id_periodo); //ingreso-egreso
-														
+                                                        elseif($this->objParam->getParametro('control_reporte')=='planilla_sueldos_min' ){
+
+                                                                $this->reportePlanillaSueldosMin($titulo,$id_periodo); //#77
+                                                        }
 														else
                                                          	$this->reportePlanillaFun($titulo,$fecha,$id_tipo_contrato,$id_periodo); //nomina salarios BC, CT //#77
                                                      }
@@ -921,25 +929,180 @@ function listarFuncionarioReporte($id_reporte,$esquema){//#56 #83
             $this->objReporteFormato->generarReporte();
             $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
 
+            $this->mensajeExito=new Mensaje();
+            $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+                'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+            $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+            $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+
         }else{
-            $titulo ='AporteAFP';
-            //Genera el nombre del archivo (aleatorio + titulo)
-            $nombreArchivo=uniqid(md5(session_id()).$titulo);
-            $nombreArchivo.='.xls';
-            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
-            $this->objReporteFormato=new RPlanillaAportesXls($this->objParam);
-           // $this->objReporteFormato->imprimeDatos();
-            $this->objReporteFormato->generarReporte($this->res->datos);
+            if($this->objParam->getParametro('formato_reporte')=='xls'){
+                $titulo ='AporteAFP';
+                //Genera el nombre del archivo (aleatorio + titulo)
+                $nombreArchivo=uniqid(md5(session_id()).$titulo);
+                $nombreArchivo.='.xls';
+                $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+                $this->objReporteFormato=new RPlanillaAportesXls($this->objParam);
+                // $this->objReporteFormato->imprimeDatos();
+                $this->objReporteFormato->generarReporte($this->res->datos);
+
+                $this->mensajeExito=new Mensaje();
+                $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+                    'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+                $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+                $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+            }else{//csv
+
+                $datos_afp = $this->res->getDatos(); 
+                
+                $nombre_archivo_afp = $datos_afp[0]["nombre_afp"]."-".$datos_afp[0]["periodo"];
+                
+	            $MiDocumento = fopen("../../../reportes_generados/".$nombre_archivo_afp, "w+");
+                
+                $cont=0;
+                /*$Escribo=$datos_afp[0]['total'];
+                fwrite($MiDocumento, $Escribo);
+                fwrite($MiDocumento, chr(13).chr(10));*/
+                
+                    if($this->objParam->getParametro('codigo_afp')=='PREV'){ 
+                        $titulo ='AporteAFPPrev';
+                        //Genera el nombre del archivo (aleatorio + titulo)
+                        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+                        $nombreArchivo.='.xls';
+                        $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+                        $this->objReporteFormato=new RPlanillaAportesPrevXls($this->objParam);
+                        // $this->objReporteFormato->imprimeDatos();
+                        $this->objReporteFormato->generarReporte($this->res->datos);
+        
+                        $this->mensajeExito=new Mensaje();
+                        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+                            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+                        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+                        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+
+
+                    }else{//futuro
+                        foreach ($datos_afp as $value) {
+                        $cont++;
+                        if ($value['fecha_ingreso'] != '') {
+                            $novedad = 'I';
+                            if ($value['dias_incap'] > 0) {//#45
+                                $novedad = 'I/S';
+                            }
+    
+                            $aa = substr($value['fecha_ingreso'], 0, 4);
+                            $mm = substr($value['fecha_ingreso'], 5, 2);
+                            $dd = substr($value['fecha_ingreso'], 8, 2);
+                            $fecha_novedad = $dd . '/' . $mm . '/' . $aa;//#45
+    
+                        }
+                        if ($value['fecha_finalizacion'] != '') {
+                            $novedad = 'R';
+                            if ($value['dias_incap'] > 0) {//#45
+                                $novedad = 'R/S';
+                            }
+    
+                            $aa = substr($value['fecha_finalizacion'], 0, 4);
+                            $mm = substr($value['fecha_finalizacion'], 5, 2);
+                            $dd = substr($value['fecha_finalizacion'], 8, 2);
+                            $fecha_novedad = $dd . '/' . $mm . '/' . $aa;//#45
+    
+                        }
+    
+                        if ($value['fecha_ingreso'] == '') {//#45
+                            if ($value['dias_incap'] > 0) {
+                                $novedad = 'S';
+                            }
+                        }
+    
+                        $dias = $value['dias'];
+                        
+                        
+                        
+                        
+                        //--------------------------------
+                        if ($value['tipo_jubilado']=='mayor_65'){
+                            $tipo_cotizante='8';
+                        }
+                        elseif ($value['tipo_jubilado']=='jubilado_55'){
+                            $tipo_cotizante='C';
+                        }else{
+                            $tipo_cotizante='1';
+                        }
+
+
+
+                        if ($value['tipo_jubilado'] == 'no') {
+                            $no_jubilado=$value['valor'];
+                        } else {
+                            $no_jubilado="";
+                        }
+
+
+                        if ($value['tipo_jubilado'] == 'mayor_65') {
+                            $mayor65=number_format($value['valor'], 2, '.', ',');
+                        } else {
+                            $mayor65="";
+                        }
+
+                        if ($value['tipo_jubilado'] == 'jubilado_55') {
+                            $jubilado55= number_format($value['valor'], 2, '.', ',');
+                        } else {
+                            $jubilado55="";
+                            
+                        }
+
+                        if ($value['tipo_jubilado'] == 'jubilado_65') {
+                            $jubilado65= number_format($value['valor'], 2, '.', ',');
+                        } else {
+                            $jubilado65="";
+                        }
+
+
+                        $Escribo = $cont.";".$value['ci'].";".$value['num_ci'].";".$value['expedicion'].";".
+                        $value['nro_afp'].";".
+                        $value['apellido_paterno'].";".
+                        $value['apellido_materno'].";".
+                        "".";".
+                        $value['primer_nombre'].";".
+                        $value['segundo_nombre'].";".
+                        $value['departamento'].";".
+                        $novedad.";".
+                        $fecha_novedad.";".
+                        $dias.";".
+                        "".";".
+                        $no_jubilado.";".
+                        $mayor65.";".
+                        $jubilado55.";".
+                        $jubilado65.";".
+                        "".";".
+                        number_format($value['valor'], 2, '.', ',').";".
+                        number_format($value['valor'], 2, '.', ',').";".
+                        "";
+                        
+                    
+                    fwrite($MiDocumento, $Escribo);
+                    fwrite($MiDocumento, chr(13).chr(10)); //genera el salto de linea
+                }
+
+               
+                fclose($MiDocumento);
+                
+                $this->res->setDatos($nombre_archivo_afp);
+                $this->res->imprimirRespuesta($this->res->generarJson());
+            }
+                
+            }
+
+            
         }
 
 
 
 
-        $this->mensajeExito=new Mensaje();
-        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
-            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
-        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
-        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+       
 
     }
 
@@ -2085,6 +2248,8 @@ function reporteTotalHorasTrab()    {
         $this->objParam->addFiltro("plani.id_tipo_planilla = ". $this->objParam->getParametro('id_tipo_planilla'));
         $this->objParam->addFiltro("plani.id_gestion = ". $this->objParam->getParametro('id_gestion'));
         
+        $this->objParam->addParametro("reporte",$this->objParam->getParametro('control_reporte'));
+        
         //$this->objParam->addFiltro("plani.id_tipo_contrato=",$this->objParam->getParametro('id_tipo_contrato'));
         
         if ($this->objParam->getParametro('consolidar')=='no' || $this->objParam->getParametro('consolidar')==''){
@@ -2114,6 +2279,10 @@ function reporteTotalHorasTrab()    {
 
             $this->res=$this->objFunc->listarRetroactivoCps($this->objParam);
 			
+            $this->objFunc=$this->create('MODReporte');
+            $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39
+    
+
 			/*if($this->objParam->getParametro('formato_reporte')=='pdf'){
 				$nombreArchivo.='.pdf';
 				$this->objParam->addParametro('orientacion','L');
@@ -2129,7 +2298,7 @@ function reporteTotalHorasTrab()    {
 				$this->objParam->addParametro('nombre_archivo',$nombreArchivo);
 				 $this->objReporteFormato=new RPlanillaRetroactivoXls($this->objParam);
            		// $this->objReporteFormato->imprimeDatos();
-            	 $this->objReporteFormato->generarReporte($this->res->datos);
+            	 $this->objReporteFormato->generarReporte($this->res->datos, $this->res3->datos);
 				
 			//}
 			
@@ -2143,7 +2312,71 @@ function reporteTotalHorasTrab()    {
 
     }
 
+    function reportePlanillaSueldosMin($tipo_reporte,$id_periodo)    {
 
+        $this->objParam->addFiltro("(repo.titulo_reporte ilike ''%sueldos%''
+        )
+
+        and plani.id_periodo =".$id_periodo." ");
+         //(select po_id_periodo from param.f_get_periodo_gestion(''".$fecha."''))
+        $tamano = 'LEGAL';
+        $orientacion = 'L';
+
+
+        $this->objParam->addParametro('orientacion',$orientacion);
+        $this->objParam->addParametro('tamano',$tamano);
+        $this->objParam->addParametro('titulo_archivo',$titulo);
+        $this->objParam->addParametro('id_periodo',$id_periodo);
+        $this->objParam->addParametro('tipo_reporte',$tipo_reporte);
+
+
+
+        $this->objFunc=$this->create('MODReporte');
+        $this->res=$this->objFunc->listarReporteMaestro($this->objParam);
+
+        $this->objFunc=$this->create('MODReporte');
+        $this->res2=$this->objFunc->listarReporteDetalle($this->objParam);
+
+        $this->objFunc=$this->create('MODReporte');
+        $this->res3=$this->objFunc->listarFirmasReporte($this->objParam);//#39
+
+        $titulo = $this->res->datos[0]['titulo_reporte'];
+        //Genera el nombre del archivo (aleatorio + titulo)
+        $nombreArchivo=uniqid(md5(session_id()).$titulo);
+
+        if($this->objParam->getParametro('formato_reporte')=='pdf'){//#77
+            $nombreArchivo.='.pdf';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+
+
+            $this->objReporteFormato=new RPlanillaSueldosMin($this->objParam);
+
+            $this->objReporteFormato->datosHeader($this->res->datos[0], $this->res2->datos);
+                //$this->objReporteFormato->renderDatos($this->res2->datos);
+            $this->objReporteFormato->gerencia = $this->res2->datos[0]['gerencia'];
+            $this->objReporteFormato->generarReporte();
+            $this->objReporteFormato->output($this->objReporteFormato->url_archivo,'F');
+        }else{
+            $titulo ='Planilla Tributaria';
+            //Genera el nombre del archivo (aleatorio + titulo)
+            $nombreArchivo=uniqid(md5(session_id()).$titulo);
+            $nombreArchivo.='.xls';
+            $this->objParam->addParametro('nombre_archivo',$nombreArchivo);
+            $this->objReporteFormato=new RPlanillaSueldosMinXls($this->objParam);
+           // $this->objReporteFormato->imprimeDatos();
+            $this->objReporteFormato->generarReporte($this->res->datos[0], $this->res2->datos,  $this->res3->datos);
+
+        }
+
+
+
+        $this->mensajeExito=new Mensaje();
+        $this->mensajeExito->setMensaje('EXITO','Reporte.php','Reporte generado',
+            'Se generó con éxito el reporte: '.$nombreArchivo,'control');
+        $this->mensajeExito->setArchivoGenerado($nombreArchivo);
+        $this->mensajeExito->imprimirRespuesta($this->mensajeExito->generarJson());
+
+    }
 
 }
 

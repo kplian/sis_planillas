@@ -224,3 +224,10 @@ update plani.tplanilla set envios_boleta=1
 where id_planilla in (339,340,341,342,343,344,345,346);
 update plani.tfuncionario_planilla set sw_boleta='si' where id_planilla in (339,340,341,342,343,344,345,346);
 /********************************************F-DAUP-MZM-PLANI-7-02/06/2021********************************************/
+
+/********************************************I-DAUP-MZM-PLANI-8-12/10/2021********************************************/
+update plani.tobligacion  t set
+       id_int_comprobante=null
+    where id_int_comprobante !=null;
+/********************************************F-DAUP-MZM-PLANI-8-12/10/2021********************************************/    
+    

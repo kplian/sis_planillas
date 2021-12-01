@@ -832,6 +832,8 @@ header("content-type: text/javascript; charset=UTF-8");
 				this.Cmp.id_funcionario_planilla.reset();
 				this.Cmp.id_afp.allowBlank=true;
 				this.Cmp.id_afp.setValue('');
+				this.Cmp.formato_reporte.getStore().loadData(['pdf', 'xls']);//17.11.2021
+				this.Cmp.formato_reporte.setValue('');//17.11.2021
 				//***************
 				if(r.data.tipo_reporte=='formato_especifico'){ //alert(r.data.control_reporte);
 					  //***************************     
@@ -915,6 +917,7 @@ header("content-type: text/javascript; charset=UTF-8");
 								//this.mostrarComponente(this.Cmp.id_tipo_contrato);
 								
 								if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
+									
 									this.mostrarComponente(this.Cmp.id_afp);
 									this.Cmp.id_afp.allowBlank=false;
 									
@@ -927,6 +930,12 @@ header("content-type: text/javascript; charset=UTF-8");
 										this.ocultarComponente(this.Cmp.personal_activo);
 										this.Cmp.personal_activo.setValue('todos');	
 										this.Cmp.personal_activo.getStore().loadData(['activo', 'retirado','todos']);
+										//adicionamos opcion csv para AFP (si es aporte_afp) 17.11.2021
+										if (r.data.control_reporte=='aporte_afp'){
+											//this.Cmp.formato_reporte.setValue('todos');	
+											this.Cmp.formato_reporte.getStore().loadData(['pdf', 'xls','csv']);
+										}
+
 									}
 									
 								}else{
@@ -980,9 +989,10 @@ header("content-type: text/javascript; charset=UTF-8");
 								
 							}
 							
-						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes'  || r.data.control_reporte=='detalle_aguinaldo' || r.data.control_reporte=='retroactivo_cps'
+						if( r.data.control_reporte=='curva_salarial' || r.data.control_reporte=='curva_salarial_centro' || r.data.control_reporte=='dependientes'  || r.data.control_reporte=='detalle_aguinaldo' || r.data.control_reporte=='retroactivo_cps' || r.data.control_reporte=='planilla_sueldos_min' || r.data.control_reporte=='retroactivo_cps_ind'
 ){//#87 #160: se quita || r.data.control_reporte=='dependientes_edad' porq quieren en pdf y excel  //#ETR-4150
 							this.ocultarComponente(this.Cmp.formato_reporte);
+							
 						}
 
 							
@@ -1001,6 +1011,7 @@ header("content-type: text/javascript; charset=UTF-8");
 						}
 					else{ 
 						//#83
+						
 						if (r.data.control_reporte=='aporte_afp' || r.data.control_reporte=='fondo_solidario'){
 							
 									this.mostrarComponente(this.Cmp.id_afp);
@@ -1148,12 +1159,20 @@ header("content-type: text/javascript; charset=UTF-8");
                     'Obligacion');
                    
             	
-			}else{
+			}
+			
+			else{
+
+				var success_gral=this.successSave;
+				if (this.Cmp.control_reporte.getValue()=='aporte_afp' && this.Cmp.formato_reporte.getValue()=='csv' && this.Cmp.codigo_afp.getValue()=='FUTURO'){
+					success_gral=this.successGeneracion_txt;
+				}
+
 				Phx.CP.loadingShow();
 				Ext.Ajax.request({
 			                url:'../../sis_planillas/control/Reporte/generarReporteDesdeForm',
 			                params: this.getValForm ,
-			                success: this.successSave,
+			                success: success_gral,
 			                failure: this.conexionFailure,
 			                timeout: this.timeout,
 			                scope:this
@@ -1166,5 +1185,14 @@ header("content-type: text/javascript; charset=UTF-8");
 			
 		}
 	},
+
+	successGeneracion_txt:function(resp){
+			Phx.CP.loadingHide();
+	        var objRes = Ext.util.JSON.decode(Ext.util.Format.trim(resp.responseText));
+	        
+	        var texto = objRes.datos;
+	        window.open('../../../reportes_generados/'+texto)//#46
+		},//#46
+		
 })
 </script>

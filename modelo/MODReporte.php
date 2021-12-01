@@ -25,7 +25,7 @@ class MODReporte extends MODbase{
         parent::__construct($pParam);
     }
 
-    function listarReporte(){
+    function listarReporte(){ //echo "1***"; exit;
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='plani.ft_reporte_sel';
         $this->transaccion='PLA_REPO_SEL';
@@ -178,7 +178,7 @@ class MODReporte extends MODbase{
         return $this->respuesta;
     }
 
-    function listarReporteMaestro(){
+    function listarReporteMaestro(){ 
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='plani.ft_reporte_sel';
         $this->transaccion='PLA_REPOMAES_SEL';
@@ -228,6 +228,7 @@ class MODReporte extends MODbase{
         $this->captura('bordes','integer');//#77
         $this->captura('interlineado','numeric');//#77
         $this->captura('fecha_backup','text');//#83
+        $this->captura('fecha_planilla','date');
         //Ejecuta la instruccion
         $this->armarConsulta(); //echo $this->getConsulta(); exit;
         $this->ejecutarConsulta(); 
@@ -374,7 +375,7 @@ class MODReporte extends MODbase{
 		return $this->respuesta;
 	}
 
-	function listarReporteDetalleBoleta(){
+	function listarReporteDetalleBoleta(){ 
 		//Definicion de variables para ejecucion del procedimientp
 		$this->procedimiento='plani.ft_reporte_sel';
 		$this->transaccion='PLA_REPODETBOL_SEL';
@@ -542,7 +543,7 @@ class MODReporte extends MODbase{
 
 
 /****/
-function listarReporteDetalleMultiCell(){
+function listarReporteDetalleMultiCell(){ echo "***6"; exit;
         //Definicion de variables para ejecucion del procedimientp
         $this->procedimiento='plani.ft_reporte_sel';
         $this->transaccion='PLA_REPODETMUL_SEL';
@@ -599,8 +600,9 @@ function listarReporteDetalleMultiCell(){
         $this->captura('nombre_empleado_firma','text');
         $this->captura('abreviatura_titulo','varchar');
         $this->captura('orden','integer');
+        $this->captura('ci_firma','varchar');
         //Ejecuta la instruccion
-        $this->armarConsulta();
+        $this->armarConsulta(); //echo "****".$this->getConsulta(); exit;
         $this->ejecutarConsulta();
         //Devuelve la respuesta
         return $this->respuesta;

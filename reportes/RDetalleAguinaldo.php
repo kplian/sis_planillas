@@ -292,7 +292,7 @@ class RDetalleAguinaldo
             'ff80bb','ff792b','ffff5e','52ff97','bae3ff','ffaf9c','bfffc6','b370ff','ffa8b4','7583ff','9aff17','ff30c8');
 
 
-        if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLASUE' || $this->objParam->getParametro('codigo_planilla')=='PLANRE'){
+        if ($this->objParam->getParametro('codigo_planilla')=='PLAGUIN' || $this->objParam->getParametro('codigo_planilla')=='PLASUE' || $this->objParam->getParametro('codigo_planilla')=='PLANRE' || $this->objParam->getParametro('codigo_planilla')=='PLAREISU'){
        // foreach ($datos as $value)
         //{
             

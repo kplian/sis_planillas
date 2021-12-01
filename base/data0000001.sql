@@ -1843,11 +1843,11 @@ select wf.f_import_tproceso_macro ('insert','LIC', 'PLANI', 'Licencias','si');
 select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
 select wf.f_import_tcategoria_documento ('insert','proceso', 'Proceso');
 select wf.f_import_ttipo_proceso ('insert','LICE',NULL,NULL,'LIC','Licencia','','','si','','','','LICE',NULL);
-select wf.f_import_ttipo_estado ('insert','borrador','LICE','Borrador','si','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
-select wf.f_import_ttipo_estado ('insert','vobo','LICE','Visto Bueno','no','no','no','funcion_listado','plani.f_lista_funcionario_wf','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
-select wf.f_import_ttipo_estado ('insert','finalizado','LICE','Finalizado','no','no','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL);
-select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'');
-select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'');
+select wf.f_import_ttipo_estado ('insert','borrador','LICE','Borrador','si','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','borrador','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','vobo','LICE','Visto Bueno','no','no','no','funcion_listado','plani.f_lista_funcionario_wf','ninguno','','','si','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','borrador','','',NULL,'no',NULL,'','');
+select wf.f_import_ttipo_estado ('insert','finalizado','LICE','Finalizado','no','no','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no','borrador','','',NULL,'no',NULL,'','');
+select wf.f_import_testructura_estado ('insert','borrador','vobo','LICE',1,'','no');
+select wf.f_import_testructura_estado ('insert','vobo','finalizado','LICE',1,'','no');
 
 ------------------------------------------------
 --catalog de AFP para dividir la obligaciones
@@ -1943,8 +1943,8 @@ select param.f_import_tdocumento ('insert','PRINOVIG','Prima Personal No Vigente
 
 /***********************************I-DAT-RAC-PLANI-113-05/05/2020****************************************/
 
-select wf.f_import_testructura_estado ('insert','calculo_validado','obligaciones_generadas','PLASUB',1,'"{$tabla.codigo}" != "PLAPREPRI"');
-select wf.f_import_testructura_estado ('insert','calculo_validado','planilla_finalizada','PLASUB',1,'"{$tabla.codigo}" = "PLAPREPRI"');
+select wf.f_import_testructura_estado ('insert','calculo_validado','obligaciones_generadas','PLASUB',1,'"{$tabla.codigo}" != "PLAPREPRI"','no');
+select wf.f_import_testructura_estado ('insert','calculo_validado','planilla_finalizada','PLASUB',1,'"{$tabla.codigo}" = "PLAPREPRI"','no');
 
 
 
@@ -2079,19 +2079,19 @@ select plani.f_import_ttipo_columna_planilla ('insert','PREPROME2','PRINOVIG','P
 
 /************F-DAT-RAC-PLANI-137-10/06/2020*************/
 
-************I-DAT-RAC-PLANI-137-15/06/2020*************/
+/************I-DAT-RAC-PLANI-137-15/06/2020*************/
 
 select plani.f_import_ttipo_columna_planilla ('insert','BONANT','PLASUE','Bono antiguedad','formula','Bono de Antigüedad del empleado a partir de 3 salarios mínimos nacionales con incapacidad temporal','CASE WHEN {INCAP_DIAS} > 0    THEN  {BONOANTG} - ({BONOANTG} * ({INCAP_DIAS} *{HORDIA}/{HOREFEC}) * ({INCAP_PORC}))  ELSE {BONOANTG} END','si','','2','5','restar_ejecutado','no','no','si','activo');
 
-************F-DAT-RAC-PLANI-137-15/06/2020*************/
+/************F-DAT-RAC-PLANI-137-15/06/2020*************/
 
-************I-DAT-RAC-PLANI-137-29/06/2020*************/
+/************I-DAT-RAC-PLANI-137-29/06/2020*************/
 select plani.f_import_ttipo_columna_planilla ('insert','PORDOSSMN','PLASUE','2 Salarios Mínimos Nacionales','formula','2 Salarios Mínimos Nacionales','2*{SALMIN}*0.13','no','','2','40','ejecutar','no','si','si','activo');
 select plani.f_import_treporte_columna('insert','PORDOSSMN','Planilla Impositiva','PLASUE','si',18,11,'activo','13% sobre','dos SMN','otro',0,'','columna_planilla');
-************F-DAT-RAC-PLANI-137-29/06/2020*************/
+/************F-DAT-RAC-PLANI-137-29/06/2020*************/
 
 
-************I-DAT-RAC-PLANI-145-03/07/2020*************/
+/************I-DAT-RAC-PLANI-145-03/07/2020*************/
 
 
 select param.f_import_tdocumento ('insert','SPLAPREPRI','Planillas de Previsión de Primas Simple','PLANI','depto','gestion','',NULL);
@@ -2246,11 +2246,11 @@ select plani.f_import_ttipo_obligacion_columna('insert','PRIMA','LIQPAG','SPRINO
 ---------------------------------
 
 select plani.f_import_treporte('insert','PLANILLA DE PRIMA','SPRINOVIG','no','carta_horizontal','no','no','no','no','distrito_banco','nombre','activo',0,249,'PLANILLA DE PRIMA','planilla_prima','formato_especifico','no','',0,'no','no','BS',0,7.00);
-************F-DAT-RAC-PLANI-145-03/07/2020*************/
+/************F-DAT-RAC-PLANI-145-03/07/2020*************/
 
 
 
-************I-DAT-MZM-PLANI-4096-27/05/2021*************/
+/************I-DAT-MZM-PLANI-4096-27/05/2021*************/
 
 select plani.f_import_treporte('insert','Multilinea por Distrito: Planilla de Reintegros','PLANRE','no','carta_horizontal','no','no','no','no','distrito','organigrama','activo',0,249,'Multilinea por Distrito: Planilla de Reintegros','','planilla','si','plani.nvdatos_func_planilla',11,'no','no','BS',0,5.00);
 select plani.f_import_treporte_columna('insert','TOTGAN','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,83,'activo','Tot.','Ganado','otro',0,'total_ganado','columna_planilla');
@@ -2312,4 +2312,10 @@ select plani.f_import_treporte_columna('insert','','Multilinea por Distrito: Pla
 select plani.f_import_treporte_columna('insert','PRMCOSTO_TOTAL','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,89,'activo','Total','General','otro',0,'','columna_planilla');
 select plani.f_import_treporte_columna('insert','SUBPRE','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,29,'activo','Prenatal','','otro',0,'subpre','vista_externa');
 select plani.f_import_treporte_columna('insert','PRMBONFRONTERA','Multilinea por Distrito: Planilla de Reintegros','PLANRE','si',0,47,'activo','Sub.','Frontera','otro',0,'','columna_planilla');
-************F-DAT-MZM-PLANI-4096-27/05/2021*************/
+/************F-DAT-MZM-PLANI-4096-27/05/2021*************/
+
+/********************************************I-DAT-MZM-KPLIAN-PLANI-1-12/10/2021********************************************/
+update plani.tobligacion  t set
+       id_int_comprobante=null
+    where id_int_comprobante !=null;
+/********************************************F-DAT-MZM-KPLIAN-PLANI-1-12/10/2021********************************************/

@@ -2003,6 +2003,7 @@ AS
 
 
   --------------- SQL ---------------
+update plani.tobligacion set id_int_comprobante= null where id_int_comprobante is not null;
 
 ALTER TABLE plani.tobligacion
   ADD CONSTRAINT tobligacion__id_int_comprobante_fk FOREIGN KEY (id_int_comprobante)
@@ -2036,7 +2037,7 @@ ALTER TABLE plani.tobligacion_agrupador
 
     --------------- SQL ---------------
 
-DROP VIEW plani.vcomp_planilla_obli_agrupador;
+DROP VIEW if exists plani.vcomp_planilla_obli_agrupador;
 
 CREATE OR REPLACE VIEW plani.vcomp_planilla_obli_agrupador
 AS
@@ -3076,16 +3077,16 @@ AS
 /***********************************F-DEP-MZM-PLANI-8-26/08/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-40-12/09/2019****************************************/
-/*
+
 ALTER TABLE plani.treporte
   DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
 
 ALTER TABLE plani.treporte
-  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) or agrupar_por='ninguno');*/
+  ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) or agrupar_por='ninguno');
 /***********************************F-DEP-MZM-PLANI-40-12/09/2019****************************************/
 
 /***********************************I-DEP-MZM-PLANI-46-23/09/2019****************************************/
-/*
+
 ALTER TABLE plani.treporte
   DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
 
@@ -3094,7 +3095,7 @@ ALTER TABLE plani.treporte
 
 
   ALTER TABLE plani.treporte
-  DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;*/
+  DROP CONSTRAINT chk__treporte__agrupar_por RESTRICT;
 
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) OR ((agrupar_por)::text = 'ninguno'::text) OR ((agrupar_por)::text = 'distrito'::text) OR ((agrupar_por)::text = 'centro'::text));
@@ -3813,6 +3814,7 @@ ALTER TABLE plani.treporte
 ALTER TABLE plani.treporte
   ADD CONSTRAINT chk__treporte__agrupar_por CHECK (((agrupar_por)::text = 'gerencia'::text) OR ((agrupar_por)::text = 'gerencia_presupuesto'::text) OR ((agrupar_por)::text = 'ninguno'::text) OR ((agrupar_por)::text = 'distrito'::text) OR ((agrupar_por)::text = 'centro'::text) OR ((agrupar_por)::text = 'distrito_banco'::text));
 
+drop view if exists plani.vdatos_func_planilla;
 CREATE OR REPLACE VIEW plani.vdatos_func_planilla (
     id_funcionario,
     id_funcionario_planilla,
@@ -3934,7 +3936,7 @@ FROM (
 
 
 
-
+drop view if exists plani.vorden_planilla;
 CREATE or REPLACE VIEW plani.vorden_planilla (
     ruta,
     id_uo,
@@ -4034,6 +4036,7 @@ WHERE c2.estado_reg::text = 'activo'::text AND c21.id_uo_hijo = c2.id_uo AND
     ORDER BY orden_plani.ruta, uofun.prioridad, fun.desc_funcionario2;
 
 
+drop view if exists plani.vdatos_horas_funcionario;
 CREATE or REPLACE VIEW plani.vdatos_horas_funcionario (
     id_funcionario,
     id_funcionario_planilla,
@@ -4828,3 +4831,10 @@ WITH RECURSIVE orden_plani AS(
                uofun.prioridad,
                fun.desc_funcionario2;
 /***********************************F-DEP-MZM-PLANI-ETR-4096-27/05/2021****************************************/
+/***********************************I-DEP-MZM-PLANI-KPLIAN-1-21/10/2021****************************************/
+ALTER TABLE plani.treporte
+DROP CONSTRAINT chk__treporte__ordenar_por RESTRICT;
+
+ALTER TABLE plani.treporte
+ADD CONSTRAINT chk__treporte__ordenar_por CHECK (((ordenar_por)::text = 'nombre'::text) OR ((ordenar_por)::text = 'doc_id'::text) OR ((ordenar_por)::text = 'codigo_cargo'::text) OR ((ordenar_por)::text = 'codigo_empleado'::text) OR ((ordenar_por)::text = 'centro'::text) OR ((ordenar_por)::text = 'organigrama'::text));
+/***********************************F-DEP-MZM-PLANI-KPLIAN-1-21/10/2021****************************************/

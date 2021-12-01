@@ -143,7 +143,7 @@ class RBoletaGenerica extends  ReportePDF {
 						$control_fila=0;	
 					   
 					   
-					    if ( $this->objParam->getParametro('codigo_planilla')=='PLANRE'){//#ETR-3997
+					    if ( $this->objParam->getParametro('codigo_planilla')=='PLANRE'  || $this->objParam->getParametro('codigo_planilla')=='PLAREISU'){//#ETR-3997
 							$this->Ln(35);
 						}else{
 							$this->Ln(45);//ETR-1827
@@ -572,7 +572,7 @@ class RBoletaGenerica extends  ReportePDF {
 				 	
 				   
 				   
-		}else{
+		}else{ 
 			//#71
 			//SI LA PERIODICIDAD ES ANUAL == CON DIBUJO, PERIODO IS NULL
 			
@@ -724,7 +724,7 @@ class RBoletaGenerica extends  ReportePDF {
 					$total_ingresos = 0;
 					$total_descuentos = 0;
 					$this->SetFont('','',9);
-					//var_dump($this->datos_detalle ); exit;
+					var_dump($this->datos_detalle ); exit;
 					foreach($this->datos_detalle as $data) {
 						if ($data['tipo_columna'] == 'ingreso') {
 							$ingresos .= '<tr><td style="height:30px;width:220px;text-align: left;">' . $data['titulo_reporte_superior'] . '</td>
