@@ -1,8 +1,6 @@
 /***********************************I-DAT-JRR-PLANI-0-16/01/2014****************************************/
-
 INSERT INTO segu.tsubsistema ( codigo, nombre, fecha_reg, prefijo, estado_reg, nombre_carpeta, id_subsis_orig)
 VALUES ('PLANI', 'Sistema de Planillas', '2014-01-16', 'PLA', 'activo', 'planillas', NULL);
-
 
 select wf.f_insert_tproceso_macro ('PLASUE', 'Planilla de Sueldos', 'si', 'activo', 'Sistema de Planillas');
 select wf.f_insert_ttipo_proceso ('', 'Planilla de Sueldos', 'PLASUE', 'plani.tplanilla', 'id_planilla', 'activo', 'si', 'PLASUE');
@@ -137,8 +135,10 @@ select pxp.f_insert_tprocedimiento ('PLA_TIPCOL_ELI', 'Eliminacion de registros'
 /* Data for the 'plani.ttipo_planilla' table  (Records 1 - 2) */
 
 
-INSERT INTO param.tdocumento ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_subsistema", "codigo", "descripcion", "periodo_gestion", "tipo", "tipo_numeracion", "formato")
-VALUES (1, NULL, E'2014-01-23 00:32:26', E'2014-01-23 00:32:26', E'activo', 13, E'PLASUE', E'Planilla de Sueldos', E'periodo', NULL, E'depto', NULL);
+/*INSERT INTO param.tdocumento ("id_usuario_reg", "id_usuario_mod", "fecha_reg", "fecha_mod", "estado_reg", "id_subsistema", "codigo", "descripcion", "periodo_gestion", "tipo", "tipo_numeracion", "formato")
+VALUES (1, NULL, E'2014-01-23 00:32:26', E'2014-01-23 00:32:26', E'activo', 13, E'PLASUE', E'Planilla de Sueldos', E'periodo', NULL, E'depto', NULL);*/
+
+SELECT * FROM param.f_inserta_documento('PLANI', 'PLASUE', 'Planilla de Sueldos', 'periodo', NULL, 'depto', NULL);
 
 select pxp.f_insert_tgui ('Registro de Planillas', 'Registro de Planillas', 'REGPLAN', 'si', 1, 'sis_planillas/vista/planilla/Planilla.php', 2, '', 'Planilla', 'PLANI');
 select pxp.f_insert_testructura_gui ('REGPLAN', 'PLANI');
@@ -893,6 +893,10 @@ select pxp.f_insert_tprocedimiento ('PLA_PLANIVALCOL_MOD', 'Validación del calc
 --Configuracion TIPO PLANILLA
 ---------------------------------
 
+select wf.f_import_tproceso_macro ('insert','PLANRINT', 'PLANI', 'Planilla de Reintegro','si');
+
+
+
 select plani.f_import_ttipo_planilla ('insert','PLAREISU','Planilla de Retroactivo','PLANRINT','plani.f_plareisu_insert_empleados','retroactivo_sueldo','plani.f_plareisu_valid_empleado','no','anual','',NULL,'activo');
 select plani.f_import_ttipo_columna_planilla ('insert','AFP_APNALSOL','PLAREISU','Afp Aporte Nacional Solidario','formula','Aporte Nacional Solidario por Rangos','case when {AFP_VAR1}+{AFP_VAR2}+{AFP_VAR3} > 0 then
 {AFP_VAR1}+{AFP_VAR2}+{AFP_VAR3}
@@ -1209,6 +1213,77 @@ select plani.f_import_treporte_columna('insert','PRMASIGTRA','BOLETA DE PAGO DE 
 --Configuracion TIPO PLANILLA
 ---------------------------------
 
+select wf.f_import_tproceso_macro ('insert','PLASUB', 'PLANI', 'Planilla (Otros)','si');
+select wf.f_import_tcategoria_documento ('insert','legales', 'Legales');
+select wf.f_import_tcategoria_documento ('insert','proceso', 'Proceso');
+select wf.f_import_ttipo_proceso ('insert','PLASUB',NULL,NULL,'PLASUB','Planillas (Otros)','plani.vplanilla','id_planilla','si','','','','PLASUB',NULL);
+
+select wf.f_import_ttipo_estado ('insert','registro_funcionarios','PLASUB','Registro de Funcionarios','si','no','no','ninguno','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no',NULL,NULL,NULL,NULL,'notificacion',NULL,'{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','calculo_columnas','PLASUB','Calculo de Columnas','no','no','no','listado','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','calculo_validado','PLASUB','Calculo Validado','no','no','no','listado','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','presupuestos','PLASUB','Presupuestos','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','presupuestos_validado','PLASUB','Presupuestos Validado','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','obligaciones','PLASUB','Obligaciones','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','obligaciones_validado','PLASUB','Obligaciones Validado','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','comprobante_presupuestario_validado','PLASUB','Comprobante Presupuestario Validado','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','comprobante_obligaciones','PLASUB','Comprobante de Obligaciones','no','no','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','planilla_finalizada','PLASUB','Planilla Finalizada','no','si','si','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','{}',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','obligaciones_generadas','PLASUB','Obligaciones Generadas','no','si','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','comprobante_generado','PLASUB','Comprobante Generado','no','si','no','anterior','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'no',NULL,NULL,NULL,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','registro_horas','PLASUB','Registro Horas Trabajadas','no','no','no','listado','','ninguno','','','no','no',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','notificacion','','',NULL,'no','Registro Horas Trabajadas','','',NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_estado ('insert','vobo_conta','PLASUB','VoBo Conta','no','no','no','segun_depto','','depto_listado','','','si','si',NULL,'<font color="99CC00" size="5"><font size="4">{TIPO_PROCESO}</font></font><br><br><b>&nbsp;</b>Tramite:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; <b>{NUM_TRAMITE}</b><br><b>&nbsp;</b>Usuario :<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {USUARIO_PREVIO} </b>en estado<b>&nbsp; {ESTADO_ANTERIOR}<br></b>&nbsp;<b>Responsable:&nbsp;&nbsp; &nbsp;&nbsp; </b><b>{FUNCIONARIO_PREVIO}&nbsp; {DEPTO_PREVIO}<br>&nbsp;</b>Estado Actual<b>: &nbsp; &nbsp;&nbsp; {ESTADO_ACTUAL}</b><br><br><br>&nbsp;{OBS} <br>','Aviso WF ,  {PROCESO_MACRO}  ({NUM_TRAMITE})','','no','','','','','','','',NULL,'si','VoBo Conta','','',NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANISUBEX','PLASUB','Planilla de Subsidios en Excel','Reporte de Planilla de Subsidios en Formato Excel','sis_planillas/control/Reporte/reportePlanilla/4/excel','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANISUBPDF','PLASUB','Planilla de Subsidios en PDF','Reporte de Planilla de Subsidios en Formato PDF','sis_planillas/control/Reporte/reportePlanilla/4/pdf','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANIRET','PLASUB','Planilla de Retroactivo Excel','Planilla de Retroactivo Excel','sis_planillas/control/Reporte/reportePlanilla/6/excel','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANIRETIMP','PLASUB','Planilla Impositiva de Retroactivo Excel','Planilla Impositiva de Retroactivo Excel','sis_planillas/control/Reporte/reportePlanilla/5/excel','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANIRETPDF','PLASUB','Planilla de Retroactivo PDF','Planilla de Retroactivo PDF','sis_planillas/control/Reporte/reportePlanilla/6/pdf','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLANIRETIMPPDF','PLASUB','Planilla Impositiva de Retroactivo PDF','Planilla Impositiva de Retroactivo PDF','sis_planillas/control/Reporte/reportePlanilla/5/pdf','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLAGUIN','PLASUB','Planilla de Aguinaldo PDF','Planilla de Aguinaldo PDF','sis_planillas/control/Reporte/reportePlanilla/7/pdf','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLAGUINEXCEL','PLASUB','Planilla de Aguinaldo Excel','Planilla de Aguinaldo Excel','sis_planillas/control/Reporte/reportePlanilla/7/excel','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLASEGAGUI','PLASUB','Planilla de Segundo Aguinaldo PDF','Planilla de Segundo Aguinaldo PDF','sis_planillas/control/Reporte/reportePlanilla/8/pdf','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLASEGAGUIEXCEL','PLASUB','Planilla de Segundo Aguinaldo Excel','Planilla de Segundo Aguinaldo Excel','sis_planillas/control/Reporte/reportePlanilla/8/excel','generado',1.00,NULL,'no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLAPRIEX','PLASUB','Planilla de Prima Excel','Planilla de Prima Excel','sis_planillas/control/Reporte/reportePlanilla/10/excel','generado',1.00,'{}','no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLAPRIPDF','PLASUB','Planilla de Prima PDF','Planilla de Prima PDF','sis_planillas/control/Reporte/reportePlanilla/10/pdf','generado',1.00,'{}','no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLARETSUBPDF','PLASUB','Planilla Retroactivo Sub. PDF','Planilla Retroactivo Sub. PDF','sis_planillas/control/Reporte/reportePlanilla/9/pdf','generado',1.00,'{}','no',NULL,NULL,NULL);
+select wf.f_import_ttipo_documento ('insert','PLARETSUBXLS','PLASUB','Planilla Retroactivo Sub. Excel','Planilla Retroactivo Sub. Excel','sis_planillas/control/Reporte/reportePlanilla/9/xls','generado',2.00,'{}','no',NULL,NULL,NULL);
+select wf.f_import_testructura_estado ('insert','calculo_columnas','calculo_validado','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','presupuestos','presupuestos_validado','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','presupuestos_validado','obligaciones','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','obligaciones','obligaciones_validado','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','comprobante_obligaciones','planilla_finalizada','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','calculo_columnas','calculo_columnas','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','obligaciones_validado','obligaciones_generadas','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','comprobante_presupuestario_validado','planilla_finalizada','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','comprobante_generado','planilla_finalizada','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','registro_horas','calculo_columnas','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','calculo_validado','obligaciones_generadas','PLASUB',1,'"{$tabla.codigo}" != "PLAPREPRI"','no');
+select wf.f_import_testructura_estado ('insert','vobo_conta','planilla_finalizada','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','registro_funcionarios','calculo_columnas','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','obligaciones_generadas','vobo_conta','PLASUB',1,'','no');
+select wf.f_import_testructura_estado ('insert','calculo_validado','planilla_finalizada','PLASUB',1,'"{$tabla.codigo}" = "PLAPREPRI"','no');
+
+----------------------------------
+--COPY LINES TO SUBSYSTEM dependencies.sql FILE  
+---------------------------------
+
+select wf.f_import_ttipo_documento_estado ('insert','PLANIRET','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAREISU"');
+select wf.f_import_ttipo_documento_estado ('insert','PLANIRETIMP','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAREISU"');
+select wf.f_import_ttipo_documento_estado ('insert','PLANIRETPDF','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAREISU"');
+select wf.f_import_ttipo_documento_estado ('insert','PLANIRETIMPPDF','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAREISU"');
+select wf.f_import_ttipo_documento_estado ('insert','PLAGUIN','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAGUIN"');
+select wf.f_import_ttipo_documento_estado ('insert','PLAGUINEXCEL','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAGUIN"');
+select wf.f_import_ttipo_documento_estado ('insert','PLASEGAGUI','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLASEGAGUI"');
+select wf.f_import_ttipo_documento_estado ('insert','PLASEGAGUIEXCEL','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLASEGAGUI"');
+select wf.f_import_ttipo_documento_estado ('insert','PLANISUBEX','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}" = "PLASUB"');
+select wf.f_import_ttipo_documento_estado ('insert','PLANISUBPDF','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLASUB"');
+select wf.f_import_ttipo_documento_estado ('insert','PLAPRIEX','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAPRI"');
+select wf.f_import_ttipo_documento_estado ('insert','PLAPRIPDF','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLAPRI"');
+select wf.f_import_ttipo_documento_estado ('insert','PLARETSUBPDF','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLARETSUB"');
+select wf.f_import_ttipo_documento_estado ('insert','PLARETSUBXLS','PLASUB','calculo_columnas','PLASUB','crear','superior','"{$tabla.codigo}"="PLARETSUB"');
+-------------------
+
+
+
 select plani.f_import_ttipo_planilla ('insert','PLAPREPRI','Planilla de Prevision de Prima','PLASUB','plani.f_plaprepri_insert_empleados','prorrateo_aguinaldo','plani.f_plaprepri_valid_empleado','no','anual','',NULL,'activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS1','PLAPREPRI','Dias para calculo','basica','Dias para calculo',NULL,'no',NULL,'2','7','ejecutar','no','no','no','activo');
 select plani.f_import_ttipo_columna_planilla ('insert','PREDIAS2','PLAPREPRI','Dias para calculo para ultimo contrato','basica','Dias para calculo para ultimo contrato','','no','','2','8','ejecutar','no','no','si','activo');
@@ -1438,6 +1513,8 @@ select plani.f_import_treporte_columna('insert','PRIMA','PLANILLA DE PRIMA','PLA
 --COPY LINES TO SUBSYSTEM data.sql FILE
 --Configuracion TIPO PLANILLA
 ---------------------------------
+
+
 
 select plani.f_import_ttipo_planilla ('insert','PLAGUIN','Planilla de Aguinaldo','PLASUB','plani.f_plaguin_insert_empleados_etr','prorrateo_aguinaldo','plani.f_plaguin_valid_empleado','no','anual','plani.f_plasue_generar_horas_sigma',NULL,'activo');
 select plani.f_import_ttipo_columna_planilla ('insert','AGUINA','PLAGUIN','Aguinaldo a Pagar','formula','Aguinaldo a Pagar','{PROME}/360*{DIASAGUI}','si_contable','','2','6','ejecutar','no','no','no','activo');
